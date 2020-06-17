@@ -1,572 +1,408 @@
-﻿---
+---
 lab:
-    title: 'ラボ 20: IoT Central で構築'
-    module: 'モジュール 11: IoT Central で構築'
+    title: 'Lab 20: Build with IoT Central'
+    module: 'Module 11: Build with IoT Central'
 ---
 
-# 最初の Azure IoT Central アプリを作成する
+# Create your first Azure IoT Central App
 
-Azure IoT サービスとテクノロジは優れた機能を備えており、チームにメンバーがいる場合は管理が簡単ですが、完全な IoT ソリューション アーキテクチャがあれば、小規模で専門性の低いチームでも実装およびサポートすることができます。Azure IoT Central は、Azure IoT Hub、Azure Device Provisioning System (DPS)、Azure Maps、Azure Time Series Insights、Azure IoT Edge など、基盤となる IoT テクノロジの幅広い範囲を網羅する SaaS アプリケ―ションです。IoT Central では、これらのテクノロジを直接実装するときに得られるレベルの細分性は提供されませんが、小規模なチームは一連のリモート デバイスを簡単に管理および監視できるようになります。
+## Lab Scenario
 
-特に、このラボは、IoT Central が特定のシナリオをサポートする適切なツールである場合を判断するのに役立ちます。それでは、IoT Central で何ができるかを調べていきましょう。
+Azure IoT Central enables the easy monitoring and management of a fleet of remote devices.
 
-## ラボ シナリオ
+Azure IoT Central encompasses a range of underlying technologies that work great, but can be complicated to implement when many technologies are needed. These technologies include Azure IoT Hub, the Azure Device Provisioning System (DPS), Azure Maps, Azure Time Series Insights, Azure IoT Edge, and others. It's only necessary to use these technologies directly, if more granularity is needed than available through IoT Central.
 
-Contoso は、都市とその周辺地域でチーズの配送に使用する冷凍トラックのフリートを運営しています。この地域に多数の顧客を抱えており、市内の集中化された場所を使用してフリートを運用しています。毎日、トラックには製品が積み込まれ、ドライバーはディスパッチャーから配送ルートを与えられます。システムはうまく機能し、めったに問題は起きません。しかし、トラックの冷却システムに障害が発生した場合、ドライバーとディスパッチャーは最善の配達方法を話し合う必要があります。ディスパッチャーは、製品を倉庫に戻して検査するか、車両の現在地に近い顧客の場所に配送します。トラックに残っている未出荷の製品の量と、冷蔵エリアの温度は、どちらも決定の要因です。
+One of the purposes of this lab is to help you decide if there's enough features in IoT Central to support the scenarios you are likely to need. So, let's investigate what IoT Central can do with a fun and involved scenario.
 
-情報に基づいて決定するために、ドライバーとディスパッチャーは、トラックと運搬している製品に関する最新の情報を必要とします。ドライバーとディスパッチャーは、地図上の各トラックの位置、トラックの冷却システムの状態、およびトラックの貨物の状態を知る必要があります。
+Contoso operates a fleet of refrigerated trucks. You've a number of customers within a city, and a base that you operate from. You command each truck to take its contents and deliver it to any one customer. However, the cooling system may fail on any one of your trucks, and if the contents does start to melt, you'll need the option of instructing the truck to return to base, and then dump the contents. Alternatively, you can deliver the contents to another customer who might be nearer to the truck when you become aware the contents are melting.
 
-IoT Central には、このシナリオを処理するために必要なあらゆるものが用意されています。 
+In order to make these decisions, you'll need an up-to-date picture of all that is going on with your trucks. You'll need to know the location of each truck on a map, the state of the cooling system, and the state of the contents.
 
-次のリソースが作成されます。
+IoT Central provides all you need to handle this scenario. 
 
-![ラボ 20 アーキテクチャ](media/LAB_AK_20-architecture.png)
+# In This Lab
 
-## このラボでは
+In this lab you will:
 
-このラボでは、次のタスクを完了します。
+* Create an Azure IoT Central custom app, using the IoT Central * portal
+* Create a device template for a custom device, using the IoT * Central portal
+* Create a programming project to simulate a refrigerated truck, with routes selected by Azure Maps, using Visual Studio Code, or Visual Studio
+* Monitor and command the simulated device, from an IoT Central dashboard
 
-* IoT Central ポータルを使用して、Azure IoT Central カスタム アプリを作成する
-* IoT Central ポータルを使用して、カスタム デバイスのデバイス テンプレートを作成する
-* Visual Studio Code または Visual Studio を使用し、Azure Maps によって選択されたルートで冷凍トラックをシミュレートするプログラミング プロジェクトを作成する
-* IoT Central ダッシュボードから、シミュレートされたデバイスを監視してコマンドを実行する
+## Exercise 1: Create a Custom IoT Central app
 
-## ラボの手順
+1. Navigate to [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true). It's a good idea to bookmark this URL, as it's the home for all your IoT Central apps.
 
-### 演習 1: Azure IoT Central を作成して構成する
+1. Click on **Build**, then **Custom apps**.
 
-#### タスク 1: 最初の IoT Central アプリを作成する
+1. Your **Application name** can be any friendly name, such as "Refrigerated Trucks". However, the **URL** _must_ be unique, which is why you'll add a unique ID to the end of the URL for the app. For example, `refrigerated-trucks-<your id>`, replacing `<your id>` with some unique ID.
 
-1. [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true) に移動します。
+1. Leave the **Application template** as **Preview application**.
 
-    この URL はすべての IoT Central アプリのホームなので、ブックマークを作成することをお勧めします。
+1. Select the free **7 day free trial** option. Seven days is plenty of time to complete the scenario.
 
-1. 少し下にスクロールして、このホームページの内容を読んでください。
+1. Fill out your contact info, and click **Create**. Wait a few seconds whilst the app resource is built.
 
-1. 左側のナビゲーション メニューで、「**ビルド**」 をクリックします。 
+1. You should now see a **Dashboard** with a few default links.
 
-    特定のシナリオに、より高度な開始点を提供するいくつかのオプションがあることに注意してください。
+The next time you visit your Azure central home page, select **My apps** in the left-hand menu, and an icon for your  **Refrigerated Trucks** app should appear.
 
-1. 「**機能**」 の 「**カスタム アプリ**」 をクリックします。
+You've now created the app. The next step is to specify a _device template_.
 
-1. 「**新しいアプリケーション**」 ページの 「**アプリケーション名**」 に、「**Refrigerated-Trucks-{YOUR-ID}**」と入力します。
+## Exercise 2: Create Device Template
 
-    入力したアプリケーション名がアプリケーション URL のルートとして使用されていることに注意してください (小文字に変換されます)。
+The data communicated between a remote device, and IoT Central, is specified in a _device template_. The device template encapsulates all the details of the data, so that both the device and IoT Central have all they need to make sense of the communication.
 
-    アプリケーション名は任意のフレンドリ名にすることができますが、**URL** は一意である_必要があります_。2 つを完全に一致させる必要はありませんが、一致させると混乱が少なくなります。
+In this Lab, you'll create a device template for a refrigerated truck.
 
-    アプリケーション名に `{YOUR-ID}` を追加すると、URL が一意になります。
+## Create a device template
 
-1. 「**アプリケーション テンプレート**」 は、デフォルトの 「**カスタム アプリケーション**」 の値のままにします。
+1. Within the [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true) portal (which you may still have open), select **Device Templates** from the menu on the left-hand side.
 
-1. 「**請求情報**」 のフィールドを確認してください。
+1. Click **+ New** to create a new template.
 
-    「**ディレクトリ**」 フィールドは、Azure Active Directory テナントを指定するために使用されます。組織で AAD テナントを使用する場合は、ここで指定します。このコースでは、デフォルトのままにします。
+1. You'll next see a range  of template options, select **IoT device**. We are going to build the template from scratch.
 
-    コストを含む価格設定オプションを選択する場合は、Azure サブスクリプションを指定する必要があります。
+    > [!TIP]
+    > Take note of the other options. You may want to use those prebuilt template options in a future project!
 
-1. 「**価格プラン**」 の 「**Free**」 をクリックします。
+1. Click **Next: Customize**, then **Next: Review**. Do not select the **Gateway device** box. Then click **Create**.
 
-    無料オプションでは 7 日間の試用版が提供され、5 つの無料デバイスが含まれていることに注意してください。代わりに、「**請求情報**」 セクションが 「**連絡先情報**」 に更新されました。
+1. Enter the name for your device template: "RefrigeratedTruck", and click Enter.
 
-1. 「**連絡先情報**」 で、各必須フィールドに連絡先情報を入力します。
+1. For **Create a capability model**, click **Custom**. You should now see a screen similar to the following image.
 
-    > **注意**: プランに関するコミットメントまたは解約料はありません。IoT Central の価格について詳しく知りたい場合は、「**ビルド**」 ページに [価格の詳細を取得する](https://aka.ms/iotcentral-pricing-jpn) へのリンクが含まれています。
+    > [!NOTE]
+    > Take note of a few important elements that you have created. Including that the template is in Draft form, and the locations of the **+ Add interface**, **Views**, and **Publish** controls.
 
-1. ページの下部で、「**作成**」 をクリックします。
+1. You are now ready to add the specifics of the device template. Click **Add interface**, then **Custom**, to start building from a blank interface.
 
-    アプリ リソースが構築されるまで数秒待つと、デフォルトのリンクがいくつかある**ダッシュボード**が表示されます。
+An interface defines a set of _capabilities_. We have quite a few to create, to define a refrigerated truck.
 
-1. Azure IoT Central ブラウザーのタブを閉じます。
+### Add sensor telemetry
 
-    次回、Azure IoT Central ホーム ページを開いたときに、左側のナビゲーション メニューから 「**マイ アプリ**」 を選択すると、**Refrigerated-Trucks-{YOUR-ID}** アプリが一覧表示されます。
+Telemetry is the data values transmitted by sensors. The most important sensor in our refrigerated truck, monitors the temperature of the contents.
 
-1. ブラウザーを使用して [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true) を開きます。
+1. Click **+ Add capability**, and enter the following values:
 
-1. 左側のナビゲーション メニューで、「**マイ アプリ**」 をクリックし、「**Refrigerated-Trucks-{YOUR-ID}**」 をクリックします。
-
-    次の手順では、_デバイス テンプレート_を指定します。
-
-#### タスク 2: デバイス テンプレートを作成する
-
-リモート デバイスと IoT Central の間で通信されるデータは、_デバイス テンプレート_で指定されます。デバイス テンプレートはデータの詳細をすべてカプセル化するため、通信を理解するために必要なすべてがデバイスと IoT Central の両方に備えられています。
-
-1. Azure IoT Central アプリの 「**ダッシュボード**」 ページで、左側のナビゲーション メニューの 「**アプリの設定**」 の下にある 「**デバイス テンプレート**」 をクリックします。
-
-1. 「**デバイス テンプレート**」 で、「**新規作成**」 をクリックします。
-
-    カスタム デバイス テンプレートおよび構成済みのデバイス テンプレートのオプションの範囲が表示されます。
-
-    > 「!TIP」
-    > 構成済みのオプションをメモします。関連するハードウェアがある場合は、これらの構成済みのデバイス テンプレートのいずれかを将来のプロジェクトに使用できます。
-
-1. 「**カスタム デバイス テンプレートの作成**」 で、「**IoT デバイス**」 をクリックします。
-
-1. ページの下部で、「**次へ:カスタマイズ**」 をクリックします、「**次へ:レビュー**」 の順にクリックします。
-
-    前の画面で 「**ゲートウェイ デバイス**」 を選択した場合は、戻って選択を解除します。
-    
-1. 「**レビュー**」 ページの下部で、「**作成**」 をクリックします。
-
-1. 「**デバイス テンプレート名の入力**」 テキストボックスに「**RefrigeratedTruck**」と入力し、「**Enter**」 を押します。
-
-1. 「**RefrigeratedTruck**」 ページの 「**能力モデルの作成**」 で、「**カスタム**」 をクリックします。
-
-    これで、デバイス テンプレートの詳細を追加する準備ができました。 
-
-#### タスク 3: センサー テレメトリを追加する
-
-テレメトリは、センサーによって送信されるデータ値です。冷凍トラックで最も重要なセンサーは、荷物の温度を監視するセンサーです。
-
-1. 「**RefrigeratedTruck**」 デバイス テンプレート ページで、「**インターフェイスの追加**」 をクリックし、「**カスタム**」 をクリックします。
-
-    インターフェイスは、一連の_機能_を定義します。冷凍トラックの機能を定義するには、かなりの数のインターフェイスを追加します。
-
-    カスタム インターフェイスを使用すると、空のインターフェイスから構築を開始できます。
-
-1. 「**機能**」 で、「**機能の追加**」 をクリックします
-
-1. 少し時間をとって、使用可能なフィールドのタイプについて説明します。
-
-1. トラックの温度センサーの機能を定義するには、次のフィールド値を入力します。
-
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | 荷物の温度 |
-    | 名前 | 荷物の温度 |
-    | 機能タイプ | テレメトリ |
-    | セマンティックの種類 | 温度 |
-    | スキーマ | ダブル |
-    | 単位 | <sup>o</sup>C |
+    | Display Name | Contents temperature |
+    | Name | ContentsTemperature |
+    | Capability Type | Telemetry |
+    | Semantic type | Temperature |
+    | Schema | Double |
+    | Unit | <sup>o</sup>C |
 
-1. 入力した情報を再確認してください。
+1. Your screen should now look like the following image.
 
-    > **重要**:
-    > このラボの後半で追加するコードでは、上記の名前を使用します。したがって、インターフェイスに入力する名前は、表示のように_正確に_入力する必要があります。
+    > [!IMPORTANT]
+    > The names entered for the interface must be entered _exactly_ as shown in this unit. This is because an exact match is needed between these names, and entries in the code you'll be adding later in this lab.
 
-#### タスク 4: 状態とイベントのテレメトリを追加する
+Let's add the rest of the template.
 
-オペレーターに何が起きているのかを知らせるので、状態は重要です。IoT Central の状態は、値の範囲に関連付けられた名前です。このラボの後半では、各状態値に関連付ける色を選択し、識別しやすくします。
+### Add state telemetry
 
-1. 「**機能**」 で、「**機能の追加**」 をクリックします。
+States are important, they let the operator know what is going on. A state in IoT Central is a name associated with a range of values. In addition, you later get to choose a color to associate with each value.
 
-1. トラックの貨物状態の機能を定義するには、次のフィールド値を入力します。
+1. Use the **+ Add capability** control to add a state for the truck's refrigerated contents: one of _empty_, _full_, or _melting_.
 
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | 荷物の状態 |
-    | 名前 | 荷物の状態 |
-    | 機能タイプ | テレメトリ |
-    | セマンティックの種類 | 状態 |
-    | 値スキーマ | 文字列 |
+    | Display Name | Contents state |
+    | Name | ContentsState |
+    | Capability Type | Telemetry |
+    | Semantic type | State |
+    | Value schema | String |
 
-1. 「**値スキーマ**」 の下で、「**複合型を定義する必要があります**」 というメッセージが表示されます。
+1. Now, click **+**, and enter "empty" for the **Display name**, and **Value**. The **Name** field should automatically be populated with "empty". So, all three fields are identical, containing "empty".
 
-    ラボのシナリオを簡略化するために、トラックの貨物状態を_空_、_満杯_、または_溶融_のいずれかとして定義します。 
+1. Add two more state values: "full" and "melting". Again, the same text should appear in the **Display name**, **Name**, and **Value**.
 
-1. 「**複合型を定義する必要があります**」 というメッセージの下で、「+」 をクリックします。
+1. Carefully check each capability before moving on. 
 
-1. 「**表示名**」 の下に、**空の値**を入力します
+1. Now, to add some uncertainty to our simulation, let's add a failure state for the cooling system. If the cooling system fails, as you'll see in the following units, the chances of the contents melting increase considerably! Add _on_, _off_ and _failed_ entries for a cooling system. Start by clicking **+ Add capability**, and add another state.
 
-    「**名前**」 フィールドには、自動的に**空の値**が入力されます。
-
-1. 「**値**」 に「**空**」を入力します
-
-    3 つのフィールドはすべて**空**になります。
-
-1. 入力したフィールドのすぐ下にある 「+」 をクリックします。
-
-1. 上記のようなやり方で、もう 2 つの状態値**満杯**と**融解**を追加します。
-
-    ここでも、追加した各状態値のオプションについて、「**表示名**」 、「**名前**」 、「**値**」 の各フィールドに同じテキストが表示されます。
-
-1. 次に進む前に、各機能を注意深く確認します。
-
-    ここで、シミュレーションに不確実性を加えるために、トラックの冷却システムの故障状態を追加してみましょう。冷却システムに障害が発生した場合、このラボで後述するとおり、搭載物が「融解」する可能性が大幅に高まります。トラックの冷却システムに対して _オン_ 、_オフ_ 、_故障_ のエントリを追加します。 
-
-1. 「**冷蔵トラック**」 デバイス テンプレート ページの 「**機能**」 で、「**機能の追加**」 をクリックします。
-
-1. トラックの冷却システムの状態を扱う機能を定義するために、次のフィールド値を入力します。
-
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | 冷却システムの状態 |
-    | 名前 | CoolingSystemState |
-    | 機能タイプ | テレメトリ |
-    | セマンティックの種類 | 状態 |
-    | 値スキーマ | 文字列 |
+    | Display Name | Cooling system state |
+    | Name | CoolingSystemState |
+    | Capability Type | Telemetry |
+    | Semantic type | State |
+    | Value schema | String |
 
-1. 「**複合型で定義する必要があります**」 というメッセージ の下の 「+」 をクリックして、次の状態値のオプションを上記と同じやり方で追加します。
+1. Now add three values: on, off, and failed. Make sure that each word appears in the **Display name**, **Name**, and **Value** fields.
 
-    * オン
-    * オフ
-    * 失敗
+1. A more complex state is the state of the truck itself. If all goes well, a truck's normal routing might be: _ready_, _enroute_, _delivering_, _returning_, _loading_, and back to _ready_ again.  However, you should add the _dumping_ state to cater for when melted contents need to be disposed of! Using the same process as for the last two steps, create this new state.
 
-    「**表示名**」、「**名前**」、「**値**」 の 3 つすべてのフィールドで、3 つの状態値オプション (オン、オフ、失敗) が繰り返されていることを確認します。
-
-    トラック自体には、さらに複雑な状態を定義する必要があります。トラックの標準的なルーティングは、すべてが順調であれば次のようになるでしょう。_待機中_、_運送中_、_配達中_、_帰還中_、_積載中_、そして _待機中_ に戻ります。いっぽう、溶けた積み荷を倉庫に持ち帰って検査する (そして廃棄するかもしれない) 場合に対応するために、 _荷下ろし中_ の状態も含めるでしょう。 
-
-1. 前述した状態の機能を定義したのと同じやり方で、新しい機能を次のように作成します。
-
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | トラックの状態 |
-    | 名前 | TruckState |
-    | 機能タイプ | テレメトリ |
-    | セマンティックの種類 | 状態 |
-    | 値スキーマ | 文字列 |
+    | Display Name | Truck state |
+    | Name | TruckState |
+    | Capability Type | Telemetry |
+    | Semantic type | State |
+    | Value schema | String |
 
-    状態値のオプションには、以下を使用します。
+### Add event telemetry
 
-    * 待機中
-    * 運送中
-    * 配達中
-    * 帰還中
-    * 積載中
-    * 荷下ろし中
+Events are issues triggered by the device, and communicated to the IoT Central app. Events can be one of three types: _Error_, _Warning_, or _Informational_.
 
-    指定する必要がある次の機能タイプは、イベントです。イベントは、デバイスがトリガーし、IoT Central アプリに通知する事がらです。イベントには、次の 3 つのタイプがあります。_エラー_、_警告_、_情報_。
+One possible event a device might trigger is a conflicting command. An example might be a truck is returning empty from a customer, but receives a command to deliver its contents to another customer. If a conflict occurs, it's a good idea for the device to trigger an event to warn the operator of the IoT Central app.
 
-1. イベント機能を作成するために、「**機能の追加**」 をクリックして新しい機能を次のように設定します。
+Another event might be just to acknowledge, and record, the customer ID that a truck is to deliver to.
 
-    | フィールド | 値 |
+1. Use **+ Add capability**, then create an event as follows.
+
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | イベント |
-    | 名前 | イベント |
-    | 機能タイプ | テレメトリ |
-    | セマンティックの種類 | イベント |
-    | スキーマ | 文字列 |
+    | Display Name | Event |
+    | Name | Event |
+    | Capability Type | Telemetry |
+    | Semantic type | Event |
+    | Schema | String |
 
-    デバイスがトリガーする可能性のあるイベントの 1 つに、コマンドの競合があります。たとえば、積み荷が空になったトラックが客先から返ってくるとき、別の顧客に積み荷を配送するように指示を受けることがあるかも知れません。競合が発生した場合は、IoT Central アプリのオペレータに警告するイベントを、デバイスにトリガーさせることをお勧めします。
+### Add location telemetry
 
-    トラックの配送先の顧客 ID を確認して記録することも、イベントの 1 つになるかも知れません。
+A location is probably the most important, and yet one of the easiest measurements to add to a device template. Under the hood, it consists of a latitude, longitude, and an optional altitude, for the device.
 
-#### タスク 5:  位置情報テレメトリの追加
+1. Use **+ Add capability**, and add a location for our truck as follows.
 
-位置はおそらく最も重要な情報ですが、デバイス テンプレートに最も簡単に追加できる測定値の 1 つでもあります。ボンネットの下では、デバイスの位置情報が緯度と経度で、場合によっては高度も含めて測られています。
-
-1. 位置情報の機能を作成するために、「**機能の追加**」をクリックして新しい機能を次のように設定します。
-
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | 位置情報 |
-    | 名前 | 位置情報 |
-    | 機能タイプ | テレメトリ |
-    | セマンティックの種類 | 位置情報 |
-    | スキーマ | ジオポイント |
+    | Display Name | Location |
+    | Name | Location |
+    | Capability Type | Telemetry |
+    | Semantic type | Location |
+    | Schema | Geopoint |
 
-#### タスク 6: プロパティの追加
+### Add properties
 
-デバイスのプロパティは、通常、通信が最初に開始されたときに IoT Central アプリに伝えられる定数値です。冷蔵トラックのシナリオでは、トラックのナンバー プレートのように、トラックに固有の ID がプロパティの良い例です。
+A property of a device is typically a constant value, that is communicated to the IoT Central app when communication is first initiated. In our refrigerated truck scenario, a good example of a property is the license plate of the truck, or some similar unique truck ID.
 
-プロパティは、デバイスの構成データにも使用できます。トラックの積み荷の _最適温度_ をプロパティとして定義することもできるでしょう。この最適温度は、積み荷の種類、気象条件の違い、その他の条件によって変化する可能性があります。プロパティには既定値が設定されていて、必ずしも変更しなくても構いませんが、必要に応じて簡単にかつすぐに変更することもできます。このようなプロパティを _書き込み可能なプロパティ_ と呼びます。
+Properties can also be device configuration data. We will define an _optimal temperature_ for the truck contents as a property. This optimal temperature might change with different types of content, different weather conditions, or whatever might be appropriate. A setting has an initial default value, which may not need to be changed, but the ability to change it easily and quickly is there, if needed. This kind of property is called a _writable property_.
 
-プロパティは単一の値です。より複雑なデータ セットをデバイスに転送する必要がある場合は、Command (下記参照) を使用して対処するのが適切です。
+A property is a single value. If more complex sets of data need to be transmitted to a device, a Command (see below) is the more appropriate way of handling it.
 
-1. トラック ID のプロパティ機能を作成するには、「**機能の追加**」 をクリックして新しい機能を次のように設定します。
+1. Use **+ Add capability**, and add the truck ID property.
 
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | トラック ID |
-    | 名前 | TruckID |
-    | 機能タイプ | プロパティ |
-    | セマンティックの種類 | なし |
-    | スキーマ | 文字列 |
-    | 書き込み | オフ |
-    | 単位 | なし |
+    | Display Name | Truck ID |
+    | Name | TruckID |
+    | Capability Type | Property |
+    | Semantic type | None |
+    | Schema | String |
+    | Writable | Off |
+    | Unit | None |
 
-1. 最適温度のプロパティ機能を作成するには、「**機能の追加**」 をクリックして新しい機能を次のように設定します。
+1. Next, add the optimal temperature property.
 
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | 最適温度 |
-    | 名前 | OptimalTemperature |
-    | 機能タイプ | プロパティ |
-    | セマンティックの種類 | なし |
-    | スキーマ | ダブル |
-    | 書き込み | オン |
-    | 単位 |  <sup>o</sup>C  |
+    | Display Name | Optimal Temperature |
+    | Name | OptimalTemperature |
+    | Capability Type | Property |
+    | Semantic type | None |
+    | Schema | Double |
+    | Writable | On |
+    | Unit |  <sup>o</sup>C  |
 
-#### タスク 7: コマンドの追加
+### Add commands
 
-コマンドは、IoT Central アプリのオペレータがリモート デバイスに送信します。コマンドは書き込み可能なプロパティに似ていますが、コマンドには入力フィールドをいくつでも含めることができます。 ただし、書き込み可能なプロパティは 1 つの値に制限されます。
+Commands are sent by the operator of the IoT Central app to the remote devices. Commands are similar to writable properties, but a command can contain any number of input fields, whereas a writable property is limited to a single value.
 
-冷蔵トラックのシナリオでは、積み荷を顧客に届けるコマンドと、トラックを基地に呼び戻すコマンドの 2 つを追加します。
+For refrigerated trucks, there are two commands you should add: a command to deliver the contents to a customer, and a command to recall the truck to base.
 
-1. 荷物を顧客に配送するコマンド機能を作成するには、「**機能の追加**」 をクリックし、新しい機能を次のように作成します。
+1. Use **+ Add capability**, and add the first command.
 
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | 顧客に移動 |
-    | 名前 | 顧客に移動 |
-    | 機能タイプ | コマンド |
-    | コマンド | 同期 |
+    | Display Name | Go to customer |
+    | Name | GoToCustomer |
+    | Capability Type | Command |
+    | Command | Synchronous |
 
-1. 「**コマンド**」 で、「**要求**」 をクリックします。
+1. When you turn on the **Request** option, you'll be able to enter more details of the command.
 
-    「**要求**」 オプションをオンにすると、コマンドの詳細を入力できるようになります。
-
-1. コマンド機能の 「**要求**」 部分を完了するには、次のようにフィールド値を入力します。
-
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 要求 | オン |
-    | 表示名 | 顧客 ID |
-    | 名前 | 顧客 ID |
-    | スキーマ | 整数 |
-    | 単位 | なし |
+    | Request | On |
+    | Display name | Customer ID |
+    | Name | CustomerID |
+    | Schema | Integer |
+    | Unit | None |
 
-1. トラックを呼び戻すコマンド機能を作成するには、「**機能の追加**」 をクリックし、新しい機能を次のように作成します。
+1. Enter another new command, for recalling the truck.
 
-    | フィールド | 値 |
+    | Entry summary | Value |
     | --- | --- |
-    | 表示名 | 呼び戻し |
-    | 名前 | 呼び戻し |
-    | 機能タイプ | コマンド |
-    | コマンド | 同期 |
+    | Display Name | Recall |
+    | Name | Recall |
+    | Capability Type | Command |
+    | Command | Synchronous |
 
-    このコマンドには追加のパラメーターがないため、「**要求**」 をオフのままにします。
+1. This time there are no additional parameters for the command, so leave **Request** off.
 
-1. ページの上部にある 「**保存**」 をクリックします。
+1. Click **Save**.
 
-    先に進む前に、インターフェイスを再確認してください。インターフェイスが公開された後は、編集オプションが非常に制限されます。公開する前に、それを正確に取得することが重要です。 
+Before going any further carefully double check your interface. After an interface has been published, there are very limited editing options. It's important to get it right before publishing. If you click on the name of the device template, in the menu that ends with the **Views** option, you'll get a summary of the capabilities.
 
-    デバイス テンプレートの名前をクリックすると、「**表示**」 オプションで終了するメニューに、機能の概要が表示されます。
+## Publish the template
 
-#### タスク 8: テンプレートを公開する
+1. Click **Save** again, if you've made any changes since the last time you saved.
 
-1. 前回保存してから変更を行った場合は、「**保存**」 をクリックします。
+1. Click **Publish**. You should see that the annotation changes from **Draft** to **Published**.
 
-1. **RefrigeratedTruck** デバイス テンプレートの右上にある 「**公開**」 をクリックします。
+Preparing a device template does take some care and some time.
 
-    > **注意**: 確認を求めるポップアップ ダイアログが表示されたら、「**公開**」 をクリックします。
+In the next task, you use the capabilities of the device template to prepare a controllers dashboard. Preparing views can be done before, or after, a device template is published.
 
-    コメントが 「**下書き**」 から 「**公開済み**」 に変わるのがわかります。
+## Exercise 3: Monitor Simulated Device
 
-デバイス テンプレートの準備には、注意点がいくつかあり、ある程度の時間がかかります。
+You'll first create a dashboard showing all the capabilities of the device template. Next, you'll create a real device, and record the connection settings needed for the remote device app.
 
-次の演習では、デバイス テンプレートの機能を使用して、コントローラー ダッシュボードを準備します。ビューの準備は、デバイス テンプレートの公開前か公開後に行うことができます。
+## Create a rich dashboard
 
-### 演習 3: シミュレートされたデバイスを監視する
+1. Click on the **Views** menu option, then on **Visualizing the device**.
 
-この演習を開始するには、デバイス テンプレートのすべての機能を示すダッシュボードを作成します。その後、デバイス テンプレートを使用してデバイスを作成し、リモート デバイス アプリに必要な接続設定を記録します。
+1. You should now see a list of all the **Telemetry**, **Properties**, and **Commands** you created, each with a check box.
 
-#### タスク 1: リッチなダッシュボードを作成する
+1. Click the **Location** check box, then **Add tile**. Dashboards are made up of tiles. The reason we choose the location tile first, is that we want to expand it from its default size. Drag the lower right-hard corner of the tile, so that the tile is at least twice the default size. This tile is the most fun, it will show the location of the truck on a map of the world.
 
-1. **RefrigeratedTruck** デバイス テンプレートの左側のメニューで、「**ビュー**」 をクリックし、「**デバイスの視覚化**」 をクリックします。
+1. Before adding more tiles, change the **View name** to something more specific, "Truck view", or something similar.
 
-1. 少し時間をとって、利用できる**テレメトリ**、**プロパティ**、および**コマンド**の一覧を確認してください。
+1. Now, click each of the rest of the telemetry and properties capabilities in turn, starting at the top, and **Add tile**. We are going for function over form here, we can prettify the dashboard later. For now, we just want a dashboard that will confirm all the telemetry being sent from our remote device. There's no need to add the commands to the dashboard, though that option does exist.
 
-    これらは作成した機能であり、それぞれに選択チェックボックスがあります。
+1. When you've added all the tiles, scroll around a bit on your dashboard, and check out the wording in the tiles.
 
-1. 「**テレメトリ**」 で、「**場所**」 をクリックし、「**タイルの追加**」 をクリックします。
+1. You can drag tiles around, and the portal will try to rearrange them neatly.
 
-    ダッシュボードはタイルを使用して構成され、選択したタイルを配置したりサイズ変更したりできます。「場所」 タイルは世界地図上のトラックの場所を示し、これを最初に作成することで、地図のサイズを変更するための十分なスペースができます。 
+1. When you are satisfied with your dashboard, click **Save**, then click **Publish**. You'll now notice that in the dialog that appears, that the **Views** entry is **Yes**. Click **Publish** in the dialog.
 
-1. タイルの右下隅にマウス ポインターを置き、タイルの高さと幅が既定サイズの約 2 倍になるように、コーナーをドラッグします。
+You can create as many views as you want to, giving each a friendly name. For this lab though, one dashboard will work well.
 
-1. 「**ビュー名**」 に「**トラック ビュー**」と入力します。
+The next step is to create a device.
 
-1. 「**テレメトリ**」 で、「**荷物の状態**」 をクリックし、「**タイルの追加**」 をクリックします。
+## Create a real device
 
-1. 残りのテレメトリ機能ごとに前の手順を繰り返し、上から順に作業します。
+By "real" IoT Central understands that there's a remote app running. The app can be in a real device, taking input from real sensors, or running a simulation. Both options are treated as a connection to a _real_ device.
 
-    「場所」 タイルが既に追加されていることを思い出してください。
+1. Click **Devices** in the left-hand menu.
 
-1. 同じトップダウン プロセスを使用して、プロパティ機能を追加します。
+1. Click **RefrigeratedTruck** in the **Devices** menu, to ensure the device we create uses this device template. The device template you select will be shown in bold text.
 
-    ラボの後半で、ダッシュボードにタイルを配置する機会があります。ここでは、リモート デバイスから送信されるすべてのテレメトリを確認するダッシュボードが必要です。
+1. Click **+ New**. Verify in the dialog that the device name includes the **RefrigeratedTruck** text. If it doesn't, you've not selected the right device template.
 
-    ダッシュボードにコマンドを追加する必要はありませんが、このオプションは存在しています。
+1. Change the **Device ID** to a friendlier name, say "RefrigeratedTruck1".
 
-1. ダッシュボードを確認してください。
+1. Change the **Device name** to a friendlier name, say "RefrigeratedTruck - 1".
 
-    スクロールしてダッシュボードを表示します。タイルの内容を調べ、その情報をどのように使用するかを検討します。
+1. Leave the **Simulated** setting at **Off**. We are going to be building a real truck here. Well, a simulated _real_ truck! Setting this value to **On** instructs IoT Central to pump out random values for our telemetry. These random values can be useful in validating a device template.
 
-1. タイルの位置を素早く配置します。 
+1. Click **Create**. Wait a few seconds, then your device list should be populated with a single entry. Note the **Device status** is **Registered**. Not until the device status is **Provisioned** will the IoT Central app accept a connection to the device. The coding task that follows shows how to provision a device.
 
-    今、これにあまり時間を費やさず、タイルをドラッグすることができ、ポータルでタイルがきれいに並べ替えられることに注意してください。
+1. Click on the **RefrigeratedTruck - 1** name, and you'll see the live dashboard, with lots of **Waiting for data** messages.
 
-1. 「**保存**」 をクリックしてから、「**発行**」 をクリックします。
+1. Click on the **Commands** entry in the bar that includes **Truck view**. Notice that the two commands you entered are ready to be run.
 
-    発行ダイアログで、「**ビュー**」 の横に **「はい」** と表示されることに注意してください。    
+The next step is to create the keys that will allow a remote device to communicate with this app.
 
-1. 発行ダイアログで、「**発行**」 をクリックします。
+### Record the connection keys
 
-ビューは必要な数だけ作成でき、それぞれにフレンドリ名を付けることができます。
+1. Click **Connect** in the top-right menu. Do _not_ click **Connect to gateway**.
 
-次のタスクでは、デバイス テンプレートからデバイスを作成します。
+1. In the **Device connection** dialog that follows, carefully copy the **ID scope**, **Device ID**, and **Primary key** to a text file. Typically, use a tool like Notepad, and save the file with a meaningful name, say "Truck connections.txt".
 
-#### タスク 2: 実際のデバイスを作成する
+1. Leave the **Connect method** as **Shared access signature (SAS)**.
 
-IoT Central は、実際のセンサーを使用して物理デバイスに接続したり、アルゴリズムに基づいてデータを生成するシミュレートされたデバイスに接続したりできます。どちらの場合も、IoT Central はリモート アプリがテレメトリ データを生成していることを理解し、どちらの方法でも、接続されたデバイスを "実際の" デバイスとして扱います。
+1. When you've saved off the IDs and key, click **Close** on the dialog.
 
-1. 左側のナビゲーション メニューで、「**デバイス**」 をクリックします。
+Leave the IoT portal open in your browser, waiting as it is.
 
-1. 「**デバイス**」 メニューの 「**すべてのデバイス**」 で、「**冷蔵トラック**」 をクリックします。   
+## Exercise 4: Create a free Azure Maps account
 
-    画面が更新され、選択したデバイス テンプレートが太字で表示されることに注意してください。デバイス テンプレートが多数ある場合は、正しいデバイス テンプレートを使用していることを確認するのに役立ちます。 
+If you do not already have an Azure Maps account, you'll need to create one.
 
-1. トップ メニューで 「**新規**」 をクリックします。
+1. Navigate to [Azure Maps](https://azure.microsoft.com/services/azure-maps/?azure-portal=true).
 
-1. 「**新しいデバイスの作成**」 ダイアログの 「**デバイス名**」 で、 **冷蔵トラック**がプレフィックスとして一覧表示されていることを確認します。     
+1. Follow the prompts to create a free account. When your account is set up, you'll need the **Subscription Key** for the account. Copy and paste this key into your text document, with a note that it applies to Azure Maps.
 
-    これは、適切なデバイス テンプレートを選択したことを確認するもう 1 つの機会です。
+1. You can (optionally) verify your Azure Maps subscription key works. Save the following HTML to an .html file. Replace the **subscriptionKey** entry with your own key. Then, load the file into a web browser. Do you see a map of the world?
 
-1. 「**デバイス ID**」 に、「**冷蔵トラック1**」と入力します。 
+```html
+<!DOCTYPE html>
+<html>
 
-1. 「**デバイス名**」 に「**冷蔵トラック - 1**」と入力します。 
+<head>
+    <title>Map</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-1. 「**シミュレート**」 で、「**オフ**」 が選択されていることを確認します。   
+    <!-- Add references to the Azure Maps Map control JavaScript and CSS files. -->
+    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" type="text/css">
+    <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
 
-    IoT Central では、物理デバイスとシミュレートされたデバイスへの接続が同じ方法で処理されることを思い出してください。どちらもリモート アプリで、どちらも本物です。あなたはここで本物のトラックを構築します。そう、シミュレートされた_本物の_トラックです!  
+    <!-- Add a reference to the Azure Maps Services lab JavaScript file. -->
+    <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas-service.min.js"></script>
 
-    このシミュレート値を**オン**に設定すると、テレメトリのランダム値を入力するように IoT Central に指示されます。  これらのランダム値は、デバイス テンプレートを検証する際に役立ちますが、このラボでは、シミュレートされたデバイス (トラック) を使用してテレメトリをシミュレートします。
+    <script>
+        function GetMap() {
+            //Instantiate a map object
+            var map = new atlas.Map("myMap", {
+                //Add your Azure Maps subscription key to the map SDK. Get an Azure Maps key at https://azure.com/maps
+                authOptions: {
+                    authType: 'subscriptionKey',
+                    subscriptionKey: '<your Azure Maps subscription key>'
+                }
+            });
+        }
+    </script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
 
-1. 「**新しいデバイスの作成**」 ダイアログ で、「**作成**」 をクリックします。   
+        #myMap {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
 
-    数秒待ってから、デバイスリストに単一のエントリが入力されます。 
+<body onload="GetMap()">
+    <div id="myMap"></div>
+</body>
 
-    「**デバイスの状態**」 が **登録済み**に設定されていることを確認します。    IoT Central アプリは、**デバイスの状態**が**プロビジョニング済み**の場合にのみ、デバイスへの接続を受け入れます。このラボの後半では、デバイスをプロビジョニングする方法を示すコーディング タスクがあります。
+</html>
+```
 
-1. 「**デバイス名**」 の 「**冷蔵トラック - 1**」 をクリックします。
+## Next steps
 
-    ライブ ダッシュボードが表示されます (多数の **データを待機中** メッセージも表示されます)。
+You've now completed the preparatory steps of connecting your first IoT Central app to real devices. Good work!
 
-1. デバイス ダッシュボードのタイトル 「**冷蔵トラック - 1**」 の下にある 「**コマンド**」 をクリックします。
+The next step is to create the device app.
 
-    入力した 2 つのコマンドがすでにリストアップされていて、実行できる状態にあることを確認できます。
+## Exercise 5: Create a Programming Project for a Real Device
 
-次の手順では、リモート デバイスが IoT Central アプリと通信できるようにするキーを作成します。
+In this task, you are going to create a programming project to simulate a sensor device in a refrigerated truck. This simulation enables you to test the code long before requiring a real truck!
 
-#### タスク 3: 接続キーを記録する
+IoT Central treats this simulation as "real" because the communication code between the device app and the IoT Central app is the same for a real truck. In other words, if you do run a refrigerated truck company, you would start with simulated code similar to the code in this task. After this code works to your satisfaction, the simulation-specific code would be replaced with code that receives sensor data. This limited update makes writing the following code a valuable experience.
 
-1. 右上のメニューで 「**接続**」 をクリックします。
+## Create the device app
 
-    「**ゲートウェイにアタッチ**」 はクリック_しない_でください。
+Using Visual Studio Code, build the device sensor app.
 
-1. 「**デバイス接続**」 ダイアログで、「**ID スコープ**」、「**デバイス ID**」、「**主キー**」 の値を気を付けてコピーし、**トラック接続.txt**という名前のテキスト ファイルに保存します。
+1. Open a terminal in Visual Studio Code, and create a folder called "RefrigeratedTruck" (enter `mkdir RefrigeratedTruck`). Navigate to the RefrigeratedTruck folder.
 
-    メモ帳 (または別のテキスト エディター) を使用してこれらの値をテキスト ファイルに保存し、トラック接続.txt などのわかりやすい名前を付けます。
+1. Enter the following command in the terminal: `dotnet new console`. This command creates a Program.cs file in your folder, along with a project file.
 
-1. 「**接続方法**」 で、「**共有アクセス署名 (SAS)**」 が選択されていることを確認します。   
+1. Enter `dotnet restore` in the terminal. This command gives your app access to the required .NET packages.
 
-1. ダイアログの最下部で、「**閉じる**」 をクリックします。
-
-IoT ポータルをブラウザーで開いたままにして、そのまま待ちます。
-
-### 演習 4: 無料の Azure Maps アカウントを作成する
-
-Azure Maps アカウントをまだ持っていない場合は、アカウントを作成する必要があります。
-
-1. 新しいブラウザー タブを開き、[Azure Maps](https://azure.microsoft.com/services/azure-maps/?azure-portal=true) に移動します。 
-
-1. 無料アカウントを作成するには、右上の 「**無料で開始**」 をクリックし、表示される指示に従います。 
-
-    > **注意**: このコースで用いたサブスクリプションとリソース グループを使用して Azure Maps アカウントを作成し、アカウントの名前には AZ-220-MAPS を、価格レベルには Standard S1 を使用できます。
-
-1. Azure Maps アカウントを作成したら、Azure Maps アカウントのサブスクリプション キー (主キー) を Truck-connections.txt テキスト ファイルにコピーします。
-
-    このコースで使用している Azure Subscription を使用して Azure Maps アカウントを作成した場合、次のように Azure portal でアカウントの主キーを確認できます。Azure Maps (AZ-220-MAPS) ブレードを開き、「認証」 ウィンドウを開きます。主キーが一覧で表示されます。
-
-    > **注意**: 主キー (Azure Maps 用) が正しい / 機能していることを確認する場合。次の HTML を .html ファイルに保存します。`'<your Azure Maps subscription key>'` プレースホルダーを主キーの値に置き換え、ファイルを Web ブラウザーに読み込みます。表示された世界地図を確認できます。
-
-    ```html
-    <!DOCTYPE html>
-    <html>
-
-    <head>
-        <title>Map</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-        <!-- Add references to the Azure Maps Map control JavaScript and CSS files. -->
-        <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" type="text/css">
-        <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
-
-        <!-- Add a reference to the Azure Maps Services lab JavaScript file. -->
-        <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas-service.min.js"></script>
-
-        <script>
-            function GetMap() {
-                // マップ オブジェクトのインスタンス化
-                var map = new atlas.Map("myMap", {
-                    // Azure Maps サブスクリプション キーをマップ SDK に追加します。https://azure.com/maps で Azure Maps キーを取得する
-                    authOptions: {
-                        authType: 'subscriptionKey',
-                        subscriptionKey: '<your Azure Maps subscription key>'
-                    }
-                });
-            }
-        </script>
-        <style>
-            html,
-            body {
-                width: 100%;
-                height: 100%;
-                padding: 0;
-                margin: 0;
-            }
-
-            #myMap {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
-    </head>
-
-    <body onload="GetMap()">
-        <div id="myMap"></div>
-    </body>
-
-    </html>
-    ```
-
-これで、最初の IoT Central アプリを実際のデバイスに接続する準備手順が完了しました。よくできました！
-
-次に、デバイス アプリを作成します。
-
-### 演習 5: 実際のデバイスのプログラミング プロジェクトを作成する
-
-このタスクでは、冷蔵トラックでセンサー デバイスをシミュレートするプログラミング プロジェクトを作成します。このシミュレーションにより、物理デバイスを必要とするかなり前にコードをテストできます。
-
-デバイス アプリと IoT Central アプリの間の通信コードは物理デバイスとトラックの間の通信コードと同じであるため、IoT Central はこのシミュレーションを "リアル" として扱います。つまり、冷凍トラックの会社を経営している場合、このタスクのコードと同様のシミュレートされたコードから始めることになります。コードが正常に動作することを確認した後、シミュレーション固有のコードは、センサー データを受信するコードに置き換えられます。この限定的な更新により、次のコードを記述するという貴重なエクスペリエンスが得られます。
-
-#### タスク 1: デバイス アプリを作成する
-
-Visual Studio Code を使用して、デバイス センサー アプリをビルドします。
-
-1. Visual Studio Code の新しいインスタンスを開きます。
-
-1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
-
-1. 「**フォルダを開く**」 ダイアログの上部にある 「**新規フォルダ**」 をクリックし、「**RefrigeratedTruck**」と入力して 「**Enter**」 を押します。
-
-    このコースの ラボ 20 フォルダーの下、または別の場所に、RefrigeratedTruck フォルダーを作成できます。
-
-1. 「**RefrigeratedTruck**」 をクリックし、「**フォルダの選択**」 をクリックします。
-
-    Visual Studio Code Explorer ペインが開くはずです。
-
-1. 「**表示**」 メニューで、統合ターミナルを開くには、「**ターミナル**」 をクリックします。   
-
-    ターミナル コマンド プロンプトに、冷蔵トラック フォルダが表示されているはずです。次のコマンドは現在のフォルダーで実行されるため、これは重要です。
- 
-1. ターミナル コマンド プロンプトで、新しいコンソール アプリを作成するには、次のコマンドを入力します。
-
-    ```cmd/sh
-    dotnet new console
-    ```
-
-    このコマンドを実行すると、プロジェクト ファイルと共に、Program.cs ファイルがフォルダーに作成されます。
-
-1. ターミナル コマンド プロンプトで、プリが、必要な .NET パッケージにアクセスできることを確認するには、次のコマンドを入力します。
-
-    ```cmd/sh
-    dotnet restore
-    ```
-
-1. ターミナル コマンド プロンプトで、必要なライブラリをインストールするには、次のコマンドを入力します。
+1. In the terminal, install the required libraries:
 
     ```CLI
     dotnet add package AzureMapsRestToolkit
@@ -576,22 +412,33 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
     dotnet add package System.Text.Json
     ```
 
-1. **EXPLORER** ペインで、**Program.cs** をクリックします。
+1. From the **File** menu, open up the Program.cs file, and delete the default contents.
 
-1. コード エディター ペインで、Program.cs ファイルの内容を削除します。
+1. After you've entered the code below into the Program.cs file, you can run the app with the command `dotnet run`. This command will run the Program.cs file in the current folder, so ensure you are in the `RefrigeratedTruck` folder.
 
-これで、次のコードを追加する準備が整いました。
+1. Open Visual Studio, and create a new **Visual C#/Windows Desktop** project. Select **Console App (.NET Framework)**.
 
-#### タスク 2: デバイス アプリを書き込む
+1. Give the project a friendly name, such as "RefrigeratedTruck".
 
-このタスクでは、冷凍トラック用のシミュレートされたデバイス アプリを一度に 1 セクションずつ構築します。各セクションについて簡単に説明します。
+1. Under **Tools/NuGet Package Manager**, select **Manage NuGet Packages for Solution**. Install the following libraries:
+    * **AzureMapsRestToolkit**
+    * **Microsoft.Azure.Devices.Client**
+    * **Microsoft.Azure.Devices.Provisioning.Client**
+    * **Microsoft.Azure.Devices.Provisioning.Transport.Mqtt**
+    * **System.Text.Json**
 
-このプロセスをできるだけ簡単にするには、ここにリストされている順序で、コードの各セクションをファイルの末尾に追加する必要があります。
+1. Delete the default contents of the Program.cs file.
 
-> **注意**: 
-> このタスクをスキップし、すべてのコードをアプリに読み込む場合は、Program.cs のすべてのコンテンツを [MicrosoftDocs/mslearn-your-first-iot-central-app](https://github.com/MicrosoftDocs/mslearn-your-first-iot-central-app) からダウンロードして、プロジェクトの Program.cs ファイルにコピーします。このコードをコピーして (接続文字列とサブスクリプション文字列を置き換える) 場合は、次のタスクに直接進み、テストを開始してください。
+1. Add all the code that follows to the Program.cs file.
 
-1. コード エディター ペインで、必要な `using` ステートメントを追加するには、次のコードを入力します。
+## Write the device app
+
+In the blank Program.cs file, insert the following code. Each additional section of code should be appended to the end of the file, in the order listed here.
+
+   > [!NOTE]
+   > If you would like to skip this task, and load all of the code into your app, then download and copy all of the contents of Program.cs from [MicrosoftDocs/mslearn-your-first-iot-central-app](https://github.com/MicrosoftDocs/mslearn-your-first-iot-central-app) into the Program.cs file of your project. If you copy this code (and replace the connection and subscription strings) then go straight to the next task, and start testing!
+
+1. Add the `using` statements, including for Azure IoT Central and Azure Maps.
 
    ```cs
     using System;
@@ -607,9 +454,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
     using AzureMapsToolkit.Common;
     ```
 
-    これらの `using` ステートメントで、Azure IoT Central や Azure Maps などの、コードが使用するリソースに簡単にアクセスできるようになります。
-
-1. コード エディター ペインで、名前空間、クラス、およびグローバル変数を追加するには、次のコードを入力します。
+1. Add the namespace, class, and global variables.
 
    ```cs
     namespace refrigerated_truck
@@ -648,94 +493,86 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
             static int truckNum = 1;
             static string truckIdentification = "Truck number " + truckNum;
 
-            const double deliverTime = 600;                 // 出荷を完了する時間、単位秒。
-            const double loadingTime = 800;                 // 荷物を積み込む時間。
-            const double dumpingTime = 400;                 // 溶けた内容物を廃棄する時間。
-            const double tooWarmThreshold = 2;              // 内容物にとって熱すぎる温度、摂氏。
-            const double tooWarmtooLong = 60;               // 温度が超過した場合に内容物が溶け始めるまでの時間、単位秒。
+            const double deliverTime = 600;                 // Time to complete delivery, in seconds.
+            const double loadingTime = 800;                 // Time to load contents.
+            const double dumpingTime = 400;                 // Time to dump melted contents.
+            const double tooWarmThreshold = 2;              // Degrees C that is too warm for contents.
+            const double tooWarmtooLong = 60;               // Time in seconds for contents to start melting if temps are above threshold.
 
 
-            static double timeOnCurrentTask = 0;            // 現在のタスクの時間、単位秒。
-            static double interval = 60;                    // シミュレーションされた時間サイクル間隔、単位秒。
-            static double tooWarmPeriod = 0;                // 内容物が熱すぎた時間、単位秒。
-            static double tempContents = -2;                // 内容物の現在温度、摂氏。
-            static double baseLat = 47.644702;              // 基本位置の緯度。
-            static double baseLon = -122.130137;            // 基本位置の経度。
-            static double currentLat;                       // 現在位置の緯度。
-            static double currentLon;                       // 現在位置の経度。
-            static double destinationLat;                   // 目的地の緯度
-            static double destinationLon;                   // 目的地の経度
+            static double timeOnCurrentTask = 0;            // Time on current task in seconds.
+            static double interval = 60;                    // Simulated time interval in seconds.
+            static double tooWarmPeriod = 0;                // Time that contents are too warm in seconds.
+            static double tempContents = -2;                // Current temp of contents in degrees C.
+            static double baseLat = 47.644702;              // Base position latitude.
+            static double baseLon = -122.130137;            // Base position longitude.
+            static double currentLat;                       // Current position latitude.
+            static double currentLon;                       // Current position longitude.
+            static double destinationLat;                   // Destination position latitude.
+            static double destinationLon;                   // Destination position longitude.
 
-            static FanEnum fan = FanEnum.on;                // 冷却ファンの状態
-            static ContentsEnum contents = ContentsEnum.full;    // トラック内容の状態
-            static StateEnum state = StateEnum.ready;       // トラックは満杯で出発準備完了
-            static double optimalTemperature = -5;         // 設定 - IoT Central からオペレーターが変更可能.
+            static FanEnum fan = FanEnum.on;                // Cooling fan state.
+            static ContentsEnum contents = ContentsEnum.full;    // Truck contents state.
+            static StateEnum state = StateEnum.ready;       // Truck is full and ready to go!
+            static double optimalTemperature = -5;         // Setting - can be changed by the operator from IoT Central.
 
             const string noEvent = "none";
-            static string eventText = noEvent;              // IoT Central に送信されるイベント テキスト
+            static string eventText = noEvent;              // Event text sent to IoT Central.
 
             static double[,] customer = new double[,]
             {
-                // 顧客の緯度/経度位置
-                // ガスワークス パーク
+                // Lat/lon position of customers.
+                // Gasworks Park
                 {47.645892, -122.336954},
 
-                // ゴールデン ガーデンズ パーク
+                // Golden Gardens Park
                 {47.688741, -122.402965},
 
-                // スワード パーク
+                // Seward Park
                 {47.551093, -122.249266},
 
-                // レイク サマーミッシュ パーク
+                // Lake Sammamish Park
                 {47.555698, -122.065996},
 
-                // メリームーア パーク
+                // Marymoor Park
                 {47.663747, -122.120879},
 
-                // メドーデール ビーチ パーク
+                // Meadowdale Beach Park
                 {47.857295, -122.316355},
 
-                // リンカーン パーク
+                // Lincoln Park
                 {47.530250, -122.393055},
 
-                // ジーン クーロン パーク
+                // Gene Coulon Park
                 {47.503266, -122.200194},
 
-                // ルーサー バンク パーク
+                // Luther Bank Park
                 {47.591094, -122.226833},
 
-                // パイオニア パーク
+                // Pioneer Park
                 {47.544120, -122.221673 }
             };
 
-            static double[,] path;                          // ルートの緯度/経度ステップ
-            static double[] timeOnPath;                     // ルートの各セクションの時間 （秒単位）
-            static int truckOnSection;                      // トラックがいる現在のパス セクション
-            static double truckSectionsCompletedTime;       // 前に完了したセクションでトラックが費やした時間
+            static double[,] path;                          // Lat/lon steps for the route.
+            static double[] timeOnPath;                     // Time in seconds for each section of the route.
+            static int truckOnSection;                      // The current path section the truck is on.
+            static double truckSectionsCompletedTime;       // The time the truck has spent on previous completed sections.
             static Random rand;
 
-            // IoT Central のグローバル変数
+            // IoT Central global variables.
             static DeviceClient s_deviceClient;
             static CancellationTokenSource cts;
             static string GlobalDeviceEndpoint = "global.azure-devices-provisioning.net";
             static TwinCollection reportedProperties = new TwinCollection();
 
-            // ユーザー ID
+            // User IDs.
             static string ScopeID = "<your Scope ID>";
             static string DeviceID = "<your Device ID>";
             static string PrimaryKey = "<your device Primary Key>";
             static string AzureMapsKey = "<your Azure Maps Subscription Key>";
     ```
 
-    追加するコードは他にもありますが、入力したプレースホルダー値を置き換えるタイミングです。これらはすべて、ラボ中に追加したテキスト ファイルで使用できる必要があります。
-
-1. 以前に保存した冷蔵トラック1 および Azure Maps アカウント情報を含むテキスト ファイルを開きます。
-
-1. 「コード エディター」 ペインで、プレースホルダーの値をテキスト ファイルからの対応する値に置き換えます。
-
-    これらの値をコードで更新すると、アプリのビルドに戻ることができます。
-
-1. 「コード エディター」 ペインで、Azure Maps 経由でルートを取得するために使用するメソッドを追加するには、次のコードを入力します。
+1. Add the methods to get a route via Azure Maps.
 
    ```cs
             static double Degrees2Radians(double deg)
@@ -743,10 +580,10 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                 return deg * Math.PI / 180;
             }
 
-            // 地球上の 2 つの位置の間の距離をメートル単位で返します。
+            // Returns the distance in meters between two locations on Earth.
             static double DistanceInMeters(double lat1, double lon1, double lat2, double lon2)
             {
-                var dlon = Degrees2Radians (lon2 - lon1);
+                var dlon = Degrees2Radians(lon2 - lon1);
                 var dlat = Degrees2Radians(lat2 - lat1);
 
                 var a = (Math.Sin(dlat / 2) * Math.Sin(dlat / 2)) + Math.Cos(Degrees2Radians(lat1)) * Math.Cos(Degrees2Radians(lat2)) * (Math.Sin(dlon / 2) * Math.Sin(dlon / 2));
@@ -757,7 +594,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
 
             static bool Arrived()
             {
-                // トラックが目的地から 10 メートル位内にあれば、呼び出しは良好です。
+                // If the truck is within 10 meters of the destination, call it good.
                 if (DistanceInMeters(currentLat, currentLon, destinationLat, destinationLon) < 10)
                     return true;
                 return false;
@@ -767,51 +604,51 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
             {
                 while ((truckSectionsCompletedTime + timeOnPath[truckOnSection] < timeOnCurrentTask) && (truckOnSection < timeOnPath.Length - 1))
                 {
-                    // トラックは次のセクションに移動しました。
-                    ruckSectionsCompletedTime += timeOnPath[truckOnSection];
+                    // Truck has moved onto the next section.
+                    truckSectionsCompletedTime += timeOnPath[truckOnSection];
                     ++truckOnSection;
                 }
 
-                // 間隔が必要な数をカウントする可能性があるため、残りが 0 から 1 であることを確認します。
+                // Ensure remainder is 0 to 1, as interval may take count over what is needed.
                 var remainderFraction = Math.Min(1, (timeOnCurrentTask - truckSectionsCompletedTime) / timeOnPath[truckOnSection]);
 
-                // パスは、timeOnPath 配列より 1 つ長いエントリ長である必要があります。
-                // トラックがセクションからどれくらい移動したかを見つけます。
+                // The path should be one entry longer than the timeOnPath array.
+                // Find how far along the section the truck has moved.
                 currentLat = path[truckOnSection, 0] + remainderFraction * (path[truckOnSection + 1, 0] - path[truckOnSection, 0]);
                 currentLon = path[truckOnSection, 1] + remainderFraction * (path[truckOnSection + 1, 1] - path[truckOnSection, 1]);
             }
 
             static void GetRoute(StateEnum newState)
             {
-                // 新しいルートが到着するまで、状態を準備完了に設定します。
+                // Set the state to ready, until the new route arrives.
                 state = StateEnum.ready;
 
                 var req = new RouteRequestDirections
                 {
-                    Query = FormattableString.Invariant($"{currentLat},{currentLon}:{destinationLat},{destinationLon}")
+                    Query = $"{currentLat},{currentLon}:{destinationLat},{destinationLon}"
                 };
                 var directions = azureMapsServices.GetRouteDirections(req).Result;
 
                 if (directions.Error != null || directions.Result == null)
                 {
-                    // エラーを処理します。
+                    // Handle any error.
                     redMessage("Failed to find map route");
                 }
                 else
                 {
                     int nPoints = directions.Result.Routes[0].Legs[0].Points.Length;
-                    greenMessage($"Route found.Number of points = {nPoints}");
+                    greenMessage($"Route found. Number of points = {nPoints}");
 
-                    // パスをクリアします。始点と終点に 2 点を追加します。
+                    // Clear the path. Add two points for the start point and destination.
                     path = new double[nPoints + 2, 2];
                     int c = 0;
 
-                    // 現在の場所から開始します。
+                    // Start with the current location.
                     path[c, 0] = currentLat;
                     path[c, 1] = currentLon;
                     ++c;
 
-                    ルートを取得し、配列にポイントをプッシュします。
+                    // Retrieve the route and push the points onto the array.
                     for (var n = 0; n < nPoints; n++)
                     {
                         var x = directions.Result.Routes[0].Legs[0].Points[n].Latitude;
@@ -821,11 +658,11 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                         ++c;
                     }
 
-                    // 目的地で終了します。
+                    // Finish with the destination.
                     path[c, 0] = destinationLat;
                     path[c, 1] = destinationLon;
 
-                    // 平均速度を計算するために、パスの長さと経過時間を格納します。
+                    // Store the path length and time taken, to calculate the average speed.
                     var meters = directions.Result.Routes[0].Summary.LengthInMeters;
                     var seconds = directions.Result.Routes[0].Summary.TravelTimeInSeconds;
                     var pathSpeed = meters / seconds;
@@ -833,16 +670,16 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                     double distanceApartInMeters;
                     double timeForOneSection;
 
-                    パス配列の時刻をクリアします。パス配列は、ポイント配列より 1 小さい値です。
+                    // Clear the time on path array. The path array is 1 less than the points array.
                     timeOnPath = new double[nPoints + 1];
 
-                    // パスの各セクションに必要な時間を計算します。
+                    // Calculate how much time is required for each section of the path.
                     for (var t = 0; t < nPoints + 1; t++)
                     {
-                        // 2 つのパス ポイント間の距離をメートル単位で計算します。
+                        // Calculate distance between the two path points, in meters.
                         distanceApartInMeters = DistanceInMeters(path[t, 0], path[t, 1], path[t + 1, 0], path[t + 1, 1]);
 
-                        // パスの各セクションの時間を計算します。
+                        // Calculate the time for each section of the path.
                         timeForOneSection = distanceApartInMeters / pathSpeed;
                         timeOnPath[t] = timeForOneSection;
                     }
@@ -850,27 +687,27 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                     truckSectionsCompletedTime = 0;
                     timeOnCurrentTask = 0;
 
-                    // ルートが到着した状態を更新します。いずれか 1 つ: 途上または戻り。
+                    // Update the state now the route has arrived. One of: enroute or returning.
                     state = newState;
                 }
             }
     ```
 
-    > **注意**: 
-    > 上記のコード内のキー呼び出しは、`var directions = azureMapsServices.GetRouteDirections(req).Result;` です。`directions` 構造は複雑です。このメソッドにブレークポイントを設定し、`directions` の内容を調べることを検討してください。
+    > [!NOTE]
+    > The key call here is `var directions = azureMapsServices.GetRouteDirections(req).Result;`. The `directions` structure is complex. Consider setting a breakpoint in this method, and examining the contents of `directions`.
 
-1. 「コード エディター」 ペインで、顧客に配信するダイレクト メソッドを追加するには、次のコードを入力します。
+1. Add the direct method to deliver to a customer.
 
    ```cs
         static Task<MethodResponse> CmdGoToCustomer(MethodRequest methodRequest, object userContext)
         {
             try
             {
-                // IoT Central で指定された名前で、要求ペイロードから変数を取得します。
+                // Pick up variables from the request payload, with the name specified in IoT Central.
                 var payloadString = Encoding.UTF8.GetString(methodRequest.Data);
                 int customerNumber = Int32.Parse(payloadString);
 
-                // 有効なキーと顧客 ID を確認します。
+                // Check for a valid key and customer ID.
                 if (customerNumber >= 0 && customerNumber < customer.Length)
                 {
                     switch (state)
@@ -890,19 +727,19 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                             }
                             else
                             {
-                                // すべてが良好な場合にのみイベントを設定します。
+                                // Set event only when all is good.
                                 eventText = "New customer: " + customerNumber.ToString();
 
                                 destinationLat = customer[customerNumber, 0];
                                 destinationLon = customer[customerNumber, 1];
 
-                                // 現在の位置から目的地までのルートを検索し、ルートを格納します。
+                                // Find route from current position to destination, storing route.
                                 GetRoute(StateEnum.enroute);
                             }
                             break;
                     }
 
-                    // 200の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+                    // Acknowledge the direct method call with a 200 success message.
                     string result = "{\"result\":\"Executed direct method: " + methodRequest.Name + "\"}";
                     return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 200));
                 }
@@ -910,24 +747,24 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                 {
                     eventText = $"Invalid customer: {customerNumber}";
 
-                    //  400の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+                    // Acknowledge the direct method call with a 400 error message.
                     string result = "{\"result\":\"Invalid customer\"}";
                     return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
                 }
             }
             catch
             {
-                //  400の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+                // Acknowledge the direct method call with a 400 error message.
                 string result = "{\"result\":\"Invalid call\"}";
                 return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
             }
         }
     ```
 
-    > **注意**: 
-    > デバイスが正しい状態でない場合、デバイスは競合して応答します。コマンド自体は、メソッドの最後で確認されます。次の手順に続く再呼び出しコマンドも、同様に処理します。
+    > [!NOTE]
+    > The device responds with a conflict, if the device isn't in the correct state. The command itself is acknowledged at the end of the method. The recall command that follows in the next step handles things similarly.
 
-1. コード エディター ペインで、呼び戻しダイレクト メソッドを追加するには、次のコードを入力します。
+1. Add the recall direct method.
 
    ```cs
         static void ReturnToBase()
@@ -935,7 +772,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
             destinationLat = baseLat;
             destinationLon = baseLon;
 
-            // 現在の位置から基地までのルートを検索して格納する。
+            // Find route from current position to base, storing route.
             GetRoute(StateEnum.returning);
         }
         static Task<MethodResponse> CmdRecall(MethodRequest methodRequest, object userContext)
@@ -961,23 +798,23 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                     break;
             }
 
-            // コマンドに対して了解します。
+            // Acknowledge the command.
             if (eventText == noEvent)
             {
-                // 200の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+                // Acknowledge the direct method call with a 200 success message.
                 string result = "{\"result\":\"Executed direct method: " + methodRequest.Name + "\"}";
                 return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 200));
             }
             else
             {
-                //  400の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+                // Acknowledge the direct method call with a 400 error message.
                 string result = "{\"result\":\"Invalid call\"}";
                 return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
             }
         }
     ```
 
-1. トラックのシミュレーションを各時間サイクルで更新するメソッドを追加するために、「コード エディタ」 ペインで次のコードを入力します。
+1. Add the method that updates the truck simulation at each time interval.
 
    ```cs
         static double DieRoll(double max)
@@ -989,7 +826,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
         {
             if (contents == ContentsEnum.empty)
             {
-                // 可能であれば、積み荷が空の場合は冷却システムの電源を切ります。
+                // Turn the cooling system off, if possible, when the contents are empty.
                 if (fan == FanEnum.on)
                 {
                     fan = FanEnum.off;
@@ -998,31 +835,31 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
             }
             else
             {
-                // 積み荷が満杯です。または融解しています。
+                // Contents are full or melting.
                 if (fan != FanEnum.failed)
                 {
                     if (tempContents < optimalTemperature - 5)
                     {
-                        // 積み荷が冷えすぎるので、冷却システムをオフにします。
+                        // Turn the cooling system off, as contents are getting too cold.
                         fan = FanEnum.off;
                     }
                     else
                     {
                         if (tempContents > optimalTemperature)
                         {
-                            // 温度が上がったので、冷却システムをもう一度オンにします。
+                            // Temp getting higher, turn cooling system back on.
                             fan = FanEnum.on;
                         }
                     }
 
-                    // 冷却システムをランダムに故障させます。
+                    // Randomly fail the cooling system.
                     if (DieRoll(100) < 1)
                     {
                         fan = FanEnum.failed;
                     }
                 }
 
-                // 積み荷の温度を設定します。冷却システムがオンの場合は、より涼しい温度を維持します。
+                // Set the contents temperature. Maintaining a cooler temperature if the cooling system is on.
                 if (fan == FanEnum.on)
                 {
                     tempContents += -3 + DieRoll(5);
@@ -1032,21 +869,21 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                     tempContents += -2.9 + DieRoll(6);
                 }
 
-                // 温度がしきい値より高い場合は、その状態の秒数を計測し、長すぎる場合は内容物を溶かします。
+                // If the temperature is above a threshold, count the seconds this is occurring, and melt the contents if it goes on too long.
                 if (tempContents >= tooWarmThreshold)
                 {
-                    // 積み荷が温かくなっています。
+                    // Contents are warming.
                     tooWarmPeriod += interval;
 
                     if (tooWarmPeriod >= tooWarmtooLong)
                     {
-                        // 積み荷が溶けています。
+                        // Contents are melting.
                         contents = ContentsEnum.melting;
                     }
                 }
                 else
                 {
-                    // 積み荷が冷えています。
+                    // Contents are cooling.
                     tooWarmPeriod = Math.Max(0, tooWarmPeriod - interval);
                 }
             }
@@ -1058,13 +895,13 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                 case StateEnum.loading:
                     if (timeOnCurrentTask >= loadingTime)
                     {
-                        // 積み込みが完了しました。
+                        // Finished loading.
                         state = StateEnum.ready;
                         contents = ContentsEnum.full;
                         timeOnCurrentTask = 0;
 
-                        // 冷却ファンの電源を入れます。
-                        // ファンが障害状態の場合は、ファンは基地にあるので修理済みであるとします。
+                        // Turn on the cooling fan.
+                        // If the fan is in a failed state, assume it has been fixed, as it is at the base.
                         fan = FanEnum.on;
                         tempContents = -2;
                     }
@@ -1077,7 +914,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                 case StateEnum.delivering:
                     if (timeOnCurrentTask >= deliverTime)
                     {
-                        // 配達が完了しました。
+                        // Finished delivering.
                         contents = ContentsEnum.empty;
                         ReturnToBase();
                     }
@@ -1085,10 +922,10 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
 
                 case StateEnum.returning:
 
-                    // トラックの位置情報を更新します。
+                    // Update the truck position.
                     UpdatePosition();
 
-                    // トラックが基地に戻ってきたかどうかを確認します。
+                    // Check to see if the truck has arrived back at base.
                     if (Arrived())
                     {
                         switch (contents)
@@ -1111,10 +948,10 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
 
                 case StateEnum.enroute:
 
-                    // トラックを移動します。
+                    // Move the truck.
                     UpdatePosition();
 
-                    // トラックが客先に到着したかどうかを確認します。
+                    // Check to see if the truck has arrived at the customer.
                     if (Arrived())
                     {
                         state = StateEnum.delivering;
@@ -1125,7 +962,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                 case StateEnum.dumping:
                     if (timeOnCurrentTask >= dumpingTime)
                     {
-                        // 荷下ろしが終了しました。
+                        // Finished dumping.
                         state = StateEnum.loading;
                         contents = ContentsEnum.empty;
                         timeOnCurrentTask = 0;
@@ -1135,10 +972,10 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
         }
     ```
 
-    > **注意**: 
-    > この関数は、サイクル間隔ごとに呼び出されます。実際のサイクル間隔は 5 秒に設定されていますが、_シミュレーション間隔_ (この関数を呼び出すたびに経過したと想定する設定秒数) はグローバル変数 `static double interval = 60` で設定します。この値を 60 に設定すると、60 を 5 で割った、実時間の 12 倍の速度でシミュレーションが実行されます。シミュレーション間隔を短くするには、`interval` をたとえば 30 に減らします (実時間の 6 倍の速度でシミュレーションが実行されます)。`interval` を 5 に設定すると、リアルタイムでシミュレーションが実行されます。リアルではありますが、客先の目的地まで実際に運転する時間を考えると、この速度では少し遅いでしょう。
+    > [!NOTE]
+    > This function is called every time interval. The actual time interval is set at 5 seconds, though the _simulated time_ (the number of simulated seconds you specify that has passed each time this function is called) is set by the global `static double interval = 60`. Setting this value at 60 means the simulation runs at a rate of 60 divided by 5, or 12 times real time. To lower the simulated time, reduce `interval` to, say, 30 (for a simulation that runs at six times real-time). Setting `interval` at 5 would run the simulation in real-time. Though realistic, this speed would be a bit slow, given the real driving times to the customer destinations.
 
-1. トラックのテレメトリを送信する (もし発生していたらイベントも送信する) メソッドを追加するために、「コード エディター」 ペインで次のコードを入力します。
+1. Add the methods to send truck telemetry. Send events too, if any have occurred.
 
    ```cs
         static void colorMessage(string text, ConsoleColor clr)
@@ -1163,7 +1000,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
             {
                 UpdateTruck();
 
-                // テレメトリの JSON メッセージを作成します。
+                // Create the telemetry JSON message.
                 var telemetryDataPoint = new
                 {
                     ContentsTemperature = Math.Round(tempContents, 2),
@@ -1176,15 +1013,15 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                 var telemetryMessageString = JsonSerializer.Serialize(telemetryDataPoint);
                 var telemetryMessage = new Message(Encoding.ASCII.GetBytes(telemetryMessageString));
 
-                // メッセージを送信したのでイベントをクリアします。
+                // Clear the events, as the message has been sent.
                 eventText = noEvent;
 
                 Console.WriteLine($"\nTelemetry data: {telemetryMessageString}");
 
-                // 指示があれば放出します。
+                // Bail if requested.
                 token.ThrowIfCancellationRequested();
 
-                // テレメトリ メッセージを送信します。
+                // Send the telemetry message.
                 await s_deviceClient.SendEventAsync(telemetryMessage);
                 greenMessage($"Telemetry sent {DateTime.Now.ToShortTimeString()}");
 
@@ -1193,10 +1030,10 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
         }
     ```
 
-    > **注意**: 
-    > `SendTruckTelemetryAsync` は重要な関数であり、テレメトリ、状態、イベントなどを IoT Central へ送信する処理を行います。データの送信には JSON 文字列を使用します。
+    > [!NOTE]
+    > The `SendTruckTelemetryAsync` is an important function, handling the sending of telemetry, states, and events to IoT Central. Note the use of JSON strings to send the data.
 
-1. 設定とプロパティを処理するコードを追加するために、「コード エディター」 ペインで次のコードを入力します。
+1. Add the code to handle settings and properties. You only have one setting and one property in our app, though if there are more, they are easily added.
 
    ```cs
         static async Task SendDevicePropertiesAsync()
@@ -1229,12 +1066,10 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
         }
     ```
 
-    アプリに追加できる設定とプロパティはそれぞれ 1 つだけです。さらに必要な場合は、簡単に追加できます。
+    > [!NOTE]
+    > This section of code is generic to most C# apps that communicate with IoT Central. To add additional properties or settings, add to `reportedProperties`, or create a new setting string, and check on `desiredProperties`, respectively. No other code changes are usually needed.
 
-    > **注意**: 
-    > このセクションのコードは、IoT Central と通信するほとんどの C# アプリに汎用的に使えます。プロパティや設定を追加するには、`reportedProperties` に追加するか新しい設定文字列を作成して、それぞれ `desiredProperties` をチェックします。通常、その他のコードを変更する必要ありません。
-
-1. `Main` 関数を追加するために、「コード エディター」 ペインで次のコードを入力します。
+1. Add the `Main` function.
 
    ```cs
             static void Main(string[] args)
@@ -1245,7 +1080,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
                 currentLat = baseLat;
                 currentLon = baseLon;
 
-                // Azure Maps に接続します。
+                // Connect to Azure Maps.
                 azureMapsServices = new AzureMapsServices(AzureMapsKey);
 
                 try
@@ -1271,7 +1106,7 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
 
                     cts = new CancellationTokenSource();
 
-                    // ダイレクト メソッドを呼び出すハンドラーを作成します。
+                    // Create a handler for the direct method calls.
                     s_deviceClient.SetMethodHandlerAsync("GoToCustomer", CmdGoToCustomer, null).Wait();
                     s_deviceClient.SetMethodHandlerAsync("Recall", CmdRecall, null).Wait();
 
@@ -1312,258 +1147,178 @@ Visual Studio Code を使用して、デバイス センサー アプリをビ�
     }
     ```
 
-    > **注意**: 
-    > 次のようなステートメントを使用して、ダイレクト メソッドをクライアントで設定します。`s_deviceClient.SetMethodHandlerAsync("cmdGoTo", CmdGoToCustomer, null).Wait();`
+    > [!NOTE]
+    > Direct methods are set in the client using statements such as `s_deviceClient.SetMethodHandlerAsync("cmdGoTo", CmdGoToCustomer, null).Wait();`.
 
-1. 「**ファイル**」 メニューの 「**上書き保存**」 をクリックします。   
+Fantastic! You are now ready to test your code.
 
-    シミュレートされたデバイス アプリが完成したので、次は作成したコードをテストすることを考えます。
+## Exercise 6: Test Your IoT Central Device
 
-### 演習 6: IoT Central デバイスをテストする
+Working through this task is an exciting time in IoT Central development! Finally, you get to check whether all the moving parts you've created work together.
 
-この演習では、作成したすべての可動部品が意図したとおりに連携するかどうかを検査します。
+## Test the device app and IoT Central app together
 
-冷蔵トラックのデバイスを網羅的にテストするには、いくつかのテストに分解してこれらを慎重に検査することが役に立ちます。
+To fully test the refrigerated truck device, it helps to break down the testing into a number of discreet checks:
 
-* デバイス アプリが Azure IoT Central に接続すること。
+1. The device app connects to Azure IoT Central.
 
-* テレメトリ関数が指定したサイクル間隔でデータを送信すること。
+1. The telemetry functions send data on the specified interval.
 
-* データが IoT Central によって正しく取得されること。
+1. The data is picked up correctly by IoT Central.
 
-* 指定した顧客にトラックを送るコマンドが期待どおりに動作すること。
+1. The command to send the truck to a specified customer works as expected.
 
-* トラックを呼び戻すコマンドが期待どおりに動作すること。
+1. The command to recall the truck works as expected.
 
-* 顧客の確認と競合イベントが正しく送信されること。
+1. Check customer and conflict events are transmitted correctly.
 
-* トラックのプロパティを確認し、最適な温度を変更できること。
+1. Check the truck properties, and change the optimal temperature.
 
-このリストに加えて、エッジケースを調べることもできます。たとえば、トラックの積み荷が溶け始めるとどうなるか、というエッジケースが考えられます。このシミュレーションでは、前のタスクで乱数をコードに使用することで、そのような状態の発生を偶然に任せています。
+In addition to this list, there are edge-cases you could also investigate. One such case is what happens when the truck's contents start to melt? This state is left up to chance in our simulation, with the use of random numbers in our code in the previous task.
 
-#### タスク 1: IoT Central とシミュレートされたデバイスを準備する 
+To begin the testing, with your [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true) app open in a browser, run the device app.
 
-1. Azure IoT Central アプリがブラウザーで開いていることを確認します。
+1. In Visual Studio, select **Debug/Start without Debugging**.
 
-    IoT Central とデバイス間の接続テストを始める前に、Azure IoT Central アプリがブラウザーで開いていることを確認します。「冷蔵トラック - 1」 ダッシュボードの 「コマンド」 タブでアプリを開いたままにしていました。必要に応じて、ブラウザーで [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true) をもう一度開きます。
+1. In the terminal, enter `dotnet run`.
 
-1. Visual Studio Code のターミナル コマンド プロンプトで、次のコマンドを入力します。
+A console screen should open, with the text: **Starting Truck number 1**.
 
-    ```cmd/sh
-    dotnet run
-    ```
+### 1. Confirm the device app connects to Azure IoT Central
 
-1. 出力が 「ターミナル」 ペインに送信されることを確認します。
+1. If one of the next lines on the console is **Device successfully connected to Azure IoT Central** you've made the connection. If you do not get this message, it usually means either the IoT Central app isn't running, or the connection key strings aren't correct.
 
-    ターミナル コンソールに、次のテキストで出力が表示されるはずです。**Starting Truck number 1**
+1. The "connected" line should be followed by some text verifying the settings and properties were sent successfully.
 
-1. テキストが以下であることを確認する: **Starting Truck number 1** が表示されることを確認します。
+If all goes well, go straight into the second test.
 
-    > **注意**: すべてが期待どおりに動作すれば、定義したいくつかのテスト ケースを迅速に検査できるでしょう。
+### 2. Confirm the telemetry functions send data on the specified interval
 
-    この後のタスクも、引き続き 「ターミナル」 ペインを確認します。
+1. A console message should appear every five seconds, with the contents temperature.
 
-#### タスク 2: デバイス アプリが Azure IoT Central に接続することを確認します。
+1. Watch the telemetry for a short while, and mentally prepare for the main test of this lab!
 
-1. 「ターミナル」 ペインで **デバイスが正常に Azure IoT Central に接続されました** と表示されることを確認します。
+### 3. Confirm the data is picked up correctly by IoT Central
 
-    コンソールの次の行のいずれかに、「**デバイスは Azure IoT Central に正常に接続されました**」がある場合、接続が行われています。このメッセージが表示されない場合、通常、IoT Central アプリが実行されていないか、接続キー文字列が正しくないことを意味します。
+1. To verify the data is being received at IoT Central, make sure your IoT Central pp is open, and the device selected. If not, select the **Devices** entry in the left-hand menu. Double-click the real device (**RefrigeratedTruck - 1**), in the list of devices.
 
-1. 「接続された」メッセージの後に、設定とプロパティが正常に送信されたことを確認するテキストが続いていることを確認します。
+1. Locate the **Contents temperature** tile, and verify approximately that the temperatures being sent by the device app, in the console window, match the data being shown in the telemetry view of the IoT Central app.
 
-    すべてが正常に行われた場合、2 番目のテスト (タスク 3) に進みます。
+1. Check the state tiles: **Truck state**, **Cooling system state**, and **Contents state** in the IoT Central app, to verify the truck and its contents are in the expected state.
 
-#### タスク 3: テレメトリ関数が指定した間隔でデータを送信したことを確認する
+1. Check the **Location** map view for the device. A blue circle near Seattle, USA shows our truck ready to go. You may have to zoom out a bit.
 
-1. テレメトリ データが送信されていることを確認します。 
+If all is well, this is great progress. The truck is at its base, in the correct state, and waiting for a command.
 
-    コンソール メッセージは、コンテンツの温度と共に 5 秒ごとに表示される必要があります。
+# Continue the tests of your IoT Central device
 
-1. しばらくの間テレメトリを見て、このラボのメイン テストの心の準備をしてください!
+In this task, we complete the app testing.
 
-#### タスク 4: IoT Central がデータを正しく取得したことを確認する
+### 4. Confirm the command to send the truck to a specified customer works as expected
 
-1. Azure IoT Central アプリが含まれているブラウザーの画面に切り替えます。
+Now for the best fun of all.
 
-1. 「**RefrigeratedTruck-1**」 ダッシュボードで、「**トラック ビュー**」 をクリックします。
+1. Click the **Commands** title for the device. This control should be under the truck name, and right of the **Truck view** control.
 
-    ご使用の RefrigeratedTruck デバイスが IoT Central で選択されていない場合は、次の手順を実行します。
+1. Enter a customer ID, say "1" ("0" through "9" are valid customer IDs), and click **Run**.
 
-    * 左側のナビゲーション メニューで、「**デバイス**」 をクリックします。
-    * デバイスの一覧で、「**RefrigeratedTruck-1**」 をダブルクリックします。
-    * ダッシュボードで、「**トラック ビュー**」 が選択されていることを確認します。
+1. In the console for the device app, you should both see  **New customer** event, and a **Route found** message.
 
-1. データが 「**RefrigeratedTruck-1**」 ダッシュボードにあることを確認します。
+   > [!NOTE]
+   > If you see a message including the text **Access denied due to invalid subscription key**, then check your subscription key to Azure Maps.
 
-    たとえば、トラック ID タイルには "トラック番号 1" が表示され、トラック状態タイルには "準備完了" と時刻の値が表示されます。
+1. In the dashboard **Location** tile, is your truck on its way? You might have to wait a short time for the apps to sync up.
 
-1. ダッシュボードで、「**荷物の温度**」 タイルを見つけます。
+1. Verify the event text in the dashboard tile.
 
-    > **注意**: 一般的に許容可能な温度 (ゼロ℃近く) の期間が過ぎると、数値は上昇し始めます。
+Great progress! Take a moment to just watch the map update, and your truck deliver its contents.
 
-1. デバイス アプリから送信される温度が、IoT Central アプリのテレメトリ ビューに表示されているデータと一致していることを確認します。
+### 5. Confirm the command to recall the truck works as expected
 
-    Visual Studio Code のターミナル ウィンドウの最新の値を、「コンテンツ温度」 グラフに表示された最新の値と比較します。 
+1. When the truck returns to base, and is reloaded with contents, it's state will be **ready**. Try issuing another delivery command. Choose another customer ID.
 
-1. トラックとその積載物が予期した状態であることを確認するには、状態タイルを確認します。**トラックの状態**、 **冷却システムの状態**、および **積載物の状態**。    
+1. Issue a recall command before the truck reaches its customer, to check the truck responds to this command.
 
-1. デバイスの**場所**マップ ビューを確認します。  
+### 6. Check customer and conflict events are transmitted correctly
 
-    米国シアトル近くの青い円は、トラックが出発できることを示しています。少し縮小する必要があります。
+To test a conflict event, send a command that you know doesn't make sense.
 
-    トラックは、そのベースに正しい状態で配置し、コマンドを待っている必要があります。
+1. With your truck at the base, issue a Recall command. The truck should respond with the "already at base" event.
 
-    次のタスクでは、アプリのテストを完了します。
+### 7. Check the truck properties, and change the optimal temperature
 
-#### タスク 5: 指定された顧客にトラックを送るコマンドが期待どおりに動作することを確認する
+1. The simplest test is to check the **Truck ID** tile. This tile should have picked up the **Truck number 1** message when the apps were started.
 
-1. 「**冷蔵トラック - 1**」 ダッシュボードで、ダッシュボードのタイトルのすぐ下にある 「**コマンド**」 をクリックします。    
+1. A more complex test is to check the writable property, **OptimalTemperature**. To change this value, click on **Jobs** in the left-hand menu.
 
-1. 「**顧客 ID**」 に「**1**」と入力します。
+1. Click **+ New**, top-right.
 
-    「0」から「9」までの値はすべて、有効な顧客 ID です。
+1. Give the job a friendly name, "Set optimal temperature to -10".
 
-1. コマンドを発行するには、「**実行**」 をクリックします。 
+1. For **Device group**, select **RefrigeratedTruck - All devices**. For **Job type**, select **Writable properties**. For **Writable properties**, select **Optimal Temperature**.
 
-1. **トラックビュー**に戻ります。 
+1. Finally, set the value as **-10**.
 
-    デバイス アプリのコンソールには、 「**新しい顧客**」イベントと「**発見されたルート**」メッセージの両方が表示されるはずです。 
+1. Running this job should set the optimal temperature for all trucks in the device group, just one in our case. Click **Run**. Wait for the **Status** of the job to change from **Pending** to **Completed**. This change should only take a few seconds.
 
-   > **注意**: 
-   > 「**無効なサブスクリプション キーのためアクセスが拒否されました**」 というテキストを含むメッセージが表示された場合、Azure Maps のサブスクリプション キーを確認します。 
+1. Navigate back, via **Devices** to your dashboard. Verify the **Optimal temperature** has been set to -10, in the tile on the dashboard.
 
-1. ダッシュボードの「**場所**」 タイルで、トラックが進行中であることを確認します。 
+## Next steps
 
-    2 つのアプリが同期されるまで、しばらく待つ必要があります。
+With the testing for one truck complete, it is time to consider expanding our IoT Central system.
 
-1. イベント タイルでイベント テキストが更新されていることを確認します。
+## Exercise 7: Create multiple devices
 
-1. 少し時間をとって、マップの更新とトラックの荷物の配送状態を確認します。
+In this task, we consider what steps would be necessary to add multiple trucks to our system.
 
-#### タスク 6: トラックを呼び戻すコマンドが正常に機能することを確認する
+## Add multiple devices to the IoT Central app
 
-1. トラックがベースに戻り、荷物を再度積むと、状態が**準備完了**になります。 
+1. To add multiple devices, start in the [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true) app, clicking **Devices** in the left-hand menu.
 
-    別の配送コマンドを発行してみます。別の顧客 ID を選択してください。
+1. Click **RefrigeratedTruck** in the **Devices** menu, to ensure the device we create uses this device template. The device template you select will be shown in bold text.
 
-1. トラックが顧客に到達する前に呼び戻しコマンドを発行します。
+1. Click **+ New**. Verify in the dialog that the device name includes the **RefrigeratedTruck** text. If it doesn't, you've not selected the right device template.
 
-1. トラックがこのコマンドに応答することを確認します。
+1. Change the **Device ID** to a friendlier name, say "RefrigeratedTruck2".
 
-#### タスク 7: 顧客および競合イベントが正しく送信されていることを確認する
+1. Change the **Device name** to a friendlier name, say "RefrigeratedTruck - 2".
 
-競合イベントをテストするために、意味がないと思われるコマンドを送信することができます。
+1. Leave the **Simulated** setting at **Off**.
 
-1. トラックをベースに置いて、Recall コマンドを発行します。 
+1. Click **Create**.
 
-1. トラックが、「既にベースにある」イベントで応答することを確認します。
+Repeat this process to create as many devices as you need.
 
-#### タスク 8: トラックのプロパティを確認し、最適温度を変更する
+## Provision the new devices
 
-1. 「**トラック ID**」 タイルに、「**トラック番号 1**」 が表示されていることを確認します。 
+1. Double-click on **RefrigeratedTruck - 2**, and then click **Connect** (top right of your IoT Central screen).
 
-    このプロパティは、テストする最も簡単なものです。 
+1. In the **Device Connection** screen, copy the **Device ID** and the **Primary Key** to your text file, noting that they are for the second truck. There is no need to copy the **Scope ID**, as this value is identical to the value for the first truck (it identifies your app, not an individual device).
 
-    書き込み可能なプロパティのテストはより複雑です。**最適温度**プロパティは書き込み可能なプロパティなので、これをテストします。 
+1. Click **Close**.
 
-1. 左側のナビゲーション メニューで、「**ジョブ**」 をクリックします。 
+1. Back on the **Devices** page, repeat the process for any other devices you created, copying their **Device ID** and **Primary Key** to your text file.
 
-1. 「**ジョブ**」 で 「**新規**」 をクリックします。   
+1. When you have completed connecting all new trucks, notice that the **Provisioning Status** is still **Registered**. Not until you make the connection will this change.
 
-1. 「**ジョブ**」 で、「**適温を -10 に設定する**」と入力し、「**新しいジョブ名を入力**」 を置き換えます。
+## Create new apps for each new device
 
-1. 「**デバイス グループ**」 ドロップダウンで、「**RefrigeratedTruck - すべてのデバイス**」 をクリックします。
+Each truck is simulated by one running copy of the device app. So, you need multiple versions of this app running simultaneously.
 
-1. 「**ジョブの種類**」 ドロップダウンで、「**プロパティ**」 をクリックします。
+1. Create multiple projects by repeating the steps in the **Create a programming project for a real device** for each new device. Copy and paste the entire app from your current working project, replacing the **Device ID** and **Primary Key** with new values. No need to change the **Scope ID** or the **Azure Maps subscription Key**, as these are identical for all devices.
 
-1. 「**名前**」 ドロップダウンで、「**適温**」 をクリックします。
+1. Remember to add the necessary libraries to each new project.
 
-1. 「**値**」 テキストボックスに、**-10** と入力します
+1. Change the `truckNum` in each project to a different value.
 
-    このジョブを実行すると、デバイス グループ内のすべてのトラックに適温が設定されます。この場合は 1 つだけです。
+1. Set each project app running.
 
-1. ウィンドウの上部にある 「**実行**」 をクリックします。
+## Verify the telemetry from all the devices
 
-1. しばらくすると、ジョブの 「**状態**」 が 「**保留中**」 から 「**完了**」 に変わります。
+1. Verify that the one dashboard you created works for all trucks.
 
-    わずか数秒で変化します。
+1. Using the dashboard for each truck, try ordering the trucks to different customers. Using the **Location** map on each dashboard, verify the trucks are heading in the right direction!
 
-1. 「**デバイス**」 を使用して、ダッシュボードに戻ります。
+Congratulations on completing the lab!
 
-1. ダッシュボードの 「**最適温度**」 タイルで、**最適温度**が -10 に設定されていることを確認します。   
-
-1 台のトラックのテストが完了したら、IoT Central システムの拡張を検討します。
-
-### 演習 7: 複数のデバイスを作成する
-
-この演習では、所有車両に複数のトラックを追加するために必要な手順を完了します。
-
-#### タスク 1: IoT Central アプリに複数のデバイスを追加する
-
-1. IoT Central アプリが開いていることを確認します。
-
-    必要に応じて [Azure IoT Central](https://apps.azureiotcentral.com/?azure-portal=true) アプリを開く
-
-1. 左側のナビゲーション メニューで、「**デバイス**」 をクリックします。
-
-1. 「**デバイス**」 で 「**冷蔵トラック**」 をクリックします。   
-
-    これにより、作成したデバイスがこのデバイス テンプレートを使用できるようになります。選択したデバイス テンプレートは太字で表示されます。
-
-1. 「**冷蔵トラック**」 で 、「**新規**」 をクリックします。   
-
-    デフォルトのデバイス名に「**冷蔵トラック**」テキストが含まれていることを確認します。  含まれていない場合、適切なデバイス テンプレートが選択されていません。
-
-1. 「**新しいデバイスの作成**」 ダイアログの 「**デバイス ID**」 に、「**冷蔵トラック2**」と入力します。   
-
-1. 「**デバイス名**」 に「**冷蔵トラック - 2**」と入力します。 
-
-1. 「**新しいデバイスの作成**」 ダイアログの下部にある 「**作成**」 をクリックします。    
-
-    必要に応じて、上記のプロセスを追加のトラックに繰り返すことができます。
-
-#### タスク 2: 新しいデバイスをプロビジョニングする
-
-1. 「**デバイス名**」 で、「**冷蔵トラック - 2**」 をダブルクリックします。   
-
-1. ページの右上にある 「**接続**」 をクリックします。 
-
-1. 「**デバイス接続**」 ダイアログ ボックスで、**デバイス ID** と**主キー**をテキスト ファイルにコピーし、これが 2 台目のトラック用であることを確認します。     
-
-    この値は最初のトラックの値と同じであるため、**ID スコープ**をコピーする必要はありません (個々のデバイスではなく、アプリを識別します)。 
-
-1. 「**デバイス接続**」 ダイアログの下部にある 「**閉じる**」 をクリックします。   
-
-1. 「**デバイス**」 ページに戻り、作成した他のデバイスに対してこのプロセスを繰り返し、**デバイス ID**と**主キー**をテキスト ファイルにコピーします。     
-
-1. 新しいトラックをすべて接続したら、**プロビジョニング ステータス**が**登録済み**のままになっていることに注目してください。
-
-    接続を確立するまで、これは変更されません。
-
-#### タスク 3: 新しいデバイスごとに新しいアプリを作成する
-
-各トラックは、シミュレートされたデバイス アプリの個別に実行されているインスタンスによってシミュレートされます。そのため、複数のバージョンのアプリを同時に実行する必要があります。
-
-1. 新しいシミュレートされたデバイス アプリを作成するには、IoT Central アプリで作成した新しいトラックごとに、「**実際のデバイス用のプログラミング プロジェクトを作成する**」タスクを繰り返します。 
-
-1. **デバイス ID** と**主キー**を、新しいトラックの値に置き換えたことを確認します。
-
-    **スコープ ID** と **Azure Maps アカウントの主キー**は、すべてのデバイスで同じである必要があります。   
-
-1. 新しいプロジェクトごとに必要なライブラリを読み込む必要があります。
-
-1. 各プロジェクトの `truckNum` を別の値に変更します。
-
-1. プロジェクトごとに、ターミナル コマンド `dotnet run` を使用してアプリを起動します。
-
-#### タスク 4: すべてのデバイスからのテレメトリを確認する
-
-1. 作成した 1 つのダッシュボードがすべてのトラックに対して機能することを確認します。
-
-1. 各トラックのダッシュボードを使用して、さまざまな顧客にトラックを仕向けてみてください。 
-
-1. 各ダッシュボードの**場所**マップを使用して、トラックが正しい方向に向かっているのを確認します。 
-
-    ラボを完了しました。おめでとうございます!
-
-1. リソースをクリーンアップします。
+We suggest that you clean up your resources.

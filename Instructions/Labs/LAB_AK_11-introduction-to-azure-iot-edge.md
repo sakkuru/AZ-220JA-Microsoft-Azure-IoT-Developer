@@ -1,278 +1,137 @@
-﻿---
+---
 lab:
-    title: 'ラボ 11: Azure IoT Edge の概要'
-    module: 'モジュール 6: Azure IoT Edge のデプロイプロセス'
+    title: 'Lab 11: Introduction to Azure IoT Edge'
+    module: 'Module 6: Azure IoT Edge Deployment Process'
 ---
 
-# Azure IoT Edge の概要
+# Introduction to Azure IoT Edge
 
-## ラボ シナリオ
+## Lab Scenario
 
-グローバル市場で地元の消費者を奨励するために、Contoso は地元の職人と提携し、世界中の新しい地域でチーズを生産しています。 
+Contoso has cheese producing factories worldwide. Factories are equipped with production lines have multiple machines to create their cheeses. At the moment they have IoT devices connected to each machine that streams sensor data to Azure and processes all data in the cloud. Due to the large amount of data being collected and urgent time response needed on some of the machines, Contoso's wants to add a gateway device to bring the intelligence to the edge for processing data to the only send important data to the cloud. Plus, be able to process data and react quickly even if the local network is poor.
 
-各地では、地元のチーズを作成するために使用される混合および処理機械が装備されている複数の生産ラインをサポートしています。現在、施設にはそれぞれの機械に IoT デバイスが接続されています。これらのデバイスはセンサー データを Azure にストリーミングし、すべてのデータがクラウドで処理されます。 
+You will be setting up a new IoT Edge device that can monitor temperature of one of the machines and deploying Stream Analytics module to calculate the average temperature and send an alert to the device to act quickly.
 
-大量のデータが収集され、一部のマシンで即時の時間応答が必要なため、Contoso は IoT Edge ゲートウェイ デバイスを使用して、インテリジェンスの一部を即時処理に使用したいと考えています。データの一部は引き続きクラウドに送信されます。また、IoT Edge にデータ インテリジェンスを導入することで、ローカル ネットワークが貧弱な場合でも、データを処理して迅速に対応できるようになります。
+## In This Lab
 
-Azure IoT Edge ソリューションのプロトタイプ作成を任されました。まず、温度を監視する IoT Edge デバイス (チーズ加工処理マシンの 1 台に接続されているデバイスをシミュレートします) を設定します。次に、そのデバイスを使用して平均温度を計算し、プロセス制御値を超えた場合にアラート通知を生成するデバイスにStream Analytics モジュールをデプロイします。
+* Verify Lab Prerequisites
+* Deploy Azure IoT Edge Enabled Linux VM
+* Create IoT Edge Device Identity in IoT Hub using Azure CLI
+* Connect IoT Edge Device to IoT Hub
+* Add Edge Module to Edge Device
+* Deploy Azure Stream Analytics as IoT Edge Module
 
-次のリソースが作成されます。
 
-![ラボ 11 アーキテクチャ](media/LAB_AK_11-architecture.png)
+## Exercise 1: Verify Lab Prerequisites
 
-## このラボでは
 
-このラボでは、次のタスクを完了します。
 
-* ラボの前提条件を確認する
-* Azure IoT Edge が有効な Linux VM をデプロイする
-* Azure CLI を使用して IoT ハブで IoT Edge デバイス ID を作成する
-* IoT Edge デバイスを IoT ハブに接続する
-* Edge デバイスに Edge モジュールを追加する
-* IoT Edge モジュールとして Azure Stream Analytics をデプロイする
+## Exercise 2: Deploy Azure IoT Edge enabled Linux VM
 
-## ラボの手順
+In this exercise, you will deploy an Ubuntu Server VM with Azure IoT Edge runtime support from the Azure Marketplace.
 
-### 演習 1: ラボの前提条件を確認する
+1. If necessary, log in to your Azure portal using your Azure account credentials.
 
-このラボでは、次の Azure リソースが使用可能であることを前提としています。
+    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
 
-| リソースの種類:  | リソース名 |
-| :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
+1. In the Azure Portal, click **Create a resource** open the Azure Marketplace.
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って **lab11-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+1. On the **New** blade, in the **Search the Marketplace** box, type in and search for **Azure IoT Edge on Ubuntu**.
 
-> **注意**:   **lab11-setup.azcli** スクリプトは **Bash** シェル環境で実行するように記述されています。これは Azure Cloud Shell で実行する最も簡単な方法です。
+1. In the search results, select the **Azure IoT Edge on Ubuntu** item.
 
-1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
+1. On the **Azure IoT Edge on Ubuntu** item, click **Create**.
 
-1. Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
+1. On the **Create a virtual machine** blade, select your Azure Subscription and use the **Create new** Resource group option to create a new Resource Group for the VM named `AZ-220-VM-RG`.
 
-1. Azure シェルが **Bash** を使用していることを確認します。
+    > [!NOTE] Resource management best practices in recommend placing Virtual Machines in 
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
+1. In the **Virtual machine name** box, enter `AZ-220-VM-EDGE` for the name of the Virtual Machine.
 
-1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
+1. In the **Region** dropdown, select the Azure Region closest to you, or the region where your Azure IoT Hub is provisioned.
 
-1. ドロップダウンで、「**アップロード**」 をクリックします。
+1. Notice the **Image** dropdown has the **Ubuntu Server 16.04 LTS + Azure IoT Edge runtime** image selected.
 
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
+1. Under **Size**, click **Change size**. In the displayed list of sizes, select **DS1_v2** and click **Select**.
 
-    このコースのラボ 3「開発環境の設定」では、ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
+    > [!NOTE] Not all VM sizes are available in all regions. If, in a later step, you are unable to select the VM size, try a different region. For example, if **West US** doesn't have the sizes available, try **West US 2**.
 
-    * Allfiles
-      * ラボ
-          * 11-Azure IoT Edge の概要
-            * セットアップ
+1. Under **Administrator account**, select the **Password** option for **Authentication type**.
 
-    lab11-setup.azcli スクリプト ファイルは、ラボ 11 の設定フォルダーにあります。
+1. Enter an Administrator **Username** and **Password** for the VM.
 
-1. **lab11-setup.azcli** ファイルを選択し、「**開く**」 をクリックします。   
+    >**Important:** Do not lose/forget these values - you cannot connect to your VM without them.
 
-    ファイルのアップロードが完了すると、通知が表示されます。
+1. Notice the **Inbound port rules** is configured to enable inbound **SSH** access to the VM. This will be used to remote into the VM to configure/manage it.
 
-1. 正しいファイルがアップロードされたことを確認するには、次のコマンドを入力します。
+1. Click **Review + create**.
 
-    ```bash
-    ls
-    ```
+1. Once validation passes, click **Create** to begin deploying the virtual machine.
 
-    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。lab11-setup.azcli ファイルが一覧表示されます。
+    > [!NOTE] Deployment will take approximately 5 minutes to complete. You can continue on to the next unit while it is deploying.
 
-1. セットアップ スクリプトを含むこのラボのディレクトリを作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
 
-    ```bash
-    mkdir lab11
-    mv lab11-setup.azcli lab11
-    cd lab11
-    ```
+## Exercise 3: Create IoT Edge Device Identity in IoT Hub using Azure CLI
 
-    これらのコマンドは、このラボのディレクトリを作成し、**lab11-setup.azcli** ファイルをそのディレクトリに移動してから、新しいディレクトリを現在の作業ディレクトリに変更します。 
+In this exercise, you will create a new IoT Edge Device Identity within Azure IoT Hub using the Azure CLI.
 
-1. **lab11-setup.azcli** に実行権限があることを確認するには、次のコマンドを入力します。 
+1. If necessary, log in to your Azure portal using your Azure account credentials.
 
-    ```bash
-    chmod +x lab11-setup.azcli
-    ```
+    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
 
-1. Cloud Shell ツール バーで、**lab11-setup.azcli** ファイルを編集するには、「**エディターを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。   
+1. Open the Azure Cloud Shell by clicking the **Terminal** icon within the top header bar of the Azure portal, and select the **Bash** shell option.
 
-1. 「**ファイル**」 リストで、lab4 フォルダーを展開するには、「**lab11**」 をクリックしてから、「**lab11-setup.azcli**」 をクリックします。     
-
-    エディターは **lab11-setup.azcli** ファイルの内容を表示します。 
-
-1. エディターで、`{YOUR-ID}` と `{YOUR-LOCATION}` 変数の値を更新します。
-
-    例として以下のサンプルを参照し、このコースの開始時に作成した一意の ID、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソース グループと一致する場所に `{YOUR-LOCATION}` を設定する必要があります。
-
-    ```bash
-    #!/bin/bash
-
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-{YOUR-ID}"
-
-    Location="{YOUR-LOCATION}"
-    ```
-
-    > **注意**:  `{YOUR-LOCATION}` 変数は、すべてのリソースをデプロイするリージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
-    >
-    > ```bash
-    > az account list-locations -o Table
-    >
-    > DisplayName           Latitude    Longitude    Name
-    > --------------------  ----------  -----------  ------------------
-    > East Asia             22.267      114.188      eastasia
-    > Southeast Asia        1.283       103.833      southeastasia
-    > Central US            41.5908     -93.6208     centralus
-    > East US               37.3719     -79.8164     eastus
-    > East US 2             36.6681     -78.3889     eastus2
-    > ```
-
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、「..」 をクリックし、「**エディタを閉じる**」 をクリックします。 
-
-    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。 
-
-    > **注意**:  「**CTRL+S**」 を使っていつでも保存でき、 「**CTRL+Q**」 を押してエディターを閉じます。
-
-1. この実習ラボに必要なリソースを作成するには、次のコマンドを入力します。
-
-    ```bash
-    ./lab11-setup.azcli
-    ```
-
-    これは、実行するのに数分かかります。各ステップが完了すると、JSON 出力が表示されます。
-
-スクリプトが完了したら、ラボを続行できます。
-
-### 演習 2: Azure IoT Edge 対応 Linux VM をデプロイする
-
-この演習では、 Azure Marketplace の Azure IoT Edge ランタイム サポートを使用して Ubuntu サーバー VM をデプロイします。
-
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
-
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
-
-1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
-
-1. 「**新規**」 ブレードの 「**マーケットプレースの検索**」 ボックスに、「**Azure IoT Edge on**」と入力してから、「**Azure IoT Edge on Ubuntu**」 をクリックする      
-
-1. 「**Azure IoT Edge on Ubuntu**」 ブレードで 「**作成**」 をクリックします。
-
-1. 「**仮想マシンの作成**」 ブレードの 「**サブスクリプション**」 ドロップダウンで、このコースで使用している Azure サブスクリプションを選択します。   
-
-1. 「**リソース グループ**」 の右側で、「**新規作成**」 をクリックします。   
-
-    VM 用の新しいリソース グループを作成します。これは完了後のクリーンアップを助けるものです。
-
-1. 新しいリソース グループのポップアップで、「**名前**」 の下に「**AZ-220-VM-RG**」を入力してから、「**OK**」 をクリックします。     
-
-1. **仮想マシン名** テキスト ボックスに、**AZ-220-VM-EDGE** を入力します。
-
-1. 「**リージョン**」 ドロップダウンで、Azure IoT Hub がプロビジョニングされているリージョンを選択します。 
-
-1. **可用性オプション**を、「**インフラストラクチャ冗長は必要ありません**」 のままにします。
-
-1. 「**イメージ**」 フィールドは、**Ubuntu Server 16.04 LTS + Azure IoT Edge ランタイム**イメージを使用するように構成されていることに注意してください。
-
-1. **Azure Spot インスタンス**を 「**いいえ**」 に設定したままにします。
-
-1. 「**サイズ**」 の右側にある 「**サイズの変更**」 をクリックします。
-
-1. 「**VM サイズの選択**」 ブレードの 「**VM サイズ**」 で、「**DS1_v2**」、「**選択**」 の順にクリックします。
-
-    DS1_v2 が一覧に表示されない場合は、「**すべてのフィルターをクリア**」 リンクを使用して、このサイズを一覧で表示されるようにする必要があります。
-
-    > **注意**:  すべてのリージョンですべての VM サイズを使用できるわけではありません。後の手順で VM サイズを選択できない場合は、別のリージョンを試してください。たとえば、**米国西部** で利用できるサイズがない場合は、**米国西部 2** を試してみてください。 
-
-1. 「**管理者アカウント**」 の 「**認証の種類**」 の右側で、「**パスワード**」 をクリックします。     
-
-1. VM 管理者アカウントの場合は、「**ユーザー名**」、「**パスワード**」、「**パスワードの確認入力**」 の各フィールドの値を入力します。
-
-    > **重要:** これらの値を失くしたり忘れたりしないでください - それらが無いと VM に接続できません。
-
-1. **受信ポートの規則**は、VM の受信 **SSH** アクセスを有効にするために構成されていることに注意してください。
-
-    これは、VM をにリモートで設定して管理するために使用されます。
-
-1. **「Review + create」** をクリックします。
-
-1. 「**検証に成功しました**」というメッセージがブレードの上部に表示されるのを待ち、「**作成**」 をクリックします。   
-
-    > **注意**:  デプロイが完了するには 5 分ほどかかる場合があります。デプロイ中に次の演習に進むことができます。
-
-### 演習 3: Azure CLI を使用して IoT ハブで IoT Edge デバイス ID を作成する
-
-この演習では、Azure CLI を使用して、Azure IoT Hub 内に新しい IoT Edge デバイス ID を作成します。
-
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
-
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
-
-1. Azure portal のツール バーで、Azure Cloud Shell を開き、「**Cloud Shell**」 をクリックします。 
-
-    左側のナビゲーション メニューではなく、Azure portal のツール バー上にある Cloud Shell ボタンには、コマンド プロンプトと似たようなアイコンがあります。
-
-1. **Bash** 環境オプションを使用していることを確認します。
-
-    Cloud Shell の左上隅の環境ドロップダウンで、Bash を選択する必要があります。
-
-1. コマンド プロンプトで、IoT Hub に IoT Edge デバイス ID を作成するには、次のコマンドを入力します。
+1. Run the following Azure CLI command to create an **IoT Edge Device Identity** in Azure IoT Hub with the **Device ID** set to `myEdgeDevice`.
 
     ```cmd/sh
-    az iot hub device-identity create --hub-name AZ-220-HUB-{YOUR-ID} --device-id myEdgeDevice --edge-enabled
+    az iot hub device-identity create --hub-name {IoTHubName} --device-id myEdgeDevice --edge-enabled
     ```
 
-    このコースの開始時に作成した `{YOUR-ID}` のプレースホルダーを、YOU-ID 値に必ず置き換えてください。
+    Be sure to replace the `{IoTHubName}` placeholder with the name of the Azure IoT Hub in your subscription.
 
-    > **注意**: Azure portal で IoT Hub を使用して、この IoT Edge デバイスを作成することもできます。「**IoT Hub**」 -> 「**IoT Edge**」 -> 「**IoT Edge デバイスの追加**」
+    > [!NOTE] The IoT Edge Device Identity can also be created using the Azure Portal by navigating to **IoT Hub** -> **IoT Edge** -> **Add an IoT Edge device**.
 
-1. コマンドで作成された出力をレビューします。 
-
-    出力には、IoT Edge デバイス用に作成された**デバイス ID** に関する情報が含まれています。たとえば、自動生成されたキーを使用した `symmetricKey` 認証が既定として設定されており、`iotEdge` 機能が、指定された `--edge-enabled` パラメーターで示されるとおり `true` に設定されてることを確認できます。
+1. Notice the output of the command contains information about the **Device Identity** that was created for the IoT Edge device. For example, you can see it defaults to `symmetricKey` authentication with auto-generated keys, and the `iotEdge` capability is set to `true` as indicated by the `--edge-enabled` parameter that was specified.
 
     ```json
-    {
-        "authentication": {
+        {
+          "authentication": {
             "symmetricKey": {
-                "primaryKey": "jftBfeefPsXgrd87UcotVKJ88kBl5Zjk1oWmMwwxlME=",
-                "secondaryKey": "vbegAag/mTJReQjNvuEM9HEe1zpGPnGI2j6DJ7nECxo="
+              "primaryKey": "jftBfeefPsXgrd87UcotVKJ88kBl5Zjk1oWmMwwxlME=",
+              "secondaryKey": "vbegAag/mTJReQjNvuEM9HEe1zpGPnGI2j6DJ7nECxo="
             },
             "type": "sas",
             "x509Thumbprint": {
-                "primaryThumbprint": null,
-                "secondaryThumbprint": null
+              "primaryThumbprint": null,
+              "secondaryThumbprint": null
             }
-        },
-        "capabilities": {
+          },
+          "capabilities": {
             "iotEdge": true
-        },
-        "cloudToDeviceMessageCount": 0
-        "connectionState": "Disconnected",
-        "connectionStateUpdatedTime": "0001-01-01T00:00:00",
-        "deviceId": "myEdgeDevice",
-        "deviceScope": "ms-azure-iot-edge://myEdgeDevice-637093398936580016",
-        "etag": "OTg0MjI1NzE1",
-        "generationId": "637093398936580016",
-        "lastActivityTime": "0001-01-01T00:00:00",
-        "status": "enabled",
-        "statusReason": null,
-        "statusUpdatedTime": "0001-01-01T00:00:00"
-    }
+          },
+          "cloudToDeviceMessageCount": 0,
+          "connectionState": "Disconnected",
+          "connectionStateUpdatedTime": "0001-01-01T00:00:00",
+          "deviceId": "myEdgeDevice",
+          "deviceScope": "ms-azure-iot-edge://myEdgeDevice-637093398936580016",
+          "etag": "OTg0MjI1NzE1",
+          "generationId": "637093398936580016",
+          "lastActivityTime": "0001-01-01T00:00:00",
+          "status": "enabled",
+          "statusReason": null,
+          "statusUpdatedTime": "0001-01-01T00:00:00"
+        }
     ```
 
-1. IoT Edge デバイスの**接続文字列**を表示するには、次のコマンドを入力します。 
+1. Once the IoT Edge Device Identity has been created, you can access the **Connection String** for the device by running the following Azure CLI command.
 
     ```cmd/sh
-    az iot hub device-identity show-connection-string --device-id myEdgeDevice --hub-name AZ-220-HUB-_{YOUR-ID}_
+    az iot hub device-identity show-connection-string --device-id myEdgeDevice --hub-name {IoTHubName}
     ```
 
-    このコースの開始時に作成した `{YOUR-ID}` のプレースホルダーを、YOU-ID 値に必ず置き換えてください。
+    Replace the `{IoTHubName}` placeholder with the name of the Azure IoT Hub in your subscription.
 
-1. コマンドの JSON 出力から `connectionString` の値をコピーし、後で参照するために保存します。
-
-    この接続文字列は、IoT Edge デバイスを構成して IoT ハブに接続するために使用されます。
+1. Copy the value of the `connectionString` from the JSON output of the command, and save it for reference later. This connection string will be used to configure the IoT Edge device to connect to IoT Hub.
 
     ```json
         {
@@ -280,113 +139,97 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
         }
     ```
 
-    > **注意**:  IoT Edge デバイス接続文字列は、**IoT Hub** -> **IoT Edge** -> **Edge デバイス** -> **接続文字列 (主キー)** に移動することで、Azure portal 内からもアクセスできます。
+    > [!NOTE] The IoT Edge Device Connection String can also be accessed within the Azure Portal, by navigating to **IoT Hub** -> **IoT Edge** -> **Your Edge Device** -> **Connection String (primary key)**
 
-### 演習 4: IoT Edge デバイスを IoT ハブに接続する
 
-この演習では、IoT Edge デバイスを Azure IoT Hub に接続します。
 
-1. IoT Edge 仮想マシンが正常にデプロイされたことを確認します。
 
-    Azure portal で通知ウィンドウを確認できます。
 
-1. Azure portal メニューで、**「リソース グループ」** をクリックします。
+## Exercise 4: Connect IoT Edge Device to IoT Hub
 
-1. 「**リソース グループ**」 ブレードで、AZ-220-VM-RG-RG リソース グループを探します。
+In this exercise, you will connect the IoT Edge Device to Azure IoT Hub.
 
-1. ブレードの右側にある **AZ-220-VM-RG** の向かい側で、「**クリックしてコンテキスト メニューを開く**」 (省略記号アイコン - ...) をクリックする
+1. Navigate to the `AZ-220-VM-EDGE` IoT Edge virtual machine within the Azure Portal.
 
-1. コンテキスト メニューで、「**ダッシュボードにピン留めする**」 をクリックし、ダッシュボードに戻ります。 
+1. On the **Overview** pane of the **Virtual machine** blade, click the **Connect** button at the top.
 
-    リソースへのアクセスが容易にする場合は、ダッシュボードを**編集**して、タイルを並べ替えることができます。 
- 
-1. **AZ-220-VM-RG** リソース グループ タイルで、IoT Edge 仮想マシンを開くために、 「**AZ-220-VM-EDGE**」 をクリックします。   
+1. Within the **Connect to virtual machine** pane, select the **SSH** option, then copy the **Login using VM local account** value.
 
-1. 「**概要**」 ペインの上部にある 「**接続**」 をクリックしてから、「**SSH**」 をクリックします。     
+    This is a sample SSH command that will be used to connect to the virtual machine that contains the IP Address for the VM and the Administrator username. The command is formatted similar to `ssh demouser@52.170.205.79`.
 
-1. 「**接続**」 ウィンドウの 「**4. 次のコマンドの例を実行して VM に接続する**」 で、サンプル コマンドをコピーします。
+1. At the top of the Azure Portal click on the **Cloud Shell** icon to open up the **Azure Cloud Shell** within the Azure Portal. When the pane opens, choose the option for the **Bash** terminal within the Cloud Shell.
 
-    これは、VM の IP アドレスと管理者ユーザー名を含む仮想マシンに接続するために、使用できるサンプル SSH コマンドです。コマンドは、`ssh username@52.170.205.79` のように形式化される必要があります。
+1. Within the Cloud Shell, paste in the `ssh` command that was copied, and press **Enter**.
 
-    > **注意**: サンプル コマンドが `-i <private key path>` を含む場合は、テキスト エディターを使用してコマンドのその部分を削除し、更新されたコマンドをクリップボードにコピーします。
+1. When prompted with **Are you sure you want to continue connecting?**, type `yes` and press Enter. This prompt is a security confirmation since the certificate used to secure the connection to the VM is self-signed. The answer to this prompt will be remembered for subsequent connections, and is only prompted on the first connection.
 
-1. まだ Cloud Shell が開いていない場合は、「**Cloud Shell**」 をクリックします。 
+1. When prompted to enter the password, enter the Administrator password that was entered when the VM was provisioned.
 
-1. Cloud Shell コマンド プロンプトで、テキスト エディターで更新した `ssh` コマンドを貼り付け、**Enter キー**を押します。 
-
-1. 「**接続を続行しますか?**」というメッセージが表示されたら、`yes` と入力して **Enter キー**を押します。   
-
-    VM への接続を保護するために使用される証明書は自己署名されているので、このプロンプトはセキュリティの確認です。このプロンプトに対する答えは、その後の接続のために記憶され、最初の接続時にのみプロンプトが表示されます。
-
-1. パスワードの入力を求められたら、VM のプロビジョニング時に作成した管理者パスワードを入力します。
-
-1. 接続すると、ターミナル コマンド プロンプトが変更され、次のような Linux VM の名前が表示されます。
+1. Once connected, the terminal will change to show the name of the Linux VM, similar to the following. This tells you which VM you are connected to.
 
     ```cmd/sh
-    username@AZ-220-VM-EDGE:~$
+    demouser@AZ-220-VM-EDGE:~$
     ```
 
-    これにより、接続された VM が分かります。
-
-    > **重要:** 接続すると、Edge VM に対して未処理の OS 更新プログラムがあることを知らせてくれます。  ラボの目的としてはこれを無視しますが、運用環境では、常に Edge デバイスを最新の状態に保つ必要があります。
-
-1. Azure IoT Edge ランタイムが VM にインストールされていることを確認するには、次のコマンドを実行します。
+1. To confirm that the Azure IoT Edge Runtime is installed on the VM, run the following command:
 
     ```cmd/sh
     iotedge version
     ```
 
-    このコマンドは、仮想マシンに現在インストールされている Azure IoT Edge ランタイムのバージョンを出力します。
+    This command will output the version of the Azure IoT Edge Runtime that is currently installed on the virtual machine.
 
-1. Azure IoT Hub のデバイス接続文字列を使用して Edge デバイスを構成するには、次のコマンドを入力します。
+1. You will need to run the command to configure the Edge device to connect to IoT Hub as Administrator. Run the following `sudo` command to elevate the terminal to run as Administrator:
 
     ```cmd/sh
-    sudo /etc/iotedge/configedge.sh "{iot-edge-device-connection-string}"
+    sudo su -
     ```
 
-    上記の `{iot-edge-device-connection-string}` のプレースホルダーを、IoT Edge デバイスの作成時に記録した接続文字列値に置き換えてください (コマンド ラインに引用符を必ず入れてください)。
+    > [!NOTE] You will see the user id change in the shell prompt: `root@AZ-220-VM-EDGE:~$`
 
-    `/etc/iotedge/configedge.sh` スクリプトは、Azure IoT Hub に接続するために必要な接続文字列を使用して Edge デバイスを構成するために使用されます。このスクリプトは、Azure IoT Edge ランタイムの一部としてインストールされます。
+1. The `/etc/iotedge/configedge.sh` script is used to configure the Edge device with the Connection String necessary to connect it to Azure IoT Hub. This script is installed as part of the Azure IoT Edge Runtime.
 
-1. 接続文字列が設定されていることを確認します。
+1. To configure the Edge device with the **Device Connection String** for Azure IoT Hub that was copied when the IoT Edge Device ID was created, run the following command:
 
-    このコマンドが完了すると、入力された接続文字列を使用して Azure IoT Hub に接続するように IoT Edge デバイスが構成されます。コマンドは、設定された接続文字列を含む `接続文字列が ... に設定されました` というメッセージを出力します。
+    ```cmd/sh
+    /etc/iotedge/configedge.sh "{iot-edge-device-connection-string}"
+    ```
 
-### 演習 5: Edge デバイスに Edge モジュールを追加する
+    Be sure to replace the `{iot-edge-device-connection-string}` placeholder with the Connection String you copied previously for your IoT Edge Device.
 
-この演習では、シミュレートされた温度センサーをカスタム IoT Edge モジュールとして追加し、IoT Edge デバイスで実行するようにデプロイします。
+1. Once this command completes, the IoT Edge Device will be configured to connect to Azure IoT Hub using the **Connection String** that was entered. The command will output a `Connection string set to ...` message that includes the Connection String that was set.
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. リソース グループ タイルで IoT ハブを開くには 「**AZ-220-HUB-_{YOUR-ID}_**」 をクリックします。
 
-1. 「**IoT ハブ**」 ブレードの左側にある 「**自動デバイス管理**」 で、「**IoT Edge**」 をクリックします。     
+## Exercise 5: Add Edge Module to Edge Device
 
-1. IoT Edge デバイスの一覧で、「**myEdgeDevice**」 をクリックします。 
+In this unit you will add a Simulated Temperature Sensor as a custom IoT Edge Module, and deploy it to run on the IoT Edge Device.
 
-1. 「**myEdgeDevice**」 ブレードで、「**モジュール**」 タブに、デバイスに対して現在構成されているモジュールのリストが表示されていることを確認します。   
+1. If necessary, log in to your Azure portal using your Azure account credentials.
 
-    現在、IoT Edge デバイスは、IoT Edge ランタイムの一部である Edge エージェント (`$edgeAgent`) および Edge ハブ (`$edgeHub`) モジュールのみで構成されています。
+    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
 
-1. 「**myEdgeDevice**」 ブレードの上部で、「**モジュールの設定**」 をクリックします。
+1. On your Resource group tile, click **AZ-220-HUB-{YOUR-ID}** to navigate to the Azure IoT Hub.
 
-1. 「**デバイスのモジュールを設定: myEdgeDevice**」 ブレードで、**IoT Edge モジュール**セクションを見つけます。   
+1. Under **Automatic Device Management**, click on **IoT Edge**.
 
-1. 「**IoT Edge モジュール**」 で 「**追加**」 をクリックしてから、「**IoT Edge モジュール**」 をクリックします。     
+1. Within the list of IoT Edge Devices, click on the `myEdgeDevice` Device ID for the Edge device that was created previously.
 
-1. 「**IoT Edge モジュールの追加**」 ペインの 「**IoT Edge モジュール名**」 に、  「**tempsensor**」と入力します。   
+1. On the Device summary pane for the **myEdgeDevice** IoT Edge Device, notice the **Modules** tab displays a list of the modules currently configured for the device. Currently, the IoT Edge device is configured to only run the Edge Agent (`$edgeAgent`) and Edge Hub (`$edgeHub`) modules that are part of the IoT Edge Runtime.
 
-    カスタム モジュールの名前を「tempsensor」と命名します
+1. On the IoT Edge Device blade, click on the **Set Modules** button at the top.
 
-1. 「**イメージ URL**」 の下に**asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor** と入力します。  
+1. On the **Set modules** blade, locate the **IoT Edge Modules** sections, and click the **Add** button, then select **IoT Edge Module**.
 
-    > **注意**: このイメージは、このテスト シナリオをサポートするために製品グループによって提供される Docker Hub で公開されたイメージです。
+1. On the **IoT Edge Custom Modules** pane, enter the following values to add a custom module named `tempsensor` using the Image URI for a simulated temperature sensor module.
 
-1. 選択したタブを変更するには、「**モジュール ツインの設定**」 をクリックします。 
+    - IOT Edge Module Name: `tempsensor`
+    - Image URI: `asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor`
 
-1. モジュール ツインに必要なプロパティを指定するには、次の JSON を入力します。
+1. Select the **Module Twin Settings** tab.
+
+1. Enter the following JSON for the module twin's desired properties:
 
     ```json
     {
@@ -401,26 +244,23 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
     }
     ```
 
-    この JSON は、モジュール ツインの必要なプロパティを設定して Edge モジュールを構成します。
+    This JSON configures the Edge Module by setting the **Desired** properties of its module twin.
 
-1. ブレードの最下部で、「**追加**」 をクリックします。
+1. Click **Add**.
 
-1. 「**デバイスのモジュールを設定: myEdgeDevice**」 ブレードで、ブレードの下部にある 「**次へ:**」 をクリックします。**ルート >**。
+1. On **Modules** step, of the **Set modules on device** pane, click **Next: Routes >**.
 
-1. 既定のルートは既に構成されています。
+1. On the **Specify Routes** step, notice the default route is already configured that will send all messages from all modules on the IoT Edge Device to IoT Hub.
 
-    * 名前: **ルート**
-    * 値: `FROM /messages/* INTO $upstream`
+    - Name: **route**
 
-    このルートによって、IoT Edge デバイス上のすべてのモジュールからのすべてのメッセージが IoT Hub に送信されます
+    - Value: `FROM /messages/* INTO $upstream`
 
-1. **「Review + create」** をクリックします。
+1. Click **Next: Review + create >**.
 
-1. 「**デプロイ**」 で、表示されている配置マニフェストを確認します。 
+1. On the **Review Deployment** step, notice the JSON displayed in this pane. This is JSON is the **Deployment Manifest** for the IoT Edge Device.
 
-    見てのとおり、IoT Edge デバイスの配置マニフェストは非常に読みやすい JSON 形式です。
-
-    `properties.desired` セクションの下に、IoT Edge デバイスにデプロイされる IoT Edge モジュールを宣言する `modules` セクションがあります。これには、コンテナー レジストリの資格情報を含むすべてのモジュールのイメージ URI が含まれます。
+    Under the `properties.desired` section is the `modules` section that declares the IoT Edge Modules that will be deployed to the IoT Edge Device. This includes the Image URIs of all the modules, including any container registry credentials.
 
     ```json
     {
@@ -440,7 +280,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
                         },
     ```
 
-    JSON の下部には、Edge Hub に必要なプロパティを含む **$edgeHub** セクションがあります。  このセクションには、モジュール間および IoT Hub へのイベントのルーティングのルーティング構成も含まれています。
+    Lower in the JSON is the **$edgeHub** section that contains the desired properties for the Edge Hub. This section also includes the routing configuration for routing events between modules, and to IoT Hub.
 
     ```json
         "$edgeHub": {
@@ -456,7 +296,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
         },
     ```
 
-    JSON の下位のセクションには **tempsensor** モジュールのセクションがあり、その中の `properties.desired` セクションには、Edge モジュールの構成に必要なプロパティが含まれています。 
+    Lower in the JSON is a section for the **tempsensor** module, where the `properties.desired` section contains the desired properties for the configuration of the edge module.
 
     ```json
                 },
@@ -476,172 +316,148 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
         }
     ```
 
-1. ブレードの下部で、デバイスのモジュールの設定を完了するには、「**作成**」 をクリックします。 
+1. Click **Create** to finish setting the modules on the device.
 
-1. 「**myEdgeDevice** ブレードの 「**モジュール**」 の下に、**tempsensor** が表示されていることを確認します。     
+1. Notice on the IoT Edge Device blade for the `myEdgeDevice` device, the list of **Modules** now includes the newly added `tempsensor` module.
 
-    > **注意**:  一覧表示されたモジュールを初めて表示するには、「**更新**」 をクリックする必要がある場合があります。
+    > [!NOTE] You may have to click **Refresh** to see the module listed for the first time.
 
-    **tempsensor** のランタイムの状態が報告されないことがあります。
+1. After a moment, click **Refresh** to update the current state of the Edge Device.
 
-1. ブレードの上部にある 「**更新**」 をクリックします。
+1. Notice the `tempsensor` module is now updated, displaying the **Runtime Status** as **running**.
 
-1. **tempsensor** モジュールの **ランタイムの状態**が**動作中**に設定されています。
+1. Open a **Cloud Shell** session and connect to the `AZ-220-VM-EDGE` virtual machine using **SSH**.
 
-    それでも値が報告されない場合は、しばらく待ってからブレードを再度更新します。
- 
-1. Cloud Shell セッションを開きます (まだ開いていない場合)。
-
-    `AZ-220-VM-EDGE` 仮想マシンすでに接続されていない場合は、 以前と同様に **SSH** を使用して接続します。
-
-1. Cloud Shell コマンド プロンプトで、IoT Edge デバイス上で現在実行されているモジュールを一覧表示するには、次のコマンドを入力します。
+1. Within Cloud Shell, run the following command to list out all the modules currently running on the IoT Edge Device.
 
     ```cmd/sh
     iotedge list
     ```
 
-1. コマンドの出力は、次のようなものになります。 
+1. The output of the command look similar to the following. Notice `tempsensor` at the bottom of the list.
 
     ```cmd/sh
     demouser@AZ-220-VM-EDGE:~$ iotedge list
     NAME             STATUS           DESCRIPTION      CONFIG
-    edgeHub          running          Up a minute      mcr.microsoft.com/azureiotedge-hub:1.0
-    edgeAgent        running          Up 26 minutes    mcr.microsoft.com/azureiotedge-agent:1.0
     tempsensor       running          Up 34 seconds    asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor
+    edgeAgent        running          Up 26 minutes    mcr.microsoft.com/azureiotedge-agent:1.0
+    edgeHub          running          Up a minute      mcr.microsoft.com/azureiotedge-hub:1.0
     ```
 
-    `tempsensor` が動作中のモジュールの 1 つとしてリストされていることに注意してください。
-
-1. モジュール ログを表示するには、次のコマンドを入力します。
+1. The `iotedge logs` command can be used to view the module logs for the `tempsensor` module. Run the following command to view the module logs:
 
     ```cmd/sh
     iotedge logs tempsensor
     ```
 
-    コマンドの出力は、次のようなものになります。
+    The output of the command looks similar to the following:
 
     ```cmd/sh
     demouser@AZ-220-VM-EDGE:~$ iotedge logs tempsensor
-    11/14/2019 18:05:02 - JSON イベントの送信 : {"machine":{"temperature":41.199999999999925,"pressure":1.0182182583425192},"ambient":{"temperature":21.460937846433808,"humidity":25},"timeCreated":"2019-11-14T18:05:02.8765526Z"}
-    11/14/2019 18:05:03 - JSON イベントの送信 : {"machine":{"temperature":41.599999999999923,"pressure":1.0185790159334602},"ambient":{"temperature":20.51992724976499,"humidity":26},"timeCreated":"2019-11-14T18:05:03.3789786Z"}
-    11/14/2019 18:05:03 - JSON イベントの送信 : {"machine":{"temperature":41.999999999999922,"pressure":1.0189397735244012},"ambient":{"temperature":20.715225311096397,"humidity":26},"timeCreated":"2019-11-14T18:05:03.8811372Z"}
+    11/14/2019 18:05:02 - Send Json Event : {"machine":{"temperature":41.199999999999925,"pressure":1.0182182583425192},"ambient":{"temperature":21.460937846433808,"humidity":25},"timeCreated":"2019-11-14T18:05:02.8765526Z"}
+    11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.599999999999923,"pressure":1.0185790159334602},"ambient":{"temperature":20.51992724976499,"humidity":26},"timeCreated":"2019-11-14T18:05:03.3789786Z"}
+    11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.999999999999922,"pressure":1.0189397735244012},"ambient":{"temperature":20.715225311096397,"humidity":26},"timeCreated":"2019-11-14T18:05:03.8811372Z"}
     ```
 
-    `iotedge logs` コマンドを使用して、任意の Edge モジュールのモジュール ログを表示できます。
-
-1. シミュレートされた温度センサー モジュールは、500 メッセージを送信した後に停止します。次のコマンドを実行して再開できます。
+1. The Simulated Temperature Sensor Module will stop after it sends 500 messages. It can be restarted by running the following command:
 
     ```cmd/sh
     iotedge restart tempsensor
     ```
 
-    今すぐモジュールを再起動する必要はありませんが、後でテレメトリの送信を停止した場合は、Cloud Shell に戻って Edge VM にSSH 接続し、このコマンドを実行してリセットします。リセットされると、モジュールはテレメトリの送信を再開します。
+    You do not need to restart the module now, but if you find it stops sending telemetry later, then go back into the **Azure Cloud Shell** and run this command to reset it. Once reset, the module will start sending telemetry again.
 
-### 演習 6: IoT Edge モジュールとして Azure Stream Analytics をデプロイする
 
-これで、tempSensor モジュールが IoT Edge デバイスにデプロイされ、実行されるようになったので、IoT Edge デバイスでメッセージを処理できる Stream Analytics モジュールを追加してから、IoT Hub に送信できます。
 
-#### タスク 1: Azure ストレージ アカウントを作成する
+## Exercise 6: Deploy Azure Stream Analytics as IoT Edge Module
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+Now that the tempSensor module is deployed and running on the IoT Edge device, we can add a Stream Analytics module that can process messages on the IoT Edge device before sending them on to the IoT Hub.
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+## Create Azure Storage Account
 
-1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
+1. If necessary, log in to your Azure portal using your Azure account credentials.
 
-1. 「**新規**」 ブレードの検索テキスト ボックスに、「**ストレージ**」と入力し、**Enter** を押します。     
+    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
 
-1. 「**Marketplace** ブレードで、「**ストレージ アカウント - BLOB、ファイル、テーブル、キュー**」 をクリックします。
+1. In the Azure Portal, click **Create a resource** to open the Azure Marketplace.
 
-1. 「**ストレージ アカウント - BLOB、ファイル、テーブル、キュー**」 ブレードで、「**作成**」 クリックします。
+1. On the **New** blade, select the **Storage** category under **Azure Marketplace**, then click on **Storage account**.
 
-1. 「**ストレージ アカウントの作成**」 ブレードで、「サブスクリプション」 ドロップダウンが、このコースで使用しているサブスクリプションを表示していることを確認します。 
+1. On the **Create storage account**, select the existing `AZ-220-RG` group in the **Resource group** field.
 
-1. 「**リソース グループ**」 ドロップダウンで、「**AZ-220-RG-RG**」 をクリックします。
+1. Set the **Storage account name** field to something unique. This needs to be a globally unique name for the Azure Storage Account.
 
-1. 「**ストレージ アカウント名**」 テキストボックスに、「**az220store{YOUR-ID}**」と入力します。   
+    To provide a globally unique name, enter **az220store{your-id}** - i.e. followed by your initials and the current date. 
 
-    > **注意**: このフィールドでは、{YOUR-ID} を小文字で入力する必要があり、ダッシュ文字や下線文字は使用できません。
+    > [!NOTE] Your initials must be in lower-case for this resource and no dashes.
 
-1. 「**場所**」 フィールドを、Azure IoT Hub で使用されているのと同じ Azure リージョンに設定します。 
+1. Set the **Location** to the same Azure Region used for Azure IoT Hub.
 
-1. 「**レプリケーション**」 フィールド を**ローカル冗長ストレージ (LRS)** に設定します。
+1. Click **Review + create**.
 
-1. 他のすべての設定をそのままにします。
+1. Once validation has passed, click **Create** to deploy the Storage Account.
 
-1. ブレードの最下部で、**レビュー + 作成**をクリックします。
+    This will take a few moments to complete - you can continue creating the Stream Analytics resource while this is being created.
 
-1. 「**検証が成功しました**」のメッセージが表示されるまで待ってから、「**作成 **」 をクリックします。   
+## Create Azure Stream Analytics
 
-    デプロイが完了するまでに少し時間がかかる場合があります。作成している間に Stream Analytics のリソースの作成を継続できます。
+1. In the Azure Portal, click **Create a resource** to open the Azure Marketplace.
 
-#### タスク 2: Azure Stream Analytics の作成
+1. On the **New** blade, select the **Internet of Things** category under **Azure Marketplace**, then click on **Stream Analytics job**.
 
-1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
+1. On the **New Stream Analytics job** blade, enter **AZ-220-ASA-{YOUR-ID}** into the **Job name** field followed by your initials and the current date to make sure it's a unique name.
 
-1. 「**新規**」 ブレードの 「**Azure Marketplace**」 で、「**モノのインターネット**」 をクリックしてから、「**Stream Analytics ジョブ**」 をクリックします。       
+1. In the **Resource group** field, select the existing **AZ-220-RG** group in the **Resource group** field.
 
-1. 「**新しい Stream Analytics ジョブ**」 ブレードの 「**ジョブ名**」 フィールドに、「**AZ-220-ASA-_{YOUR-ID}_**」を入力します
+1. Set the **Location** to the same Azure Region used for the Storage Account and Azure IoT Hub.
 
-1. 「**リソース グループ**」 ドロップダウンで、「**AZ-220-RG-RG**」 をクリックします。
+1. Set the **Hosting environment** to **Edge**. This determines that the Stream Analytics job will deployed to an on-premises IoT Gateway Edge device.
 
-1. 「**場所**」 ドロップダウンで、ストレージ アカウントと Azure IoT Hub に使用される Azure リージョンと同じリージョンを選択します。 
+1. Click **Create**.
 
-1. 「**ホスティング環境**」 フィールドを **Edge** に設定します。   
+    It will take a few moments to for this resource to be completed.
 
-    これにより、Stream Analytics ジョブがオンプレミスの IoT ゲートウェイ Edge デバイスにデプロイされます。
+## Configure Azure Stream Analytics Job
 
-1. ブレードの最下部で、**作成**をクリックします。
+1. Once the **Stream Analytics job** has provisioned, navigate to the resource.
 
-    このリソースがデプロイされるまで数分かかります。
+1. In the left side navigation, click on **Inputs** under the **Job topology** section.
 
-#### タスク 3: Azure Stream Analytics ジョブを構成する
+1. On the **Inputs** pane, click **Add stream input**, then select **Edge Hub**.
 
-1. 「**デプロイが完了しました**」というメッセージが表示されたら 、「**リソースに移動**」 をクリックします。   
+1. On the **New Input** pane, enter `temperature` in the **Input alias** field.
 
-    新しい Stream Analytics ジョブの 「概要」 ウィンドウに表示されている必要があります。
- 
-1. 左側のナビゲーション メニューの 「**ジョブ トポロジ**」 で、「**入力**」 をクリックします。   
+1. In the **Event serialization format** dropdown, select **JSON**. Stream Analytics needs to understand the message format. JSON is the standard format.
 
-1. 「**入力**」 ペインで、「**ストリーム入力の追加**」 をクリックしてから、「**Event Hub**」 をクリックします。
+1. In the **Encoding** dropdown, select **UTF-8**.
 
-1. 「**Edge Hub**」 ペインの 「**入力エイリアス**」 フィールドに、「**温**」を入力します。
+    > [!NOTE] UTF-8 is the only JSON encoding supported at the time of writing.
 
-1. 「**イベントのシリアル化形式**」 ドロップダウンで、**JSON** が選択されていることを確認します。    
+1. In the **Event compression type** dropdown, select **None**.
 
-    Stream Analytics は、メッセージ形式を理解する必要があります。JSON は標準形式です。
+    For this lab, compression will not be used. GZip and Deflate formats are also supported by the service.
 
-1. 「**エンコード**」 ドロップダウンで、**UTF-8** が選択されていることを確認します。
+1. Click **Save**.
 
-    > **注意**:  UTF-8 は、書き込み時にサポートされている唯一の JSON エンコードです。
+1. In the left side navigation, click on **Outputs** under the **Job topology** section.
 
-1. 「**イベント圧縮タイプ**」 ドロップダウンで、「**なし**」 が選択されていることを確認します。   
+1. On the **Outputs** pane, click **Add**, then select **Edge Hub**.
 
-    この課題では、圧縮を使用しません。GZip および  Deflate 形式もサービスでサポートされています。
+1. On the **New output** pane, enter `alert` in the **Output alias** field.
 
-1. 画面の最下部で、「**保存**」 をクリックします。
+1. In the **Event serialization format** dropdown, select **JSON**. Stream Analytics needs to understand the message format. JSON is the standard format, but CSV is also supported by the service.
 
-1. 左側のナビゲーション メニューの 「**ジョブ トポロジ**」 で、「**出力**」 をクリックします。   
+1. In the **Format** dropdown, select **Line separated**.
 
-1. 「**出力**」 ペインで、「**追加**」 をクリックしてから、「**Edge Hub**」 をクリックします。
+1. In the **Encoding** dropdown, select **UTF-8**.
 
-1. 「**Edge Hub**」 ペインの 「**出力エイリアス**」 フィールドに、「**警告**」と入力します。   
+    > [!NOTE] UTF-8 is the only JSON encoding supported at the time of writing.
 
-1. 「**イベントのシリアル化形式**」 ドロップダウンで、**JSON** が選択されていることを確認します。   
+1. Click **Save**.
 
-    Stream Analytics は、メッセージ形式を理解する必要があります。JSON は標準形式ですが、サービスでは CSV もサポートされています。
+1. In the left side navigation, click on **Query** under the **Job topology** section.
 
-1. 「**形式**」 ドロップダウンで、「**改行区切り**」 が選択されていることを確認します。
-
-1. 「**エンコード**」 ドロップダウンで、**UTF-8** が選択されていることを確認します。
-
-    > **注意**:  UTF-8 は、書き込み時にサポートされている唯一の JSON エンコードです。
-
-1. 画面の最下部で、「**保存**」 をクリックします。
-
-1. 左側のナビゲーション メニューの 「**ジョブ トポロジ**」 で、「**クエリ**」 をクリックします。
-
-1. 「**クエリ**」 ペインで、既定のクエリを次に置き換えます。
+1. In the **Query** pane, replace the Default query with the following:
 
     ```sql
     SELECT  
@@ -651,104 +467,90 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
     FROM
         temperature TIMESTAMP BY timeCreated
     GROUP BY TumblingWindow(second,15)
-    HAVING Avg(machine.temperature) > 25
+    HAVING Avg(machine.temperature) > 500
     ```
 
-    このクエリは、`temperature` 入力に入るイベントを調べ、15 秒間隔のタンブリング ウィンドウでグループ化して、そのグループ内の平均温度値が 25 よりも大きいかどうかをチェックします。平均が 25 より大きい場合、`command` プロパティが `reset` の値に設定されたイベントを `alert` 出力に送信します。
+    This query looks at the events coming into the `temperature` Input, and groups by a Tumbling Windows of 15 seconds, then it checks if the average temperature value within that grouping is greater than 25. If the average is greater than 25, then it sends an event with the `command` property set to the value of `reset` to the `alert` Output.
 
-    `TumblingWindow` 関数の詳細については、次のリンクを参照してください: [https://docs.microsoft.com/en-us/stream-analytics-query/tumbling-window-azure-stream-analytics](https://docs.microsoft.com/en-us/stream-analytics-query/tumbling-window-azure-stream-analytics)
+    For more information about the `TumblingWindow` functions, reference this link: <https://docs.microsoft.com/en-us/stream-analytics-query/tumbling-window-azure-stream-analytics>
 
-1. クエリ エディターの上部にある 「**クエリの保存**」 をクリックします。
+1. Click **Save query**.
 
-#### タスク 4: ストレージ アカウント設定を構成する
+## Configure Storage Account Settings
 
-IoT Edge デバイスにデプロイされるように Stream Analytics ジョブを準備するには、Azure BLOB Storage コンテナーに関連付ける必要があります。ジョブがデプロイされると、ジョブ定義がストレージ コンテナーにエクスポートされます。
+To prepare the Stream Analytics job to be deployed to an IoT Edge Device, it needs to be associated with an Azure Blob Storage container. When the job is deployed, the job definition is exported to the storage container.
 
-1. 「**Stream Analytics ジョブ**」 ブレード上にある、左側のナビゲーション メニューの 「**構成**」 で、「**ストレージ アカウントの設定**」 をクリックします。     
+1. On the **Stream Analytics job** blade, in the left side navigation, click **Storage account settings** under the **Configure** section.
 
-1. 「**ストレージ アカウントの設定**」 ペインで 「**ストレージ アカウントの追加**」 をクリックします。
+1. Click **Add storage account**.
 
-1. 「**ストレージ アカウントの設定**」 で、「**サブスクリプションからストレージ アカウントを選択**」 が選択されていることを確認します。   
+1. Select the **Select storage account from your subscription** option.
 
-1. 「**ストレージ アカウント**」 ドロップダウンで、**az220store{your-id}** ストレージ アカウントが選択されていることを確認します。   
+1. In the **Storage account** dropdown, select the **az220store{your-id}** storage account that was created previously.
 
-1.  「**コンテナー**」 で 「**新規作成**」 をクリックし、コンテナーの名前として「**jobdefinition**」を入力します。     
+1. Under **Container**, select **Create new**, then enter `jobdefinition` as the name of the container.
 
-1. ペインの上部にある 「**保存**」 をクリックします。
+1. Click **Save**.
 
-    変更を保存するかどうかを確認するメッセージが表示されたら、「**はい**」 をクリックします
+## Deploy the Stream Analytics Job
 
-#### タスク 5:  Streaming Analytics ジョブをデプロイする
+1. In the Azure Portal, navigate to the **AZ-220-HUB-{YOUR-ID}** Azure IoT Hub resource.
 
-1. Azure portal で、**AZ-220-HUB-_{YOUR-ID}_** IoT Hub リソースに移動します。 
+1. In the left side navigation, click **IoT Edge** under the **Automatic Device Management** section.
 
-1. 左側のナビゲーション メニューの 「**自動デバイス管理**」 で、「**IoT Edge**」 をクリックします。   
+1. Click on the **myEdgeDevice** IoT Edge device within the list of devices.
 
-1. 「**デバイス ID**」 の 「**myEdgeDevice**」 をクリックします。   
+1. On the **Device Details** pane, click the **Set Modules** button at the top.
 
-1. 「**myEdgeDevice**」 ペインの上部にある 「**モジュールの設定**」 をクリックします。   
+1. On the **Add Modules** step, locate the **IoT Edge Modules** section, then click **Add** and select **Azure Stream Analytics Module**.
 
-1. 「**デバイスのモジュールを設定: myEdgeDevice**」 ペインで、「**IoT Edge モジュール**」 セクションを見つけます。   
+1. In the **Edge job** dropdown, select the **Steam Analytics job** that was created previously.
 
-1. 「**IoT Edge モジュール**」 の下で 「**追加**」 をクリックしてから、「**Azure Stream Analytics モジュール**」 をクリックします。     
+    > [!NOTE] The job may already be selected, yet the **Save** button is disabled - just open the **Edge job** dropdown again and select the **AZ-220-ASA-{YOUR-ID}** job again. The **Save** button should then become enabled.
 
-1. 「**Edge デプロイ**」 ペインの 「**サブスクリプション**」 で、このコースに使用するサブスクリプションが選択されていることを確認します。   
+1. Click **Save**. Deployment may take a few moments.
 
-1. 「**Edge ジョブ**」 ドロップダウンで、**AZ-220-ASA-_{YOUR-ID}_** Steam Analytics ジョブが選択されていることを確認します。   
+1. Under the **IoT Edge Modules** section, click on the **Steam Analytics Module** that was just added.
 
-    > **注意**:  ジョブは既に選択されていても、「**保存**」 ボタンが無効になっている可能性があります - 「**Edge ジョブ**」 のドロップダウンをもう一度開いて **AZ-220-ASA-_{YOUR-ID}_** ジョブをもう一度選択します。      これで 「**保存**」 ボタンが有効になるはずです。 
-
-1. 画面の最下部で、「**保存**」 をクリックします。
-
-    デプロイには数分かかります。
-
-1. Edge パッケージが正常に公開されたら、新しい ASA モジュールが **IoT Edge モジュール**セクションの下に表示されていることを確認します。
-
-1. **IoT Edge モジュール**で、**AZ-220-ASA-_{YOUR-ID}_** をクリックします。    
-
-    これは、Edge デバイスに追加された Steam Analytics モジュールです。
-
-1. 「**IoT Edge モジュールの更新**」 ペインで、**イメージ URI** が「標準の Azure Stream Analytics」イメージを指していることに注意してください。 
+1. Notice the **Image URI** points to a standard Azure Stream Analytics image. This is the same image used for every job that gets deployed to an IoT Edge Device.
 
     ```text
-    mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.6
+    mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.5
     ```
 
-    これは、IoT Edge デバイスに展開されるすべての ASA ジョブに使用されるイメージと同じです。
+    > [!NOTE] The version number at the end of the **Image URI** that is configured will reflect the current latest version when you created the Stream Analytics Module. At the time or writing this unit, the version was `1.0.5`.
 
-    > **注意**:  構成された**イメージ URI** の最後にあるバージョン番号には、Stream Analytics モジュールを作成したときの最新バージョンが反映されます。  このユニットを書いている時点では、バージョンは `1.0.6` でした。
+1. Leave all values as their defaults, and close the **IoT Edge Custom Modules** pane.
 
-1. すべての値を既定値のままにして、「**IoT Edge カスタム モジュール**」 ペインを閉じます。
+1. Click **Next: Routes >**.
 
-1. 「**デバイスのモジュールを設定: myEdgeDevice**」 ペインで、「**次へ**」  をクリックします。 ** ルート >**。
+1. On the **Specify Routes** step, notice the existing routing is displayed.
 
-    既存のルーティングが表示されることを確認します。
+1. Replace the default routes defined with the following three routes:
 
-1. 定義されている既定のルートを次の 3 つのルートに置き換えます。
+    - Route 1
+        - Name: **telemetryToCloud**
+        - Value: `FROM /messages/modules/tempsensor/* INTO $upstream`
+    - Route 2
+        - Name: **alertsToReset**
+        - Value: `FROM /messages/modules/AZ-220-ASA-{YOUR-ID}/* INTO BrokeredEndpoint(\"/modules/tempsensor/inputs/control\")`
+    - Route 3
+        - Name: **telemetryToAsa**
+        - Value: `FROM /messages/modules/tempsensor/* INTO BrokeredEndpoint(\"/modules/AZ-220-ASA-{YOUR-ID}/inputs/temperature\")`
 
-    * Route 1
-        * NAME: **telemetryToCloud**
-        * VALUE: `FROM /messages/modules/tempsensor/* INTO $upstream`
-    * Route 2
-        * NAME: **alertsToReset**
-        * VALUE: `FROM /messages/modules/AZ-220-ASA-{YOUR-ID}/* INTO BrokeredEndpoint("/modules/tempsensor/inputs/control")`
-    * Route 3
-        * NAME: **telemetryToAsa**
-        * VALUE: `FROM /messages/modules/tempsensor/* INTO BrokeredEndpoint("/modules/AZ-220-ASA-{YOUR-ID}/inputs/temperature")`
+    Be sure to replace the `AZ-220-ASA-{YOUR-ID}` placeholder with the name of your Azure Stream Analytics job module. You can click **Previous** to view the list of modules and their names, then click **Next** to come back to this step.
 
-    > **注意**: `AZ-220-ASA-{YOUR-ID}` プレースホルダーを Azure Stream Analytics ジョブ モジュールの名前に必ず置き換えてください。  モジュールとその名前のリストを表示するために 「**前へ**」 をクリックしてから、このステップに戻るために 「**次へ**」 をクリックします。   
+    The routes being defined are as follows:
 
-    定義されるルートは次のとおりです。
+    - The **telemetryToCloud** route sends the all messages from the `tempsensor` module output to Azure IoT Hub.
+    - The **alertsToReset** route sends all alert messages from the Stream Analytics Module output to the input of the **tempsensor** module.
+    - The **telemetryToAsa** route sends all messages from the `tempsensor` module output to the Stream Analytics Module input.
 
-    * **telemetryToCloud** ルートは、`tempsensor` モジュール出力から Azure IoT Hub にすべてのメッセージを送信します。 
-    * **alertsToReset** ルートは、Stream Analytics モジュール出力から **tempsensor ** モジュールの入力に、すべての警告メッセージを送信します。   
-    * **telemetryToAsa** ルートは、`tempsensor` モジュール出力から Stream Analytics モジュール入力にすべてのメッセージを送信します。 
+1. Click **Next: Review + create >**.
 
-1. **「デバイスのモジュールを設定: myEdgeDevice**」 ブレードの下部にある、**「Review + create**」 をクリックします。   
+1. On the **Review + create** tab, notice the **Deployment Manifest** JSON is now updated with the Stream Analytics module and the routing definition that was just configured.
 
-1. 「**レビューと作成**」 タブで、**配置マニフェスト** JSON が、Stream Analytics モジュールと、たった今構成されたルーティング定義で更新されたことを確認します。
-
-1. `tempsensor` でシミュレートされた温度センサー モジュールの JSON 構成を確認します。
+1. Notice the JSON configuration for the `tempsensor` Simulated Temperature Sensor module:
 
     ```json
     "tempsensor": {
@@ -763,7 +565,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     },
     ```
 
-1. 以前に構成されたルートの JSON 構成と、JSON デプロイ定義で構成されている方法を確認します。
+1. Notice the JSON configuration for the routes that were previously configured, and how they are configured in the JSON Deployment definition:
 
     ```json
     "$edgeHub": {
@@ -781,21 +583,19 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     },
     ```
 
-1. ブレードの最下部で、**作成**をクリックします。
+1. Click **Create**.
 
-#### タスク 6: データの表示
+## View Data
 
-1. **SSH** 経由で **IoT Edge デバイス**に接続している **Cloud Shell** セッションに戻ります。       
+1. Go back to the **Cloud Shell** session where you're connected to the **IoT Edge Device** over **SSH**.
 
-    閉じているか、タイムアウトしている場合は、再接続します。`SSH` コマンドを実行し、前と同じログインを行います。
-
-1. コマンド プロンプトで、デバイスにデプロイされたモジュールの一覧を表示するには、次のコマンドを入力します。
+1. Run the following command to view a list of the modules deployed to the device:
 
     ```cmd/sh
-    iotedge リスト
+    iotedge list
     ```
 
-    新しい Stream Analytics モジュールが IoT Edge デバイスにデプロイされるには、1 分かかる場合があります。それが表示されると、このコマンドの出力リストに表示されます。
+    It can take a minute for the new Stream Analytics module to be deployed to the IoT Edge Device. Once it's there, you will see it in the list output by this command.
 
     ```cmd/sh
     demouser@AZ-220-VM-EDGE:~$ iotedge list
@@ -806,19 +606,17 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     tempsensor         running          Up 4 hours       asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor
     ```
 
-    > **注意**:  Stream Analytics モジュールがリストに表示されない場合は、1?2 分待ってから、もう一度やり直してください。IoT Edge デバイスでモジュールのデプロイが更新されるには、1 分かかることがあります。
+    > [!NOTE] If the Stream Analytics module does not show up in the list, wait a minute or two, then try again. It can take a minute for the module deployment to be updated on the IoT Edge Device.
 
-1. コマンド プロンプトで、`tempsensor` モジュールによって Edge デバイスから送信されるテレメトリを監視するには、次のコマンドを入力します。
+1. Run the `iotedge log` command within the Azure Cloud Shell SSH session on the **IoT Edge Device** to watch the telemetry being sent by the `tempsensor` Simulated Temperature Sensor module:
 
     ```cmd/sh
     iotedge logs tempsensor
     ```
 
-1. 出力を確認するには、少し時間がかかります。
+1. Notice that while watching the temperature telemetry being sent by **tempsensor**, you will see the **reset** command sent by the Stream Analytics job when the `machine.temperature` reaches an average above `500` as configured in the Stream Analytics job query.
 
-    **tempsensor** によって送信される温度テレメトリを監視している間、`machine.temperature` の平均が `25`を超えると、Stream Analytics ジョブによって**リセット**コマンドが送信されることに注意してください。    これは、Stream Analytics ジョブ クエリで構成されたアクションです。
-
-    このイベントの出力は、以下のようなものになります。
+    Output of this event will look similar to the following:
 
     ```cmd/sh
     11/14/2019 22:26:44 - Send Json Event : {"machine":{"temperature":231.599999999999959,"pressure":1.0095600761599359},"ambient":{"temperature":21.430643635304012,"humidity":24},"timeCreated":"2019-11-14T22:26:44.7904425Z"}
@@ -830,4 +628,4 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     11/14/2019 22:26:45 - Send Json Event : {"machine":{"temperature":320.4,"pressure":0.99945886361358849},"ambient":{"temperature":20.940019742324957,"humidity":26},"timeCreated":"2019-11-14T22:26:45.7931201Z"}
     ```
 
-このラボが終了したら、リソースを保持しておいてください - 次のラボで必要です。
+Once you have finished this lab, keep the resources around - you will need them for the next lab.

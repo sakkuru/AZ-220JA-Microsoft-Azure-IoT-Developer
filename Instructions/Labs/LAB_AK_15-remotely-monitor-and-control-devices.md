@@ -1,158 +1,101 @@
-﻿---
+---
 lab:
-    title: '「ラボ 15: Azure IoT Hub を使用してリモートによるデバイスの監視および制御」'
-    module: 'モジュール 8: デバイス管理」'
+    title: 'Lab 15: Remotely monitor and control devices with Azure IoT Hub'
+    module: 'Module 8: Device Management'
 ---
 
-# Azure IoT Hub を使用してリモートによるデバイスを監視および制御する
+# Remotely monitor and control devices with Azure IoT Hub
 
-## ラボ シナリオ
+## Lab Scenario
 
-Contoso は、受賞歴のあるチーズを誇りにしており、製造プロセス全体で完璧な温度と湿度を維持するように気を付けていますが、エージング プロセス中の状況には常に特別な注意を払ってきました。
+Suppose you manage a gourmet cheese making company in a southern location. The company is proud of its cheese, and is careful to maintain the perfect temperature and humidity of a natural cave that is used to age the cheese. There are sensors in the cave that report on the temperature and humidity. A remote operator can set a fan to new settings if needed, to maintain the perfect environment for the aging cheese. The fan can heat and cool, and humidify and de-humidify.
 
-近年、Contoso は環境センサーを使用して、ナチュラル チーズのエイジングのための洞窟の中の状態を記録し、そのデータを使用してほぼ完璧な環境を特定しています。最も成功した (賞に値する) 場所のデータによると、熟成チーズの理想的な温度はおよそ華氏 50 度 +/- 5 度 (摂氏 10 度 +/- 2.8 度) です。最大飽和度のパーセンテージで測定される理想的な湿度値は、約 85% +/- 10% です。
+Caves are used to mature cheese, their constant temperature, humidity, and air flow make them nearly ideal for the process. Not to mention the cachet of having your cheese products mature in a natural cave, instead of a constructed cellar. Something to put on your product labels!
 
-これらの理想的な温度と湿度の値は、ほとんどのタイプのチーズにも効果的です。ただし、特に硬いチーズや特に柔らかいチーズには、少々調整が必要です。また、チーズの外皮に望ましい条件など、特定の結果を得るためにはエージング プロセス中の重要な時期あるいは段階で環境を調整する必要があります。
+The accepted ideal temperature for aging cheese is 50 degrees fahrenheit (10 degrees centigrade), with up to 5 degrees (2.78 degrees C) either side of this being acceptable. Humidity is also important. Measured in percentage of maximum saturation, a humidity of between 75 and 95 percent is considered fine. We'll set 85 percent as the ideal, with a 10 percent variation as acceptable. These values apply to most cheeses. To achieve specific results, such as a certain condition of the rind, cheese makers will adjust these values for some of the time during aging.
 
-Contoso は幸運にも、(特定の地域で) ほぼ一年中理想的な条件を自然に維持するチーズ洞窟を運営することができます。しかしこういった場所でも、エージングプロセス中の環境管理は重要です。また、自然の洞窟には多くの場合、異なる小部屋が多くあり、小部屋の環境はそれぞれに少しずつ違います。チーズの品種は、それぞれ特定の要件に合う小部屋 (ゾーン) に配置されます。環境条件を望ましい範囲内に保つために、温度と湿度の両方を制御する空気処理・調整システムが使われています。
+In a southern location, a natural cave near the surface might have an ambient temperature of around 70 degrees. The cave might also have a relative humidity of close to 100 percent, because of water seeping through the roof. These high numbers aren't perfect conditions for aging cheese. At a more northerly location, the ambient temperature of a natural cave can be the ideal of 50 degrees. Because of our location, we need some Azure IoT intervention!
 
-現在、作業者は洞窟施設の各ゾーン内の環境条件を監視し、必要に応じて空気処理システムの設定を調整して、望ましい温度と湿度を維持しています。作業者は、4時間ごとに各ゾーンを訪問し、環境条件を確認することができます。昼は高温、夜は低温と温度が著しく変化する場所では、状況が望ましい制限の範囲外になる可能性があります。
+### Sending and Receiving Telemetry
 
-Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化システムの実装を任されました。
+The frequency of telemetry output is an important factor. A temperature sensor in a refrigeration unit may only have to report every minute, or less. An acceleration sensor on an aircraft may have to report at least every second.
 
-このラボでは、IoT デバイスを実装するチーズ貯蔵庫監視システムをプロトタイプとして作成します。各デバイスには温度および湿度センサーが装備されており、デバイスが配置されているゾーンの温度と湿度を制御する空気処理システムに接続されています。
+An IoT device may contain one or more sensors, and have some computational power. There may be LED lights, and even a small screen, on the IoT device. However, the device isn't intended for direct use by a human operator. An IoT device is designed to receive its instructions from the cloud.
 
-### 簡略化されたラボ条件
+### Control a Cheese Cave Device
 
-テレメトリの出力頻度は、生産ソリューションにおいて重要な検討事項です。冷却装置の温度センサーは 1 分間に 1 回しか報告する必要がないのに対し、航空機の加速度センサーは毎秒 10 回報告する必要がある場合があります。テレメトリを送信する必要のある頻度は、現在の状況に依存する場合もあります。たとえば、チーズ貯蔵庫のシナリオにおいて夜に急速に温度が低下する傾向がある場合は、日没の 2 時間前からセンサーの読み取り頻度を高めると役立つことがあります。当然のことながら、テレメトリの頻度を変更する要件は予測可能なパターンの一部である必要はなく、IoT デバイス設定の変更を促すイベントは予測不能な可能性があります。
+In this module, we assume the IoT cheese cave monitoring device has temperature and humidity sensors. The device has a fan capable of both cooling or heating, and humidifying or de-humidifying. Every few seconds, the device sends current temperature and humidity values to the IoT Hub. This rapid frequency is unrealistic for a cheese cave (maybe every 15 minutes, or less, would be granular enough), except during code development when we want rapid activity!
 
-このラボをシンプルに進行するために、以下を前提とします。
+For this lab, we assume that the fan can be in one of three states: on, off, and failed. The fan is initialized to the off state. In a later unit, the fan is turned on by use of a direct method.
 
-* デバイスは数秒ごとに IoT ハブにテレメトリ (温度と湿度の値) を送信します。この頻度はチーズ貯蔵庫では非現実的ですが、15 分ごとではなく、もっと頻繁に変化を見る必要があるラボ環境には最適です。
-* 空気処理システムは、次の 3 つの状態のいずれかになる送風機です：オン、オフ、エラー
-  * 送風機はオフ状態に初期化されています。
-  * IoTデバイス上でダイレクト メソッドによって、送風機への電力を制御 (オン/オフ) します。
-  * デバイス ツインの必要なプロパティ値は、送風機の目的の状態を設定するために使用されます。必要なプロパティ値は、送風機/デバイスの規定の設定をオーバーライドします。
-  * 温度は送風機をオン/オフにすることで制御できます (ファンをオンにすると温度が下がります)
+Another feature of our IoT device is that it can accept desired values from the IoT Hub. The device can then adjust its fan to target these desired values. These values are coded in this module using a feature called device twins. Desired values will override any default settings for the device.
 
-このラボでのコーディングは、製品利用統計情報の送受信、ダイレクト メソッドの呼び出しと実行、デバイス ツイン プロパティの設定と読み取りの 3 つの部分に分かれています。
+### Coding the Sample
 
-まず、製品利用統計情報を送信するデバイス用と、製品利用統計情報を受信する (クラウドで実行される) バックエンド サービス用の 2 つのアプリを作成します。
+The coding in this module is broken down into three parts: sending and receiving telemetry, sending and receiving a direct method, and managing device twins.
 
-次のリソースが作成されます。
+Let's start by writing two apps: one for the device to send telemetry, and one back-end service to run in the cloud, to receive the telemetry. You'll be able to select your preferred language (Node.js or C#), and development environment (Visual Studio Code, or Visual Studio).
 
-![ラボ 15 のアーキテクチャ](media/LAB_AK_15-architecture.png)
+## In this lab
 
-## このラボでは
+In this lab you will:
 
-このラボでは、次のタスクを完了します。
+* Create a custom Azure IoT Hub, using the IoT Hub portal
+* Create an IoT Hub device ID, using the IoT Hub portal
+* Create an app to send device telemetry to the custom IoT Hub, in C# or Node.js
+* Create a back-end service app to listen for the telemetry
+* Implement a direct method, to communicate settings to the remote device
+* Implement device twins, to maintain remote device properties
 
-* ラボの前提条件を確認する
-* IoT Hub ポータルを使用してカスタム Azure IoT Hub を作成する
-* IoT Hub ポータルを使用して IoT Hub デバイス ID を作成する
-* カスタム IoT Hub にデバイステレメトリを送信するアプリを作成する
-* テレメトリをリッスンするバックエンド サービス アプリを作成する
-* ダイレクト メソッドを実装し、リモートデバイスに設定を伝達する
-* リモート デバイス のプロパティを管理するために、デバイス ツインを実装する
 
-## ラボの手順
+## Exercise 1: Create a custom Azure IoT Hub, using the IoT Hub portal
 
-### 演習 1: ラボの前提条件を確認する
+This lab assumes the following resources are available:
 
-このラボでは、次の Azure リソースが利用可能であることを前提としています。
-
-| リソースの種類:  | リソース名 |
+| Resource Type | Resource Name |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
-| IoT デバイス | CheeseCaveID |
+| Resource Group | AZ-220-RG |
+| IoT Hub | AZ-220-HUB-{YOUR-ID} |
+| IoT Device | CheeseCaveID |
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って** lab15-setup.azcli **スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+To create these resources, please update and execute the **lab-setup.azcli** script before starting the lab.
 
-**lab15-setup.azcli** スクリプトは、Azure Cloud Shell でこれを実行するのが最も簡単な **Bash** シェル環境で実行するように記述されています。 
+1. Using a browser, open the [Azure Shell](https://shell.azure.com/) and login with the Azure subscription you are using for this course.
 
->**注:** **CheeseCaveID** デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
->
-> ```bash
-> az iot hub device-identity show-connection-string --hub-name AZ-220-HUB-{YOUR-ID} --device-id CheeseCaveID -o tsv
-> ```
+1. To ensure the Azure Shell is using **Bash**, ensure the dropdown selected value in the top-left is **Bash**.
 
-1. ブラウザーを使用して [Azure Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
+1. To upload the setup script, in the Azure Shell toolbar, click **Upload/Download files** (fourth button from the right).
 
-    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
+1. In the dropdown, select **Upload** and in the file selection dialog, navigate to the **lab-setup.azcli** file for this lab. Select the file and click **Open** to upload it.
 
-1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
+    A notification will appear when the file upload has completed.
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
+1. You can verify that the file has uploaded by listing the content of the current directory by entering the `ls` command.
 
-1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
-
-1. ドロップダウンで、「**アップロード**」 をクリックします。
-
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
-
-    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * Allfiles
-      * ラボ
-          * 15-Azure IoT Hub を使用してリモートによるデバイスを監視および制御する
-            * セットアップ
-
-    lab15-setup.azcli スクリプト ファイルは、ラボ 15 の「設定」フォルダー内にあります。
-
-1. **lab15-setup.azcli** ファイルを選択し、「**開く**」 をクリック します。   
-
-    ファイルのアップロードが完了すると、通知が表示されます。
-
-1. 正しいファイルが Azure Cloud Shell にアップロードされたことを確認するには、次のコマンドを入力します。
-
-    ```bash
-    ls
-    ```
-
-    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。lab15-setup.azcli ファイルが一覧表示されます。
-
-1. セットアップ スクリプトを含むディレクトリをこのラボ用に作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
+1. To create a directory for this lab, move **lab-setup.azcli** into that directory, and make that the current working directory, enter the following commands:
 
     ```bash
     mkdir lab15
-    mv lab15-setup.azcli lab15
+    mv lab-setup.azcli lab15
     cd lab15
     ```
 
-1. **lab15-setup.azcli** に実行権限を持たせるには、次のコマンドを入力します。 
+1. To ensure the **lab-setup.azcli** has the execute permission, enter the following commands:
 
     ```bash
-    chmod +x lab15-setup.azcli
+    chmod +x lab-setup.azcli
     ```
 
-1. Cloud Shell ツール バーで、lab15-setup.azcli ファイルを編集するには、「**エディタを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。 
+1. To edit the **lab-setup.azcli** file, click **{ }** (Open Editor) in the toolbar (second button from the right). In the **Files** list, select **lab15** to expand it and then select **lab-setup.azcli**.
 
-1. 「**ファイル**」 リストの一覧で、ラボ 15 フォルダを展開してスクリプト ファイルを開くには、「**lab15**」をクリックし、「**lab15-setup.azcli**」をクリックします。     
+    The editor will now show the contents of the **lab-setup.azcli** file.
 
-    エディタが**lab15-setup.azcli** ファイルの内容を表示します。 
+1. In the editor, update the values of the `YourID` and `Location` variables. Set `YourID` to your initials and todays date - i.e. **CAH121119**, and set `Location` to the location that makes sense for your resources.
 
-1. エディタで、割り当てられた値 `{YOUR-ID}` と `SETLOCATION` を更新します。
-
-    例として次のサンプルを参照し、このコースの開始時に作成した一意の ID 、つまり **CAH191211** に `{YOUR-ID}` を設定し、`SETLOCATION` をリソースにとって意味のある場所に設定する必要があります。 
-
-    ```bash
-    #!/bin/bash
-
-    YourID="{YOUR-ID}"
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-$YourID"
-    DeviceID="CheeseCaveID"
-
-    Location="SETLOCATION"
-    ```
-
-    > **注意**: `Location` 変数は、保存先の短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
-    >
+    > [!NOTE] The `Location` variable should be set to the short name for the location. You can see a list of the available locations and their short-names (the **Name** column) by entering this command:
     > ```bash
     > az account list-locations -o Table
     > ```
-    >
     > ```text
     > DisplayName           Latitude    Longitude    Name
     > --------------------  ----------  -----------  ------------------
@@ -163,75 +106,71 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     > East US 2             36.6681     -78.3889     eastus2
     > ```
 
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、「..」 をクリックし、「**エディタを閉じる**」 をクリックします。 
+1. To save the changes made to the file and close the editor, click **...** in the top-right of the editor window and select **Close Editor**.
 
-    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。 
+    If prompted to save, click **Save** and the editor will close.
 
-    > **注意**:  「**CTRL+S**」 を使っていつでも保存でき、 「**CTRL+Q**」 を押してエディターを閉じます。
+    > [!NOTE] You can use **CTRL+S** to save at any time and **CTRL+Q** to close the editor.
 
-1. この実習ラボに必要なリソースを作成するには、次のコマンドを入力します。
+1. To create a resource group named **AZ-220-RG**, create an IoT Hub named **AZ-220-HUB-{YourID}**, add a device with an ID of **CheeseCaveID**, and display the device connection string, enter the following command:
 
     ```bash
-    ./lab15-setup.azcli
+    ./lab-setup.azcli
     ```
 
-    このスクリプトの実行には数分かかります。各ステップが完了すると、JSON 出力が表示されます。
+    This will take a few minutes to run. You will see JSON output as each step completes.
 
-    このスクリプトは、まず **AZ-220-RG** という名前のリソース グループ と **AZ-220-ハブ-{YourID}** という名前の IoT ハブを作成します。  既に存在する場合は、対応するメッセージが表示されます。次に、スクリプトによって、**CheeseCaveID** の ID を持つデバイスが IoT ハブに追加され、デバイス接続文字列が表示されます。
-
-1. スクリプトが完了すると、IoT Hub とデバイスに関する情報が表示されます。
-
-    スクリプトは、以下のような情報を表示します。
+1. Once complete, the script will be display data similar to:
 
     ```text
     Configuration Data:
     ------------------------------------------------
-    AZ-220-HUB-{YourID} Service connectionstring:
-    HostName=AZ-220-HUB-{YourID}.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=nV9WdF3Xk0jYY2Da/pz2i63/3lSeu9tkW831J4aKV2o=
+    AZ-220-HUB-DM121119 hub connectionstring:
+    HostName=AZ-220-HUB-DM121119.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=nV9WdF3Xk0jYY2Da/pz2i63/3lSeu9tkW831J4aKV2o=
 
     CheeseCaveID device connection string:
-    HostName=AZ-220-HUB-{YourID}.azure-devices.net;DeviceId=CheeseCaveID;SharedAccessKey=TzAzgTYbEkLW4nWo51jtgvlKK7CUaAV+YBrc0qj9rD8=
+    HostName=AZ-220-HUB-DM121119.azure-devices.net;DeviceId=CheeseCaveID;SharedAccessKey=TzAzgTYbEkLW4nWo51jtgvlKK7CUaAV+YBrc0qj9rD8=
 
-    AZ-220-HUB-{YourID} eventhub endpoint:
+    AZ-220-HUB-DM121119 eventhub endpoint:
     sb://iothub-ns-az-220-hub-2610348-5a463f1b56.servicebus.windows.net/
 
-    AZ-220-HUB-{YourID} eventhub path:
-    az-220-hub-{YourID}
+    AZ-220-HUB-DM121119 eventhub path:
+    az-220-hub-dm121119
 
-    AZ-220-HUB-{YourID} eventhub SaS primarykey:
+    AZ-220-HUB-DM121119 eventhub SaS primarykey:
     tGEwDqI+kWoZroH6lKuIFOI7XqyetQHf7xmoSf1t+zQ=
     ```
 
-1. スクリプトが表示する出力をテキスト ドキュメントにコピーして、このラボで後ほど使用します。
+    Copy these values to a local text file - you will need them for the coding portion of this lab.
+    
+You've now completed the preparatory work for this module, the next steps are all coding and testing. Before we advance though, a quick knowledge check!
 
-    情報を簡単に見つけることができる場所に保存したら、ラボを続ける準備が整います。
+## Exercise 2: Write Code to Send and Receive Telemetry
 
-### 演習 2: テレメトリを送受信するコードを記述する
+At the end of this unit, you'll be sending and receiving telemetry.
 
-この演習では、IoT Hub にテレメトリを送信するシミュレートされたデバイス アプリ (CheeseCaveID デバイス用) を作成します。
+# Create an app to send telemetry
 
-#### タスク 1: Visual Studio Code で Console App を作成する
+1. To use C# in Visual Studio Code, ensure both [.NET Core](https://dotnet.microsoft.com/download), and the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp) are installed.
 
-1. Visual Studio Code を起動します。
+1. To open a terminal in Visual Studio Code, open the **Terminal** menu and click **New Terminal**.
 
-1. 「**ターミナル**」 メニューで、「**新しいターミナル**」 をクリックします。
+1. In the terminal, to create a directory called "cheesecavedevice" and change the current directory to that directory, enter the following commands:
 
-1. Terminal コマンドプロンプトで、"cheesecavedevice" というディレクトリを作成し、現在のディレクトリをそのディレクトリに変更するには、次のコマンドを入力します。
+   ```bash
+   mkdir cheesecavedevice
+   cd cheesecavedevice
+   ```
 
-    ```bash
-    mkdir cheesecavedevice
-    cd cheesecavedevice
-    ```
-
-1. 新しい .NET コンソール アプリケーションを作成するには、次のコマンドを入力します。
+1. To create a new .NET console application. enter the following command in the terminal:
 
     ```bash
     dotnet new console
     ```
 
-    このコマンドを実行すると、プロジェクト ファイルと共に、フォルダに **Program.cs** ファイルが作成されます。 
+    This command creates a **Program.cs** file in your folder, along with a project file.
 
-1. 必要なライブラリをインストールするには、次のコマンドを入力します。
+1. In the terminal, to install the required libraries. Enter the following commands:
 
     ```bash
     dotnet add package Microsoft.Azure.Devices.Client
@@ -239,31 +178,25 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     dotnet add package Newtonsoft.Json
     ```
 
-1. **「ファイル」** メニューで、**「フォルダを開く」** を選択します。
+1. From the **File** menu, open up the **Program.cs** file, and delete the default contents.
 
-1. 「**フォルダーを開く**」 ダイアログで、「ターミナル」 ウィンドウで指定したフォルダーの場所に移動し、**cheesecavedevice** をクリックして、「**フォルダーの選択**」 をクリックします。
+    > [!NOTE] If you are unsure where the **Program.cs** file is located, enter the command `pwd` in the console to see the current directory.
 
-    エクスプローラーのウィンドウが Visual Studio Code で開き、`Program.cs` ファイルと `cheesecadedevice.csproj`ファイルが一覧表示されます。
+1. After you've entered the code below into the **Program.cs** file, you can run the app with the command `dotnet run`. This command will run the **Program.cs** file in the current folder.
 
-1. **EXPLORER** ペインで、**EventsController.cs** をクリックします。
+## Add Code to Send Telemetry
 
-1. 「コード エディター」 ペインで、Program.cs ファイルの内容を削除します。
+This section adds code to send telemetry from a simulated device. The device sends temperature (in degrees fahrenheit) and humidity (in percentages), regardless of whether any back-end app is listening or not.
 
-#### タスク 2: CheeseCaveID の IoT デバイスをシミュレートするコードを追加する
+1. If it isn't already open in Visual Studio Code, open the **Program.cs** file for the device app.
 
-このタスクでは、シミュレートされたデバイスからテレメトリを送信するコードを追加します。デバイスは、バックエンド アプリがリッスンしているかどうかに関係なく、温度 (華氏度) と湿度 (パーセンテージ) を送信します。
-
-1. **Program.cs **ファイルが Visual Studio Code で開かれていることを確認します。 
-
-    「コード エディター」 ペインには、空のコード ファイルが表示されます。
-
-1. 次のコードをコピーして 「コード エディター」 ペインに貼り付けます。
+1. Copy and paste the following code:
 
     ```csharp
-    // Copyright (c) Microsoft.All rights reserved.
-    // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
+    // Copyright (c) Microsoft. All rights reserved.
+    // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-    システムを使用;
+    using System;
     using Microsoft.Azure.Devices.Client;
     using Microsoft.Azure.Devices.Shared;
     using Newtonsoft.Json;
@@ -275,20 +208,20 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     {
         class SimulatedDevice
         {
-        // グローバル定数。
+        // Global constants.
             const float ambientTemperature = 70;                    // Ambient temperature of a southern cave, in degrees F.
-            const double ambientHumidity = 99;                      // 空気飽和量の相対割合における周囲湿度
-            const double desiredTempLimit = 5;                      // 華氏での望ましい温度の上または下の許容範囲
-            const double desiredHumidityLimit = 10;                 // パーセンテージで表した、望ましい湿度の上下の許容範囲
-            const int intervalInMilliseconds = 5000;                // テレメトリーがクラウドに送信される間隔
+            const double ambientHumidity = 99;                      // Ambient humidity in relative percentage of air saturation.
+            const double desiredTempLimit = 5;                      // Acceptable range above or below the desired temp, in degrees F.
+            const double desiredHumidityLimit = 10;                 // Acceptable range above or below the desired humidity, in percentages.
+            const int intervalInMilliseconds = 5000;                // Interval at which telemetry is sent to the cloud.
 
-            // グローバル変数。
+            // Global variables.
             private static DeviceClient s_deviceClient;
             private static stateEnum fanState = stateEnum.off;                      // Initial setting of the fan.
             private static double desiredTemperature = ambientTemperature - 10;     // Initial desired temperature, in degrees F.
-            private static double desiredHumidity = ambientHumidity - 20;           // 空気飽和の相対パーセンテージでの初期の望ましい湿度。
+            private static double desiredHumidity = ambientHumidity - 20;           // Initial desired humidity in relative percentage of air saturation.
 
-            // 冷却/加熱、および加湿/除湿のためのファンの状態の列挙型。
+            // Enum for the state of the fan for cooling/heating, and humidifying/de-humidifying.
             enum stateEnum
             {
                 off,
@@ -296,7 +229,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                 failed
             }
 
-            // IoT ハブでデバイスを認証するためのデバイス接続文字列。
+            // The device connection string to authenticate the device with your IoT hub.
             private readonly static string s_deviceConnectionString = "<your device connection string>";
 
             private static void colorMessage(string text, ConsoleColor clr)
@@ -315,27 +248,27 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                 colorMessage(text, ConsoleColor.Red);
             }
 
-            // シミュレーションされたテレメトリを送信する非同期メソッド。
+            // Async method to send simulated telemetry.
             private static async void SendDeviceToCloudMessagesAsync()
             {
-                double currentTemperature = ambientTemperature;         // 温度の初期設定。
-                double currentHumidity = ambientHumidity;               // 湿度の初期設定。
+                double currentTemperature = ambientTemperature;         // Initial setting of temperature.
+                double currentHumidity = ambientHumidity;               // Initial setting of humidity.
 
                 Random rand = new Random();
 
                 while (true)
                 {
-                    // テレメトリをシミュレート
-                    double deltaTemperature = Math.Sign(desiredTemperature - currentTemperature)
+                    // Simulate telemetry.
+                    double deltaTemperature = Math.Sign(desiredTemperature - currentTemperature);
                     double deltaHumidity = Math.Sign(desiredHumidity - currentHumidity);
 
                     if (fanState == stateEnum.on)
                     {
-                        // 扇風機が適正温度・湿度内の場合、たいていの時間ご希望の値内に向けて移行します。
+                        // If the fan is on the temperature and humidity will be nudged towards the desired values most of the time.
                         currentTemperature += (deltaTemperature * rand.NextDouble()) + rand.NextDouble() - 0.5;
                         currentHumidity += (deltaHumidity * rand.NextDouble()) + rand.NextDouble() - 0.5;
 
-                        // 無作為に扇風機が機能しなくなります。
+                        // Randomly fail the fan.
                         if (rand.NextDouble() < 0.01)
                         {
                             fanState = stateEnum.failed;
@@ -344,7 +277,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                     }
                     else
                     {
-                        // ファンがオフであるか故障している場合、温度と湿度は周囲の値に達するまで上昇し、その後ランダムに変動します。
+                        // If the fan is off, or has failed, the temperature and humidity will creep up until they reaches ambient values, thereafter fluctuate randomly.
                         if (currentTemperature < ambientTemperature - 1)
                         {
                             currentTemperature += rand.NextDouble() / 10;
@@ -363,7 +296,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                         }
                     }
 
-                    // チェック: 湿度が 100％ を超えることはありません。
+                    // Check: humidity can never exceed 100%.
                     currentHumidity = Math.Min(100, currentHumidity);
 
                     // Create JSON message.
@@ -375,11 +308,11 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                     var messageString = JsonConvert.SerializeObject(telemetryDataPoint);
                     var message = new Message(Encoding.ASCII.GetBytes(messageString));
 
-                    // メッセージにカスタム アプリケーション プロパティを追加します。
+                    // Add custom application properties to the message.
                     message.Properties.Add("sensorID", "S1");
                     message.Properties.Add("fanAlert", (fanState == stateEnum.failed) ? "true" : "false");
 
-                    // 温度または湿度のアラートは、発生した場合にのみ送信します
+                    // Send temperature or humidity alerts, only if they occur.
                     if ((currentTemperature > desiredTemperature + desiredTempLimit) || (currentTemperature < desiredTemperature - desiredTempLimit))
                     {
                         message.Properties.Add("temperatureAlert", "true");
@@ -391,7 +324,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
                     Console.WriteLine("Message data: {0}", messageString);
 
-                    // テレメトリ メッセージを送信します。
+                    // Send the telemetry message.
                     await s_deviceClient.SendEventAsync(message);
                     greenMessage("Message sent\n");
 
@@ -402,7 +335,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
             {
                 colorMessage("Cheese Cave device app.\n", ConsoleColor.Yellow);
 
-                // MQTT プロトコルを使用して IoT ハブに接続します。
+                // Connect to the IoT hub using the MQTT protocol.
                 s_deviceClient = DeviceClient.CreateFromConnectionString(s_deviceConnectionString, TransportType.Mqtt);
 
                 SendDeviceToCloudMessagesAsync();
@@ -412,76 +345,56 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     }
     ```
 
-1. 少し時間をかけてコードについてレビューしてください。
+    > **Important:** Read through the comments in the code, noting how the temperature and humidity settings from the description of the scenario in the introduction have worked their way into the code.
 
-    > **重要:** コードのコメントを読み、チーズ ケーブ シナリオの温度と湿度の設定がどのようにコードに取り組まれたかを把握します。
+1. Replace the `<your device connection string>` with the device connection string you saved off in the previous unit. No other lines of code need to be changed.
 
-1. デバイス接続文字列の割り当てに使用するコード行を見つけます。
+1. Save the **Program.cs** file.
 
-    ```csharp
-    private readonly static string s_deviceConnectionString = "<your device connection string>";
-    ```
+## Test your Code to Send Telemetry
 
-1. `<your device connection string>` を、このラボで先ほど保存した CheeseCaveID デバイスの接続文字列に置き換えます。
-
-    演習 1 の実行中に、lab15-setup.azcli セットアップ スクリプトによって生成された出力を保存しておく必要があります。
-
-    他のコード行を変更する必要はありません。
-
-1. 「**ファイル**」 メニューで 変更を Program.cs ファイルに保存するには、「**保存**」 をクリックします。   
-
-#### タスク 3: テレメトリを送信するコードをテストする
-
-1. Visual Studio Code で、ターミナルが開かれていることを確認します。
-
-1. ターミナル コマンド プロンプトで、シミュレートされたデバイス アプリを実行するには、次のコマンドを入力します。
+1. To run the app in the terminal, enter the following command:
 
     ```bash
-    dotnet 実行
+    dotnet run
     ```
 
-   このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
+   This command will run the **Program.cs** file in the current folder.
 
-1. 出力がターミナルに送信されていることに注意してください。
+1. You should quickly see console output, similar to the following:
 
-    すぐに次のようなコンソール出力が表示されます。
+    ![Console Output](../../Linked_Image_Files/M99-L15-cheesecave-telemetry.png)
 
-    ![コンソール出力](./Media/LAB_AK_15-cheesecave-telemetry.png)
+    > [!NOTE] Green text is used to show things are working as they should and red text when bad stuff is happening. If you don't get a screen similar to this image, start by checking your device connection string.
 
-    > **注意**:  緑色のテキストは、物事が本来のように機能していることを示すために使用され、赤いテキストは悪いことが起こっているときに表示されます。この画像に似た画面が表示されない場合は、まずデバイスの接続文字列を確認します。
+1. Watch the telemetry for a short while, checking that it is giving vibrations in the expected ranges.
 
-1. このアプリを実行したままにします。
+1. You can leave this app running, as it's needed for the next section.
 
-    このラボの後半で、IoT ハブにテレメトリを送信する必要があります。
+## Create a Second App to Receive Telemetry
 
-### 演習 3: テレメトリを受信する 2 つ目のアプリを作成する
+Now we have a device pumping out telemetry, we need to listen for that telemetry with a back-end app, also connected to our IoT Hub.
 
-(シミュレートされた) CheeseCaveID デバイスから IoT ハブにテレメトリを送信できたので、IoT ハブに接続してそのテレメトリを "リッスン" できるバックエンド アプリを作成する必要があります。最終的には、このバックエンド アプリは、チーズ ケーブの温度の制御を自動化するために使用されます。
+1. As the device app is running in a copy of Visual Studio Code, you will need to open a new instance of Visual Studio Code.
 
-#### タスク 1: テレメトリを受信するアプリを作成する
+1. To open a terminal in Visual Studio Code, open the **Terminal** menu and click **New Terminal**.
 
-1. Visual Studio Code の新しいインスタンスを開きます。
-
-    シミュレートされたデバイス アプリは、既に開いている Visual Studio Code ウィンドウで実行されているため、バックエンド アプリの Visual Studio Code の新しいインスタンスが必要です。
-
-1. 「**ターミナル**」 メニューで、「**新しいターミナル**」 をクリックします。
-
-1. ターミナル コマンド プロンプトで、"cheesecaveoperator" という名前のディレクトリを作成し、現在のディレクトリをそのディレクトリに変更するために、次のコマンドを入力します。
+1. In the terminal, to create a directory called "cheesecaveoperator" and change the current directory to that directory, enter the following commands:
 
    ```bash
    mkdir cheesecaveoperator
    cd cheesecaveoperator
    ```
 
-1. 新しい .NET コンソール アプリケーションを作成するには、次のコマンドを入力します。
+1. To create a new .NET console application. enter the following command in the terminal:
 
     ```bash
     dotnet new console
     ```
 
-    このコマンドを実行すると、プロジェクト ファイルと共に、フォルダに **Program.cs** ファイルが作成されます。 
+    This command creates a **Program.cs** file in your folder, along with a project file.
 
-1. 必要なライブラリをインストールするには、次のコマンドを入力します。
+1. In the terminal, to install the required libraries. Enter the following commands:
 
     ```bash
     dotnet add package Microsoft.Azure.EventHubs
@@ -489,35 +402,29 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     dotnet add package Newtonsoft.Json
     ```
 
-1. **「ファイル」** メニューで、**「フォルダを開く」** を選択します。
+1. From the **File** menu, open up the **Program.cs** file, and delete the default contents.
 
-1. 「**フォルダを開く**」 ダイアログで、ターミナル ペインで指定したフォルダの場所に移動し、「**cheesecaveoperator**」 をクリックしてから、「**フォルダの選択**」 をクリックします。   
+    > [!NOTE] If you are unsure where the **Program.cs** file is located, enter the command `pwd` in the console to see the current directory.
 
-    Explorer ウィンドウが Visual Studio Code で開き、`Program.cs` ファイルと `cheesecaveoperator.csproj` ファイルが表示されます。
+1. After you've entered the code below into the **Program.cs** file, you can run the app with the command `dotnet run`. This command will run the **Program.cs** file in the current folder.
 
-1. **EXPLORER** ペインで、**EventsController.cs** をクリックします。
+## Add Code to Receive Telemetry
 
-1. [コード エディター] ペインで、Program.cs ファイルの内容を削除します。
+This section adds code to receive telemetry from the IoT Hub Event Hub endpoint. 
 
-#### タスク 2: テレメトリを受信するコードを追加する
+1. If it isn't already open in Visual Studio Code, open the **Program.cs** file for the device app.
 
-このタスクでは、IoT ハブ イベント ハブのエンドポイントからテレメトリを受信するために使用するコードを、バックエンド アプリに追加します。
-
-1. **Program.cs **ファイルが Visual Studio Code で開かれていることを確認します。 
-
-    [コード エディター] ペインには、空のコード ファイルが表示されます。
-
-1. 次のコードをコピーして [コード エディター] ペインに貼り付けます。
+1. Copy and paste the following code:
 
     ```csharp
-    // Copyright (c) Microsoft.All rights reserved.
-    // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
+    // Copyright (c) Microsoft. All rights reserved.
+    // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-    システムを使用;
+    using System;
     using System.Threading.Tasks;
     using System.Text;
     using System.Collections.Generic;
-    System.Linq を使用します；
+    using System.Linq;
 
     using Microsoft.Azure.EventHubs;
     using Microsoft.Azure.Devices;
@@ -527,32 +434,32 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     {
         class ReadDeviceToCloudMessages
         {
-            // グローバル変数。
-            // イベント ハブ互換エンドポイント。
+            // Global variables.
+            // The Event Hub-compatible endpoint.
             private readonly static string s_eventHubsCompatibleEndpoint = "<your event hub endpoint>";
 
-            // イベント ハブと互換性のある名前。
+            // The Event Hub-compatible name.
             private readonly static string s_eventHubsCompatiblePath = "<your event hub path>";
             private readonly static string s_iotHubSasKey = "<your event hub Sas key>";
             private readonly static string s_iotHubSasKeyName = "service";
             private static EventHubClient s_eventHubClient;
 
-            // IoT ハブの接続文字列。
+            // Connection string for your IoT Hub.
             private readonly static string s_serviceConnectionString = "<your service connection string>";
 
-            // パーティションの PartitionReceiver を非同期的に作成し、シミュレートされたクライアントから送信されたメッセージの読み取りを開始します。
+            // Asynchronously create a PartitionReceiver for a partition and then start reading any messages sent from the simulated client.
             private static async Task ReceiveMessagesFromDeviceAsync(string partition)
             {
-                // 既定のコンシューマー グループを使用して受信側を作成します。
+                // Create the receiver using the default consumer group.
                 var eventHubReceiver = s_eventHubClient.CreateReceiver("$Default", partition, EventPosition.FromEnqueuedTime(DateTime.Now));
                 Console.WriteLine("Created receiver on partition: " + partition);
 
                 while (true)
                 {
-                    // EventData を確認する - このメソッドは、取得するものがない場合にタイムアウトします。
+                    // Check for EventData - this methods times out if there is nothing to retrieve.
                     var events = await eventHubReceiver.ReceiveAsync(100);
 
-                    // バッチにデータがある場合は、処理します。
+                    // If there is data in the batch, process it.
                     if (events == null) continue;
 
                     foreach (EventData eventData in events)
@@ -577,22 +484,22 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
             {
                 colorMessage("Cheese Cave Operator\n", ConsoleColor.Yellow);
 
-                // IoT ハブ イベント ハブと互換性のあるエンドポイントに接続する EventHubClient インスタンスを作成します。
+                // Create an EventHubClient instance to connect to the IoT Hub Event Hubs-compatible endpoint.
                 var connectionString = new EventHubsConnectionStringBuilder(new Uri(s_eventHubsCompatibleEndpoint), s_eventHubsCompatiblePath, s_iotHubSasKeyName, s_iotHubSasKey);
                 s_eventHubClient = EventHubClient.CreateFromConnectionString(connectionString.ToString());
 
-                // ハブの各パーティションに対して PartitionReceiver を作成します。
+                // Create a PartitionReceiver for each partition on the hub.
                 var runtimeInfo = s_eventHubClient.GetRuntimeInformationAsync().GetAwaiter().GetResult();
                 var d2cPartitions = runtimeInfo.PartitionIds;
 
-                // メッセージをリッスンする受信者を作成します。
+                // Create receivers to listen for messages.
                 var tasks = new List<Task>();
                 foreach (string partition in d2cPartitions)
                 {
                     tasks.Add(ReceiveMessagesFromDeviceAsync(partition));
                 }
 
-                //  すべての PartitionReceivers が完了するのを待ちます。
+                // Wait for all the PartitionReceivers to finish.
                 Task.WaitAll(tasks.ToArray());
             }
 
@@ -615,109 +522,78 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     }
     ```
 
-1. 少し時間をかけてコードについてレビューしてください。
+    > **Important:** Read through the comments in the code. Our implementation only reads messages after the back-end app has been started. Any telemetry sent prior to this isn't handled.
 
-    > **重要:** コード内のコメントを読み進みます。この実装では、バックエンド アプリが起動された後にのみメッセージを読み取ります。これより前に送信されたテレメトリは処理されません。
+1. Replace the `<your device connection string>` with the device connection string you saved off in the previous unit. No other lines of code need to be changed.
 
-1. サービス接続文字列の割り当てに使用するコード行を見つける
+1. Replace the `<your event hub endpoint>`, `<your event hub path>`, and the `<your event hub Sas key>` with the strings you saved off to your text file.
 
-    ```csharp
-    private readonly static string s_serviceConnectionString = "<your service connection string>";
-    ```
+1. Save the **Program.cs** file.
 
-1. `<your service connection string>` を、このラボで前に保存した IoT ハブの **iothubowner** 共有アクセス ポリシーのプライマリ接続文字列に置き換えます。
+## Test your Code to Receive Telemetry
 
-    演習 1 の実行中に、lab15-setup.azcli セットアップ スクリプトによって生成された出力を保存しておく必要があります。
+This test is important, checking whether your back-end app is picking up the telemetry being sent out by your simulated device. Remember your device app is still running, and sending telemetry.
 
-    > **注意**: **サービス**共有ポリシーではなく、**iothubowner** 共有ポリシーがなぜ使用されているのか、不思議に思われるかもしれません。答えは、各ポリシーに割り当てられた IoT ハブのアクセス許可に関連しています。  **サービス**ポリシーには **ServiceConnect** アクセス許可があり、通常はバックエンド クラウド サービスによって使用されます。    これは、次の権利を付与します。
-    >
-    > * クラウド サービスに接続する通信および監視エンドポイントへのアクセスを許可します。
-    > * デバイスからクラウドへのメッセージの受信、クラウドからデバイスへのメッセージの送信、および対応する配信確認応答の取得を行うアクセス許可を付与します。
-    > * ファイル アップロードの配信確認を取得するアクセス許可を付与します。
-    > * タグと必要なプロパティを更新する、報告されたプロパティを取得する、クエリを実行するために、ツインへのアクセス許可を付与します。
-    >
-    > ラボの最初の部分では、**serviceoperator** アプリケーションがファンの状態を切り替えるダイレクト メソッドを呼び出しており、 **サービス**ポリシーには十分な権限があります。ただし、ラボの後半では、デバイス レジストリが照会されます。これは `RegistryManager` クラスを通じて行われます。`RegistryManager` クラスを使用してデバイス レジストリをクエリするには、IoT ハブへの接続に使用される共有アクセス ポリシーに **レジストリ読み取り**アクセス許可が必要です。これは、次の権限を付与します。
-    >
-    > * ID レジストリへの読み取りアクセスを許可します。
-    >
-    > **iothubowner** ポリシーには **レジストリの書き込み** アクセス許可が与えられているため、 **レジストリの読み取り**権限が継承されるため、ニーズに適しています。     
-    >
-    > 運用シナリオでは、 **サービス接続**と**レジストリ読み取り**アクセス許可のみを持つ新しい共有アクセス ポリシーを追加することを検討してください。
-
-1. `<your event hub endpoint>`、`<your event hub path>`、および `<your event hub Sas key>` を、このラボで前に保存した値に置き換えます。
-
-1. 「**ファイル**」 メニューで 変更を Program.cs ファイルに保存するには、「**保存**」 をクリックします。   
-
-#### タスク 3: テレメトリを受信するコードをテストする
-
-このテストは、バックエンド アプリが、シミュレートされたデバイスから送信されるテレメトリをピックアップしているかどうかを確認する重要なものです。デバイス アプリがまだ実行されており、テレメトリを送信している点に注意してください。
-
-1. ターミナルで `cheesecaveoperator` バックエンド アプリを実行するには、ターミナル ウィンドウを開き、次のコマンドを入力します。
+1. To run the app in the terminal, enter the following command:
 
     ```bash
-    dotnet 実行
+    dotnet run
     ```
 
-   このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
+   This command will run the **Program.cs** file in the current folder.
 
-   > **注意**:  未使用の変数 `s_serviceConnectionString` に関する警告は無視できます 。この変数は後で使用します。
+   > [!NOTE] You can ignore the warning about the unused variable `s_serviceConnectionString` - we will be using that variable shortly.
 
-1. ターミナルへの出力をしばらく観察してください。
+1. You should quickly see console output, and immediately respond if it successfully connects to IoT Hub. If not, carefully check your IoT Hub service connection string, noting that this string should be the service connection string, and not any other.:
 
-    コンソールの出力がすぐに表示されるはずで、IoT ハブにHub に正常に接続された場合、アプリがテレメトリ メッセージ データをほぼ即座に表示します。
+    ![Console Output](../../Linked_Image_Files/M99-L15-cheesecave-telemetry-received.png)
 
-    それ以外の場合は、IoT ハブサービスの接続文字列を慎重に確認し、文字列がサービス接続文字列であり、他の接続文字列ではないことを確認します。
+    > [!NOTE] Green text is used to show things are working as they should and red text when bad stuff is happening. If you don't get a screen similar to this image, start by checking your device connection string.
 
-    ![コンソール出力](./Media/LAB_AK_15-cheesecave-telemetry-received.png)
+1. Watch the telemetry for a short while, checking that it is giving vibrations in the expected ranges.
 
-    > **注意**:  緑色のテキストは、物事が本来のように機能していることを示すために使用され、赤いテキストは悪いことが起こっているときに表示されます。この画像に似た画面が表示されない場合は、まずデバイスの接続文字列を確認します。
+1. You can leave this app running, as it's needed for the next section.
 
-1. このアプリをしばらく実行したままにします。
+1. Visually compare the telemetry sent and received. Is there an exact match? Is there much of a delay? If it looks good, close both the console windows for now.
 
-1. 両方のアプリが実行されている状態で、送信されるテレメトリと受信しているテレメトリを視覚的に比較します。
+Completing this unit is great progress. you've an app sending telemetry from a device, and a back-end app acknowledging receipt of the data. This unit covers the monitoring side of our scenario. The next step handles the control side - what to do when issues arise with the data. Clearly, there are issues, we're getting temperature and humidity alerts!
 
-    * 完全に一致するデータはありますか?
-    * データが送信された時点から受信されるまでの遅延は多いですか。
 
-    結果に満足したら、実行中のアプリを停止してから、VS Code の両方のインスタンスでターミナル ペインを閉じます。Visual Studio Code ウィンドウは閉じません。
 
-    これで、デバイスからテレメトリを送信するアプリと、データの受信を確認するバックエンド アプリが作成されました。このユニットは、シナリオの監視側をカバーします。次のステップでは、データに問題が発生したときに実行する、コントロール側を処理します。明らかに問題があります。温度と湿度のアラートを取得しています!
 
-### 演習 4: ダイレクト メソッドを呼び出すコードを記述する
+## Exercise 3: Write Code to Invoke a Direct Method
 
-この演習では、チーズ ケーブでファンをオンにするシミュレーションを行うダイレクト メソッドのコードを追加して、デバイス アプリを更新します。次に、このダイレクト メソッドを呼び出すコードをバックエンド サービス アプリに追加します。
+In this unit, we'll add code to the device app for a direct method to turn on the fan. Next, we add code to the back-end service app to invoke this direct method.
 
-直接メソッドを呼び出すバックエンド アプリからの呼び出しには、ペイロードの一部として複数のパラメーターを含めることができます。ダイレクト メソッドは、通常、デバイスの機能をオフまたはオンにしたり、デバイスの設定を指定したりするために使用します。
+Calls from the back-end app to invoke direct methods can include multiple parameters as part of the payload. Direct methods are typically used to turn features of the device off and on, or specify settings for the device.
 
-#### エラー条件を処理する
+**Handle Error Conditions**
 
-デバイスがダイレクト メソッドを実行する命令を受信したときにチェックする必要がある、エラー条件がいくつかあります。これらのチェックの 1 つは、ファンが故障状態にある場合にエラーで応答することです。報告するもう 1 つのエラー条件は、無効なパラメーターを受け取った場合です。デバイスの潜在的なリモート性を考えると、エラー報告を明確にすることが重要です。
+There are several error conditions that need to be checked for when a device receives instructions to run a direct method. One of these checks is simply to respond with an error if the fan is in a failed state. Another error condition to report is when an invalid parameter is received. Clear error reporting is important, given the potential remoteness of the device.
 
-#### ダイレクト メソッドを呼び出す
+**Invoke a Direct Method**
 
-ダイレクト メソッドでは、バックエンド アプリがパラメーターを準備し、メソッドを呼び出すための単一のデバイスを指定して呼び出しを行う必要があります。バックエンド アプリは応答を待機し、応答を報告します。
+Direct methods require that the back-end app prepares the parameters, then makes a call specifying a single device to invoke the method. The back-end app will then wait for, and report, a response.
 
-デバイス アプリには、ダイレクト メソッドの機能コードが含まれています。関数名は、デバイスの IoT クライアントに登録されます。このプロセスにより、呼び出しが IoT ハブから取得されたときに実行する機能がクライアントに知られるようになります (多くの直接メソッドが存在する可能性があります)。
+The device app contains the functional code for the direct method. The function name is registered with the IoT client for the device. This process ensures the client knows what function to run when the call comes from the IoT Hub (there could be many direct methods).
 
-#### タスク 1: デバイス アプリでダイレクト メソッドを定義するコードを追加する
+## Add Code to Define a Direct Method in the Device App
 
-1. **cheesecavedevice** アプリを実行している Visual Studio Code インスタンスに戻ります。
+1. Return to the Visual Studio Code instance that is running the **cheesecavedevice** app.
 
-    > **注意**: アプリがまだ実行されている場合は、ターミナル ウィンドウに入力フォーカスを置き、**Ctrl + C**を押してアプリを終了します。 
+1. If the app is still running, place input focus on the terminal and press **CTRL+C** to exit the app.
 
-1. **Program.cs** がコード エディターで開かれていることを確認します。
+1. In the editor, ensure **Program.cs** is open.
 
-1. コード エディター ペインで、**SimulatedDevice** クラスの下部に移動します。
-
-1. ダイレクト メソッドを定義するには、**SimulatedDevice** クラスの閉じ波括弧 (`}` ) 内に次のコードを追加します。
+1. To define the direct method, add the following code at the end of the **SimulatedDevice** class:
 
     ```csharp
-    // ダイレクト メソッド呼び出しを処理する
+    // Handle the direct method call
     private static Task<MethodResponse> SetFanState(MethodRequest methodRequest, object userContext)
     {
         if (fanState == stateEnum.failed)
         {
-            //  400の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+            // Acknowledge the direct method call with a 400 error message.
             string result = "{\"result\":\"Fan failed\"}";
             redMessage("Direct method failed: " + result);
             return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
@@ -728,20 +604,20 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
             {
                 var data = Encoding.UTF8.GetString(methodRequest.Data);
 
-                データから引用符を削除します。
+                // Remove quotes from data.
                 data = data.Replace("\"", "");
 
-                // ペイロードを解析し、無効な場合は例外をトリガーします。
+                // Parse the payload, and trigger an exception if it's not valid.
                 fanState = (stateEnum)Enum.Parse(typeof(stateEnum), data);
                 greenMessage("Fan set to: " + data);
 
-                // 200の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+                // Acknowledge the direct method call with a 200 success message.
                 string result = "{\"result\":\"Executed direct method: " + methodRequest.Name + "\"}";
                 return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 200));
             }
-            キャッチ
+            catch
             {
-                //  400の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
+                // Acknowledge the direct method call with a 400 error message.
                 string result = "{\"result\":\"Invalid parameter\"}";
                 redMessage("Direct method failed: " + result);
                 return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
@@ -750,30 +626,26 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     }
     ```
 
-    > **注意**:  このコードは、ダイレクト メソッドの実装を定義し、ダイレクト メソッドが呼び出されたときに実行されます。ファンには次の 3 つの状態があります。*オン*、*オフ*、および *失敗*。     上記の方法で、ファンを*オン*または*オフ*に設定します。    ペイロード テキストがこれら 2 つの設定のいずれかと一致しない場合、またはファンが故障状態にある場合は、エラーが返されます。
+    > [!NOTE] This code defines the implementation of the direct method and is executed when the direct method is invoked. The fan has three states: *on*, *off*, and *failed*. The method above sets the fan to either of the first two of these states. If the payload text doesn't match one of these two, or the fan is in a failed state, an error is returned.
 
-1. コード エディター ペインで、少し上にスクロールして **Main** メソッドを見つけます。 
-
-1. **Main** メソッド内で、デバイス クライアントを作成したすぐ後にある空白のコード行にカーソルを置きます。
-
-1. ダイレクト メソッドを登録するには、次のコードを追加します。
+1. To register the direct method, add the following lines of code to the Main method, after creating the device client.
 
     ```csharp
-    // ダイレクト メソッド呼び出しのハンドラーを作成する
+    // Create a handler for the direct method call
     s_deviceClient.SetMethodHandlerAsync("SetFanState", SetFanState, null).Wait();
     ```
 
-    コードを追加すると、**Main** メソッドは次のようになるはずです。
+    The modified **Main** method should look like:
 
     ```csharp
     private static void Main(string[] args)
     {
         colorMessage("Cheese Cave device app.\n", ConsoleColor.Yellow);
 
-        // MQTT プロトコルを使用して IoT ハブに接続します。
+        // Connect to the IoT hub using the MQTT protocol.
         s_deviceClient = DeviceClient.CreateFromConnectionString(s_deviceConnectionString, TransportType.Mqtt);
 
-        // ダイレクト メソッド呼び出しのハンドラーを作成する
+        // Create a handler for the direct method call
         s_deviceClient.SetMethodHandlerAsync("SetFanState", SetFanState, null).Wait();
 
         SendDeviceToCloudMessagesAsync();
@@ -781,30 +653,28 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     }
     ```
 
-1. 「**ファイル**」 メニューで Program.cs ファイルを保存するために、「**保存**」 をクリックします。   
+1. Save the **Program.cs** file.
 
-これで、デバイス側で必要なコーディングが完了しました。次に、ダイレクト メソッドを呼び出すバックエンド サービスにコードを追加する必要があります。
+You've completed what is needed at the device end of things. Next, we need to add code to the back-end service.
 
-#### タスク 2: ダイレクトメソッドを呼び出すコードを追加する
+## Add Code to Call a Direct Method in the Back End App
 
-1. **cheesecaveoperator** アプリを実行している Visual Studio Code インスタンスに戻ります。
+1. Return to the Visual Studio Code instance that is running the **cheesecaveoperator** app.
 
-    > **注意**: アプリがまだ実行されている場合は、ターミナル ウィンドウに入力フォーカスを置き、**Ctrl + C**を押してアプリを終了します。 
+1. If the app is still running, place input focus on the terminal and press **CTRL+C** to exit the app.
 
-1. **Program.cs** がコード エディターで開かれていることを確認します。
+1. In the editor, ensure **Program.cs** is open.
 
-1. **ReadDeviceToCloudMessages** クラスの一番上で、グローバル変数のリストに次のコードを追加します。 
+1. Add the following line to the global variables at the top of the **ReadDeviceToCloudMessages** class:
 
     ```csharp
     private static ServiceClient s_serviceClient;
     ```
 
-1. 下にスクロールして **Main** メソッドを見つけます。
-
-1. **Main** メソッドの下の空白のコード行に、次のタスクを追加します。 
+1. Add the following task to the **ReadDeviceToCloudMessages** class, after the **Main** method:
 
     ```csharp
-    // ダイレクト メソッドの呼び出しを処理します。
+    // Handle invoking a direct method.
     private static async Task InvokeMethod()
     {
         try
@@ -814,7 +684,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
             methodInvocation.SetPayloadJson(payload);
 
-            ダイレクト メソッドを非同期的に呼び出し、シミュレートされたデバイスから応答を取得します。
+            // Invoke the direct method asynchronously and get the response from the simulated device.
             var response = await s_serviceClient.InvokeDeviceMethodAsync("CheeseCaveID", methodInvocation);
 
             if (response.Status == 200)
@@ -826,86 +696,78 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                 redMessage("Direct method failed: " + response.GetPayloadAsJson());
             }
         }
-        キャッチ
+        catch
         {
             redMessage("Direct method failed: timed-out");
         }
     }
     ```
 
-    > **注意**: このコードは、 デバイス アプリで **SetFanState** ダイレクト メソッドを呼び出すために使用されます。
+    > [!NOTE] This code is used to invoke the **SetFanState** direct method on the device app.
 
-1. **Main** メソッド内で、`Create receivers to listen for messages` のコメント行のすぐ上にある、空のコード行にカーソルを置きます。 
-
-1. メッセージをリッスンする受信者を作成するコードの前に、次のコードを追加します。
+1. Add the following code to the **Main** method, before creating the receivers to listen for messages:
 
     ```csharp
-    // ハブ上のサービスに接続するエンドポイントと通信する ServiceClient を作成します。
+    // Create a ServiceClient to communicate with service-facing endpoint on your hub.
     s_serviceClient = ServiceClient.CreateFromConnectionString(s_serviceConnectionString);
     InvokeMethod().GetAwaiter().GetResult();
     ```
 
-    > **注意**: このコードは、IoT ハブへの接続に使用する ServiceClient オブジェクトを作成します。IoT ハブへの接続により、デバイスでダイレクト メソッドを呼び出すことができます。
+    > [!NOTE] This code creates the client we used to connect to the IoT Hub so we can invoke the direct method on the device.
 
-1. 「**ファイル**」 メニューで Program.cs ファイルを保存するために、「**保存**」 をクリックします。   
+1. Save the **Program.cs** file.
 
-これで、**SetFanState** ダイレクト メソッドをサポートするためのコード変更が完了しました。
+You have now completed the code changes to support the **SetFanState** direct method.
 
-#### タスク 3: ダイレクト メソッドをテストする
+## Test the direct method
 
-ダイレクト メソッドをテストするには、正しい順序でアプリを起動する必要があります。登録されていないダイレクト メソッドを呼び出す方法はありません。
+To test the method, start the apps in the correct order. We can't invoke a direct method that hasn't been registered!
 
-1. **cheesecavedevice** デバイス アプリを起動します。 
+1. Start the **cheesecavedevice** device app. It will begin writing to the terminal, and telemetry will appear.
 
-    端末への書き込みが開始され、テレメトリが表示されます。
+1. Start the **cheesecaveoperator** back-end app. This app immediately calls the direct method. Do you notice it's handled by the back-end app, with output similar to the following?
 
-1. **cheesecaveoperator** バックエンド アプリを起動します。 
+    > [!NOTE] If you see the message `Direct method failed: timed-out` then double check you have saved the changes in the **cheesecavedevice** and started the app.
 
-    > **注意**:`Direct method failed: timed-out` というメッセージが表示された場合は、 **cheesecavedevice** に変更を保存し、アプリを再起動していることを再確認してください。
+    ![Console Output](../../Linked_Image_Files/M99-L15-cheesecave-direct-method-sent.png)
 
-    cheesecaveoperator のバックエンド アプリは、すぐにダイレクト メソッドを呼び出します。
+1. Now check the console output for the **cheesecavedevice** device app, you should see that the fan has been turned on.
 
-    次のような出力に注目してください。
+   ![Console Output](../../Linked_Image_Files/M99-L15-cheesecave-direct-method-received.png)
 
-    ![コンソール出力](./Media/LAB_AK_15-cheesecave-direct-method-sent.png)
+You are now successfully monitoring and controlling a remote device. We have turned on the fan, which will slowly move the environment in the cave to our initial desired settings. However, we might like to remotely specify those desired settings. We could specify desired settings with a direct method (which is a valid approach). Or we could use another feature of IoT Hub, called device twins. Let's look into the technology of device twins.
 
-1. これで、 **cheesecavedevice** デバイス アプリのコンソール出力を確認すると、ファンがオンになっていることがわかるはずです。 
 
-   ![コンソール出力](./Media/LAB_AK_15-cheesecave-direct-method-received.png)
 
-リモート デバイスの監視と制御が正常に行われています。クラウドから呼び出すことができるダイレクト メソッドをデバイスに実装しました。このシナリオでは、ダイレクト メソッドを使用してファンをオンにし、ケーブ内の環境を希望の設定にします。
 
-チーズ蔵環境に対して希望する設定をリモートで指定したい場合はどうしますか? おそらく、熟成プロセスのある時点でチーズ ケーブの特定の目標温度を設定したいと思うでしょう。ダイレクト メソッド (有効なアプローチ) で目的の設定を指定することも、デバイス ツインと呼ばれる IoT ハブの別の機能を使用することもできます。次の演習では、ソリューション内でデバイス ツイン プロパティを実装する作業を行います。
 
-### 演習 5: デバイス ツインのコードを書き込む
+## Exercise 4: Write Code for Device Twins
 
-この演習では、デバイス アプリとバックエンド サービス アプリの両方に何らかのコードを追加して、操作中のデバイス ツイン同期を表示します。
+In this exercise, we'll add some code to both the device app and back-end service app, to show device twin synchronization in operation.
 
-デバイス ツインには、次の 4 種類の情報が含まれている点に留意してください。
+As a reminder, a device twin contains four types of information:
 
-* **タグ**: デバイスに表示されないデバイスの情報。
-* **必要なプロパティ**: バックエンド アプリで指定された必要な設定。
-* **報告されるプロパティ**: デバイスの設定の報告値。
-* **デバイス ID のプロパティ**: デバイスを識別する読み取り専用情報。
+* **Tags**: information on the device that isn't visible to the device.
+* **Desired properties**: the desired settings specified by the back-end app.
+* **Reported properties**: the reported values of the settings on the device.
+* **Device identity properties**: read-only information identifying the device.
 
-IoT Hub で管理されるデバイス ツインはクエリ用に設計されており、実際の IoT デバイスと同期されます。デバイス ツインは、バックエンド アプリでいつでも照会できます。このクエリは、デバイスの現在の状態に関する情報を返すことができます。このデータを取得するには、デバイスとツインが同期するので、デバイスへの呼び出しは必要ありません。デバイス ツインの機能の多くは Azure IoT Hub が提供するため、利用する上でコードを記述する必要はありません。
+Device twins are designed for querying, and automatically synchronizing, with the real IoT Hub device. The device twin can be queried, at any time, by the back-end app. This query can return the current state information for the device. Getting this data doesn't involve a call to the device, as the device and twin will have synchronized automatically. Much of the functionality of device twins is provided by Azure IoT, so not much code needs to be written to make use of them.
 
-デバイス ツインとダイレクト メソッドの機能には、いくつかの重複があります。ダイレクトメソッドを使用してデバイスプロパティを設定することができるので、直感的なやり方のように感じられるかもしれません。ただし、ダイレクト メソッドを使用するには、アクセスする必要がある場合は、バックエンド アプリがこれらの設定を明示的に記録する必要があります。デバイス ツインを使用すると、この情報は既定で保存および管理されます。
+There is some overlap between the functionality of device twins and direct methods. We could set desired properties using direct methods, which might seem an intuitive way of doing things. However, using direct methods would require the back-end app to record those settings explicitly, if they ever needed to be accessed. Using device twins, this information is stored and maintained by default.
 
-#### タスク 1: デバイス ツインを使用してデバイス のプロパティを同期するためのコードを追加する
+## Add Code To Use Device Twins To Synchronize Device Properties
 
-1. **cheesecaveoperator** バックエンド アプリを実行している Visual Studio Code インスタンスに戻ります。
+1. Return to the Visual Studio Code instance that is running the **cheesecaveoperator** app.
 
-1. アプリがまだ実行されている場合は、端末に入力フォーカスを置き、**Ctrl + C** を押してアプリを終了します。 
+1. If the app is still running, place input focus on the terminal and press **CTRL+C** to exit the app.
 
-1. **Program.cs** が開いていることを確認します。 
+1. In the editor, ensure **Program.cs** is open.
 
-1. コード エディター ペインで、 **ReadDeviceToCloudMessages** クラスの下部に移動します。 
-
-1. **ReadDeviceToCloudMessages** クラスの閉じ波括弧のすぐ上に、次のコードを追加します。 
+1. Add the following code to the end of the **ReadDeviceToCloudMessages** class:
 
     ```csharp
-    // デバイス ツイン セクション。
+    // Device twins section.
     private static RegistryManager registryManager;
 
     private static async Task SetTwinProperties()
@@ -936,35 +798,29 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
     }
     ```
 
-    > **注意**:   **SetTwinProperties** メソッドは、デバイス ツインに追加されるタグとプロパティを定義する JSON の一部を作成し、ツインを更新します。  メソッドの次の部分では、**celler** タグが "Cellar1" に設定されているデバイスをリストするために、クエリをどのように実行できるかを示します。このクエリでは、接続に**レジストリ読み取り**アクセス許可が必要です。
+    > [!NOTE] The **SetTwinProperties** method creates a piece of JSON that defines tags and properties that will be added to the device twin, and then updates thew twin. The next part of the method demonstrates how a query can be performed to list the devices where the **cellar** tag is set to "Cellar1".
 
-1. コード  エディター ペインで、上にスクロールして **Main** メソッドを見つけます。 
-
-1. **Main** メソッドで、サービス クライアントを作成するコード行を見つけます。
-
-1. サービス クライアントを作成するコードの前に、次のコードを追加します。
+1. Now, add the following lines to the **Main** method, before the lines creating a service client.
 
     ```csharp
-    // レジストリマネージャは、デジタル ツインへのアクセスに用います。
+    // A registry manager is used to access the digital twins.
     registryManager = RegistryManager.CreateFromConnectionString(s_serviceConnectionString);
     SetTwinProperties().Wait();
     ```
 
-    > **注意**: Main メソッドに含まれているコメントを読みます。
+    > [!NOTE] Read the comments in this section of code.
 
-1. 「**ファイル**」 メニューで Program.cs ファイルを保存するために、「**保存**」 をクリックします。   
+1. Save the **Program.cs** file.
 
-#### タスク 2: デバイスのデバイス ツイン設定を同期するためのコードを追加する
+## Add Code to Synchronize Device Twin Settings for the Device
 
-1. **cheesecavedevice** アプリを実行している Visual Studio Code インスタンスに戻ります。
+1. Return to the Visual Studio Code instance that is running the **cheesecavedevice** app.
 
-1. アプリがまだ実行されている場合は、端末に入力フォーカスを置き、**Ctrl + C** を押してアプリを終了します。 
+1. If the app is still running, place input focus on the terminal and press **CTRL+C** to exit the app.
 
-1. **Program.cs** ファイルが [コード エディター] ウィンドウで開かれていることを確認します。
+1. In the editor, ensure **Program.cs** is open.
 
-1. [コード エディター] ウィンドウで下にスクロールし、**SimulatedDevice** クラスの末尾を見つけます。
-
-1. **SimulatedDevice** クラスの右中括弧内に次のコードを追加します。
+1. Add the following code at the end of the **SimulatedDevice** class:
 
     ```csharp
     private static async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
@@ -976,7 +832,7 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
             greenMessage("Setting desired humidity to " + desiredProperties["humidity"]);
             greenMessage("Setting desired temperature to " + desiredProperties["temperature"]);
 
-            // IoT ハブにプロパティを報告します。
+            // Report the properties back to the IoT Hub.
             var reportedProperties = new TwinCollection();
             reportedProperties["fanstate"] = fanState.ToString();
             reportedProperties["humidity"] = desiredHumidity;
@@ -985,52 +841,46 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
 
             greenMessage("\nTwin state reported: " + reportedProperties.ToJson());
         }
-        キャッチ
+        catch
         {
             redMessage("Failed to update device twin");
         }
     }
     ```
 
-    > **注意**: このコードは、デバイス ツインで必要なプロパティが変更されたときに呼び出されるハンドラーを定義します。変更を確認するために、新しい値が IoT ハブに報告されることに注意してください。
+    > [!NOTE] This code defines handler invoked when a desired property changes in the device twin. Notice that new values are then reported back to the IoT Hub to confirm the change.
 
-1. コード エディター ペインで、**Main** メソッドまで上にスクロールします。 
-
-1. **Main** メソッド内で、ダイレクト メソッドのハンドラーを作成するコードを見つけます。
-
-1. ダイレクト メソッドのハンドラーの下の空白行にカーソルを置きます。
-
-1. 必要なプロパティ変更ハンドラーを登録するために、次のコードを追加します。
+1. To register the desired property changed handler, add the following lines after the statements creating a handler for the direct method:
 
     ```csharp
-    // デバイス ツインを取得して、最初に必要なプロパティを報告します。
+    // Get the device twin to report the initial desired properties.
     Twin deviceTwin = s_deviceClient.GetTwinAsync().GetAwaiter().GetResult();
     greenMessage("Initial twin desired properties: " + deviceTwin.Properties.Desired.ToJson());
 
-    // デバイス ツインの更新コールバックを設定します。
+    // Set the device twin update callback.
     s_deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).Wait();
     ```
 
-1. 「**ファイル**」 メニューで Program.cs ファイルを保存するために、「**保存**」 をクリックします。   
+1. Save the **Program.cs** file.
 
-    > **注意**:  これで、デバイス ツインのサポートがアプリに追加されました。**desiredHumidity** のように明示的な変数を使うことについて再考できます。その代わり、デバイス ツイン オブジェクトの変数を使用できます。
+> [!NOTE] Now you have added device twins to your app, you can reconsider having explicit variables such as **desiredHumidity**. Instead, you can use the variables in the device twin object.
 
-#### タスク 3: デバイス ツインのテスト
+## Test the Device Twins
 
-メソッドをテストするには、正しい順序でアプリを起動します。
+To test the method, start the apps in the correct order. 
 
-1. **cheesecavedevice** デバイス アプリを起動します。  端末への書き込みが開始され、テレメトリが表示されます。
+1. Start the **cheesecavedevice** device app. It will begin writing to the terminal, and telemetry will appear.
 
-1. **cheesecaveoperator** バックエンド アプリを起動します。 
+1. Start the **cheesecaveoperator** back-end app. 
 
-1. **cheesecavedevice** デバイス アプリのコンソール出力を検査し、デバイス ツインが正しく同期されていることを確認します。
+1. Now check the console output for the **cheesecavedevice** device app, confirming the device twin synchronized correctly.
 
-    ![コンソール出力](./Media/LAB_AK_15-cheesecave-device-twin-received.png)
+    ![Console Output](../../Linked_Image_Files/M99-L15-cheesecave-device-twin-received.png)
 
-    ファンを動作させる場合、最終的に赤いアラートを取り除く必要があります!
+1. If we let the fan do its work, we should eventually get rid of those red alerts!
 
-    ![コンソール出力](./Media/LAB_AK_15-cheesecave-device-twin-success.png)
+    ![Console Output](../../Linked_Image_Files/M99-L15-cheesecave-device-twin-success.png)
 
-1. Visual Studio Code の両方のインスタンスに対して、アプリを停止してから、Visual Studio Code ウィンドウを閉じます。
+The code given in this module isn't industrial quality. It does show how to use direct methods, and device twins. However, the messages are sent only when the back-end service app is first run. Typically, a back-end service app would require a browser interface, for an operator to send direct methods, or set device twin properties, when required.
 
-このモジュールで提供されるコードは工業品質ではありません。ダイレクト メソッドとデバイス ツインの使用方法が示されています。ただし、メッセージは、バックエンド サービス アプリが最初に実行されたときにのみ送信されます。通常、バックエンド サービス アプリでは、必要に応じてオペレーターがダイレクト メソッドを送信したり、デバイス ツイン プロパティを設定したりするために、ブラウザー インターフェイスが必要になります。
+> [!NOTE] Before you go, don't forget to close both instances of Visual Studio Code - this will exit the apps if they are still running.

@@ -1,111 +1,74 @@
-﻿---
+---
 lab:
-    title: 'ラボ 05: DPS のデバイスの個別登録'
-    module: 'モジュール 3: 大規模なデバイス プロビジョニング'
+    title: 'Lab 05: Individual Enrollment of a Device in DPS'
+    module: 'Module 3: Device Provisioning at Scale'
 ---
 
-# DPS でのデバイスの個別登録
+# Individual Enrollment of a Device in DPS
 
-## ラボ シナリオ
+## Lab Scenario
 
-Contoso の経営陣は、IoT デバイスを使用して現在のシステムで必要な手動のデータ入力作業を削減し、出荷プロセス時により高度な監視機能を提供する、自社の資産の監視および追跡ソリューションの更新を強く要求しています。このソリューションは、IoT デバイスのプロビジョニングとプロビジョニング解除を行う機能に依存しています。プロビジョニング要件を管理するための最良の選択肢は DSP のようです。
+Contoso's Asset Monitoring and Tracking Solution will require an IoT Device that has sensors for tracking location, temperature, pressure to be added in product transport boxes. This will help track products and monitor the  condition of the transport boxes to ensure the cheese products are kept in appropriate environments during delivery.
 
-提案されたシステムは、輸送中の輸送コンテナーの場所、温度、圧力をトラッキングするために、統合されたセンサーを備えた IoT デバイスを使用します。デバイスは、Contoso がチーズの輸送に使用する既存の出荷コンテナー内に配置され、車両が提供する WiFi を使用して Azure IoT Hub に接続します。新しいシステムは、製品環境の継続的な監視を提供し、問題が検出されたときにさまざまな通知シナリオを可能にします。
+When a new box enters the system, it is equipped with the new IoT Device. The device needs to be auto-provisioned to IoT Hub using Device Provisioning Service. When the box has arrived the sensor is removed from the box and needs to be "decommissioned" through DPS.
 
-Contoso のチーズ パッケージング施設では、空のコンテナーがシステムに入ると、新しい IoT デバイスが装備され、パッケージ化されたチーズ製品がロードされます。IoT デバイスは、デバイス プロビジョニング サービスを使用して IoT ハブに自動プロビジョニングする必要があります。コンテナーが宛先に到着すると、IoT デバイスが取得され、DPS を通じて "使用停止" されます。デバイスは、今後の出荷に再利用されます。
+## In This Lab
 
-DPS を使用してデバイス プロビジョニングとプロビジョニング解除プロセスを検証する作業を担当します。プロセスの初期段階では、個別登録アプローチを使用します。
+In this lab, you will, create an individual enrollment within Azure Device Provisioning Service (DPS) to automatically connect a pre-built simulated device to Azure IoT Hub. You will also fully retire the device by removing it from both DPS and IoT Hub.
 
-次のリソースが作成されます。
+This lab includes:
 
-!「ラボ 5 アーキテクチャ」(media/LAB_AK_05-architecture.png)
+* Verify Lab Prerequisites
+* Create New individual enrollment in DPS
+* Configure Simulated Device
+* Test Simulated Device
+* Retire the Device
 
-## このラボでは
+## Exercise 1: Verify Lab Prerequisites
 
-このラボでは、次のタスクを完了します。
+This lab assumes the following resources are available:
 
-* ラボの前提条件が満たされていることを確認する (必要な Azure リソースがあること)
-* DPS での新しい個人登録の作成
-* シミュレートされたデバイスの構成
-* シミュレートされたデバイスのテスト
-* デバイスの削除
-
-## ラボの手順
-
-### 演習 1: ラボの前提条件を確認する
-
-このラボでは、次の Azure リソースが使用可能であることを前提としています。
-
-| リソースの種類:  | リソース名 |
+| Resource Type | Resource Name |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
+| Resource Group | AZ-220-RG |
 | IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
-| デバイス プロビジョニング サービス | AZ-220-DPS-_{YOUR-ID}_ |
+| Device Provisioning Service | AZ-220-DPS-_{YOUR-ID}_ |
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って **lab05-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+If the resources are unavailable, please execute the **lab-setup.azcli** script before starting the lab.
 
-**lab05-setup.azcli** スクリプトは、**Bash** シェル環境で動作するように記述されています。これは、Azure Cloud Shell で実行するのが最も簡単です。
+The **lab-setup.azcli** script is written to run in a **bash** shell environment - the easiest way to execute this is in the Azure Cloud Shell.
 
-1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
+1. Using a browser, open the [Azure Shell](https://shell.azure.com/) and login with the Azure subscription you are using for this course.
 
-    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
+1. To ensure the Azure Shell is using **Bash**, ensure the dropdown selected value in the top-left is **Bash**.
 
-1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
+1. To upload the setup script, in the Azure Shell toolbar, click **Upload/Download files** (fourth button from the right).
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
+1. In the dropdown, select **Upload** and in the file selection dialog, navigate to the **lab-setup.azcli** file for this lab. Select the file and click **Open** to upload it.
 
-1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
+    A notification will appear when the file upload has completed.
 
-1. ドロップダウンで、「**アップロード**」 をクリックします。
+1. You can verify that the file has uploaded by listing the content of the current directory by entering the `ls` command.
 
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
-
-    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * Allfiles
-      * ラボ
-          * 05 - DPS におけるデバイスの個別登録
-            * セットアップ
-
-    lab05-setup.azcli スクリプト ファイルは、ラボ 5 の設定 フォルダー内にあります。
-
-1. **lab05-setup.azcli** ファイルを選択し、「**開く**」 をクリックします。
-
-    ファイルのアップロードが完了すると、通知が表示されます。
-
-1. 正しいファイルがアップロードされたことを確認するには、次のコマンドを入力します。
-
-    ```bash
-    ls
-    ```
-
-    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。lab05-setup.azcli ファイルが一覧表示されます。
-
-1. セットアップ スクリプトを含むディレクトリをこのラボ用に作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
+1. To create a directory for this lab, move **lab-setup.azcli** into that directory, and make that the current working directory, enter the following commands:
 
     ```bash
     mkdir lab5
-    mv lab05-setup.azcli lab4
+    mv lab-setup.azcli lab5
     cd lab5
     ```
 
-    これらのコマンドは、このラボのディレクトリを作成し、そのディレクトリに **lab05-setup.azcli** ファイルを移動して、新しいディレクトリを現在の作業ディレクトリに変更します。
-
-1. **lab05-setup.azcli** スクリプトに実行権限があることを確認するには、次のコマンドを入力します。
+1. To ensure the **lab-setup.azcli** has the execute permission, enter the following commands:
 
     ```bash
-    chmod +x lab05-setup.azcli
+    chmod +x lab-setup.azcli
     ```
 
-1. Cloud Shell ツール バーで、lab06-setup.azcli ファイルを編集するには、「**エディターを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。 
+1. To edit the **lab-setup.azcli** file, click **{ }** (Open Editor) in the toolbar (second button from the right). In the **Files** list, select **lab5** to expand it and then select **lab-setup.azcli**.
 
-1. 「**ファイル**」 の一覧で、lab6 フォルダーを展開してスクリプト ファイルを開き 、**lab5**、「**lab05-setup.azcli**」 の順にクリックします。
+    The editor will now show the contents of the **lab-setup.azcli** file.
 
-    エディターで **lab05-setup.azcli ** ファイルの内容を表示します。
-
-1. エディターで、`{YOUR-ID}` と `{YOUR-LOCATION}` 変数の値を更新します。
-
-    サンプル例として、このコースの最初に作成した一意の ID 、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソースにとって意味のある場所に `{YOUR-LOCATION}` を設定する必要があります。
+1. In the editor, update the values of the `{YOUR-ID}` and `{YOUR-LOCATION}` variables. Set `{YOUR-ID}` to the Unique ID you created at the start of this - i.e. **CAH191211**, and set `{YOUR-LOCATION}` to the location that makes sense for your resources.
 
     ```bash
     #!/bin/bash
@@ -116,8 +79,8 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     Location="{YOUR-LOCATION}"
     ```
 
-    > **注意**:  `{YOUR-LOCATION}` 変数は、リージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な領域とその短い名前 (**名前** 列) の一覧を表示できます。
-    >
+    > [!NOTE] The `{YOUR-LOCATION}` variable should be set to the short name for the region. You can see a list of the available regions and their short-names (the **Name** column) by entering this command:
+
     > ```bash
     > az account list-locations -o Table
     >
@@ -130,86 +93,73 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     > East US 2             36.6681     -78.3889     eastus2
     > ```
 
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、**..** をクリックし、**エディタを閉じる** をクリックします。 
+1. To save the changes made to the file and close the editor, click **...** in the top-right of the editor window and select **Close Editor**.
 
-    保存を求められたら、**保存** をクリックすると、エディタが閉じます。 
+    If prompted to save, click **Save** and the editor will close.
 
-    > **注意**:  **CTRL+S** を使っていつでも保存でき、 **CTRL+Q** を押してエディターを閉じます。
+    > [!NOTE] You can use **CTRL+S** to save at any time and **CTRL+Q** to close the editor.
 
-1. この実習ラボに必要なリソースを作成するには、次のコマンドを入力します。
+1. To create a resources required for this lab, enter the following command:
 
     ```bash
-    ./lab05-setup.azcli
+    ./lab-setup.azcli
     ```
 
-    これは、実行するのに数分かかります。各ステップが完了すると、JSON 出力が表示されます。
+    This will take a few minutes to run. You will see JSON output as each step completes.
 
-    スクリプトが完了したら、ラボを続行できます。
+    Once the script has completed, you will be ready to continue with the lab.
 
-### 演習 2: DPS での新しい個別登録 (対称キー) の作成
+## Exercise 2: Create new individual enrollment (Symmetric keys) in DPS
 
-この演習では、_対称キー構成証明_を使用して、デバイス プロビジョニング サービス (DPS) 内のデバイスに対して新しい個別登録を作成します。
+In this exercise, you will create a new individual enrollment for a device within the Device Provisioning Service (DPS) using _symmetric key attestation_.
 
-#### タスク 1: 登録の作成
+### Task 1: Create the enrollment
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+1. If necessary, log in to your Azure portal using your Azure account credentials.
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
 
-1. 前のタスクで作成した **AZ-220** ダッシュボードが読み込まれています。
+1. Notice that the **AZ-220** dashboard that you created in the previous task has been loaded.
 
-    IoT ハブと DPS の両方のリソースが表示されます。
+    You should see both your IoT Hub and DPS resources listed.
 
-1. リソース グループ タイルで、「**AZ-220-DPS-_{YOUR-ID}_**」 をクリックします。
+1. On your Resource group tile, click **AZ-220-DPS-_{YOUR-ID}_**.
 
-1. 左側の 「**デバイス プロビジョニング サービス の設定**」 ペインで、「**登録の管理**」 をクリックします。
+1. On the Device Provisioning Service **Settings** pane on the left side, click **Manage enrollments**.
 
-1. ペインの上部にある 「**+ 個別の登録を追加**」 をクリックします。
+1. At the top of the pane, click **+ Add individual enrollment**.
 
-1. 「**登録の追加**」 ブレードの 「**メカニズム**」 ドロップダウンで、「**対称キー**」 をクリックします。
+1. On the **Add Enrollment** blade, in the **Mechanism** dropdown, click **Symmetric Key**. This sets the attestation method to use Symmetric key authentication.
 
-    これにより、対称キー認証を使用する構成証明方法が設定されます。
+1. Notice the **Auto-generate keys** option is checked. This sets DPS to automatically generate both the **Primary Key** and **Secondary Key** values for the device enrollment when it's created.
 
-1. 「メカニズム」 設定のすぐ下で、「**キーの自動生成**」 オプションがオンになっていることを確認します。
+    Optionally, un-checking this option enables custom keys to be manually entered.
 
-    これにより、DPS は デバイス登録時に **主キー** と **2 次キー** の両方の値を自動的に生成するように設定されます。オプションで、このオプションのチェックを外して、カスタムキーを手動で入力できます。
+1. In the **Registration ID** field, enter `DPSSimulatedDevice1` as the Registration ID to use for the device enrollment within DPS.
 
-1. 「**登録 ID**」 フィールドで、DPS 内のデバイス登録に使用する登録 ID を指定するには 「**DPSSimulatedDevice1**」 と入力します 
+    By default, the Registration ID will be used as the IoT Hub Device ID when the device is provisioned from the enrollment. If these values need to be different, then enter the required IoT Hub Device ID in that field.
 
-    既定では、登録からデバイスがプロビジョニングされるときに、登録 ID が IoT ハブデバイス ID として使用されます。これらの値を異なる値にする必要がある場合は、そのフィールドに必要な IoT ハブデバイス ID を入力します。
+1. Leave the **IoT Hub Device ID** field blank.  This will cause the IoT Hub to use the Registration ID.
 
-1. 「**IoT ハブ デバイス ID**」 フィールドは空白のままにします。 
+1. Leave **IoT Edge device** as `False`.
+   
+   The new device will not be an edge device.  That concept will be discussed later in the course.
 
-    このフィールドを空白のままにすると、IoT ハブは登録 ID をデバイス ID として使用します。選択できないフィールドにデフォルトのテキスト値が表示される場合は、このテキストはプレースホルダー テキストであり、入力値として扱われるので、心配しないでください。
+2. Leave **Select how you want to assign devices to hubs** as **Evenly weighted distribution**.
+   
+   As you only have one IoT Hub associated with the enrollment, this setting is somewhat unimportant.  In larger environments where you have multiple distributed hubs, this setting will control how to choose what IoT Hub should receive this device enrollment.
 
-1. 「**IoT Edge デバイス**」 フィールドを **False** のままにします。   
+3. Notice that the **AZ-220-HUB-_{YOUR-ID}_** IoT Hub is selected within the **Select the IoT hubs this device can be assigned to** dropdown.
+   
+   This field specifies the IoT Hub(s) this device can be assigned to.
 
-   新しいデバイスはエッジ デバイスではありません。IoT Edge デバイスの操作については、このコースの後半で説明します。
+4. Leave **Select how you want device data to be handled on re-provisioning** as the default value of **Re-provision and migrate data**.
 
-1. 「**デバイスをハブに割り当てる方法を選択してください**」 フィールドを 「**加重が均等に分布**」 に設定したままにします。   
+    This field gives you high-level control over the re-provisioning behavior, where the same device (as indicated through the same Registration ID) submits a later provisioning request after already being provisioned successfully at least once.
 
-   登録に関連付けられている IoT ハブは 1 つしかないため、この設定は重要ではありません。  複数の分散ハブがある大規模な環境では、この設定によって、このデバイス登録を受信する IoT ハブの選択方法を制御できます。サポートされている割り当てポリシーは 4 つあります。
+5. In the **Initial Device Twin State** field, modify the `properties.desired` JSON object to include a property named `telemetryDelay` with the value of `"2"`. This will be used by the Device to set the time delay for reading sensor telemetry and sending events to IoT Hub.
 
-    * **最低限の待ち時間**: デバイスは、デバイスに対する待ち時間が最も低いハブに基づいて IoT ハブにプロビジョニングされます。
-    * **加重が均等に分布 (デフォルト)**: リンクされた IoT ハブは、デバイスがプロビジョニングされている可能性が同じになります。これがデフォルトの設定です。デバイスを 1 つの IoT ハブのみにプロビジョニングする場合、この設定を維持できます。 
-    * **登録リストを介した静的構成**: 登録リストで必要な IoT ハブの仕様は、デバイス プロビジョニング サービス レベルの割り当てポリシーよりも優先されます。
-    * **カスタム (Azure 関数を使用)**: デバイス プロビジョニング サービスは、デバイスと登録に関するすべての関連情報を提供する Azure 関数コードを呼び出します。関数コードが実行され、デバイスのプロビジョニングに使用される IoT ハブ情報が返されます。
-
-1. 「**このデバイスを割り当てることができる IoT ハブを選択する**」 ドロップダウンで 作成した **AZ-220-HUB-_{YOUR-ID}_** IoT ハブが指定されていることに注意してください。
-
-   このフィールドは、_DPSSimulatedDevice1_ デバイスに割り当てられる IoT ハブを指定するために使用されます。
-
-1. 「**Select how you want device data to be handled on re-provisioning (再プロビジョニングするときのデバイス データの処理方法を選択してください)**」 フィールドを、既定値の 「**Re-provision and migrate data (再プロビジョニングしてデータを移行する)**」 に設定したままにします。
-
-    このフィールドによって、同じデバイス (同じ登録 ID で示される) が、少なくとも 1 回正常にプロビジョニングされた後に、プロビジョニング要求を後で送信する再プロビジョニング動作を高度に制御できます。次の 3 つのオプションがあります。
-
-    * **データの再プロビジョニングと移行**: このポリシーは、新しい登録エントリの既定です。このポリシーは、登録エントリに関連付けられているデバイスが新しいプロビジョニング要求を送信するときにアクションを実行します。登録エントリの構成によっては、デバイスが別の IoT ハブに再割り当てされる場合があります。デバイスが IoT ハブを変更する場合は、最初の IoT ハブを使用したデバイスの登録が削除されます。その初期 IoT ハブからのすべてのデバイス状態の情報は、新しい IoT ハブに移行されます。
-    * **再プロビジョニングして初期構成にリセットする**: このポリシーは、IoT ハブを変更せずに工場出荷時のリセットに使用されることがよくあります。このポリシーは、登録エントリに関連付けられているデバイスが新しいプロビジョニング要求を送信するときにアクションを実行します。登録エントリの構成によっては、デバイスが別の IoT ハブに再割り当てされる場合があります。デバイスが IoT ハブを変更する場合は、最初の IoT ハブを使用したデバイスの登録が削除されます。デバイスがプロビジョニングされたときにプロビジョニング サービス インスタンスが受信した初期構成データが、新しい IoT ハブに提供されます。
-    * **再プロビジョニングを行わない**: デバイスが別のハブに再割り当てされることはありません。このポリシーは、下位互換性を管理するために用意されています。
-
-1. 「**初期デバイス ツイン状態**」 フィールドで、`properties.desired` JSON オブジェクトを変更して、`telemetryDelay` という名前のプロパティを値 `2` で指定します。 
-
-    最終的な JSON は次のようになります。
+    The final JSON will be like the following:
 
     ```json
     {
@@ -222,124 +172,82 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     }
     ```
 
-    このフィールドには、デバイスの必要なプロパティの初期構成を表す JSON データが含まれます。入力したデータは、センサー テレメトリの読み取りと IoT ハブへのイベントの送信の遅延時間を設定するためにデバイスによって使用されます。
+    This field contains JSON data that represents the initial configuration of desired properties for the device.
 
-1. 「 **入力可能な項目**」 フィールドは 「**有効**」 に設定したままにします。   
+1. Leave **Enable entry** set to **Enable**.
 
-    一般的に、新しい登録エントリを有効にし、有効を維持する必要があります。
+    Generally, you'll want to enable new enrollment entries and keep them enabled.
 
-1. 「**登録の追加**」 ブレードの上部にある 「**保存**」 をクリック します。
+2. At the top of the **Add Enrollment** blade, click **Save**.
 
-#### タスク 2: 登録を検証する
+### Task 2: Validate the enrollment
 
-1. 「**登録の管理**」 ブレードで、個別のデバイス登録の一覧を表示するには、「**個別の登録**」 をクリックします。   
+3. In the **Manage enrollments** pane, click on the **individual enrollments** tab to view the list of individual device enrollments.
 
-1. 「個別の登録」 で 「**DPSSimulatedDevice1**」 をクリックします。
+4.  In the list, click on the **DPSSimulatedDevice1** individual enrollment that was just created to view the enrollment details.
 
-    これにより、作成した個々の登録の登録詳細を表示できます。
+5.  Locate the **Authentication Type** section, and notice the **Mechanism** is set to **Symmetric Key**.
 
-1. 「**認証タイプ**」 セクションを見つけ、 **メカニズム**が**対称キー**に設定されていることに注意してください。     
+6.  Copy the **Primary Key** and **Secondary Key** values for this device enrollment (there is a button to the right of each textbox for this purpose), and save them for reference later.
 
-1. このデバイスの登録の**主キー**と **2 次キー**の値をコピーし (この目的のために各テキスト ボックスの右側にボタンがあります)、後で参照できるように保存します。
+    These are the authentication keys for the device to authenticate with the service.
 
-    これらは、デバイスがサービスで認証するための認証キーです。
+7.  Locate the **Initial device twin State**, and notice the JSON for the device twin Desired State contains the `telemetryDelay` property set to the value of `"2"`.
 
-1. **初期デバイス ツインの状態**を見つけ、デバイス ツインの Desired State の JSON に、`telemetryDelay` プロパティが値 `2` に設定されていることに注意してください。 
+8. Close the **DPSSimulatedDevice1** view to return to the **AZ-220-DPS-_{YOUR_ID}_** blade.
 
-1. 「**DPSSimulatedDevice1**」 ビューを閉じて、「**AZ-220-DPS-_{YOUR-ID}_**」 ブレードに戻ります。   
+## Exercise 3: Configure Simulated Device
 
-### 演習 3: シミュレートされたデバイスの構成
+In this exercise, you will configure a Simulated Device written in C# to connect to Azure IoT using the individual enrollment created in the previous unit. You will also add code to the Simulated Device that will read and update device configuration based on the device twin within Azure IoT Hub.
 
-この演習では、前の単元で作成した個々の登録を使用して Azure IoT に接続するように、C# で記述されたシミュレートされたデバイスを構成します。また、Azure IoT Hub 内のデバイス ツインに基づくデバイス構成を読み取って更新するコードをシミュレートされたデバイスに追加します。
+The simulated device created in this unit is for a an asset tracking solution that will have Iot Device with sensors located within a transport box to track shipments in transit. The sensor telemetry from the device sent to Azure IoT Hub includes Temperature, Humidity, Pressure, and Latitude/Longitude coordinates of the transport box.
 
-この演習で作成するシミュレートされたデバイスは、出荷コンテナーやボックス内に配置される IoT デバイスを表し、Contoso 製品の転送中の監視に使用されます。Azure IoT Hub に送信されるデバイスからのセンサー テレメトリには、コンテナーの温度、湿度、圧力、緯度/経度座標が含まれています。デバイスは、全体的な資産追跡ソリューションの一部です。
+This is different than the earlier lab where a simulated device connected to Azure because in that lab, you used a shared access key to authenticate, which does not require device provisioning, but also does not give the provisioning management benefits (such as device twins), and requires fairly large distribution and management of a shared key.  In this lab, you are provisioning a unique device through the Device Provisioning Serivce.
 
-これは、シミュレートされたデバイスが Azure に接続された以前のラボとは異なります。そのラボでは認証に共有アクセス キーを使用してデバイスのプロビジョニングを必要とせず、プロビジョニング管理の利点 (デバイス ツインなど) も提供しないためです。また、共有キーのかなり大希望な配布と管理が必要です。  このラボでは、デバイス プロビジョニング サービスを使用して一意のデバイスをプロビジョニングします。
+### Task 1: Create the Simulated Device
 
-#### タスク 1: シミュレートされたデバイスを作成する
+1. On the **AZ-220-DPS-_{YOUR_ID}_** blade, navigate to the **Overview** pane.
 
-1. **AZ-220-DPS-_{YOUR-ID}_** ブレードで、「**概要**」 ペインに移動します。   
+1. Within the **Overview** pane, copy the **ID Scope** for the Device Provisioning Service, and save it for reference later.  (There is a copy button to the right of the value that will appear when you hover over the value.)
 
-1. ブレードの右上で、ID スコープに割り当てられた値の上にマウス ポインタを置き、「**クリップボードにコピー**」 をクリックします。 
+    The **ID Scope** will be similar to this value: `0ne0004E52G`
 
-    この値はまもなく使用されるため、クリップボードを使用できない場合は値をメモしておきます。大文字の "O" と数字の "0" を必ず区別してください。
+1. Using **Visual Studio Code**, open the `/LabFiles` folder.
 
-    **ID スコープ**は、次の値と似ています。  `0ne0004E52G`
+1. Open the `Program.cs` file.
 
-1. **Visual Studio Code** を使用して、ラボ 5 のスターター フォルダーを開きます。
+1. Locate the `dpsIdScope` variable, and replace the value with the **ID Scope** of the Device Provisioning Service.
 
-    ここでも、これはラボ 3 で開発環境を設定するときにダウンロードしたラボ リソース ファイルを指しています。フォルダ パスは次のとおりです。
+    > [!NOTE]
+    > The **ID Scope** for the **Device Provisioning Service** can be retrieved from within the Azure portal, by navigating to the DPS resource, then copying the **ID Scope** value on the **Overview** pane.
 
-    * Allfiles
-      * ラボ
-          * 05 - DPS におけるデバイスの個別登録
-            * スターター
+1. Locate the `registrationId` variable, and replace the value with `DPSSimulatedDevice1`.
 
-1. 「**表示**」 メニューの 「**ターミナル**」 をクリックします。   
+    Remember that this was the the **Registration ID** of for the individual enrollment that was created in the Device Provisioning Service.
 
-    選択したターミナル シェルが Windows コマンド プロンプトであることを確認します。
+2. Locate the `individualEnrollmentPrimaryKey` and `individualEnrollmentSecondaryKey` variables, and replace their values with the **Primary Key** and **Secondary Key** values that were copied from the Enrollment Details for the individual enrollment for the device that was created in the Device Enrollment Service.
 
-1. コマンド ラインを使用して NuGet パッケージのすべてのアプリケーションを復元するには、ターミナル ビューのコマンド プロンプトで次のコマンドを入力します。
+3. Review the source code for the simulated device, and take notice of the following items:
 
-    ```cmd/sh
-    dotnet restore
-    ```
+    - The `ProvisioningDeviceLogic` class contains the logic for reading from the simulated device sensors.
+    - The `ProvisioningDeviceLogic.SendDeviceToCloudMessagesAsync` method contains the logic for generating the simulated sensor readings for Temperature, Humidity, Pressure, Latitude, and Longitude. This method also sends the telemetry as Device-to-Cloud messages to Azure IoT Hub.
 
-1. 「Visual Studio Code Explorer」 ペインで、「**Program.cs**」 をクリックします。 
+4. Notice at the bottom of the `ProvisioningDeviceLogic.SendDeviceToCloudMessagesAsync` method, there is a `Task.Delay` call to pause the `while` loop for a period of time before reading the simulated sensors again and sending the telemetry. This code uses the `_telemetryDelay` variable that defines how many seconds to wait before sending telemetry again.
 
-1. コード エディターで、プログラム クラスの上部にある `dpsIdScope` 変数を見つけて、Azure portal のデバイス プロビジョニング サービスからコピーした ID スコープ値を使用して割り当てられた値を更新します。
+5. Locate the `_telemetryDelay` variable declaration towards the top of the `ProvisioningDeviceLogic` class. Notice the delay is defaulted to `1` second in the code.
 
-    > **注意**: ID スコープの値が使用できない場合は、DPS サービスの 「概要」 ブレード (Azure portal) で確認できます。
+6. To get started configuring the simulated device to set the `_telemetryDelay` based on configuration of the **device twin** within Azure IoT Hub, you need to add code to read the device twin desired state, and report back the current state.
 
-1. `registrationId` 変数を見つけて、値を **DPSSimulatedDevice1** に置き換えます
+7. Locate the `// TODO 1: Setup OnDesiredPropertyChanged Event Handling` comment. To setup the simulated device to be notified of device twin state changes, you need to use the `DeviceClient.SetDesiredPropertyUpdateCallbackAsync` method to wire up an event handler for the `OnDesiredPropertyChanged` event.
 
-    この変数は、デバイス プロビジョニング サービスで作成した個々の加入契約の **登録 ID** 値を表します。
-
-1. `individualEnrollmentPrimaryKey` と `individualEnrollmentSecondaryKey` 変数を見つけて、それらの値をシミュレートされたデバイスの個々の登録を構成するときに保存した**主キー**と **2 次キー**の値に置き換えます。
-
-    > **注意**: これらのキー値が利用できない場合は、次のように Azure portal からコピーできます。
-    >
-    > 「**登録の管理**」 ブレードを開き、「**個別の登録**」 をクリックし、「**DPSSimulatedDevice1**」 をクリックします。値をコピーし、上記の手順に示すように貼り付けます。
-
-1. シミュレートされたデバイスのソース コードを確認し、次の項目に着目してください。
-
-    * `ProvisioningDeviceLogic` クラスには、シミュレートされたデバイス センサーから読み取るためのロジックが含まれています。
-    * `ProvisioningDeviceLogic.SendDeviceToCloudMessagesAsync` メソッドには、温度、湿度、圧力、緯度、経度用の、シミュレートされたセンサーの読み取り値を生成するためのロジックが含まれています。このメソッドはまた、テレメトリをデバイスからクラウドへのメッセージとして Azure IoT Hub に送信します。
-
-1. `ProvisioningDeviceLogic.SendDeviceToCloudMessagesAsync`メソッドの下部にある `Task.Delay` の呼び出しに着目してください。
-
-    `Task.Delay` は、次のテレメトリ メッセージを作成して送信する前に、一定期間 `while` ループを "一時停止" するために使用されます。`_telemetryDelay` 変数は、次のテレメトリ メッセージを送信するまでの待機時間を定義するために使用されます。
-
-1. `ProvisioningDeviceLogic` クラスの先頭近くにある `_telemetryDelay` 変数宣言を見つけます。
-
-    遅延の既定値が `1` 秒に設定されていることに注意してください。次の手順では、デバイス ツイン値を使用して遅延時間を制御するコードを統合します。
-
-#### タスク 2: デバイス ツインのプロパティを統合する
-
-デバイスで (Azure IoT Hub から) デバイス ツインのプロパティを使用するには、デバイス ツインのプロパティにアクセスして適用するコードを作成する必要があります。この場合、シミュレートされたデバイス コードを更新してデバイス ツインの必要なプロパティを読み取ってから、その値を `_telemetryDelay` 変数に割り当てます。また、現在デバイスに実装されている遅延値を示すために、デバイス ツインの報告されるプロパティを更新します。
-
-1. Visual Studio Code エディターで、`RunAsync` メソッドを見つけます。
-
-1. コードを確認してから、`// TODO: を見つけてください。OnDesiredPropertyChanged Event Handling` コメントをセットアップします。
-
-    デバイス ツイン プロパティの統合を開始するには、デバイス ツイン プロパティが更新されたときに、シミュレートされたデバイスに通知を有効にするコードが必要です。
-
-    これを実現するには、`DeviceClient.SetDesiredPropertyUpdateCallbackAsync` メソッドを使用し、`OnDesiredPropertyChanged` イベントを作成することによってイベント ハンドラーを設定します。
-
-1. OnDesiredPropertyChanged イベントの DeviceClient を設定するには、`// TODO 1:` コメントを次のコードに置き換えます。
+    Replace the `// TODO 1` comment with the following code that sets up the event handler on the DeviceClient:
 
     ```csharp
     Console.WriteLine("Connecting SetDesiredPropertyUpdateCallbackAsync event handler...");
     await iotClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).ConfigureAwait(false);
     ```
 
-    疑問に思っているかもしれませんが、ProvisioningDeviceLogic クラスの先頭に、DeviceClient `iotClient` インスタンスを作成しました。
-
-    次に、`OnDesiredPropertyChanged` メソッドを `ProvisioningDeviceLogic` クラスに追加する必要があります。
-
-1. イベント ハンドラーの設定を完了するには、次のメソッド コードを ProvisioningDeviceLogic クラスに追加します。
-
-    > **注意**: このコードは `RunAsync` メソッドの下に配置できます (そうすれば、更新する他のコードの近くになります)。
+8.  To complete setting up the event handler, the `OnDesiredPropertyChanged` method needs to be added to the `ProvisioningDeviceLogic` class. Add the following method code to the class, that also includes code to read the device twin Desired Properties, configures the `_telemetryDelay` variable, and then reports back the Reported Properties back to the device twin to tell Azure IoT Hub what the current state of the simulated device is configured to.
 
     ```csharp
     private async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
@@ -347,32 +255,28 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
         Console.WriteLine("Desired Twin Property Changed:");
         Console.WriteLine($"{desiredProperties.ToJson()}");
 
-        // 必要なツイン プロパティを読み取る
+        // Read the desired Twin Properties
         if (desiredProperties.Contains("telemetryDelay"))
         {
-            string desiredTelemetryDelay = desiredProperties「"telemetryDelay"」;
+            string desiredTelemetryDelay = desiredProperties["telemetryDelay"];
             if (desiredTelemetryDelay != null)
             {
                 this._telemetryDelay = int.Parse(desiredTelemetryDelay);
             }
-            // 必要な telemetryDelay が null または未指定の場合は、変更しないでください
+            // if desired telemetryDelay is null or unspecified, don't change it
         }
 
 
-        // ツイン プロパティをレポートする
+        // Report Twin Properties
         var reportedProperties = new TwinCollection();
-        reportedProperties「"telemetryDelay"」 = this._telemetryDelay.ToString();
+        reportedProperties["telemetryDelay"] = this._telemetryDelay;
         await iotClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
         Console.WriteLine("Reported Twin Properties:");
         Console.WriteLine($"{reportedProperties.ToJson()}");
     }
     ```
 
-    `OnDesiredPropertyChanged` メソッドは、デバイス ツインの必要なプロパティを読み取るコードを含み、`_telemetryDelay` 変数を構成してから、報告されるプロパティをデバイス ツインに報告して、シミュレートされたデバイスの現在の状態がどの状態に構成されているかを Azure IoT Hub に伝えることに注意してください。
-
-1. `RunAsync` メソッドで、`//TODO 2: を見つけます。デバイス ツイン プロパティのコメントを読み込みます`。
-
-1. デバイス ツインの必要なプロパティを読み取り、デバイスの起動時に一致するようにデバイスを構成するには、`// TODO 2:` コメントを次のコードに置き換えます。
+9.  Locate the `//TODO 2: Load device twin Properties` comment. To setup the simulated device to read the current device twin property desired state, and configure the device to match on device startup, add the following code in place of this comment:
 
     ```csharp
     Console.WriteLine("Loading device twin Properties...");
@@ -380,57 +284,50 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     await OnDesiredPropertyChanged(twin.Properties.Desired, null);
     ```
 
-    このコードは、シミュレートされたデバイスのデバイス ツインを取得する `DeviceTwin.GetTwinAsync` メソッドを呼び出します。次に、`Properties.Desired` プロパティ オブジェクトにアクセスして、デバイスの現在の必要な状態を取得し、それをシミュレートされたデバイスの `_telemetryDelay` 変数を構成する `OnDesiredPropertyChanged` メソッドに渡します。
+    This code calls the `DeviceTwin.GetTwinAsync` method to retrieve the device twin for the simulated device. It then accesses the `Properties.Desired` property object to retrieve the current Desired State for the device, and passes that to the `OnDesiredPropertyChanged` method that will configure the simulated devices `_telemetryDelay` variable.
 
-    このコードでは、_OnDesiredPropertyChanged_ イベントを処理するために既に作成されている `OnDesiredPropertyChanged` メソッドを再利用しています。  これにより、デバイス ツインの目的の状態プロパティを読み取り、起動時にデバイスを 1 か所で構成するコードを保持できます。結果のコードは、より簡単で保守が容易になります。
+    Notice, this code reuses the `OnDesiredPropertyChanged` method that was already created for handling _OnDesiredPropertyChanged_ events. This helps keep the code that reads the device twin desired state properties and configures the device at startup in a single place. The result is the code is simpler and easier to maintain.
 
-1. Visual Studio Code のトップ メニューで、「**ファイル**」 をクリックしてから、「**保存**」 をクリックします。   
+10. Now the simulated device is all setup to be configured by the device twin within Azure IoT Hub.
 
-    次に、シミュレートされたデバイスは、Azure IoT Hub のデバイス ツイン プロパティを使用して、テレメトリ メッセージ間の遅延を設定します。
+    > [!NOTE]
+    > If you need help with pasting code in the `Program.cs` file, please refer to the `/LabFiles-Completed` folder for the full source code for the Simulated Device with the device twin configuration code. When using this completed code sample, be sure to configure the ID Scope, Registration ID, and individual enrollment Keys.
 
-### 演習 4: シミュレートされたデバイスのテスト
+## Exercise 4: Test the Simulated Device
 
-この演習では、シミュレートされたデバイスを実行し、センサー テレメトリを Azure IoT Hub に送信することを確認します。また、Azure IoT Hub 内のシミュレートされたデバイスのデバイス ツインを更新することで、テレメトリが Azure IoT Hub に送信される遅延も更新します。
+In this exercise, you will run the Simulated Device and verify it's sending sensor telemetry to Azure IoT Hub. You will also update the delay at which telemetry is sent to Azure IoT Hub by updating the device twin for the simulated device within Azure IoT Hub.
 
-#### タスク 1: デバイスをビルドおよび実行する
+### Task 1: Build and run the device
 
-1. Visual Studio Code でコード プロジェクトを開いていることを確認します。
+1. In Visual Studio Code, click on the **View** menu, then click **Terminal** to open the _Terminal_ pane.
 
-1. トップ メニューの 「**表示」**」 をクリックし、「**ターミナル**」 をクリックします。
-
-1. ターミナル ペインで、コマンド プロンプトに `Program.cs` ファイルのディレクトリ パスが表示されていることを確認します。
-
-1. コマンド プロンプトで、シミュレートされたデバイス アプリケーションをビルドして実行するには、次のコマンドを入力します。
+1. Run the following command within the **Terminal** to build and run the Simulated Device application. Be sure the terminal location is set to the `/LabFiles` directory with the `Program.cs` file.
 
     ```cmd/sh
     dotnet run
     ```
 
-    > **注意**: シミュレートされたデバイス アプリケーションを実行すると、まず、その状態に関する詳細がコンソール (ターミナル ペイン) に書き込まれます。
-
-1. `Desired Twin Property Changed:`行の後の JSON 出力には、デバイスの `telemetryDelay` に必要な値が含まれていることに注意してください。
-
-    ターミナル ペインを上にスクロールして、出力を確認できます。次のようになるはずです。
+1. When the Simulated Device application runs, it will first output some details about it's status. Notice the JSON output that follows the `Desired Twin Property Changed:` line contains the desired value for the `telemetryDelay` for the device.
 
     ```text
     RegistrationID = DPSSimulatedDevice1
-    ProvisioningClient RegisterAsync ...デバイス登録ステータス: 割り当て済み
+    ProvisioningClient RegisterAsync . . . Device Registration Status: Assigned
     ProvisioningClient AssignedHub: AZ-220-HUB-CP1019.azure-devices.net; DeviceID: DPSSimulatedDevice1
-    対称キー DeviceClient 認証の作成
-    シミュレートされたデバイス。Ctrl-C を押して終了します。
+    Creating Symmetric Key DeviceClient authentication
+    Simulated Device. Ctrl-C to exit.
     DeviceClient OpenAsync.
-    SetDesiredPropertyUpdateCallbackAsync イベント ハンドラーに接続しています...
-    デバイス ツインのプロパティを読み込んでいます...
-    必要なツイン プロパティが変更されました:
+    Connecting SetDesiredPropertyUpdateCallbackAsync event handler...
+    Loading device twin Properties...
+    Desired Twin Property Changed:
     {"telemetryDelay":"2","$version":1}
-    報告されるツイン プロパティ:
+    Reported Twin Properties:
     {"telemetryDelay":2}
-    デバイス テレメトリの読み取りと送信を開始します
+    Start reading and sending device telemetry...
     ```
 
-1. シミュレートされたデバイス アプリケーションが Azure IoT Hub にテレメトリ イベントを送信し始めることに注意してください。
+1. The Simulated Device application will be sending telemetry events to the Azure IoT Hub that includes the `temperature`, `humidity`, `pressure`, `latitude`, and `longitude` values.
 
-    テレメトリ イベントには、`temperature`、`humidity`、`pressure`、`latitude`、および`longitude`の値が含まれ、次のようになるはずです。
+    The terminal output will look similar to the following:
 
     ```text
     11/6/2019 6:38:55 PM > Sending message: {"temperature":25.59094770373355,"humidity":71.17629229611545,"pressure":1019.9274696347665,"latitude":39.82133964767944,"longitude":-98.18181981142438}
@@ -439,144 +336,119 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     11/6/2019 6:39:01 PM > Sending message: {"temperature":23.575667940813894,"humidity":77.66409506912534,"pressure":1017.0118147748344,"latitude":40.21020096551372,"longitude":-98.48636739129239}
     ```
 
-    テレメトリの読み取り値のタイムスタンプの違いに注目してください。テレメトリ メッセージ間の遅延は、ソース コードでの規定値 `1` 秒ではなく、デバイス ツインを介して構成されるように `2` 秒となる必要があります。
+    Notice the timestamp differences between telemetry readings. The telemetry delay the simulated device is running at should be `2` seconds as configured through the device twin; instead of the default of `1` second in the source code.
 
-1. シミュレートされたデバイス アプリを実行したままにします。
-
-    デバイス コードが次のアクティビティで期待どおりに動作していることを確認します。
-
-#### タスク 2: Azure IoT Hub に送信されるテレメトリ ストリームを確認する
-
-このタスクでは、Azure CLI を使用して、シミュレートされたデバイスから送信されたテレメトリが Azure IoT Hub によって受信されていることを確認します。
-
-1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
-
-1. Azure Cloud Shell で、次のコマンドを入力します。
+1. Verify the simulated device telemetry is being sent to Azure IoT Hub by running the following Azure CLI command in the Azure Cloud Shell (or a different command-line window).
 
     ```cmd/sh
     az iot hub monitor-events --hub-name {IoTHubName} --device-id DPSSimulatedDevice1
     ```
 
-    _必ず、**{IoTHubName}** プレースホルダーを Azure IoT Hub の名前に置き換えてください。_
+    _Be sure to replace the **{IoTHubName}** placeholder with the name of your Azure IoT Hub._
 
-1. IoT ハブが DPSSimulatedDevice1 デバイスからテレメトリ メッセージを受信していることに注意してください。
+    Keep the simulated device running for the next task.
 
-    次のタスクのために、シミュレートされたデバイス アプリケーションを実行したままにします。
+### Task 2: Change the device configuration through its twin
 
-#### タスク 3: ツインを使用してデバイスの構成を変更する
+With the simulated device running, the `telemetryDelay` configuration can be updated by editing the device twin Desired State within Azure IoT Hub. This can be done by configuring the Device in the Azure IoT Hub within the Azure portal.
 
-シミュレートされたデバイスを実行すると、Azure IoT Hub 内でデバイス ツインの必要な状態を編集することで、`telemetryDelay` 構成を更新できます。これは、Azure portal 内の Azure IoT Hub でデバイスを構成することで実現できます。
+1. Open the **Azure Portal** if it is not already open, and navigate to your **Azure IoT Hub** service.
 
-1. **Azure portal** を開き (まだ開いていない場合)、**Azure IoT Hub** サービスに移動します。
+2. On the IoT Hub blade, on the left side of the blade, under the **Explorers** section, click on **IoT devices**.
 
-1. IoT ハブ」 ブレードの左側にある 「**エクスプローラ**」 セクションで、「**IoT デバイス**」 をクリックします。   
+3. Within the list of IoT devices, click on the **Device ID** (likely **DPSSimulatedDevice1**) for the Simulated Device.
 
-1. IoT デバイスの一覧で、「**DPSSimulatedDevice1**」 をクリックします。 
+    > [!IMPORTANT] Make sure you select the device from this lab.
 
-    > **重要**: このラボで使用しているデバイスを選択していることを確認します。
+1. On the device blade, click the **Device Twin** button at the top of the blade.
 
-1. デバイス ブレードのブレードの上部にある 「**デバイス ツイン**」 をクリックします。
+    Within the **Device twin** blade, there is an editor with the full JSON for the device twin. This enables you to view and/or edit the device twin state directly within the Azure portal.
 
-    「**デバイス ツイン**」 ブレードでは、デバイス ツインの完全な JSON が編集者に提供されます。これにより、Azure portal 内でデバイス ツインの状態を直接表示および/または編集できます。
+3. Locate the JSON for the `properties.desired` object.
+   
+    This contains the Desired State for the device twin. Notice the `telemetryDelay` property already exists, and is set to `"2"`, as was configured when the device was provisioned based on the Iidividual enrollment in DPS.
 
-1. `properties.desired` オブジェクトの JSON の場所を特定します。
+4. Modify the `telemetryDelay` value to `"5"` to configure the device twin to set the Desired State to have the simulated device wait 5 seconds between telemetry readings.
 
-    これには、デバイスの望ましい状態が含まれています。`telemetryDelay` プロパティは既に存在し、DPS の個別登録に基づいてデバイスがプロビジョニングされたときに構成されたとおりに `"2"`に設定されていることに注意してください。
+5. At the top of the blade, click **Save**
 
-1. 目的の `telemetryDelay` プロパティに割り当てられた値を更新するには、値を`"5"`に変更します。
+    The `OnDesiredPropertyChanged` event will be triggered automatically within the code for the Simulated Device, and the device will update its configuration to reflect the changes to the device twin Desired state.
 
-    値には引用符 ("") が含まれます。
-
-1. ブレードの上部にある 「**保存**」 をクリックします。
-
-    `OnDesiredPropertyChanged` イベントは、シミュレートされたデバイスのコード内で自動的にトリガーされ、デバイスは、デバイス ツインの必要な状態への変更を反映するように、その構成を更新します。
-
-1. シミュレートされたデバイス アプリケーションを実行するために使用している Visual Studio Code ウィンドウに切り替えます。
-
-1. Visual Studio Code で、ターミナル ウィンドウの下部までスクロールします。
-
-1. デバイスが、デバイス ツインプロパティの変更を認識することに注意してください。
-
-    出力には、新しい必要な `telemetryDelay` プロパティ値の JSON と共に、`Desired Twin Property Changed`というメッセージが表示されます。デバイスは、デバイス ツインの必要な状態の新しい構成を選択すると、現在構成されているように、5 秒ごとにセンサー テレメトリの送信を開始するよう自動的に更新されます。
+8.  In Visual Studio Code, view the Terminal output for the Simulated Device application.
+    The output will show a message that the `Desired Twin Property Changed` along with the JSON for the new desired`telemetryDelay` property value. Once the device picks up the new configuration of device twin desired state, it will automatically update to start sending sensor telemetry every 5 seconds as now configured.
 
     ```text
-    必要なツイン プロパティが変更されました:
+    Desired Twin Property Changed:
     {"telemetryDelay":"5","$version":2}
-    報告されるツイン プロパティ:
+    Reported Twin Properties:
     {"telemetryDelay":5}
-    11/6/2019 7:29:55 PM > メッセージ送信: {"temperature":33.01780830277959,"humidity":68.52464504936927,"pressure":1023.0929576073974,"latitude":39.97641877038439,"longitude":-98.49544472071804}
-    11/6/2019 7:30:00 PM > メッセージ送信: {"temperature":33.95490410689027,"humidity":71.57070464062072,"pressure":1013.3468084112261,"latitude":40.01604868659767,"longitude":-98.51051877869526}
-    11/6/2019 7:30:05 PM > メッセージ送信: {"temperature":22.055266337494956,"humidity":67.50505594886144,"pressure":1018.1765662249767,"latitude":40.22292566031555,"longitude":-98.4367936214764}
+    11/6/2019 7:29:55 PM > Sending message: {"temperature":33.01780830277959,"humidity":68.52464504936927,"pressure":1023.0929576073974,"latitude":39.97641877038439,"longitude":-98.49544472071804}
+    11/6/2019 7:30:00 PM > Sending message: {"temperature":33.95490410689027,"humidity":71.57070464062072,"pressure":1013.3468084112261,"latitude":40.01604868659767,"longitude":-98.51051877869526}
+    11/6/2019 7:30:05 PM > Sending message: {"temperature":22.055266337494956,"humidity":67.50505594886144,"pressure":1018.1765662249767,"latitude":40.22292566031555,"longitude":-98.4367936214764}
     ```
 
-1. Azure Cloud Shell で Azure CLI コマンドを実行しているブラウザー ページに切り替えます。
+9.  Locate the command-line window with the `az iot hub monitor-events` Azure CLI command running.
+    This will also display the telemetry events sent to Azure IoT Hub being received at the new interval of 5 seconds.
 
-    `az iot hub monitor-events` コマンドがまだ実行されていることを確認します。実行されていない場合は、コマンドを再度開始します。
+10. Use **Ctrl-C** to stop both the `az` command and the Simulated Device application.
 
-1. Azure IoT Hub に送信されたテレメトリ イベントが、新しい間隔 5 秒で受信されていることに注意してください。
+6. In the Azure Portal, close the **Device twin** blade. 
 
-1. **Ctrl+C** を使用して `az`  コマンドとシミュレートされたデバイス  アプリケーションの両方を停止します。 
+1. Still in the Azure Portal, on the Simulated Device blade, again click the **Device Twin** button.
 
-1. Azure portal で、「**デバイス ツイン**」 ブレードに移動します。
+1. This time, locate the JSON for the `properties.reported` object.
+   
+    This contains the state reported by the device. Notice the `telemetryDelay` property exists here as well, and is also set to `5`.  There is also a `$metadata` value that shows you when the value was reported data was last updated and when the specific reported value was last updated.
 
-1. Azure portal の 「シミュレートされたデバイス」 ブレードで、「**デバイス ツイン**」 をクリックします。
+1. Again close the **Device twin** blade.
 
-1. 今回は、`properties.reported` オブジェクトの JSON を探します。
+1. Close the simulated device blade to return back to the IoT Hub blade.
 
-    これには、デバイスによって報告された状態が含まれます。`telemetryDelay` プロパティもここに存在し、`5` に設定されていることに注意してください。  また、値が最後に更新された時点と、特定のレポート値が最後に更新された時刻を示す `$metadata` 値もあります。
+## Exercise 5: Retire the Device
 
-1. もう一度 **デバイス ツイン**ブレードを閉じます。
+In this unit you will perform the necessary tasks to retire the device from both the Device Provisioning Service (DPS) and Azure IoT Hub. To fully retire an IoT Device from an Azure IoT solution it must be removed from both of these services. When the transport box arrives at it's final destination, then sensor will be removed from the box, and needs to be "decommissioned". Complete device retirement is an important step in the life cycle of IoT devices within an IoT solution.
 
-1. シミュレートされたデバイス ブレードを閉じ、IoT Hub ブレードを閉じます。
+### Task 1: Retire the device from the DPS
 
-### 演習 5: デバイスの削除
+1. If necessary, log in to your Azure portal using your Azure account credentials.
 
-この単元では、デバイス プロビジョニング サービス (DPS) と Azure IoT Hub の両方からデバイスを廃棄するために必要なタスクを実行します。Azure IoT ソリューションから IoT デバイスを完全に廃棄するには、これらの両方のサービスから削除する必要があります。トランスポート ボックスが最終目的地に到着すると、センサーをボックスから取り外し、「廃棄」する必要があります。デバイスの完全な廃棄は、IoT ソリューションにおける IoT デバイスのライフサイクルの重要なステップです。
+    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
 
-#### タスク 1: DPS からデバイスを取り出します。
+1. Notice that the **AZ-220** dashboard that you created in the previous task has been loaded.
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+    You should see both your IoT Hub and DPS resources listed.
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+1. On your Resource group tile, click **AZ-220-DPS-_{YOUR-ID}_** to navigate to the Device Provisioning Service.
 
-1. 前のタスクで作成した **AZ-220** ダッシュボードが読み込まれています。
+1. On the Device Provisioning Service settings pane on the left side, click **Manage enrollments**.
 
-    IoT ハブと DPS の両方のリソースが表示されます。
+1. In the Manage enrollments pane, click on the **individual enrollments** link to view the list of individual device enrollments.
 
-1. リソース グループ タイルで、デバイス プロビジョニング サービスに移動するには、 **「AZ-220-DPS-_{YOUR-ID}_」** をクリックします。 
+1. Select the `DPSSimulatedDevice1` individual device enrollment by checking the box next to it in the list, then click **Delete** from the top of the blade.
 
-1. デバイス プロビジョニング サービス ブレードの左側のメニューで、 **「登録の管理」** をクリックします。  
+    > [!NOTE]
+    > Deleting the individual enrollment from DPS will permanently remove the enrollment. To temporarily disable the enrollment, you can set the **Enable entry** setting to **Disable** within the **Enrollment Details** for the individual enrollment.
 
-1. 「登録の管理」 ブレードで、個々のデバイス登録の一覧を表示するには、「**個別登録**」をクリックします。  
+1. On the **Remove enrollment** prompt, click **Yes** to confirm that you want to delete this device enrollment from the Device Provisioning Service.
 
-1. DPS のシミュレートされた 1 個々のデバイス登録を選択するには、名前の左側にあるチェックボックスを選択します。
+    The individual enrollment is now removed from the Device Provisioning Service (DPS). To complete the device retirement, the **Device ID** for the Simulated Device also must be removed from the **Azure IoT Hub** service.
 
-    デバイス登録を開くのではなく、デバイスを選択するだけです。
+### Task 2: Retire the device from the IoT Hub
 
-1. ブレードの上部で、「**削除**」 をクリックします。
+1. Navigate back to your Dashboard.
+   
+2. On your resource group tile, click **AZ-220-HUB-_{YOUR-ID}_** to navigate to the Azure IoT Hub.
 
-    > **注意**: DPS から個々の登録を削除すると、登録が恒久的に削除されます。一時的に登録を無効にするには、個々の登録の 「**登録の詳細**」 で 「**エントリを有効にする」** 設定を 「**無効にする**」 に設定します。
+2. On the IoT Hub blade, on the left side of the blade, under the **Explorers** section, click on **IoT devices**.
 
-1. 「**登録の削除**」 プロンプトで 「**はい**」 をクリックします。
+3. Within the list of IoT devices, click on checkbox to the left of the **Device ID** (likely **DPSSimulatedDevice1**) for the Simulated Device.
 
-    これで、個別登録がデバイス プロビジョニング サービス (DPS) から削除されます。デバイスの廃棄を完了するには、シミュレートされたデバイスの **デバイス ID** も **Azure IoT Hub** サービスから削除する必要があります。 
+    > [!IMPORTANT] Make sure you select the device from this lab.
 
-#### タスク 2: IoT Hub からデバイスを削除する
+4. At the top of the blade, click **Delete**.
 
-1. Azure portal で、ダッシュボードにもう一度アクセスしてください。
+5. On the **Are you certain you wish to delete selected device(s)** prompt, click **Yes** to confirm that you want to delete this device from Azure IoT Hub.
 
-1. リソース グループ タイルで、「**AZ-220-HUB-_{YOUR-ID}_**」 をクリックして Azure IoT Hub に移動します。 
+    > [!NOTE] Deleting the device ID from IoT Hub will permanently remove the device registration. To temporarily disable the device from connecting to IoT Hub, you can set the **Enable connection to IoT Hub** to **Disable** within the properties for the device.
 
-1. IoT ハブ ブレードの左側にある**エクスプローラ** セクションで、「**IoT デバイス**」 をクリックします。
-
-1. IoT デバイスのリスト内で、DPSSimulatedDevice1 デバイス ID の左側にあるチェックボックスをオンにします。
-
-    > **重要**: このラボで使用したシミュレートされたデバイスを表すデバイスを選択していることを確認します。
-
-1. ブレードの上部で、「**削除**」 をクリックします。
-
-1. 「**選択したデバイスを削除しますか**」 のプロンプトで、「**はい**」 をクリックします。   
-
-    > **注意**:  IoT ハブからデバイス ID を削除すると、デバイスの登録が完全に削除されます。デバイスが IoT ハブ に接続できないように一時的に無効にするには、 デバイスのプロパティ内で 「**IoT Hub への接続を有効にする**」 を 「**無効にする**」 に設定します。
-
-これで、デバイス登録がデバイス プロビジョニング サービスから削除され、一致するデバイス ID が Azure IoT Hub から削除されたので、シミュレートされたデバイスがソリューションから完全に退避されました。
+Now that the Device Enrollment has been removed from the Device Provisioning Service, and the matching Device ID has been removed from the Azure IoT Hub, the simulated device has been fully retired from the solution.

@@ -1,646 +1,574 @@
-﻿---
+---
 lab:
-    title: 'ラボ 17: Azure IoT Hub を管理する方法'
-    module: 'モジュール 9: ソリューションのテスト、診断、およびログ記録'
+    title: 'Lab 17: How to manage your Azure IoT Hub'
+    module: 'Module 9: Solution Testing, Diagnostics, and Logging'
 ---
 
-# Azure IoT Hub を管理する方法
+# How to manage your Azure IoT Hub
 
-## ラボ シナリオ
+Our asset tracking solution is getting bigger, and provisioning devices one by one (even through DPS) cannot scale. We want to use DPS to enroll many devices automatically and securely using x.509 certificate authentication. Within our solution, we will use sensors to track our assets being transported. Each time a sensor is added in a transportation box, it will auto provision through DPS. We want to have a metric for the warehouse manager of how many boxes were "tagged" and need to count the Device Connected events from IoT Hub.
 
-Contoso の資産監視およびトラッキング ソリューションは、優れた機能を提供しています。システムは包装および出荷プロセス全体で連続的な監視を提供しています。DPS 内にグループ登録を実装してデバイスを大規模にプロビジョニングし、コンテナーが宛先に到着すると、IoT デバイスは DPS を通じて"廃止" され、将来の出荷に再利用できます。
+In this lab, you will setup a Group Enrollment within Device Provisioning Service (DPS) using a Root CA x.509 certificate chain. You will configure the linked IoT Hub to using monitoring to track the number of connected devices and telemetry messages sent, as well as send connection events to a log. Additionally you will create an alert that will be triggered based upon the average number of devices connected. You will the configure 10 simulated IoT Devices that will authenticate with DPS using a Device CA Certificate generated on the Root CA Certificate chain. The IoT Devices will be configured to send telemetry to the the IoT Hub.
 
-IT 部署は、デバイスの使用率やその他のソリューションの特性を管理するために、IoT ソリューション内に Azure の監視およびログ サービスを実装するようチームに依頼しました。
+In this lab, you will:
 
-追加のワークロードにコミットする前に、IT 担当者と確認できる簡単なメトリックを実装することに同意します。
+* Verify Lab Prerequisites
+* Enable diagnostic logs.
+* Enable metrics.
+* Set up alerts for those metrics.
+* Download and run an app that simulates IoT devices connecting via X509 and sending messages to the hub.
+* Run the app until the alerts begin to fire.
+* View the metrics results and check the diagnostic logs.
 
-このラボでは、接続デバイスとテレメトリ メッセージの送信数を追跡し、接続イベントをログに送信する監視を実装します。さらに、接続されているデバイスの平均数に基づいてトリガーされるアラートを作成します。システムをテストするには、ルート CA 証明書チェーンで生成されたデバイス CA 証明書を使用して DPS で認証する 10 個のシミュレートされた IoT デバイスを構成します。IoT デバイスは、IoT ハブに製品利用統計情報を送信するように構成されます。
 
-次のリソースが作成されます。
+## Exercise 1: Verify Lab Prerequisites
 
-![ラボ 17 アーキテクチャ](media/LAB_AK_17-architecture.png)
 
-## このラボでは
+## Exercise 2: Set Up and Use Metrics and Diagnostic Logs with an IoT Hub
 
-このラボでは、次のタスクを完了します。
+If you have an IoT Hub solution running in production, you want to set up some metrics and enable diagnostic logs. Then if a problem occurs, you have data to look at that will help you diagnose the problem and fix it more quickly. In this lab, you'll see how to enable the diagnostic logs, and how to check them for errors. You'll also set up some metrics to watch, and alerts that fire when the metrics hit a certain boundary.
 
-* ラボの前提条件を確認する
-* 診断ログを有効にします。
-* メトリックを有効にします。
-* これらのメトリックの警告を設定する
-* X.509 経由で接続し、ハブにメッセージを送信する IoT デバイスをシミュレートするアプリをダウンロードして実行します。
-* 警告が起動するまでアプリを実行します。
-* メトリックの結果を表示し、診断ログを確認します。
+For example, you could have an e-mail sent to you when the number of connected devices exceed a certain threshold, or when the number of messages used gets close to the quota of messages allowed per day for the IoT Hub.
 
-## ラボの手順
+## Setup Resources
 
-### 演習 1: ラボの前提条件を確認する
+In order to complete this lab, you will need to reuse a number of resources from a previous lab - **Automatic Enrollment of Devices in DPS** as well as a storage account.
 
-このラボでは、次の Azure リソースが使用可能であることを前提としています。
+1. Open a new tab on your browser and navigate to the [Azure Cloud Shell](https://shell.azure.com/).
 
-| リソースの種類:  | リソース名 |
-| :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-{YOUR-ID} |
-| デバイス プロビジョニング サービス | AZ-220-DPS-{YOUR-ID} |
-| ストレージ アカウント | az220storage{your-id} |
+1. Login to you Azure Subscription (the same one you used for your IoT Central App) and if your account is a member of more than one directory, choose the directory you used for your IoT Central account.
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って **lab17-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
-
-**lab17-setup.azcli** スクリプトは、 **Bash** シェル環境で実行するように記述されています。最も簡単な方法は Azure Cloud Shellで実行することです。
-
-1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
-
-    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
-
-1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
-
-1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
-
-1. ドロップダウンで、「**アップロード**」 をクリックします。
-
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
-
-    _ラボ 3: 開発環境のセットアップ_: ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * すべてのファイル
-      * ラボ
-          * 17- Azure IoT Hub を管理する方法
-            * セットアップ
-
-    lab17-setup.azcli スクリプト ファイルは、ラボ 17 のセットアップ フォルダにあります。
-
-1. **lab17-setup.azcli** ファイルを選択し、「**開く**」 をクリックします。   
-
-    ファイルのアップロードが完了すると、通知が表示されます。
-
-1. 正しいファイルが Azure Cloud Shell にアップロードされたことを確認するには、次のコマンドを入力します。
+1. Once the bash shell is open, create** a **monitoring** folder, and navigate to it by entering the following commands:
 
     ```bash
-    ls
+    mkdir ~/monitoring
+    cd ~/monitoring
     ```
 
-    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。lab17-setup.azcli ファイルが一覧表示されます。
-
-1. セットアップ スクリプトを含むディレクトリをこのラボ用に作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
+1. To create an empty file in which we will copy the setup script, enter the following commands:
 
     ```bash
-    mkdir lab17
-    mv lab17-setup.azcli lab17
-    cd lab17
+    touch setup.sh
+    chmod +x setup.sh
     ```
 
-1. **lab17-setup.azcli** スクリプトに実行権限があることを確認するには、次のコマンドを入力します。
+1. To edit the contents of the **setup.sh** file, use the **{ }** icon in Azure Cloud Shell to open the **Cloud Editor**.
 
-    ```bash
-    chmod +x lab17-setup.azcli
-    ```
+    To open the **setup.sh** file, you will have to expand the **monitoring** node in the **Files** list to locate it.
 
-1. Cloud Shell ツールバーで、lab17-setup.azcli ファイルを編集するには、「**エディターを開く**」 (右から { } の 2番目のボタン) をクリックします。
-
-1. 「**ファイル**」 の一覧で、ラボ 17 フォルダーを展開してスクリプト ファイルを開き、「**lab17**」 をクリックし、「**lab17-setup.azcli**」 をクリックします。
-
-    エディターは **lab17-setup.azcli** ファイルの内容を表示します。 
-
-1. エディターで、`{YOUR-ID}` と `{YOUR-LOCATION}` 変数の値を更新します。
-
-    サンプル例として、このコースの最初に作成した一意の ID 、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソースにとって意味のある場所に `{YOUR-LOCATION}` を設定する必要があります。
+1. Copy the following script into the cloud editor:
 
     ```bash
     #!/bin/bash
 
     YourID="{YOUR-ID}"
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-$YourID"
-    DPSName="AZ-220-DPS-$YourID"
+    RGName="AZ-220"
+    Location="westus"
+    IoTHubName="$RGName-HUB-$YourID"
+    DPSName="$RGName-DPS-$YourID"
     DeviceName="asset-track"
-    Location="{YOUR-LOCATION}"
+    StorageAccountName="$RGName-STORAGE-$YourID"
+
+    # Storage Account name must be in lowercase with no '-'
+    ToLowerAlphaNum () {
+        echo $1 | tr '[:upper:'] '[:lower:]' | tr -cd '[:alnum:]'
+    }
+
+    StorageAccountName=$( ToLowerAlphaNum $StorageAccountName )
+
+    # create resource group
+    az group create --name $RGName --location $Location -o Table
+
+    # create IoT Hub
+    az iot hub create --name $IoTHubName -g $RGName --sku S1 --location $Location -o Table
+
+    # create DPS
+    az iot dps create --name $DPSName -g $RGName --sku S1 --location $Location -o Table
+
+    # Get IoT Hub Connection String so DPS can be linked
+    IoTHubConnectionString=$(
+        az iot hub show-connection-string --hub-name $IoTHubName --query connectionString --output tsv
+    )
+
+    # Link IoT Hub with DPS
+    az iot dps linked-hub create --dps-name $DPSName -g $RGName --connection-string $IoTHubConnectionString --location $Location
+
+    # Create a Storage Account
+    az storage account create --name $StorageAccountName --resource-group $RGName --location=$Location --sku Standard_LRS -o Table 
+
+    StorageConnectionString=$( az storage account show-connection-string --name $StorageAccountName -o tsv )
     ```
 
-    > **注意**:  `{YOUR-LOCATION}` 変数は、リージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な領域とその短い名前 (「**名前**」 列) の一覧を表示できます。
-    >
-    > ```bash
-    > az account list-locations -o Table
-    >
-    > 表示名 　緯度　経度　名前
-    > --------------------  ----------  -----------  ------------------
-    > 東アジア            22.267      114.188      eastasia
-    > 東南アジア       1.283       103.833      southeastasia
-    > 米国中部          41.5908     -93.6208     centralus
-    > 米国東部              37.3719     -79.8164     eastus
-    > 米国東部 2          36.6681     -78.3889     eastus2
-    > ```
+    > [!NOTE] Review this script. You can see that it perform the following actions (and create resources if they don't already exist):
+    > * Builds the resource names
+    >   * Note that the storage account name is set to lowercase with no dashes to match the naming rules.
+    > * Create Resource Group
+    > * Create IoT Hub
+    > * Create DPS
+    > * Link IoT Hub and DPS
+    > * Create Storage Account
 
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、「..」 をクリックし、「**エディタを閉じる**」 をクリックします。 
+1. In order to specify the correct resource names and location, update the following variables at the top of the file:
 
-    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。 
+    * YourID
+    * RGName
+    * Location
 
-    > **注意**:  「**CTRL+S**」 を使っていつでも保存でき、 「**CTRL+Q**」 を押してエディターを閉じます。
+    > [!NOTE] If you have existing resources you wish to reuse, ensure you set the **YourID** value to the same you used before, as well as the same **RGName** and **Location**.
 
-1. この実習ラボに必要なリソースを作成するには、次のコマンドを入力します。
+1. To save the edited **setup.sh** file, press **CTRL-Q**. If prompted to save you changes before closing the editor, click **Save**.
+
+1. To run the **setup.sh** script, run the following:
 
     ```bash
-    ./lab17-setup.azcli
+    ./setup.sh
     ```
 
-    このスクリプトの実行には数分かかります。各ステップが完了すると、JSON 出力が表示されます。
+    > [!NOTE] If the IoT Hub and DPS resources already exist, you will see red warnings stating the name is not available - you can ignore these errors.
 
-    このスクリプトは、まず **AZ-220-RG** という名前のリソース グループを作成し、次に **、AZ-220-HUB-{YourID}** という名前の IoT ハブと、**AZ-220-DPS-{YourID}**という名前のデバイス プロビジョニング サービスを作成します。サービスが既に存在する場合は、対応するメッセージが表示されます。スクリプトは IoT ハブと DPS をリンクします。その後、スクリプトは **az220storage{your-id}**という名前のストレージ アカウントを作成します。
+You have now ensured the resources are available for this lab. Next, we shall setup monitoring and logging.
 
-    これで、このラボの演習 2 に進む準備が整いました。
 
-### 演習 2: IoT ハブを使用したメトリックと診断ログの設定と使用
 
-Azure Resource ログは、内部操作を記述する Azure リソースによって出力されるプラットフォーム ログです。すべてのリソース ログは、共通のトップレベル スキーマを共有し、各サービスが独自のイベントに対して一意のプロパティを出力する柔軟性を備えています。
 
-運用環境で実行されている IoT ハブ ソリューションがある場合は、さまざまなメトリックを設定し、診断ログを有効にします。問題が発生した場合は、問題を診断し、より迅速に修正するのに役立つデータを確認します。
 
-この演習では、診断ログを有効にし、それらを使用してエラーをチェックします。また、監視するメトリックを設定し、メトリックが一定の境界に達したときに発生するアラートも設定します。
+## Exercise 3: Enable Logging
 
-#### タスク 1: 診断を有効にする
+Azure Resource logs are platform logs emitted by Azure resources that describe their internal operation. All resource logs share a common top-level schema with the flexibility for each service to emit unique properties for their own events.
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+1. Sign in to the **Azure portal** and navigate to your IoT hub.
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+1. In the left hand navigation, under **Monitoring**, select **Diagnostic settings**.
 
-1. Azure ダッシュボードで、「**AZ-220-HUB-{YOUR-ID}**」 をクリックします。
+    > [!NOTE] Diagnostics are disabled by default.
 
-    ダッシュボードには、AZ-220-RG リソース グループ タイルの IoT ハブへのリンクが必要です。
+1. At the top of the **Diagnostic settings** page, under **Subscription**, select the subscription you used to create the IoT Hub.
 
-1. 左側のナビゲーション メニューの 「**監視**」 の下にある、 「**診断の設定**」 をクリックします。
+1. Under **Resource group**, select the resource group you used for this lab - "AZ-220-RG".
 
-    > **注意**: 現在のドキュメントでは、診断が既定で無効になっている可能性があることが示唆されています。その場合、IoT Hub の診断データを収集するために「診断を有効にする」必要があります。「**診断を有効にする**」 をクリックすると、「**診断設定**」 ブレードが開きます。
+1. Under **Resource type**, select **IoT Hub**.
 
-1. 「**診断設定**」 ペインで、「**名前**」 の下にある 「**診断設定の追加**」 をクリックします。
+1. Under **Resource**, select the IoT Hub you are using for this lab - **AZ-220-HUB-\<INITIALS-DATE\>**.
 
-1. 「**診断設定名**」 テキスト ボックスに「**diags-hub**」と入力します。
+    Once you select the resource, the page will update with the option to turn on diagnostics, as well as a list of available metrics to monitor.
 
-1. 「**宛先の詳細**」 に表示されるオプションを確認します。
+1. To turn on diagnostics, click **Turn on diagnostics**.
 
-    メトリックのルーティングに使用できるオプションが 3 つあることがわかります - それぞれの詳細については、以下のリンクを参照してください。
+    The **Diagnostic settings** detail pane will be shown.
 
-    * [Azure リソース ログをストレージ アカウントにアーカイブする](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-collect-storage)
-    * [Azure 監視データをイベント ハブにストリーミングする](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/stream-monitoring-data-event-hubs)
-    * [Azure Monitor の Log Analytics ワークスペースで Azure リソース ログを収集する](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-collect-workspace)
+1. Under **Name**, enter **diags-hub**.
 
-    このラボでは、ストレージ アカウント オプションを使用します。
+    You can see that there are 3 options available for routing the metrics - you can learn more about each by following the links below:
 
-1. 「**保存先の詳細**」 で 、「**ストレージ アカウントにアーカイブする**」 をクリックします。
+    * [Archive Azure resource logs to storage account](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-collect-storage)
+    * [Stream Azure monitoring data to an event hub](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/stream-monitoring-data-event-hubs)
+    * [Collect Azure resource logs in Log Analytics workspace in Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/resource-logs-collect-workspace)
 
-    この出力先オプションを選択すると、ログ カテゴリの **リテンション期間 (日) **を指定するオプションを含む追加のフィールドが使用可能になります。
+    In this lab we will use the storage account option.
 
-    > **注意**: ストレージ アカウントとコストに関する注意事項を確認してください。
+1. Check **Archive to a storage account** and the **Storage account** configuration section will appear.
 
-1. 「**サブスクリプション**」 フィールドで、IoT Hub の作成に使用したサブスクリプションを選択します。
+1. To specify the storage account to use, click **Configure**.
 
-1. 「**ストレージ アカウント**」 フィールドで、**az220storage{your-id}** ストレージ アカウントを選択します。
+    The **Select a storage account** pane will appear.
 
-    このアカウントは、lab17-setup.azcli スクリプトによって作成されました。ドロップダウンに表示されない場合は、手動でアカウントを作成する必要があります(インストラクターに確認してください)。
+    > [!NOTE] In production, you should not use an existing storage account that has other, non-monitoring data stored in it so that you can better control access to monitoring data. If you are also archiving the Activity log to a storage account though, you may choose to use that same storage account to keep all monitoring data in a central location.
 
-1. 「**診断の設定**」 ブレードの 「**カテゴリの詳細**」 で 、「**接続**」 をクリックし、「**DeviceTelemetry**」 をクリックします。       
+1. On the  **Select a storage account** pane, under **Subscription**, select the subscription you used to create the storage account earlier.
 
-1. 選択したログ カテゴリごとに、「**リテンション期間 (日)**」 フィールドに **「7」** と入力します 。 
+1. Under **Storage account**, select the storage account you created earlier.
 
-1. ブレードの上部にある 「**保存**」 をクリックし、ブレードを閉じます。
+1. To complete the storage account selection, click **OK**.
 
-    IoT Hub の 「**診断の設定**」 ペインで、作成した **diags-hub** 設定を表示するために**診断設定**の一覧が更新されたことが確認できます。
+    The **Select a storage account** pane will close and the specified storage account will be displayed under **Storage account**.
 
-    後で診断ログを確認すると、デバイスの接続と切断のログを確認できるようになります。
+1. Under **log**, check **Connections** and **Device Telemetry** and then update the **Retention (days)** value for each to **7**. You can do this by either moving the slider or directly entering **7** into the value textbox.
 
-#### タスク 2: メトリックの設定
+1. Click **Save** to save the settings.
 
-このタスクでは、メッセージが IoT ハブに送信されるタイミングを監視するさまざまなメトリックを設定します。
+1. Close the **Diagnostics settings** pane.
 
-1. IoT Hub ブレードが開いていることを確認します。
+    The main **Diagnostics settings** page is displayed - you should see that the list of **Diagnostics settings** has now been updated to show the **diags-hub** setting you just created.
 
-    前のタスクで、IoT HUb ブレードの 「**診断の設定**」 ペインが残っています。
+Later, when you look at the diagnostic logs, you'll be able to see the connect and disconnect logging for the device.
 
-1. 左側のナビゲーション メニューの 「**監視**」 で、 「**メトリック**」 をクリックします。
+## Setup Metrics
 
-    「**メトリック**」 ペインに、新しい空のグラフが表示されます。
+Now set up some metrics to watch for when messages are sent to the hub.
 
-1. 画面の右上にあるグラフの時間の範囲と粒度を変更するには、「**過去 24 時間 (自動)**」 をクリックします。
+1. In the left hand navigation area, under **Monitoring**, click **Metrics**.
 
-1. 表示されるコンテキスト メニューの 「**時間の範囲**」 で、「**過去 4時間**」 をクリックします。   
+    The **Metrics** pane is displayed showing a new, empty, chart.
 
-1. 同じコンテキスト メニューの 「**時間の粒度**」 で 「**1 分**」 をクリックし、「**時刻の表示形式**」 で 「**ローカル**」 が選択されていることを確認します。
+1. To change the time range and granularity for the chart, at the top-right of the screen, click **Last 24 hours (Automatic)**.
 
-1. 時刻の設定を保存するには、「**適用**」 をクリックします。
+1. In the dropdown that appears, select **Last 4 hours** for **Time Range**, and set **Time Granularity** to **1 minute**, and ensure **Show time as** is set to **local time**.
 
-1. グラフのメトリックを指定するための設定が使用されていることを確認してください。
+1. Click **Apply** to save these settings.
 
-    **グラフのタイトル**とツールバーの下に、メトリックを指定する領域が表示されます。 
+1. Under the **Chart Title** and toolbar, you will see a default metric entry.
 
-    * 「**スコープ**」 が既に **AZ-220-HUB-{YOUR-ID}** に設定されていることに注意してください。
-    * 「**メトリック名前空間**」 は既に **IoT Hub 標準メトリック**に設定されています。
+    We will now add a metric to monitor how many telemetry messages have been sent.
 
-    > **注意**: 既定では、使用できるメトリック名前空間は 1 つだけです。名前空間は、類似するメトリックを分類またはグループ化する方法です。名前空間を使用すると、異なる洞察やパフォーマンス指標を収集する可能性のあるメトリックのグループ間で分離を実現できます。たとえば、アプリをプロファイリングするメモリ使用量のメトリックを追跡する **az220memorymetrics** という名前空間があるとします。**az220apptransaction** と呼ばれる別の名前空間は、アプリケーション内のユーザー トランザクションに関するすべてのメトリックを追跡する場合があります。カスタム メトリックスと名前空間の詳細については、[こちら](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/metrics-custom-overview?toc=%2Fazure%2Fazure-monitor%2Ftoc.json#namespace)を参照してください。
+1. Note that the **SCOPE** is already set to the IoT Hub.
 
-    次の手順では、IoT ハブに送信されたテレメトリ メッセージの数を監視するために使用するメトリックを追加します。
+1. Under **METRIC NAMESPACE**, note that the **IoT Hub standard metrics** namespace is selected.
 
-1. 「**メトリック**」 ドロップダウンで、「**送信されたテレメトリ メッセージ**」 をクリックします。
+    > [!NOTE] By default, there is only one metric namespace available. Namespaces are a way to categorize or group similar metrics together. By using namespaces, you can achieve isolation between groups of metrics that might collect different insights or performance indicators. For example, you might have a namespace called **az220memorymetrics** that tracks memory-use metrics which profile your app. Another namespace called **az220apptransaction** might track all metrics about user transactions in your application. You can learn more about custom metrics and namespaces [here](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/metrics-custom-overview?toc=%2Fazure%2Fazure-monitor%2Ftoc.json#namespace).
 
-    選択できるメトリックの数はたくさんあります。
+1. In the **METRIC** dropdown list, select **Telemetry messages sent**. Notice how many metrics are available!
 
-1. 「**集計**」 で 「**合計**」 が選択されていることを確認します。
+1. Under **AGGREGATION**, select **Sum**. Notice there are 4 aggregation operations available - *Avg*, *Min*, *Max* and *Sum*.
 
-    4 つの集計操作 - *平均*、*最小*、*最大*、*合計* が使用可能であることに注意してください。
+    We have completed the specification for the first metric. Notice that the chart title has updated to reflect the metric chosen. Now let's add another to monitor the total number of messages used.
 
-1. グラフを確認してください。
+1. Under the updated **Chart Title**, in the toolbar, click **Add metric**.
 
-    選択したメトリックを反映するように、グラフのタイトルが更新されていることに注目してください。
+    A new metric will appear. Notice that, again, the **SCOPE** and **METRIC NAMESPACE** values are pre-populated and the **METRIC** dropdown is focused and open.
 
-    最初のメトリックの仕様を完了しました。次に、接続されているデバイスの数を監視するメトリックを追加します。
+1. Under **METRIC**, select **Connected devices (preview)**.
 
-1. グラフのタイトルの下にあるツール バーで、「**メトリックの追加**」 をクリックします。
+1. Under **AGGREGATION**, select **Avg**.
 
-    新しいメトリックが表示されます。「**スコープ**」 と 「**メトリック名前空間**」 の値は事前に設定されています。
+    Your screen now shows the minimized metric for Telemetry messages sent, plus the new metric for avg connected devices. Notice that the chart title has updated to reflect both metrics.
 
-1. 「**メトリック**」 ドロップダウンで、「**接続されているデバイス (プレビュー)**」 をクリックします。
+    > [!NOTE]  To edit the chart title, click the **pencil** to the right of the title. 
 
-1. 「**集計**」 で 「**平均**」 が選択されていることを確認します。
+1. Under the updated **Chart Title**, in the toolbar, click **Pin to dashboard**. Note that you can choose to pin to the current dashboard or choose another. Select the dashboard you created in the first lab - "AZ-220-RG".
 
-    画面に、送信された製品利用統計情報のメッセージの最小メトリックと、接続されているデバイスの平均値の新しいメトリックが表示されます。グラフのタイトルが両方のメトリックを反映するように更新されていることに注意してください。
+    > [!NOTE] In order to retain the chart you have just created, it **must** be pinned to a dashboard.
 
-    > **注意**: グラフ タイトルを編集するには、タイトルの右にある **鉛筆** をクリックします。 
+1. Navigate to the "AZ-220-RG" dashboard and verify the chart is displayed.
 
-1. 「**グラフのタイトル**」 の下のツールバーの右側で、「**ダッシュボードにピン留め**」 をクリックし、「**現在のダッシュボードにピン留め**」 をクリックします。
+    > [!NOTE] You can customize the size and position of the chart by using drag and drop operations.
 
-    > **注意**:  作成したグラフを保持するには、 ダッシュボードにピン留めする**必要**があります。 
+Now that we have enable logging and setup a chart to monitor metrics, we will set up an alert.
 
-1. 「AZ-220」ダッシュボードに移動し、チャートが表示されていることを確認します。
 
-    > **注意**: ドラッグ アンド ドロップ操作を使用して、グラフのサイズと位置をカスタマイズできます。
 
-ログ記録を有効にし、メトリックを監視するグラフを設定したので、警告を設定することをお勧めします。
 
-### エクササイズ 3: アラートを設定する
+## Exercise 4: Configure an Alert
 
-監視データに重要な条件が見つかった場合、アラートが事前に通知されます。システムのユーザーが問題に気付く前に、問題を特定して対処できます。 
+Now let us create an alert. Alerts proactively notify you when important conditions are found in your monitoring data. They allow you to identify and address issues before the users of your system notice them. In our asset tracking scenario, we use sensors to track our assets being transported. Each time a sensor is added in a transportation box, it will auto provision through DPS. We want to have a metric for the warehouse manager of how many boxes were "tagged" and need to count the Device Connected events from IoT Hub.
 
-資産トラッキング シナリオでは、センサーを使用して、顧客に出荷されるコンテナーを追跡します。出荷コンテナーにセンサーを追加するたびに、DPS を介して自動プロビジョニングされます。 
+In this task we are going to add an alert that will inform the warehouse manager when 5 or more devices have connected.
 
-今後の概念実証デモでは、現在輸送中のコンテナーの数が容量制限に近づくとトリガーされる アラートを作成します。アラートをトリガーするには、IoT ハブからのデバイス接続イベントの数を使用します。
+1. In the Azure Portal, navigate to the IoT Hub we are using for this lab.
 
-この演習では、5 台以上のデバイスが接続されたときにトリガーされる警告を追加します。
+1. In the left hand navigation area, under **Monitoring**, click **Alerts**.
 
-1. Azure portal ウィンドウで、IoT ハブ ブレードを開きます。
+    The empty **Alerts** page is displayed. Notice that the **Subscription**, **Resource group**, **Resource** and **Time range** fields are pre-populated.
 
-1. 左側のナビゲーション メニューの 「**監視**」 で、 「**警告**」 をクリックします。
+1. Under **Time range**, select **Past hour**.
 
-    空の 「**警告**」 ページが表示されます。  「**サブスクリプション**」、「**リソース グループ**」、「**リソース**」 と 「**時間の範囲**」 フィールドにあらかじめ値が入力されていることに注意してください。
+1. To add a new alert, click **+ New Alert Rule** (while the list is empty, you will see a **New Alert Rule** button in the center of the page - you can click this or the one in the toolbar).
 
-1. 「**時間の範囲**」 ドロップダウンで、「**過去1 時間**」 をクリックします。
+    The **Create rule** pane is displayed.
 
-1. 「**警告**」 ペインの上部で、「**新しい警告ルール**」 をクリックします。
+1. At the top of the page, you will see two fields - **RESOURCE** and **HIERARCHY**. Notice they are pre-populated with the IoT Hub. To change the selected resource, you would click **Select**.
 
-    「**ルールの作成**」 ブレードが表示されます。
+1. Under **Condition** you will see that no conditions have been defined. Click **Add** to add a new condition.
 
-1. 「**ルールの作成**」 ブレードを確認します。
+    The **Configure signal logic** pane is displayed. You will notice that there is a paginated table of available signals displayed. The fields above the table filter the table to assist in finding the signal types you want.
 
-    ブレードの上部には、 **RESOURCE** と **HIERARCHY** があります。これらのフィールドには、IoT ハブのプロパティがあらかじめ入力されていることに注意してください。事前に選択したリソースを変更する必要がある場合は、RESOURCE の下の 「**選択**」 をクリックします。
+1. Under **Signal type**, you will note that **All** is selected. Click on the dropdown and note that there are 3 available options: *All*, *Metrics* and *Activity Log*. Leave the selection as **All** for now.
 
-1. **条件** で 「**追加**」 をクリック します。
+    > [!NOTE] The signal types available for monitoring vary based on the selected target(s). The signal types may be metrics, log search queries or activity logs.
 
-    「**シグナル ロジックの構成**」 ペインが表示されます。  使用可能なシグナルのページ分割されたテーブルが表示されていることに注意してください。テーブルの上のフィールドは、必要なシグナル タイプを見つけるためのテーブルをフィルター処理します。
+1. Under **Monitor service**, you will note that **All** is selected. Click on the dropdown and note that there are 3 available options: *All*, *Platform* and *Activity Log - Administrative*. Leave the selection as **All** for now.
 
-1. **シグナル タイプ** については、**全て** が選択されていることを確認してください。
+    > [!NOTE] The platform service provides metrics on service utiization, where as the activity log tracks administrative activities.
 
-    「シグナルタイプ」 ドロップダウンを開くと、次の 3 つのオプションが表示されます。*全て*、*メトリック*、*アクティビティ ログ* です。
+1. in the **Search by signal name** textbox, enter **connected** and this will immediately filter, then select **Connected devices (preview)** from the list below.
 
-    > **注意**: 監視に使用できるシグナル タイプは、選択したターゲットによって異なります。シグナル タイプは、メトリック、ログ検索クエリ、またはアクティビティ ログです。
+    The pane will update to display a chart similar to that you would create under **Metrics**, displaying the values associated with the selected signal (in this case *Connected devices (preview)*).
 
-1. 「**サービスの監視**」 で、「**すべて**」 が選択されていることを確認します。   
+    Beneath the chart is the area that defines the **Alert logic**.
 
-    「監視サービス」 ドロップダウンを開くと、次の 3 つのオプションが表示されます。*すべて*、 *プラットフォーム*および*アクティビティ ログ - 管理*。  
+1. Under **Threshold** there are two possible selections - *Static* and *Dynamic*. You will notice that **Static** is selected and **Dynamic** is unavailable for this signal type.
 
-    > **注意**:  プラットフォーム サービスはサービス使用率に関するメトリックを提供し、アクティビティ ログは管理アクティビティを追跡します。
+    > [!NOTE] As the names suggest, *Static Thresholds* specify a constant expression for the threshold, whereas *Dynamic Thresholds* detection leverages advanced machine learning (ML) to learn metrics' historical behavior, identify patterns and anomalies that indicate possible service issues. You can learn more about *Dynamic Thresholds* [here](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/alerts-dynamic-thresholds).
 
-1. 「**シグナル名で検索**」 テキスト ボックスに、「 **接続済み**」と入力します
+    We are going to create a static threshold that raises and alert whenever the *connected devices (preview)* signal is equal to 5 or more.
 
-1. シグナルのリストは、入力内容に基づいて直ちにフィルタリングされます。
+1. Under **Operator**, click the dropdown list and note the available operators. Select **Greater than or equal to**.
 
-1. 「**シグナル名**」 で、「**接続されたデバイス (プレビュー)**」 をクリックします。
+1. Under **Aggregation type**, click the dropdown and note the available options - select **Average**.
 
-    ペインが更新され、**メトリック**で作成したものと同様のグラフが表示されます。チャートには、選択したシグナルに関連付けられた値が表示されます (この場合は*接続デバイス (プレビュー)*)。
+1. Under **Threshold value**, enter **5**.
 
-    グラフの下には、 **警告ロジック** を定義する領域があります。
+    > [!NOTE] The **Condition preview** refreshes to display the condition in an easier to read format.
 
-1. **警告ロジック** のオプションを確認してください。
+    Below the **Condition preview** is the **Evaluation based on** area. The values herein determine the historical time period that is aggregated using the **Aggregation type** selected above and how often the condition is evaluated.
 
-    **しきい値** には、*静的* と *動的* の 2つの選択が可能であることに注意してください。また、**静的** が選択され、このシグナル タイプでは **動的** が使用できないことにも注意してください。   
+1. Under **Aggregation granularity (Period)**, select the dropdown and notice the available periods - select **5 minutes**.
 
-    > **注意**:  名前が示すように、 *静的しきい値* はしきい値の定数式を指定し、 *動的しきい値* 検出は詳細な機械学習 (ML) を活用してメトリックの履歴動作を学習し、可能性のあるサービスの問題を示すパターンと異常を特定します。  *動的しきい値* の詳細については、 [こちら](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/alerts-dynamic-thresholds) を参照してください。   
+1. Under **Frequency of evaluation**, select the dropdown and notice the available frequencies, select **Every 1 Minute**.
 
-    *接続されたデバイス (プレビュー)* シグナルが 5 以上になったときに、警告を発生する静的なしきい値を作成します。
+    > [!NOTE] As the **Frequency of evaluation** is shorter than **Aggregation granularity (Period)**, this results in a sliding window evaluation. What this means is every minute, the preceding 5 minutes of values will be aggregated (in this case, averaged), and then evaluated against the condition. In a minutes time, again the preceding 5 minutes of data will be aggregated - this will include one minute of new data and four minutes of data that was already evaluated. Thus we have a sliding window that moves forward a minute at a time, but is always including 4 minutes of earlier data.
 
-1. 「**演算子**」 ドロップダウンで、「**次の値以上**」 をクリックします。
+1. To configure the alert condition, click **Done**.
 
-    このフィールドと他のフィールドの他のオプションをメモしておきます。
+    The **Configure signal logic** pane closes and the **Create rule** pane appears. Notice that the **CONDITION** is now populated and a **Monthly cost in USD** is displayed. At the time of writing, the estimated cost of the alert condition is $0.10.
 
-1. **集計タイプ**については、**平均**が選択されていることを確認してください。
+    Next, we need to configure the action taken when the alert condition is met.
 
-1. **しきい値**テキスト ボックスに「**5**」と入力します
+1. Under **ACTIONS**, notice that no action group is selected. There are two options available - **Select action group** and **Create action group**. As we do not have an action group created yet, click **Create action group**.
 
-    > **注意**: **条件プレビュー**には、入力した 「演算子」、「集計タイプ」、および 「しきい値」 の設定に基づいて、表示が更新される条件が表示されます。**条件プレビュー**の下にあるのは、領域 「**に基づく評価**」 です。これらの値は、上記で選択した **集計タイプを**使用して集計される履歴期間 と、条件が評価される頻度を決定します。
+    The **Add action group** pane is displayed.
 
-1. 「**集計の粒度 (期間)**」 で、「**5 分**」 が選択されていることを確認します。
+    > [!NOTE] An action group is a collection of notification preferences defined by the owner of an Azure subscription. An action group name must be unique within the Resource Group is is associated with. Azure Monitor and Service Health alerts use action groups to notify users that an alert has been triggered. Various alerts may use the same action group or different action groups depending on the user's requirements. You may configure up to 2,000 action groups in a subscription. You can learn more about creating and managing Action Groups [here](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/action-groups).
 
-1. 「**評価の頻度**」 で、「**1 分ごと**」 が選択されていることを確認します。
 
-    > **注意**: 「**評価の頻度**」 は 「**集計の粒度 (期間) **」 より短いため、スライディング ウィンドウの評価が行われます。つまり、毎分、前の 5 分の値が集計され (この場合は平均)、条件に対して評価されます。1 分の時間が経過すると、前の 5 分間のデータが再び集計されます 。- これには、1分の新しいデータと、すでに評価された4分のデータが含まれます。したがって、一度に 1 分進むスライディング ウィンドウがありますが、以前のウィンドウの一部としても評価された 4分のデータを常に含みます。
+1. Next to **Action group name**, enter **AZ-220 Email Action Group**.
 
-1. 「**シグナル ロジックの構成**」 ペインの下部で、警告条件を構成するには、「**完了**」 をクリックします。
+    > [!NOTE] An action group name must be unique within the Resource Group is is associated with.
 
-    「**シグナル ロジックの構成**」 ペインが閉じ、「**ルールの作成**」 ブレードが表示されます。**条件** が設定され、**米国ドルでの月次コスト**が表示されます。執筆時点では、警告条件の推定コストは $0.10 です。
+1. Next to **Short name**, enter **AZ220EmailAG**.
 
-    次に、警告条件が満たされたときに実行されるアクションを構成する必要があります。
+    > [!NOTE] The short name is used in place of a full action group name when notifications are sent using this group and is limited to a max of 12 characters.
 
-1. **アクション グループ (オプション)** 領域を確認します。 
+1. Next to **Subscription**, select the subscription you have been using for this lab.
 
-    アクション グループが選択されていません。使用できるオプションは、**追加**と**作成**の 2 つのオプションです。    
+1. Next to **Resource group**, select the resource group you are using for this lab - "AZ-220-RG".
 
-    > **注意**: アクション グループは、Azure サブスクリプションの所有者によって定義された通知設定を集めたものです。アクション グループ名は、関連付けられているリソースグループ内で一意である必要があります。Azure Monitor および Service Health アラートは、アクション グループを使用して、アラートがトリガーされたことをユーザーに通知します。さまざまなアラートには、ユーザーの要件に応じて、同じアクション グループまたは異なるアクション グループを使用する場合があります。各サブスクリプションに最大 2,000 個のアクショングループを設定できます。アクション グループの作成と管理の詳細については、[こちら](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/action-groups)を参照してください。
+    > [!NOTE] Action Groups are usually shared across a subscription and would likely be centrally managed by the Azure subscription owner. As such they are more likely to be included in a common resource group rather than in a project specific resource group such as "AZ-220-RG". We are using "AZ-220-RG" to make it easier to clean up the resources after the lab.
 
-1. 「**アクション グループ (オプショナル)**」 で、「**作成**」 をクリック します。
+1. In the next area, **Actions**, you can define a list of actions that will be performed whenever this action group is invoked.
 
-    「**アクション グループの追加**」 ブレードが表示されます。
+1. Under **Action name**, enter **AZ220Notifications**.
 
-1. 「**アクション グループ名**」 に、「**AZ-220 メール アクション グループ**」と入力します。
+1. Under **Action Type**, click the dropdown and notice the available options - select **Email/SMS/Push/Voice**.
 
-    > **注意**: アクション グループ名は、関連付けられているリソース グループ内で一意である必要があります。
+    Immediately, the **Email/SMS/Push/Voice** action details pane is displayed. Notice that you can choose up to 4 methods for delivering the notification. For the purpose of this lab, we'll use **Email** and **SMS**.
 
-1. 「**短い名前**」 に、「**AZ220EmailAG**」と入力します
+1. Check **Email** and enter an email you wish to use to receive the alert.
 
-    > **注意**: このグループを使用して通知を送信する場合は、完全なアクション グループ名の代わりに短い名前が使用され、最大 12 文字に制限されます。
+1. Check **SMS**, enter your **Country code** and the **Phone number** you wish to receive the SMS alert.
 
-1. 「**サブスクリプション**」 で、このラボで使用していたサブスクリプションが選択されていることを確認します。
+1. Skip **Azure app Push Notifications** and **Voice**.
 
-1. 「**リソース グループ**」 ドロップダウンで、「**AZ-220-RG-RG**」 をクリックします。
+1. Finally, there is the option to **Enable the common alert schema** - select **Yes**.
 
-    > **注意**: アクション グループは通常、サブスクリプション全体で共有され、Azure サブスクリプション所有者が一元管理する可能性があります。そのため、プロジェクト固有のリソース グループ (AZ-220-RG) ではなく、共通リソース グループに含まれる可能性が高くなります。ラボ後のリソースのクリーンアップを容易にするために、"AZ-220-RG" を使用しています。
+   > [!NOTE] There are many benefits to using the Common Alert Schema. It standardizes the consumption experience for alert notifications in Azure today. Historically, the three alert types in Azure today (metric, log, and activity log) have had their own email templates, webhook schemas, etc. With the common alert schema, you can now receive alert notifications with a consistent schema. You can learn more about the Common ALert6 Schema [here](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/alerts-common-schema).
 
-    次の領域である**アクション**は、このアクション グループが呼び出されるたびに実行されるアクションのリストを定義するために使用されます。
+   > **Important:** Given the benefits, you may wonder why the common alert schema is not enabled by default - well, when you select **Yes** you will see a warning **Enabling the common alert schema might break any existing integrations.** Bear this in mind in your own environments.
 
-1. 「**アクション名**」 に、「**AZ220Notifications**」と入力します
+1. To save the **Email/SMS/Push/Voice** action configuration, click **OK**.
 
-1. 「**アクション タイプ**」 ドロップダウンを開き、使用可能なオプションを確認します。
+    The **Email/SMS/Push/Voice** pane closes and the list of **Actions** on the **Add action group** pane is updated. Notice that the new action has a link to **Edit details** if changes are required.
 
-1. 「**アクション タイプ**」 ドロップダウンで、「**メール/SMS/プッシュ/音声**」 をクリックします。
+    At this point, we could add multiple actions if we needed to launch some business integration via *WebHooks* or an *Azure Function*, however for this lab, this notification is enough.
 
-    すぐに、 このアクション タイプのアクションの詳細を示す 「**メール/SMS/プッシュ/音声**」 ブレードが表示されます。通知を配信する方法は最大 4 つまで選択できます。
+1. To create this action group, click **OK**.
 
-1. 「**メール/SMS/プッシュ/音声**」 ブレードで 、「**メール**」 をクリックし、簡単にアクセスできるメール アドレスを入力します。 
+    A few things happen at the same time. First, **Add action group** pane closes and the **Create rule** pane is displayed, with the new Action Group added to the list of **ACTIONS**.
 
-1. 「**SMS**」 をクリックし、 SMS アラートの受信に使用する電話の**国番号**と**電話番号**を入力します。
+    Then, in quick succession, you should receive both an SMS notification and an email, both of which inform you that you have been added to the **AZ220EmailAG** action group. In the SMS message, you will note that you can reply to the message to stop receiving future notifications and so on - you can learn more about the options [here](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/alerts-sms-behavior). In the email, you have links that you can click to view the details on action groups and, towards the bottom of the email (in a smaller font) you can see the option to unsubscribe.
 
-1. 「**Azure アプリのプッシュ通知**」 と 「**音声**」 をスキップします。
+1. Next, we configure the **ALERT DETAILS**.
 
-1. 「**共通のアラート スキーマを有効にする**」 で、「**はい**」 をクリックします。
+1. Under **Alert rule name**, enter **Connected Devices Greater or Equal To 5**. The name should be descriptive enough to identify the alert.
 
-   > **注意**:  共通アラート スキーマを使用することには、多くの利点があります。今日の Azure でのアラート通知の使用エクスペリエンスを標準化します。これまで、今日の Azure の 3つのアラートの種類 (メトリック、ログ、およびアクティビティ ログ) には、独自のメール テンプレート、Webhook スキーマなどがあります。共通アラート スキーマを使用すると、一貫性のあるスキーマを使用してアラート通知を受信できるようになりました。共通の ALert6  スキーマの詳細については、[こちら](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/alerts-common-schema)を参照してください。
-   >
-   > **重要:** この利点を考えると、共通アラート スキーマがデフォルトで有効になっていない理由を疑問に思うかもしれませんが、「**はい**」 を選択すると、**共通アラートスキーマを有効にすると既存の統合が損なわれる可能性がある**という警告が表示されます。  あなた自身の環境でこれを念頭に置いてください。
+1. Under **Description** you can optionally enter a more detailed description, enter **This alert is raised when the AZ-220-HUB  device connection threshold is greater than or equal to 5.**.
 
-1. 「**メール/SMS/プッシュ/音声**」 ブレードの下部でアクション構成を保存するには、「**OK**」 をクリックします。   
+1. Under **Severity**, select the severity of the alert. In our scenario, this alert is *informational* and not indicative of any critical failure, therefore select **Sev 3**.
 
-    「**アクション グループの追加**」 ブレードに 「アクション」 がリスト表示されます。  変更が必要な場合は、新しいアクションに 「**詳細の編集**」 へのリンクが表示されます。
-
-    この時点で、*WebHooks* または *Azure 関数*を使用してビジネス統合を起動する必要がある場合は、複数のアクションを追加できますが、このラボでは簡単な通知で十分です。
-
-1. 「**アクション グループの追加**」 ブレードの下部で、このアクション グループを作成するには、「**OK**」 をクリックします。   
-
-    いくつかのことが同時に起こります。まず、「**アクション グループの追加**」 ブレードが閉じ、「**ルールの作成**」 ブレードに表示され、新しいアクション グループが 「**アクション**」 の一覧に追加されます。
-
-    次に、SMS 通知とメールの両方を受け取り、**AZ220EmailAG** アクション グループに追加されたことを通知します。SMS メッセージでは、メッセージに返信して今後の通知の受信を停止することができます。 それらのオプションの詳細については、[こちら](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/alerts-sms-behavior)を参照して下さい。メールには、クリックしてアクション グループの詳細を表示できるリンクがあり、メールの下部 (小さいフォント) に向かって購読停止のオプションが表示されます。
-
-    次に、**アラートの詳細**を構成します。
-
-1. 「**ルールの作成**」 ブレードの 「**警告ルール名**」で、「**5 台以上の接続デバイス**」と入力します。
-
-    名前は、警告を識別するのに十分な説明を付ける必要があります。
-
-1. 「**説明**」 で、「**AZ-220-HUB-{YOUR-ID} ハブに接続されているデバイスの数が 5 台以上の場合にこの警告が発生します。」**と入力します。
-
-    説明フィールドはオプションですが、推奨されます。
-
-1. 「**重大度**」 で、「**Sev 3**」 を選択したままにします。
-
-    このシナリオでは、この警告は *情報であり* 、重大な障害を示すものではないため、「**Sev 3**」 が正しい選択です。
-
-    > **注意**:  重大度レベルオプションは、Sev 0 - Sev 4 です。ビジネスには、各レベルの定義が確立されている必要があります。 
-    >
-    > たとえば、Contoso は次のようにこれらのレベルを定義している可能性があります。
-    >*Sev 0 = 重大
-    >*Sev 1 = エラー
-    >*Sev 2 = 警告
-    >*Sev 3 = 情報提供
+    > [!NOTE] Severity options and the associated severity:
+    >* Sev 0 = Critical
+    >* Sev 1 = Error
+    >* Sev 2 = Warning
+    >* Sev 3 = Informational
     >* Sev 4 = Verbose
 
-1. 「**作成時にルールを有効にする**」 で、「**はい**」 が選択されていることを確認します。
+1. Under **Enable rule upon creation**, ensure **Yes** is selected.
 
-    > **注意**:  メトリック アラート ルールがアクティブになるには、最大　10　分間かかる場合があります。
+    > [!NOTE] It can take up to 10 minutes for a metric alert rule to become active.
 
-1. ブレードの下部にある、「**警告ルールの作成**」 をクリックします。
+1. To finally create the rule, click **Create alert rule**.
 
-    IoT ハブの 「**警告**」 ウィンドウが表示されます。真ん中のメッセージは、警告がないことを示しており、そのステータス メッセージの下に 「**警告ルールの管理(1)」**」 ボタンが追加されていることがわかります。
+    The **Create rule** pane is closed and the list of **Alerts** is displayed. The **New alert rule** button that was previously displayed has now been replaced by **Manage alert rules(1)**. As we have yet to trigger any alerts, no alerts are listed here.
 
-ここで、警告をトリガーするために必要な環境を構成します。
+Now that we have create our alert, we should configure the environment we need for the device siumulation we will use to trigger the alert.
 
-### 演習 4: センサーのシミュレーション
 
-Contoso の資産トラッキング システムをシミュレートするには、輸送コンテナー内に配置されている IoT デバイスをシミュレートする必要があります。各デバイスがアクティブ化されると、自動デバイス プロビジョニングを使用して IoT ソリューションに接続し、テレメトリの送信を開始する必要があります。自動的に接続するためには、各デバイスは、グループ登録の作成に使用されるルート証明書へのチェーンの一部である独自の X.509 証明書を必要とします。
 
-この演習では、既存の環境を検証し、必要なセットアップを実行し、10個のデバイス証明書を生成し、10台のデバイスをシミュレートするコンソール アプリケーションを構成します。
+## Exercise 5: Simulating the Sensors
 
-> **注意**: このコースのラボ 6 (**ラボ 6-DPS でのデバイスの自動登録** ) では、X.509 リソースを使用するように DPS を構成しました。それでもなおその構成が使用可能な場合は、以下の 1 つ以上のタスクをスキップできる場合があります。
+As part of the asset-tracking scenario, we need to have devices that simulate the tags that will be used to track the assets during transportation. As each device is activated, it should use automatic device provisioning to connect to the Iot solution and start sending telemetry. In order to automatically connect, each device will need its own X509 certificate that is part of a chain to the root certificate used to create a group enrollment.
 
-#### タスク 1: DPS 構成の検証
+In this task, we will verify the existing environment, perform any necessary setup, generate 10 device certificates, and configure a console application that will simulate the 10 devices.
 
-1. ブラウザーで [Azure portal](https://portal.azure.com/) に移動し、サブスクリプションにログインします。
+## Verify Environment
 
-1. ダッシュボードで、**AZ-220-DPS-{YOUR-ID}** デバイス プロビジョニング サービスの「AZ-220-RG」リソース グループタイルを確認します。
+In **Lab 6-Automatic Enrollment of Devices in DPS** you configured DPS to use X509 resources. If you still have that configuration available, that will shortcut a few steps. However, if you did not complete the lab, make sure you check every step below.
 
-    > **注意**:  **AZ-220-DPS-{YOUR-ID}** が存在しない場合、このラボの演習 1 に戻り、セットアップ スクリプトを実行します。
+### Verify DPS Configuration
 
-1. リソース グループのタイルで、「**AZ-220-DPS-{YOUR-ID}**」 をクリックします。
+1. In your browser, navigate to the [Azure Portal](https://portal.azure.com/) and login to your subscription.
 
-1. 左側のナビゲーション メニューの 「**設定**」 で、「**証明書**」 をクリックします。
+1. Navigate to the "AZ-220-RG" resource group and look for a **Device Provisioning Service** named **AZ-220-DPS-{YOUR INITIALS and DATE}**.
 
-1. 「**証明書**」 ウィンドウが開いた状態で、次の手順に従います。
+    > [!NOTE] If the DPS does not exist, return to the **Setup Resources** task earlier in this lab.
 
-    * 証明書の一覧が空の場合は、この演習の**タスク２** に直接移動します。**OpenSSLを検証します**。
-    * **root-ca-cert** という名前の証明書がリストされている場合は、次の手順に進みます。 
+1. To review the configuration of the DPS service, click  **AZ-220-DPS-{YOUR INITIALS and DATE}**.
 
-1. 表示されている証明書の場合は、「**ステータス**」 の値を確認し、次の手順に従います。 
+1. To verify the certificate configuration, in the left hand navigation area, under **Settings**, click **Certificates**.
 
-    * 証明書のステータスが **未確認の場合**:
-        * 証明書をクリックして詳細を表示し、「**削除**」 をクリックします。 
-        * 削除を確認するために **証明書名** を入力し、「**OK**」 をクリックします。 
-        * この演習の **タスク２** に直接移動します。**OpenSSLを検証します**。
-    * 証明書のステータスが**検証済み**の場合は、次の手順に進みます。 
+    > [!NOTE] If the certificates list is empty, jump to the **Verify OpenSSL** section
 
-1. 左側のナビゲーション メニューの 「**設定**」 で、「**登録の管理**」 をクリックします。
+1. Examine the certificate entry and ensure the **Status** for the certificate in the **Certificates** pane is displayed as **Verified**.
 
-1. 「**登録の管理**」 ペインで、DPS の登録グループの一覧を表示するには、「**登録グループ**」 をクリックします。
+    > [!NOTE] If the certificate status is **Unverified**, click the certificate to view the details, then click **Delete**. Enter the **Certificate Name** to confirm the deletion and click **OK**. Jump to the **Verify OpenSSL** section.
 
-1. **simulated-devices** 登録グループが一覧に表示されている場合は、次の演習つまり**演習 5** に直接移動します。**デバイスのシミュレーション**
+1. To verify the group enrollment, in the left navigation area, under **Settings** select **Manage enrollments**.
 
-1. **simulated-devices** 登録グループが存在しない場合は、次の手順に従います。
+1. In the **Manage enrollments** pane, click on the **Enrollment Groups** link to view the list of enrollment groups in DPS.
 
-    * **root-ca-cert ** という名前の検証済み証明書がある場合は、この演習の - **タスク 5** に直接移動 します。**登録グループの作成**。
-    * 上記の検証済みの証明書が見つからない場合は、 **タスク 2:** に進みます。**OpenSSLを検証します**。
+    > [!NOTE] Does the **simulated-devices** enrollment group **exist**? If so jump to the **Generate Device Certificates** in the next task.
 
-#### タスク 2: OpenSSL の確認
+1. If the  **simulated-devices** enrollment group does not exist, continue with the **Verify OpenSSL** section below.
 
-次の手順では、以前のラボにインストールされている OpenSSL ツールがまだ使用可能であることを確認します。
+### Verify OpenSSL
 
-1. ブラウザーで、[Azure Shell](https://shell.azure.com/) に移動し、サブスクリプションにログインします。
+In the following steps you will verify that OpenSSL tools installed in an earlier lab are still available.
 
-1. シェルプロンプトで、次のコマンドを実行します。
+1. In your browser, navigate to the [Azure Shell](https://shell.azure.com/) and login to your subscription.
+
+1. At the shell prompt, enter the following command:
 
     ```bash
     cd ~/certificates
     ```
 
-    "**このようなファイルまたはディレクトリはありません**" というエラーが表示された場合は、この演習のタスク 3 に直接移動します - **タスク 3: OpenSSL ツールをインストールする**
+    If you see an error that states **No such file or directory** then jump down to the **Install OpenSSL Tools** section below.
 
-1. Cloud Shell コマンド プロンプトで、次のコマンドを入力します。
+1. At the shell prompt, enter the following command:
 
     ```bash
-    cd certs
+    cd ~/certs
     ```
 
-    "**このようなファイルまたはディレクトリはありません**" というエラーが表示された場合は、この演習の**タスク 4** に直接移動します。**OpenSSL を使用して x.509 CA 証明書を生成および構成する**。
+    If you see an error that states **No such file or directory** then jump down to the **Generate and Configure x.509 CA Certificates using OpenSSL** section below.
 
-1. **certs** フォルダーが利用可能な場合は、この演習のタスク 5 に直接移動します - **タスク 5:** ** 登録グループの作成**。
+1. Jump down to the **Generate Device Certificates** in the next task.
 
-#### タスク 3: OpenSSL ツールをインストールする
+## Install OpenSSL Tools
 
-1. Cloud Shellで、次のコマンドを入力します。
+1. In the cloud shell, enter the following commands:
 
     ```bash
     mkdir ~/certificates
 
-    # 証明書ディレクトリに移動
+    # navigate to certificates directory
     cd ~/certificates
 
-    スクリプト ファイルをダウンロードする
+    # download helper script files
     curl https://raw.githubusercontent.com/Azure/azure-iot-sdk-c/master/tools/CACertificates/certGen.sh --output certGen.sh
     curl https://raw.githubusercontent.com/Azure/azure-iot-sdk-c/master/tools/CACertificates/openssl_device_intermediate_ca.cnf --output openssl_device_intermediate_ca.cnf
     curl https://raw.githubusercontent.com/Azure/azure-iot-sdk-c/master/tools/CACertificates/openssl_root_ca.cnf --output openssl_root_ca.cnf
 
-    # スクリプトのアクセス許可を更新して、ユーザーがスクリプトの読み取り、書き込み、実行を行えるようにする
+    # update script permissions so user can read, write, and execute it
     chmod 700 certGen.sh
     ```
 
-### タスク 4: OpenSSL を使用した x.509 CA 証明書を生成および構成する
+1. Continue to the **Generate and Configure x.509 CA Certificates using OpenSSL** section below.
 
-最初に必要な X.509 証明書は CA と中間証明書です。これらは `certGen.sh` helper script by passing the `create_root_and_intermediate` オプションを使用して生成できます。
+### Generate and Configure x.509 CA Certificates using OpenSSL
 
-1. Cloud Shell で、`~/certificates` ディレクトリに入っていることを確認します。 
+The first x.509 certificates needed are CA and intermediate certificates. These can be generated using the `certGen.sh` helper script by passing the `create_root_and_intermediate` option.
 
-1. Cloud Shell コマンド プロンプトで CA と中間証明書を生成するには、次のコマンドを入力します。
+1. In the cloud shell, run the following command within the `~/certificates` directory of the **Azure Cloud Shell** to generate the CA and intermediate certificates:
 
     ```sh
     ./certGen.sh create_root_and_intermediate
     ```
 
-    このコマンドコマンドは、`azure-iot-test-only.root.ca.cert.pem` という名前の CA ルート証明書を生成し、`./certs` ディレクトリに配置します。
+1. The previous command generated a CA Root Certificate named `azure-iot-test-only.root.ca.cert.pem` is located within the `./certs` directory.
 
-1. Cloud Shell コマンド プロンプトで、ローカル コンピューターに `azure-iot-test-only.root.ca.cert.pem` 証明書をダウンロードするには (DPS にアップロードできるように)、次のコマンドを入力します。
+    Run the following command within the **Azure Cloud Shell** to download this certificate to your local machine so it can be uploaded to DPS.
 
     ```sh
     download ~/certificates/certs/azure-iot-test-only.root.ca.cert.pem
     ```
 
-1. Azure portal で、**AZ-220-DPS-{YOUR-ID}** デバイス プロビジョニング サービスを開きます。
+1. Navigate to the **Device Provisioning Service** (DPS) named `AZ-220-DPS-{YOUR-INITIALS-AND-CURRENT-DATE}` within the Azure portal.
 
-1. 「**デバイス プロビジョニング サービス**」 ブレードの左側のナビゲーション メニューの 「**設定**」 で、「**証明書**」 をクリックします。     
+1. On the **Device Provisioning Service** blade, click the **Certificates** link under the **Settings** section.
 
-1. 「**証明書**」 ペインで、ブレードの上部にある 「**追加**」 をクリック します。
+1. On the **Certificates** pane, click the **Add** button at the top to start process of uploading the x.509 CA Certificate to the DPS service.
 
-    > **注意**:  既存の証明書が表示された場合は、その証明書を選択して削除します。
+    > [!NOTE] If see an existing certificate, select and delete it.
 
-1. 「**証明書の追加**」 ペインで、「**証明書 .pem または .cer ファイルのアップロード**」 フィールドで x.509 CA 証明書ファイルを選択します。 
+1. On the **Add Certificate** pane, select the x.509 CA Certificate file in the **Certificate .pem or .cer file** upload field. This is the `azure-iot-test-only.root.ca.cert.pem` CA Certificate that was just downloaded.
 
-    これは、ダウンロードされたばかりの `azure-iot-test-only.root.ca.cert.pem` CA 証明書です。
+1. Enter a logical name for the _Root CA Certificate_ into the **Certificate Name** field. For example, `root-ca-cert`
 
-1. 「**証明書名**」 フィールドに、「**root-ca-cert**」と入力します。
+    This name could be the same as the name of the certificate file, or something different. This is a logical name that has no correlation to the _Common Name_ within the x.509 CA Certificate.
 
-    この名前は、証明書ファイルの名前と同じか、別の名前である可能性があります。これは、x.509 CA 証明書内の_共通名_と相関関係のない論理名です。
+1. Click **Save**.
 
-1. 「**保存**」 をクリックします。
+1. Once the x.509 CA Certificate has been uploaded, the **Certificates** pane will display the certificate with the **Status** of **Unverified**. Before this CA Certificate can be used to authenticate devices to DPS, you will need to verify **Proof of Possession** of the certificate.
 
-    X.509 CA 証明書がアップロードされると、「**証明書**」 ウィンドウに**未確認**の**状態**の証明書が表示されます。この CA 証明書を使用して DPS に対してデバイスを認証できるようになる前に、証明書の**所有証明**を確認する必要があります。
+1. To start the process of verifying **Proof of Possession** of the certificate, click on the **CA Certificate** that was just uploaded to open the **Certificate Details** pane for it.
 
-1. 証明書の所有証明の確認プロセスを開始するには、「**root-ca-cert**」 をクリックします。
+1. On the **Certificate Details** pane, click on the **Generate Verification Code** button.
 
-1. 「**証明書の詳細**」 ペインで、「**確認コードの生成**」 をクリックします。
+1. Copy the newly generated **Verification Code** that is displayed above the _Generate_ button.
 
-1. 新しく生成された **確認コード** の値をコピーします。
+    > [!NOTE] You will need to leave the **Certificate Details** pane **Open** while you generate the Verification Certificate. If you close the pane, you will invalidate the Verification Code and will need to generate a new one.
 
-    > **注意**:  検証証明書を生成する間は、「**証明書の詳細**」 ペインを **開いた** ままにする必要があります。ペインを閉じると、確認コードが無効になり、新しいコードを生成する必要があります。
+1. Open the **Azure Cloud Shell**, if it's not still open from earlier, and navigate to the `~/certificates` directory.
 
-1. まだ開いていない場合は**Azure Cloud Shell** を開いて、 `~/certificates` ディレクトリに移動します。
+1. **Proof of Possession** of the CA Certificate is provided to DPS by uploading a certificate generated from the CA Certificate with the **Validate Code** that was just generated within DPS. This is how you provide proof that you actually own the CA Certificate.
 
-    DPS 内でたった今生成された**確認コード**を使用して CA 証明書から生成された証明書をアップロードすることで、CA 証明書の**所有証明**が DPS に提供されます。これは、CA 証明書を実際に所有していることを証明する方法です。
-
-1. Cloud Shell コマンド プロンプトで、**検証証明書 ** (**確認コード**を渡す) を作成し、次のコマンドを入力します。
+    Run the following command, passing in the **Verification Code**, to create the **Verification Certificate**:
 
     ```sh
     ./certGen.sh create_verification_certificate <verification-code>
     ```
 
-    必ず、`<verification-code>` プレースホルダーを Azure portal によって生成された **確認コード**に置き換えてください。
+    Be sure to replace the `<verification-code>` placeholder with the **Verification Code** generated by the Azure portal.
 
-    たとえば、コマンド実行は次のようになります。
+    For example, the command run will look similar to the following:
 
     ```sh
     ./certGen.sh create_verification_certificate 49C900C30C78D916C46AE9D9C124E9CFFD5FCE124696FAEA
     ```
 
-    このコマンドは、確認コードを使用して CA 証明書にチェーンされた**検証証明書**を生成します。生成された検証証明書 `verification-code.cert.pem` は、Azure Cloud Shell の `./certs` ディレクトリ内にあります。
+1. The previous command generated a **Verification Certificate** that is chained to the CA Certificate with the Verification Code. The generated Verification Certificate named `verification-code.cert.pem` is located within the `./certs` directory of the Azure Cloud Shell.
 
-1. Cloud Shell コマンド プロンプトで、この **検証証明書**をローカル コンピューターにダウンロードし (DPS にアップロードできるように)、次のコマンドを入力します。
+    Run the following command within the **Azure Cloud Shell** to download this **Verification Certificate** to your local machine so it can be uploaded to DPS.
 
     ```sh
     download ~/certificates/certs/verification-code.cert.pem
     ```
 
-1. Azure portal で、 **CA 証明書**の 「**証明書の詳細**」 ペインに戻ります。
+1. Go back to the **Certificate Details** pane for the **CA Certificate** within DPS.
 
-1. 「**Verification Certificate .pem または .cer ファイル**」 フィールドで、「**verification-code.cert.pem**」 をクリックします。
+1. Select the newly created, and downloaded, **Verification Certificate** file, named `verification-code.cert.pem`, within the **Verification Certificate .pem or .cer file** field.
 
-    これは、新しく作成され、ダウンロードされた **検証証明書**ファイルです。
+1. Click **Verify**.
 
-1. 「**証明書の詳細**」 ペインで、「**確認**」 をクリックします。
+1. With the **Proof of Possession** completed for the CA Certificate, notice the **Status** for the certificate in the **Certificates** pane is now displayed as **Verified**.
 
-    CA 証明書の**所持証明** が完了したら、「**証明書 **」 ペインの証明書の**ステータス**が 「**確認済み**」 と表示されていることを確認します。
+1. On the Device Provisioning Service settings pane on the left side, click **Manage enrollments**.
 
-#### タスク 5:  登録グループの作成
+1. At the top of the blade, click **Add enrollment group**.
 
-1. Azure portal で、**AZ-220-DPS-{YOUR-ID}** デバイス プロビジョニング サービス ブレードが開いていることを確認します。 
+1. On the **Add Enrollment Group** blade, enter "**simulated-devices**" in the **Group name** field for the name of the enrollment group.
 
-1. 左側のナビゲーション メニューの **「設定**」 で、**「登録の管理」** をクリック します。
+1. Ensure that the **Attestation Type** is set to **Certificate**.
 
-    登録グループが一覧表示されていないことを確認します。
- 
-1. ブレードの上部にある、「**登録グループの追加**」 をクリックします。
+1. Set the **Certificate Type** field to **CA Certificate**.
 
-1. 「**登録グループの追加**」 ブレードの 「**グループ名**」 フィールドに、**シミュレートされたデバイスを入力します。**
+1. In the **Primary Certificate** dropdown, select the **CA Certificate** that was uploaded to DPS previously.
 
-1. 「**証明タイプ**」が 「**証明書**」に設定されていることを確認します。
+1. Notice the **Select the IoT hubs this group can be assigned to** dropdown has the **AZ-220-HUB-{YOUR-ID}** IoT Hub selected. This will ensure when the device is provisioned, it gets added to this IoT Hub.
 
-1. 「**証明書のタイプ**」 フィールドが 「**CA 証明書**」 に設定されていることを確認します。
+1. In the Initial Device Twin State field, modify the `properties.desired` JSON object to include a property named `telemetryDelay` with the value of `"1"`. This will be used by the Device to set the time delay for reading sensor telemetry and sending events to IoT Hub.
 
-1. 「**プライマリ証明書**」 ドロップダウンで、「**root-ca-cert**」 をクリックします。
-
-    「**このグループを割り当てることができる IoT ハブの選択**」 ドロップダウン リストに、**AZ-220-HUB-_{YOUR-ID}_** IoT Hub が含まれていることを確認します。これにより、デバイスがプロビジョニングされると、この IoT ハブに追加されます。
-
-1. 「初期デバイス ツイン状態」 フィールドで、`properties.desired` JSON オブジェクトを変更して、`telemetryDelay` という名前のプロパティを `"1"` という名前のプロパティに含めます。これは、センサーのテレメトリを読み取り、IoT ハブにイベントを送信するための遅延時間を設定するためにデバイスによって使用されます。
-
-    最終的な JSON は次のようになります。
+    The final JSON will be like the following:
 
     ```js
     {
@@ -653,80 +581,66 @@ Contoso の資産トラッキング システムをシミュレートするに�
     }
     ```
 
-1. ブレードの上部で、「**保存**」 をクリックします。
+1. Click **Save**
 
-これで環境が設定されましたので、次はデバイス証明書を生成します。
+Now that the environment is setup, it's time to generate our device certificates.
 
-### 演習 5: デバイスのシミュレーション
 
-この演習では、ルート証明書から X.509 証明書を生成します。次に、DPS に接続して IoT ハブにテレメトリを送信する 10 台のデバイスをシミュレートするコンソール アプリケーションで、これらの証明書を使用します。
 
-#### タスク 1: デバイス証明書の生成
 
-これで、10 個のデバイス証明書を生成してダウンロードします。
 
-1. [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
+## Exercise 6: Simulate Devices
 
-1. Cloud Shell コマンド プロンプトで、ディレクトリ名の **監視** を作成してディレクトリ名監視に移動するには、次のコマンドを入力します。
+In this task we will be generating X509 certificates from the root certifcate. We will then use these certificates in a console application that will simulate 10 devices connecting to DPS and sending telemetry to an IoT Hub.
 
-    ```bash
-    mkdir monitoring
-    cd monitoring
-    ```
+## Generate Device Certificates
 
-1. デバイス生成スクリプトをコピーする空のファイルを作成するには、次のコマンドを入力します。
+We will now generate and download 10 device certificates.
+
+1. Open the **Azure Cloud Shell**, if it's not still open from earlier, and navigate to the `~/monitoring` directory.
+
+1. To create an empty file in which we will copy the device generation script, enter the following commands:
 
     ```bash
     touch gen-dev-certs.sh
     chmod +x gen-dev-certs.sh
     ```
 
-1. 「Cloud Shell」 ツールバーの 「**エディタを開く**」 をクリックします。
+1. To edit the contents of the **gen-dev-certs.sh** file, use the **{ }** icon in Azure Cloud Shell to open the **Cloud Editor**.
 
-    Cloud Shell エディターを開くボタンは、** { }** アイコンで、右から 2番目です。
+    To open the **gen-dev-certs.sh** file, you will have to expand the **monitoring** node in the **Files** list to locate it.
 
-1. **ファイル**で「gen-dev-certs.sh ファイル」の内容を編集するには、「**監視**」 を クリックし、「**gen-dev-certs.sh **」 をクリックします。 
-
-    **gen-dev-certs.sh** ファイルは現在空です。
-
-1. 次のコードをクラウド エディターに貼り付けます。
+1. Paste the following code into the cloud editor:
 
     ```bash
     #!/bin/bash
 
-    # Generate 10 device certificates
+    # Generate 10 device certificates 
     # Rename for each device
-    # download from the cloud CLI
+    # download from the Cloud CLI
     pushd ~/certificates
     for i in {1..10}
     do
         chmod +w ./certs/new-device.cert.pem
         ./certGen.sh create_device_certificate asset-track$i
         sleep 5
-        cp ./certs/new-device.cert.pfx ./certs/new-asset-track$i.cert.pfx
-        download ./certs/new-asset-track$i.cert.pfx
+        cp ./certs/new-device.cert.pfx ./certs/new-asset-track$i.cert.pfx 
+        download ./certs/new-asset-track$i.cert.pfx 
     done
     popd
     ```
 
-    このスクリプトは、10 個のデバイス証明書を作成してダウンロードします。
+    This script will create and download 10 device certificates.
 
-1. 編集した **gen-dev-certs.sh** ファイルを保存するには、**CTRL-Q** を押します。 
+1. To save the edited **gen-dev-certs.sh** file, press **CTRL-Q**. If prompted to save you changes before closing the editor, click **Save**.
 
-    エディターを閉じる前に変更を保存するかどうかを確認するメッセージが表示されたら、「**保存**」 をクリックします。
-
-1. Cloud Shell コマンド プロンプトで、**gen-dev-certs.sh** スクリプトを実行するには、次のコマンドを入力します。
+1. To run the **gen-dev-certs.sh** script, run the following:
 
     ```bash
     ./gen-dev-certs.sh
     ```
 
-    スクリプトの実行中に、証明書生成プログラムからの出力が表示されると、ブラウザーは各証明書を自動的にダウンロードします。 
-
-    > **注意**: ブラウザーでファイルの操作を確認するメッセージが表示されたら、ファイルごとに 「**保存**」 をクリックします。
-
-
-    完了すると、ブラウザーのダウンロード場所で 10 個の証明書を入手できます。
+    While the script runs, you will see the output from the certificate generator and then the browser should automatically download each certificate in turn. Once it completes, you will have 10 certificates available in your browser download location:
 
     * new-asset-track1.cert.pfx
     * new-asset-track2.cert.pfx
@@ -739,226 +653,196 @@ Contoso の資産トラッキング システムをシミュレートするに�
     * new-asset-track9.cert.pfx
     * new-asset-track10.cert.pfx
 
-これらの証明書が使用可能になると、デバイス シミュレーターの構成準備完了です。
+With these certificates available, you are ready to configure the device simulator.
 
-#### タスク 2: シミュレーターに証明書を追加する
+## Add Certificates to Simulator
 
-1. ダウンロードした **X.509 デバイス証明書**ファイルをラボ 17 **スターター** フォルダーにコピー します。
+1. Copy the downloaded **x.509 Device Certificate** files to the `/LabFiles` directory; within the root directory along-side the `Program.cs` file. The **Simulated Devices** project will need to access this certificate file when authenticating to the Device Provisioning Service.
 
-    _ラボ 3: 開発環境のセットアップ_: ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * すべてのファイル
-      * ラボ
-          * 17- Azure IoT Hub を管理する方法
-            * スターター
-
-    ラボ 17 のスターター フォルダーには、SimulatedDevice.csproj ファイルとProgram.cs ファイルが含まれています。デバイス プロビジョニング サービスに対して認証を行う場合、プロジェクトはこの証明書ファイルにアクセスする必要があります。ファイルは、プロジェクトフォルダーのルートに配置する必要があります。
-
-    コピー後、証明書ファイルは次の場所に配置されます。
+    After copied, the certificate files will be located in the following locations:
 
     ```text
-    /Starter/new-asset-track1.cert.pfx
-    /Starter/new-asset-track2.cert.pfx
-    /Starter/new-asset-track3.cert.pfx
-    /Starter/new-asset-track4.cert.pfx
-    /Starter/new-asset-track5.cert.pfx
-    /Starter/new-asset-track6.cert.pfx
-    /Starter/new-asset-track7.cert.pfx
-    /Starter/new-asset-track8.cert.pfx
-    /Starter/new-asset-track9.cert.pfx
-    /Starter/new-asset-track10.cert.pfx
+    /LabFiles/new-asset-track1.cert.pfx
+    /LabFiles/new-asset-track2.cert.pfx
+    /LabFiles/new-asset-track3.cert.pfx
+    /LabFiles/new-asset-track4.cert.pfx
+    /LabFiles/new-asset-track5.cert.pfx
+    /LabFiles/new-asset-track6.cert.pfx
+    /LabFiles/new-asset-track7.cert.pfx
+    /LabFiles/new-asset-track8.cert.pfx
+    /LabFiles/new-asset-track9.cert.pfx
+    /LabFiles/new-asset-track10.cert.pfx
     ```
 
-1. Visual Studio Code を起動します。
+1. Using **Visual Studio Code**, open the `/LabFiles` folder.
 
-1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
+1. Open the `Program.cs` file.
 
-1. 「**フォルダを開く**」 ダイアログで、ラボ 17 スターター フォルダに移動し、「**スターター**」 をクリックし、「**フォルダの選択**」 をクリックします。
-
-    > **注意**: Visual Studio Code が、アセットの読み込みや復元の実行を推奨している場合は、次の推奨事項に従います。
- 
-1. **「エクスプローラ」** ペインで、Program.cs ファイルを開くには、「**Program.cs**」 をクリックします。
-
-    証明書ファイルも表示されるはずです。
-
-1. コード エディターで、変数 `GlobalDeviceEndpoint` を見つけます。
-
-    値は `global.azure-devices-provisioning.net` に設定されています。これは、 パブリック Azure クラウド内の Azure デバイス プロビジョニング サービス (DPS) の**グローバル デバイス エンドポイント**です。Azure DPS に接続しているすべてのデバイスは、このグローバル デバイス エンドポイントの DNS 名で構成されます。
+1. Locate the `GlobalDeviceEndpoint` variable, and notice it's value is set to `global.azure-devices-provisioning.net`. This is the **Global Device Endpoint** for the Azure Device Provisioning Service (DPS) within the Public Azure Cloud. All devices connecting to Azure DPS will be configured with this Global Device Endpoint DNS name.
 
     ```csharp
     private const string GlobalDeviceEndpoint = "global.azure-devices-provisioning.net";
     ```
 
-1. `dpsIdScope` 変数を見つけます。
+1. Locate the `dpsIdScope` variable, and replace the value with the **ID Scope** of the Device Provisioning Service.
 
-    ```csharp
-    private static string dpsIdScope = "<DPS-ID-Scope>";
-    ```
+   ```csharp
+   private static string dpsIdScope = "<DPS-ID-Scope>";
+   ```
 
-    `<DPS-ID-Scope>` プレースホルダーの値を実際の値に置き換える必要があります。
+   We need to replace the `<DPS-ID-Scope>` value with the actual value.
 
-1. Azure Cloud Shell を表示するブラウザーの画面に戻ります。
-
-1. Cloud Shell コマンド プロンプトで、DPS サービスの ID スコープを表示するには、次のコマンドを入力します。
+1. Return to the Azure cloud shell and enter the following command:
 
     ```bash
-    az iot dps show --name AZ-220-DPS-{YOUR-ID} --query properties.idScope
+    az iot dps show --name AZ-220-DPS-{YOUR-INITIALS-AND-CURRENT-DATE} --query properties.idScope
     ```
 
-    > **注意**: {YOUR-ID} を、このクラスの最初に作成した ID に置き換えてください。
+    > [!NOTE] Ensure you use the name of your DPS instance above.
 
-1. コマンドの出力をコピーします。
-
-1. Visual Studio Code に戻ります。
-
-1. `</DPS-ID-Scope>` の値を Azure Cloud Shell からコピーした値に置き換えます。
+    Copy the output of the command and replace the `<DPS-ID-Scope>` value in Visual Studio code. It should look similar to:
 
    ```csharp
    private static string dpsIdScope = "0ne000A6D9B";
    ```
 
-このアプリは、以前のラボで使用された **DPS でのデバイスの L06 自動登録** アプリに非常によく似ています。主な違いは、単一のデバイス シミュレーターを登録してテレメトリを送信するのではなく、30 秒に 1 つずつ 10 個のデバイスを登録するということです。シミュレートされた各デバイスは、テレメトリを送信します。これにより、警告が発生し、監視データがストレージにログ記録されます。
+This app is very similar to the app used in the earlier lab **L06-Automatic Enrollment of Devices in DPS**. The primary difference is that instead of just enrolling a single device simulator and then sending telemetry, it instead enrolls 10 devices, one every 30 seconds. Each simulated device will then send telemetry. This should then cause our alert to be raised and log monitoring data to storage.
 
-#### タスク 3: シミュレーターの実行
+## Run the Simulator
 
-1. Visual Studio Code の、「**ターミナル**」 メニューで、「**新しいターミナル **」 をクリックします。
-
-1. ターミナル コマンド プロンプトで、アプリを実行するには、次のコマンドを入力します。
+1. To run the app, in Visual Studio Code, open a terminal, and enter the following command:
 
     ```bash
     dotnet run
     ```
 
-    DPS 経由で接続されている最初のデバイスを示す出力が表示され、次にテレメトリが送信されます。その後 30秒ごとに追加のデバイスが接続され、10個のデバイスすべてが接続され、テレメトリを送信するまでテレメトリの送信が開始されます。
+    You should see output that shows the first device being connected via DPS and then telemetry being sent. Every 30 seconds thereafter, and additional device will be connected and commence sending telemetry until all 10 devices are connected and sending telemetry.
 
-1. Azure portal の DPS グループ登録に戻ります。
+1. Return to the DPS group enrollment in the Azure Portal.
 
-1. 「**シミュレートされたデバイス**」 登録 グループで、接続されているデバイスを表示するには、「**登録レコード**」 をクリックします。
+1. In the **simulated-devices** enrollment group, to view the connected devices, click **Registration Records**.
 
-    接続したデバイスのリストが表示されます。「**更新**」 をクリックすると、リストを更新できます。
+    You should see a list of the devices that have connected. You can hit **Refresh** to update the list.
 
-    デバイスを接続してテレメトリを送信したので、5個以上のデバイスを接続したら、5 分間警告のトリガーを待ちます。次のような SMS メッセージが表示されます。
+    Now that we have the devices connected and sending telemetry, we await the triggering of the alert once we have 5 or more devices connected for 5 mins. You should receive and SMS message that looks similar to:
 
     ```text
     AZ220EmailAG:Fired:Sev3 Azure Monitor Alert Connected Devices Greater or Equal to 5 on <your IoT Hub>
     ```
 
-1. アラートが到着したら、アプリケーションを終了します。
+    The email will look similar to:
 
-    Visual Studio Code ターミナルで **CTRL+C**を押すか、または Visual Studio Code を閉じます。
+    ![Email Alert](../../Linked_Image_Files/M99-L17-04-email-alert.png)
 
-    > **注意**:  デバイスが切断されると、アラートが解決されたことを知らせるメッセージが表示されます。
 
-次に、ストレージ アカウントを確認し、Azure Monitor によってログに記録されたものがあるかどうかを確認します。
+1. Once the alerts have arrived, you can exit the application by either hitting **CTRL+C** in the Visual Studio Code terminal, or by closing Visual Studio Code.
 
-### 演習 6: メトリック、アラート、アーカイブの確認
+    > [!NOTE] When the devices are disconnected, you will receive messages informing you the alert has been resolved.
 
-この演習では、このラボで先ほど構成したレポート リソースとログ リソースの一部を調べ、経過した短時間で記録されたイベント データを確認します。
+Now, let's check the storage account to see if anything has been logged by Azure Monitor.
 
-#### タスク 1: ポータルでのメトリックの確認
+## Exercise 7: Review Metrics, Alerts and Archive
 
-1. Azure portal で、グラフ タイトルをクリックして、ダッシュボードにピン留めしたメトリック グラフを開きます。
+## See the Metrics in the Portal
 
-    グラフが開き、ページに表示されます。
+1. In the Azure Portal, open the Metrics chart you pinned to the dashboard by clicking on the chart title.
 
-1. 時刻の値を **「過去 30 分**」 に変更します。 
+    The chart will open and fill the page.
 
-    *送信されたテレメトリ メッセージ*と <2024>*接続された デバイス  (プレビュー)** 値がグラフの下部に表示され、グラフの一番下に最新の数字が表示されます。－ グラフの上にマウスを移動すると、特定の時点の値が表示されます。
+1. Change the time values to the **Last 30 minutes**.
 
-#### タスク 2: アラートを見る
+    Notice that you can see *Telemetry messages sent* and *Connected devices (preview)** values, with the most recent numbers at the bottom of the chart - move you mouse over the chart to see values a specific points in time.
 
-Azure portal を使用してアラートを確認するには、次の手順を実行します。
+    ![metrics chart](../../Linked_Image_Files/M99-L17-05-metrics-chart.png)
 
-1. Azure portal で、ダッシュボードに戻ります。
+## See the Alerts
 
-1. Azure portal ツール バーの検索ボックスに、「**モニター **」と入力します。
+To use the Azure Portal to review alerts, complete the following steps.
 
-1. 検索結果ペインの 「**サービス**」 で 「**監視**」 をクリック します。
+1. In the Azure Portal, in the search box at the top of the screen, enter **Monitor** and the select **Monitor** from the list, under **Service**.
 
-    「**モニタ - 概要**」 ページが表示されます。  これは、現在のサブスクリプションのすべての監視アクティビティの概要です。
+    The **Monitor - Overview** page is displayed. This is the overview for all of the monitoring activities for the current subscription.
 
-1. 左側のナビゲーション メニューで、リストの上部にある 「**アラート**」 をクリックします。
+1. In the left hand navigation, select **Alerts**.
 
-    このアラートビューには、すべてのサブスクリプションのすべてのアラートが表示されます。これを IoT ハブに絞り込みましょう。
+    This alerts view shows all alerts for all subscriptions. Let's filter this to the IoT Hub.
 
-1. ブレードの上部近くの 「**サブスクリプション**」 で、このクラスに使用しているサブスクリプションを選択します。
+1. At the top of the page, under **Subscription**, select the subscription you are using.
 
-1. 「**リソース グループ**」 ドロップダウンで、「**AZ-220-RG-RG**」 をクリックします。
+1. Under **Resource group**, select "AZ-220-RG".
 
-1. 「**リソース**」 ドロップダウンで、**AZ-220-HUB-{YOUR-ID}** をクリックします。
+1. Under **Resource**, select **AZ-220-HUB-{YOUR-INITIALS-AND-CURRENT-DATE}**.
 
-1. 「**時間の範囲**」 ドロップダウンで、「**過去1 時間**」 をクリックします。
+1. Under **Time range**, select **Past hour**.
 
-    過去 1 時間のアラートの概要が表示されるはずです。「**合計アラート ルール**」に、「**1**」という、前に作成したアラートが表示されます。この下に、重大度カテゴリの一覧と、カテゴリごとのアラートの数が表示されます。関心の対象となるアラートは **Sev 3** です。少なくとも 1つが表示されます (デバイス シミュレーターを停止して再起動した場合は、そのアラートが 1 つ以上生成されている可能性があります)。
+    You should now see a summary of alerts for the last hour. Under **Total alert rules** you should see **1**, the alert you created earlier. Below this, you will see a list of the severity categories as well as the count of alerts per category. The alerts we are interested in are **Sev 3**. You should see at least one (if you have stopped and restarted the device simulator, you may have generated more that one alert).
 
-1. 結果の一覧の、「**Sev 3**」 をクリックします。
+1. In the list of severities, click **Sev 3**.
 
-    「**すべてのアラート**」 ページが開きます。ページの上部に、いくつかのフィルター フィールドが表示されます - 選択した IoT Hub の **Sev 3** アラートのみが表示されるように、上記の画面の値が入力されています。警告が表示される場合は、アクティブなアラートが表示されます。
+    the **All Alerts** page will open. At the top of the page you will see a number of filter fields - these have been populated with the values from the preceding screen so that only the **Sev 3** alerts for the selected IoT hub are shown. It will show you the alerts that are active, and if there are any warnings.
 
-1. 「**名前**」 で Sev 3 アラートを選択し、「**5 個以上の接続されたデバイス**」 をクリックします。
+1. Select an alert from the list.
 
-    アラートの詳細の**概要**が表示されたペインが開きます。これには、アラートが発生した理由を示すチャートが含まれます (ダッシュラインは、しきい値と監視対象メトリックの現在の値を示しています)。以下は、**設定基準**の詳細およびその他の詳細です。
+    A pane will open showing a **Summary** of the details for the alert. This includes a chart illustrating why the alert fired - a dash line shows the threshold value as well as the current values for the monitored metric. Below this are details of the **Criterion** and other details.
 
-1. ペインの上部にあるタイトルの下の、「**履歴**」 をクリックします。
+1. At the top of the pane, below the title, click **History**.
 
-    このビューでは、いつアラートが発生したか、呼び出されたアクション グループ、およびいつアラートが解決されたなどのその他の変更を確認できます。
+    In this view you can see when the alert fired, the action group that was invoked, and any other changes such as when the alert is resolved and so on.
 
-1. ペインの上部にあるタイトルの下の 「**診断**」 をクリックします。
+1. At the top of the pane, below the title, click **Diagnostics**.
 
-    アラートに関連する問題がある場合は、追加の詳細がここに表示されます。
+    If there were any issues related to the alert, addition details would be shown here.
 
-#### タスク 3: 診断ログを参照する
+## See the Diagnostic Logs
 
-このラボの前半では、Blob Storage にエクスポートする診断ログを設定しました。書き込まれた内容を確認してみましょう。
+Earlier, you set up your diagnostic logs to be exported to blob storage. Let's check to see what was written.
 
-1. ダッシュボードに移動し、"AZ-220-RG" リソース グループ タイルを探します。
+1. Navigate to your "AZ-220-RG" resource group.
 
-1. リソースの一覧で、以前に作成したストレージ アカウント - **(az220storage{your-id}**) を選択します。
+1. In the list of resources, select the Storage Account that was created earlier - **az220storage{YOUR-INITIALS-AND-CURRENT-DATE}**.
 
-    ストレージ アカウントの **概要**が表示されます。
+    The **Overview** for the storage account will be displayed.
 
-1. ストレージ アカウントのメトリック チャートが表示されるまで下にスクロールします。*出力の合計*、 *合計イングレス*、 *平均待ち時間* 、および *要求の内訳*。
+1. Scroll down until you can see the metrics charts for the Storage Account: *Total egress*, *Toral ingress*, *Average latency* and *Request breakdown*. 
 
-    アクティビティが表示されているはずです。
+    You should see that there is activity displayed.
 
-1. 左側のナビゲーション メニューで、ログに記録されたデータを表示するには、「**Storage Explorer (プレビュー)**」 をクリックします。
+1. To view the data that has been logged, in the left hand navigation area, select **Storage explorer (preview)**.
 
-1. 「**Storage Explorer**」 ペインで、**BLOB コンテナー** ノードを展開します。
+1. In the **Storage explorer** pane, expand the **BLOB CONTAINERS** node.
 
-    Azure Monitor が最初にデータをストレージ アカウントに送信すると、 **insights-logs-connection** というコンテナーが作成されます。
+    When Azure Monitor first sends data to a storage account, it creates a container called **insights-logs-connection**.
 
-1. 「**BLOB コンテナー**」 で 、「**insights-logs-connection**」 をクリックします。
+1. Select the **insights-logs-connection** container - the contents of the container will be listed to the right.
 
-    コンテナーの内容が右側に表示されます。
+    Logs are written to the container in a very nested fashion. You will need to open each subfolder in turn to navigate to the actual log data. The structure is similar to that show below:
 
-    ログは、非常にネストされた方法でコンテナーに書き込まれます。実際のログ データに移動するには、各サブフォルダーを順番に開く必要があります。その構造は、たとえば以下のようになっています。
-
-    * **resourceId=               :**
+    * **resourceId=**
       * **SUBSCRIPTIONS**
-        * **<GUID>** -  - これは、ログを生成したサブスクリプションの ID です。
-          * **RESOURCEGROUPS** - には、ログを生成した各リソース グループのフォルダが含まれています。
-            * "AZ-220-RG" - IoT Hub を含むリソース グループ
+        * **<GUID>** - this is the ID for the subscription that generated the log
+          * **RESOURCEGROUPS** - contains a folder for each resource group that generated a log
+            * "AZ-220-RG" - the resource group that contains the IoT Hub
               * **PROVIDERS**
                 * **MICROSOFT.DEVICES**
                   * **IOTHUBS**
-                    * **AZ-220-HUB-{YOUR-INITIALS-AND-CURRENT-DATE}** -  には、ログが生成された各年のフォルダが含まれています。
-                      * **Y=2019** - には、ログが生成された各月のフォルダが含まれています。
-                        * **m=12** -  には、ログが生成された各日のフォルダが含まれます。
-                          * **d=15** -  には、ログが生成された毎時のフォルダが含まれます。
-                            * **h=15** - には、ログが生成された毎分のフォルダが含まれます。
-                              * **m=00** -  には、毎分のログ ファイルが含まれています。
+                    * **AZ-220-HUB-{YOUR-INITIALS-AND-CURRENT-DATE}** - contains a folder for each year where a log was generated
+                      * **Y=2019** - contains a folder for each month where a log was generated
+                        * **m=12** - contains a folder for each day where a log was generated
+                          * **d=15** - contains a folder for each hour where a log was generated
+                            * **h=15** - contains a folder for each minute where a log was generated
+                              * **m=00** - contains the log file for that minute
 
-    現在の日付に達するまでドリルダウンし、最新のファイルを選択します。
+    Drill down until you get to the current date and select the most recent file.
 
-1. ファイルを選択した状態で、ペインの上部にあるツール バーで 「**ダウンロード**」 をクリックします。
+1. With the file selected, in the toolbar at the top of the pane, click **Download**.
 
-1. ダウンロードしたファイルを Visual Studio Code で開きます。
+1. Open the downloaded file in Visual Studio Code.
 
-    JSON の行数が表示されます。
+    You should see a number of lines of JSON.
 
-1. JSON を読みやすくするには、 **F1** キーを押して「**ドキュメントのフォーマット**」と入力し、オプションのリストから 「**ドキュメントのフォーマット**」 を選択します。
+1. To make the JSON easier to read, press **F1**, enter **Format document** and select **Format document** from the list of options.
 
-    次のように、接続イベントと切断イベントのリストが JSON 表現で表示されます。
+    The JSON will show a list of connection and disconnection events similar to:
 
     ```json
     {
@@ -999,4 +883,4 @@ Azure portal を使用してアラートを確認するには、次の手順を�
     }
     ```
 
-    個々のエントリは 1つの JSON レコードであることに注意してください - ドキュメント全体は有効なJSONドキュメントではありませんが。各レコード内には、発生元の IoT Hub に関する詳細と 各イベントの**プロパティ**が表示されます。  **プロパティ** オブジェクト内で、**deviceId** の接続 (または切断) を確認できます。
+    Notice that each individual entry is a single JSON record - the overall document is not a a valid JSON document. Within each record you can see details relating to the originating IoT Hub and **properties** for each event. Within the **properties** object, you can see the connecting (or disconnecting) **deviceId**.

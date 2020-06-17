@@ -1,214 +1,220 @@
----
+﻿---
 lab:
-    title: 'Lab 01: Getting Started with Azure'
-    module: 'Module 1: Introduction to IoT and Azure IoT Services'
+    title: 'ラボ 01: Azure の使用を開始する'
+    module: 'モジュール 1: IoT と Azure IoT Services サービスの紹介'
 ---
 
-# Getting Started with Azure
+# Azure の使用を開始する
 
-## Lab Scenario
+## ラボ シナリオ
 
-You are an Azure IoT Developer for a leading gourmet cheese company named Contoso. You need to prepare the work environment that you will use to develop your IoT solution, on the Azure cloud side as well as your local device environment. Your team has decided to use Visual Studio Code as the primary coding tool for device management.
+あなたは、Contoso という名前の主要なグルメ チーズ会社の Azure IoT 開発者です。
 
-## In This Lab
+Contoso の最高技術責任者は、IoT に代表されるビジネス チャンスの評価を行い、IoT ソリューションを実装することで、Contoso が大きなメリットを実現できると結論付けました。これらの評価に基づいて、Microsoft Azure IoT を選択しました。
 
-In this lab, you will become familiar with the Azure portal and you will setup a Resource Group. The lab includes the following exercises:
+まず、Azure ツールに精通する必要があります。
 
-* Explore the Azure Portal
-* Create an Azure Dashboard and Resource Group
+## このラボでは
 
-## Exercise 1: Explore the Azure Portal and Dashboard
+このラボでは、Azure portal に精通し、リソース グループを設定します。ラボには、次の演習が含まれます。
 
-Before you begin working with the Azure IoT services, it's good to be familiar with how Azure itself works.
+* Azure portal の詳細
+* Azure ダッシュボードとリソース グループの作成
 
-Although we commonly refer to Azure as a 'cloud', it is actually a web portal that is designed to make Azure resources accessible from a single web site. All of Azure is accessible through the Azure portal.
+## ラボの手順
 
-### Task 1: Examine the Azure portal Home page
+### 演習 1: Azure portal とダッシュボードの詳細
 
-1. In your Web browser, to open your Azure portal, navigate to the [portal.azure.com](http://portal.azure.com).
+Azure IoT サービスの使用を開始する前に、Azure 自体のしくみを理解しておくと便利です。
 
-    When you log into Azure you will arrive at the Azure portal. The Azure portal provides you with a customizable UI that you can use to access your Azure resources.
+Azure は一般的に「クラウド」と呼ばれていますが、実際には、単一の Web サイトから Azure リソースにアクセスできるように設計された Web ポータルです。すべての Azure は Azure portal を通してアクセスできます
 
-1. In the upper left corner of the portal window, to open the portal menu, click the hamburger menu icon.
+#### タスク 1: Azure portal のホーム ページを確認する
 
-    At the top of the portal menu, you should see a section containing four menu options:
-    
-    * The **Create a resource** button opens a page displaying the services available through the Azure Marketplace, many of which provide free options. Notice that services are grouped by technology, including "Internet of Things", and that a search box is provided.
-    * The **Home** button opens a customized page that displays links to Azure services, your recently accessed services, and other tools.
-    * The **Dashboard** button opens a page displaying your default (or most recently used) dashboard. You will be creating a dashboard later in this lab.
+1. Web ブラウザーで Azure portal を開くには、[portal.azure.com](http://portal.azure.com) に移動します。
 
-    * The **All services** button opens a page similar to the **Create a resource** button described above.
+    Azure にログインすると、Azure portal に移動します。Azure portal には、Azure リソースへのアクセスに使用できるカスタマイズ可能な UI が用意されています。
 
-    The bottom section of the portal menu is a **FAVORITES** section that can be customized to show your favorite, or most commonly used, resources. Later in this lab, you will learn how to customize this default list of common services to make it a list of your own favorites.
+1. ポータル ウィンドウの左上隅で、Azure portal メニューを開き、ハンバーガー メニュー アイコンをクリックします。
 
-1. On the portal menu, to display the **Home** page, click **Home**.
+    ポータル メニューの上部に、次の 4 つのメニュー オプションを含むセクションが表示されます。
 
-1. On the home page, to display a map of data center regions, under **Azure services**, click **Service Health**.
+    * 「**リソースの作成**」 ボタンにより、Azure Marketplace を通じて利用できるサービスを表示するページが開きます。その多くは無料オプションを提供します。サービスは "モノのインターネット" などのテクノロジ別にグループ化され、検索ボックスが提供されていることに注意してください。
+    * 「**ホーム**」 ボタンにより、Azure サービス、最近アクセスしたサービス、およびその他のツールへのリンクを表示するカスタマイズされたページが開きます。
+    * 「**ダッシュボード**」 ボタンにより、既定の (または最近使用した) ダッシュボードを表示するページが開きます。このラボの後半で、ダッシュボードを作成します。
 
-    When you subscribe to a resource in Azure you'll pick a region to deploy it to. Azure is supported by a series of regions placed all around the world.
+    * 「**すべてのサービス**」 ボタンにより、上記の 「**リソースの作成**」 ボタンに似たページが開きます。
 
-    This map shows the current status of regions associated with your subscription(s). A green circle is used to indicate that services are running normally at that region.
+    ポータル メニューの下部セクションは 、お気に入りリソースまたは最も一般的に使用されるリソースを表示するようにカスタマイズできる**お気に入り**セクションです。このラボの後半では、この既定の一般的なサービスの一覧をカスタマイズして、独自のお気に入りの一覧にする方法を学習します。
 
-    With any cloud vendor (Azure, AWS, Google Cloud, etc.), services will go down from time to time. If you see a blue 'i' next to a region on the Service Health map, it means the region is experiencing a problem with one or more services. Azure mitigates these issues by running multiple copies of your application in different regions (a practice referred to as *Geo-redundancy*). If a region experiences an issue with a particular service, those requests will roll over to another region to fulfill the request. This is one of the big advantages of hosting apps in the Azure cloud. Azure deals with the issues, so you don't have to.
+1. Azure portal メニューで 「**ホーム**」 ページを表示するには、「**ホーム**」 をクリック します。
 
-1. In the upper-left corner of your Azure portal, to navigate back to your home page, click **Microsoft Azure**.
+1. ホーム ページで、データ センター リージョンのマップを表示するには、「**Azure サービス**」 の 「**Service Health**」 をクリックします。
 
-    You can also use the portal menu to perform some simple navigation. You will have a chance to try out some options for portal navigation shortly.
+    Azure でリソースを購読する場合は、デプロイ先のリージョンを選択します。Azure は、世界中に配置された一連のリージョンでサポートされています。
 
-### Task 2: Explore the Azure Service options
+    このマップは、サブスクリプションに関連付けられているリージョンの現在の状態を示しています。緑色の円を使用して、サービスがそのリージョンで正常に実行されていることを示します。
 
-1. Open the portal menu, and then click **All services**.
+    クラウド ベンダー(Azure、AWS、Google Cloud など) によっては、サービスが停止することがあります。Service Health マップ上のリージョンの横に青い 'i' が表示される場合は、そのリージョンで 1 つ以上のサービスに問題が発生していることを表しています。Azure では、異なるリージョンでアプリケーションの複数のコピーを実行することで、これらの問題を軽減します (*Geo 冗長性* と呼ばれるプラクティス)。特定のサービスにより、リージョンで問題が発生した場合、それらの要求は別のリージョンにロール オーバーされ、要求を満たします。これは、Azure クラウドでアプリをホストする大きな利点の 1 つです。Azure が問題を処理するため、問題を処理する必要はありません。
 
-    The _All services_ page provides you with a few different viewing options and access to all of the services that Azure offers in both PaaS and IaaS. The first time that you open the _All services_ page, you will see the _Overview_ page. This view is accessible from the left side menu.
+1. Azure portal の左上隅で、ホーム ページに戻る場合は、「**Microsoft Azure**」 をクリックします。
 
-    >**Definitions:** The term **PaaS** is an acronym for **Platform as a Service**, and the term **IaaS** is an acronym for **Infrastructure as a Service**
+    ポータル メニューを使用して、簡単なナビゲーションを実行することもできます。ポータル ナビゲーションの一部のオプションをすぐに試すことができます。
 
-1. On the _All services_ page, under _Categories_, click **All**.
+#### タスク 2: Azure サービス オプションの詳細
 
-    This view displays all of the services organized into groups corresponding to each Category. The Search box at the top can be very helpful.
+1. Azure portal メニューを開き、「**すべてのサービス**」 をクリック します。
 
-1. On the left side of the _All services_ page, under _Categories_, click **Internet of Things**.
+    「すべてのサービス」 ページでは、いくつかの異なる表示オプションが提供され、PaaS と IaaS の両方で Azure が提供するすべてのサービスにアクセスできます。初めて 「すべてのサービス」 ページを開くと、「概要」 ページが表示されます。このビューは、左側のメニューからアクセスできます。
 
-    The list of services is now limited to the services directly related to an IoT solution.
+    >**定義:** **PaaS** という用語は、**Platform as a Service (サービスとしてのプラットフォーム)** の頭字語であり、**IaaS** という用語は、**Infrastructure as a Service (サービスとしてのインフラストラクチャ)** の頭字語です。
 
-    Service/Resource pages on the Azure portal are sometimes referred to as _blades_. When you opened the Service Health page a couple of steps back, you opened a Service Health blade.
+1. 「すべてのサービス」 ページの 「カテゴリ」 で、「**すべて**」 をクリックします。
 
-    The Azure portal uses blades as a kind of navigation pattern, opening new blades to the right as you drill deeper and deeper into a service. This gives you a form of breadcrumb navigation as you navigate horizontally.
+    このビューには、各カテゴリに対応するグループに整理されたすべてのサービスが表示されます。上部の検索ボックスは非常に役立ちます。
 
-1. Hover your mouse pointer over **IoT Hub**.
+1. 「すべてのサービス」 ページの左側にある 「カテゴリ」 で、「**モノのインターネット**」 をクリック します。
 
-    A dialog box is displayed. In the top-right corner, notice the "star" shape. When the star shape is filled-in, the service is selected as a favorite. Favorites will appear on the list of your favorite services on the left navigation menu of the portal window. This makes it easier to access the services that you use most often. You can customize your favorites list by selecting the services that you use most.
+    サービスの一覧は、IoT ソリューションに直接関連するサービスに限定されるようになりました。
 
-1. In the top-right corner of the _IoT Hub_ dialog, to add IoT Hub to the list of your favorite services, click the star shaped icon.
+    Azure portal のサービス/リソース ページは、ブレードと呼ばれることもあります 。数ステップ前に Service Health ページを開いたとき、Service Health ブレードが開きました。
 
-    The star should now appear filled. If the star is shown as an outline, click the star icon again.
+    Azure portal では、ブレードをナビゲーション パターンの一種として使用します。サービスの詳細を掘り下げるにつれて、新しいブレードが右に開きます。これにより、水平方向に移動するときに一種の階層リンク ナビゲーションが提供されます。
 
-    >**Tip:** When you add a new item to your list of favorites, it is placed at the bottom of the favorites list on the Azure portal menu. You can rearrange your favorites into the order that you want by using a drag-and-drop operation.
+1. マウス ポインターを **IoT Hub**の上に合わせます。
 
-    Use the same process to add the following services to your favorites: **Device Provisioning Services**, **Function App**, **Stream Analytics jobs**, and **Azure Cosmos DB**.
+    ダイアログ ボックスが表示されます。右上隅に "星" の形が表示されます。星形が塗りつぶされると、サービスがお気に入りとして選択されます。ポータル ウィンドウの左側のナビゲーション メニューのお気に入りサービスの一覧に、お気に入りが表示されます。これにより、最も頻繁に使用するサービスに簡単にアクセスできます。お気に入り一覧は、最も使用するサービスを選択してカスタマイズできます。
 
-    > [!NOTE] You can remove a service from the list of your favorite services by clicking the star of a selected service.
+1. 「IoT Hub」 ダイアログの右上隅で、お気に入りサービスの一覧に IoT Hub を追加するには、星形のアイコンをクリックします。
 
-1. On the left side of the _All services_ page, under _Categories_, click **General**.
+    これで星が塗りつぶされます。星が枠線として表示されている場合は、星のアイコンをもう一度クリックします。
 
-1. Ensure that the following services are selected as favorites:
+    >**ヒント:** 新しい項目をお気に入り一覧に追加すると、Azure portal メニューのお気に入り一覧の最下部に配置されます。ドラッグ アンド ドロップ操作を使用して、お気に入りを希望の順序に並べ替えることができます。
 
-    * **Subscriptions**
-    * **Resource groups**
+    同じプロセスを使用して、お気に入りに次のサービスを追加します。**デバイス プロビジョニング サービス**、**関数アプリ**、**Stream Analytics ジョブ**、および **Azure Cosmos DB** です。
 
-    The favorites that you've added are enough to get you started, but you can use the _Internet of Things_ category to add additional favorites to the portal menu if you want.
+    > **注意**:  選択したサービスの星をクリックすると、お気に入りサービス一覧からサービスを削除できます。
 
-### Task 3: Examine the Toolbar menu
+1. 「すべてのサービス」 ページの左側の 「カテゴリ」 で、「**全般**」 をクリックします。
 
-1. Notice the toolbar at the top of the portal that runs the full width of the window.
+1. 以下のサービスをお気に入りとして選択していることを確認します。
 
-    In addition to the hamburger menu icon on the far left of this toolbar, there several items that you will find helpful.
+    * **サブスクリプション**
+    * **リソース グループ**
 
-    First, notice that you have a _Search resources_ tool that can be used to quickly find a particular resource.
+    追加したお気に入りは、作業を開始するのに十分ですが、「モノのインターネット」 カテゴリを使用して、必要に応じてポータル メニューに追加のお気に入りを追加できます。
 
-    To the right of the search tool are several buttons that provide access to common tools. You can hover the mouse pointer over a button to display the button name.
+#### タスク 3: ツールバー メニューを確認する
 
-    * The _Cloud Shell_ button opens an interactive, authenticated shell right in the portal window that you can use to manage Azure resources. The Azure Cloud Shell supports Bash and PowerShell.
-    * The _Directory + Subscriptions_ button opens a pane that you can use to manage your Azure subscriptions and account directory (the Azure Active Directory authentication mechanism).
-    * The _Notifications_ button that opens a notifications pane. The notifications pane is useful when working with a long running process. You will be monitoring notifications when you create and configure resources throughout this course.
-    * There are also buttons for *Settings*, *Feedback*, and *Help*. The *Help* button contains links to help documents and a list of useful keyboard shortcuts.
+1. ウィンドウの全幅を実行するポータルの上部にあるツールバーに注目してください。
 
-    On the far right is a button for your account information, providing you with access to things like your account password and billing information.
+    このツールバーの左端にあるハンバーガー メニュー アイコンに加えて、役に立つ項目がいくつかあります。
 
-1. On the toolbar, click **Help**, and then click **Help + support**
+    まず、特定のリソースをすばやく検索するために使用できる_検索リソース_ ツールがあることに注意してください。
 
-1. On the _Help + support_ blade, notice the four Tiles for _Getting started_, _Documentation_, _Learn about billing_, and _Support plans_.
+    検索ツールの右側には、一般的なツールへのアクセスを提供するいくつかのボタンがあります。ボタンの上にマウス ポインターを合わせる、ボタン名が表示されます。
 
-    The _Help + support_ blade gives you access to lots of great resources. You may want to come back to this later for further exploration.
+    * 「_Cloud Shell_」 ボタンにより、Azure リソースの管理に使用できる対話型の認証されたシェルがポータル ウィンドウに表示されます。Azure Cloud Shell は、Bash と PowerShell をサポートします。
+    * 「_ディレクトリ + サブスクリプション_」 ボタンにより、Azure サブスクリプションとアカウント ディレクトリ (Azure Active Directory 認証メカニズム) の管理に使用できるウィンドウが開きます。
+    * 通知ウィンドウを開く 「_通知_」 ボタン。通知ウィンドウは、長期プロセスを操作する場合に便利です。このコース全体でリソースを作成および構成する際に、通知を監視します。
+    * 「*設定*」、「*フィードバック*」、 および 「*ヘルプ*」 用のボタンもあります。「*ヘルプ*」 ボタンには、ヘルプ ドキュメントへのリンクと、便利なキーボード ショートカットの一覧が含まれています。
 
-1. On the _Help + support_ blade, click **Learn about billing**
+    右端にはアカウント情報のボタンがあり、アカウントのパスワードや課金情報などにアクセスできます。
 
-1. On the _Azure Documentation_ page, in the _Filter by title_ textbox, type **Prevent unexpected costs**
+1. ツールバーで 「**ヘルプ**」 をクリックし、「**ヘルプとサポート**」 をクリックします
 
-1. Just below the filter textbox, click **Prevent unexpected costs**
+1. 「_ヘルプとサポート_」 ブレードで、「_はじめに_」 、「_ドキュメント_」、「_請求先の詳細_」、および 「_サポート プラン_」 の 4 つのタイルに注意してください。
 
-    If *you* are using a paid Azure subscription and you are responsible for billing (you are the Account Administrator), you can use these instructions to set up billing alerts.
+    「_ヘルプとサポート_」 ブレードを使用すると、多くの優れたリソースにアクセスできます。後でこれに戻って、さらに詳しく見ることができます。
 
-## Exercise 2: Create an Azure Dashboard and Resource Group
+1. 「_ヘルプとサポート_」 ブレードで、「**請求先の詳細**」 をクリックします
 
-On the Azure portal, dashboards are used to present a customized view of your resources. Information is displayed through the use of tiles which can be arranged and sized to help you organize your resources in useful ways. You can create many different dashboards that provide different views and serve different purposes.
-Each tile that you place on your dashboard exposes one or more of your resources. In addition to tiles that expose the data of an individual resource, you can create a tile for something called a resource group.
+1. 「_Azure ドキュメント_」 ページの 「_タイトルでフィルター_」 テキストボックスに、「**Prevent unexpected costs (予期しないコストを防ぐ)**」と入力します
 
-A resource group is a logical group that contains related resources for a project or application. The resource group can include all the resources for the solution, or only those resources that you want to manage as a group. You decide how you want to allocate resources to resource groups based on what makes the most sense for your organization. Generally, add resources that share the same lifecycle to the same resource group so you can easily deploy, update, and delete them as a group.
+1. フィルター テキストボックスのすぐ下にある 「**予期しないコストを防ぐ**」 をクリックします
 
-In the following tasks, you will:
+    *ユーザー*が、有料の Azure サブスクリプションを使用していて、課金の責任がある場合 (アカウント管理者である場合) は、次の手順を使用して課金アラートを設定できます。
 
-* create a custom dashboard that you can use during this course
-* create a Resource Group and add a Resource Group tile to your dashboard
+### 演習 2: Azure ダッシュボードとリソース グループの作成
 
-### Task 1: Create a Dashboard
+Azure portal では、ダッシュボードを使用して、リソースのカスタマイズされたビューを表示します。情報は、便利な方法でリソースを整理するために配置およびサイズを設定することができるタイルを使用して表示されます。さまざまなビューを提供し、さまざまな目的を果たすさまざまなダッシュボードを作成できます。
 
-1. In a Web browser, navigate to your Azure portal.
+ダッシュボードに配置した各タイルには、1 つ以上のリソースが表示されます。個々のリソースのデータを公開するタイルに加えて、リソース グループと呼ばれるもののタイルを作成できます。
 
-    You can use the following link to open the Azure portal: [Azure portal](https://portal.azure.com)
+リソース グループは、プロジェクトまたはアプリケーションに関連するリソースを含む論理グループです。リソース グループには、ソリューションのすべてのリソース、またはグループとして管理するリソースのみを含めることができます。組織に最も合ったものに基づいてリソースグループにリソースを割り当てる方法を決定します。一般的に、同じライフサイクルを共有するリソースを同じリソース グループに追加すると、グループとして簡単にデプロイ、更新、および削除できます。
 
-1. On the portal menu, click **Dashboard**.
+次のタスクでは、次の作業を行います。
 
-1. On the _Dashboard_ page, click **+ New dashboard**
+* このコースで使用できるカスタム ダッシュボードを作成する
+* リソース グループを作成し、ダッシュボードにリソース グループ タイルを追加する
 
-    We are going to create a custom dashboard to organize the resources that we use in this course.
+#### タスク 1: ダッシュボードを作成する
 
-1. To name your new dashboard, replace **My Dashboard** with **AZ-220**
+1. Web ブラウザーで、Azure portal に移動します。
 
-    In the upcoming steps you will be adding a tile to your dashboard manually. Another option would be to use drag-and-drop operations to add tiles from the Tile gallery to the space provided.
+    次のリンクを使用して、Azure portal を開きます。[Azure portal](https://portal.azure.com)
 
-1. At the top of the dashboard editor, click **Done customizing**
+1. Azure portal メニューで、**「ダッシュボード」** をクリックします。
 
-    You should see an empty dashboard at this point.
+1. 「ダッシュボード」 ページで、「**+ 新しいダッシュボード** をクリックします。
 
-### TAsk 2: Create a Resource Group and add a Resource Group tile to your Dashboard
+    このコースで使用するリソースを整理するためのカスタム ダッシュボードを作成します。
 
-1. On the portal menu, click **Resource groups**
+1. 新しいダッシュボードに名前を付けるには、 **マイ ダッシュボード**を **AZ-220** に置き換えます。
 
-    This blade displays all of the resource groups that you have created using your Azure subscription(s). If you are just getting started with Azure, you probably don't have any resource groups yet.
+    今後の手順では、手動でダッシュボードにタイルを追加します。別のオプションとして、ドラッグ アンド ドロップ操作を使用してタイル ギャラリーから提供されるスペースにタイルを追加する方法があります。
 
-1. On the _Resource groups_ blade, on the top menu, click **+ Add**
+1. ダッシュボード エディターの上部で、「**カスタマイズの完了**」 をクリックします。
 
-    This will open a new blade named _Create a resource group_.
+    この時点で、空のダッシュボードが表示されます。
 
-1. Take a moment to review the contents of the _Create a resource group_ blade.
+#### タスク 2: リソース グループを作成し、ダッシュボードにリソース グループ タイルを追加する
 
-    Notice that the resource group is associated with a Subscription and a Region. Consider the following:
+1. Azure portal メニューで、「**リソース グループ**」 をクリックします。
 
-    * How might associating a subscription with your resource group be helpful?
-    * How might associating a region with your resource group affect what you include in your resource group?
+    このブレードには、Azure サブスクリプションを使用して作成したすべてのリソース グループが表示されます。Azure を使い始めたばかりの場合は、リソース グループがまだない可能性があります。
 
-1. In the **Subscription** dropdown, select the Azure subscription that you are using for this course.
+1. 「リソース グループ」 ブレードの上部メニューで、「**+ 追加**」 をクリックします。
 
-1. In the **Resource group** textbox, enter **AZ-220-RG**
+    これにより、「リソース グループの作成」 という名前の新しいブレードが開きます 。
 
-    The name of the resource group must be **unique** within your subscription. A green check mark will appear if the name that you enter has not already been used and confirms to resource group naming rules.
+1. 時間を割いて、「リソース グループの作成」 ブレードの内容を確認します。
 
-    >**Tip:** The Azure documentation describes all Azure [naming rules and restrictions](https://docs.microsoft.com/en-us/azure/architecture/best-practices/resource-naming).
+    リソース グループがサブスクリプションとリージョンに関連付けられていることに注意してください。以下の点を検討します。
 
+    * サブスクリプションをリソース グループに関連付けると、どのように役に立つか。
+    * リソース グループにリージョンを関連付けることによって、リソース グループに含める内容にどのような影響が及ぶでしょうか?
 
-1. In the **Region** dropdown, select a region that is near you.  
+1. 「**サブスクリプション**」 ドロップダウンで、このコースに使用する Azure サブスクリプションを選択します。
 
-    You should check with your instructor as well, [as not all regions offer all services](https://azure.microsoft.com/en-us/global-infrastructure/services/).
+1. 「**リソース グループ**」 テキストボックスに、「**AZ-220-RG**」と入力します
 
-    You need to provide a location for the resource group because the resource group stores metadata about the resources and acts as the default location for where new resources in the resource group will be created. For compliance reasons, you may want to specify where that metadata is stored. In general, we recommend that you specify a location where most of your resources will reside. Using the same location can simplify the template used to manage your resources.
+    リソース グループの名前は、サブスクリプション内で**一意**である必要があります。入力した名前がまだ使用されておらず、リソース グループの命名規則に適合する場合は、緑色のチェック マークが表示されます。
 
-1. At the bottom of the _Create a resource group_ blade, click **Review + create**.
+    >**ヒント:** Azure のドキュメントでは、すべての Azureの [命名規則と制限](https://docs.microsoft.com/ja-jp/azure/architecture/best-practices/resource-naming) について説明しています。
 
-    You should see a message informing you that the settings for your resource group have been validated successfully.
+1. 「**リージョン**」 ドロップダウンで、近くにあるリージョンを選択します。  
 
-1. To create your resource group, click **Create**.
+    [すべてのリージョンが、すべてのサービスを提供しているわけではないので](https://azure.microsoft.com/ja-jp/global-infrastructure/services/)、講師にも確認する必要があります。
 
-1. On the top menu of the _Resource groups_ blade, to see your new resource group, click **Refresh**
+    リソース グループはリソースに関するメタデータを格納し、リソース グループ内の新しいリソースが作成される既定の場所として機能するため、リソース グループの場所を指定する必要があります。コンプライアンス上の理由から、メタデータの格納場所を指定できます。一般的に、ほとんどのリソースが存在する場所を指定することをお勧めします。同じ場所を使用すると、リソースの管理に使用するテンプレートを簡単にできます。
 
-    You will learn more about managing your resources as you continue through this course.
+1. 「リソース グループの作成」 ブレードの下部にある 「**Review + create**」 をクリックします。
 
-1. In the list of named resource groups, click the box to the left of the **AZ-220-RG** resource group that your just created.
+    リソース グループの設定が正常に検証されたことを示すメッセージが表示されます。
 
-    > [!NOTE] You don't want to open the resource group in a new blade, you just want to select it (check mark on the left).
+1. リソース グループを作成するには、「**作成**」 をクリックします。
 
-1. On the right side of the screen, click the ellipsis (...) corresponding to your resource group, and then click **Pin to dashboard**
+1. 「リソース グループ」 ブレードのトップ メニューで、新しいリソース グループを表示するには、「**更新**」 をクリックします。
 
-1. Close your _Resource groups_ blade.
+    このコースを通じて、リソースの管理について詳しく学習します。
 
-    Your dashboard should now contain an empty Resources tile, but don't worry, we fill it up soon enough.
+1. 名前付きリソース グループの一覧で、作成した **AZ-220-RG** リソース グループの左側にあるボックスをクリックします。
+
+    > **注意**:  新しいブレードでリソース グループを開く必要はありません、左側のチェック マーク を選択するだけです。
+
+1. 画面の右側で、リソース グループに対応する省略記号 (..) をクリックし、「**ダッシュボードにピン留めする**」 をクリックします。
+
+1. 「リソース グループ」 ブレードを閉じます。
+
+    ダッシュボードには空のリソースのタイルが含まれています。こちらはすぐに使用されます。

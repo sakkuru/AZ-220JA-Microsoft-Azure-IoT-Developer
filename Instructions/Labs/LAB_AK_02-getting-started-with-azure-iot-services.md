@@ -1,80 +1,82 @@
----
+﻿---
 lab:
-    title: 'Lab 02: Getting Started with Azure IoT Services'
-    module: 'Module 1: Introduction to IoT and Azure IoT Services'
+    title: 'ラボ 02: Azure IoT Services の使用を開始'
+    module: 'モジュール 1: IoT と Azure IoT Services サービスの紹介'
 ---
-# Getting Started with Azure IoT Services
 
-## Lab Scenario
+# Azure  IoT Services の開始
 
-As an Azure IoT Developer for a leading gourmet cheese company named Contoso, you are tasked to start exploring Azure IoT services needed for connecting future devices.
+## ラボ シナリオ
 
+あなたは、グルメチーズを製造し販売する会社である Contoso で働く Azure IoT 開発者です。あなたは、会社が導入する予定の IoT ソリューションで使用する Azure および Azure IoT サービスのエクスペリエンスを担当します。Azure portal を理解し、プロジェクトのリソース グループを作成しました。次に、Azure IoT サービスの調査を開始する必要があります。
 
-## In This Lab
+## このラボでは
 
-In this lab, you will explore and create services needed to connect and provision future IoT devices. The lab includes the following exercises:
+このラボでは、ソリューション (IoT Hub および IoT Hub Device Provisioning Service) のプロビジョニングと IoT デバイスの接続に使用される Azure IoT サービスの探検を開始します。ラボには、次の演習が含まれます。
 
-* Naming Resources with Unique Names
-* Create an IoT Hub using the Azure portal
-* Examine features of the IoT Hub service
-* Create a Device Provisioning Service and link it to your IoT Hub
-* Examine features of the Device Provisioning Service
+* 一意の名前を持つリソースの名前付け
+* Azure portal を使用して IoT ハブを作成する
+* IoT ハブサービスの機能を確認する
+* Device Provisioning Service を作成し、IoT ハブにリンクする
+* Device Provisioning Service の機能を確認する
 
-## Exercise 1: Naming Resources with Unique Names
+## ラボの手順
 
-Throughout this course you will be creating resources. To ensure consistency across the labs and to help in tidying up resources whenever you have finished with them, we will be providing you with the names you should use. However, many of these resources expose services that can be consumed across the web, which means they must have globally unique names. To achieve this, you will be using a unique identifier that will be added to the end of the resource name. Let's create your unique ID.
+### 演習 1: 一意の名前を持つリソースの名前付け
 
-### Unique ID
+このコースでは、リソースを作成します。ラボ全体で一貫性を保つために、リソースを使い終わるたびにリソースを整理し、使用する必要がある名前を提供します。ただし、これらのリソースの多くは、Web で使用できるサービスを公開しているため、グローバルに一意の名前を持つ必要があります。これを実現するには、リソース名の末尾に追加される一意識別子を使用します。一意の ID を作成しましょう。
 
-Your unique ID will be constructed using your initials and the current date using the following pattern:
+#### 一意の ID
 
-```text
-YourInitialsYYMMDD
-```
-
-So, your initials followed by the last two digits of the current year, the current numeric month, and the current numeric day. Here are some examples:
+一意の ID は、次のパターンを使用して、イニシャルと現在の日付を使用して作成されます。
 
 ```text
-GWB190123
-BHO190504
-CAH191216
-DM190911
+あなたのイニシャル YYMMDD
 ```
 
-In some cases, you may be asked to use the lowercase version of your unique ID:
+したがって、イニシャルの後に、現在の年の最後の 2 桁、現在の数値月、および現在の数値日が続きます。以下にいくつかの例を示します。
 
 ```text
-gwb190123
-bho190504
-cah191216
-dm190911
+GWB200123
+BHO200504
+CAH201216
+DM200911
 ```
 
-Whenever you are expected to use your unique ID, you will see `{YOUR-ID}`. You will replace the entire string (including the `{}`) with your unique value.
+場合によっては、一意の ID の小文字のバージョンを使用するように求められることがあります。
 
-Make a note of your unique ID now and **use the same value through the entire course** - don't update the date each day.
+```text
+gwb200123
+bho200504
+cah201216
+dm200911
+```
 
-Let's review some examples of resources and the names associated with them.
+一意の ID を使用する必要がある場合は、必ず `{YOUR-ID}` と表示されます。文字列全体 (`{}` を含む) を一意の値に置き換えます。
 
-### Resource Groups
+一意の ID をメモし、 **コース全体で同じ値を使用して** - 毎日日付を更新しません。 
 
-A resource group must have a unique name within a subscription; however, it does not need to be globally unique. Therefore, throughout this course you will be using the resource group name: **AZ-220-RG**.
+リソースの例と、それらに関連付けられている名前を見てみましょう。
 
-  > **Information:** Resource Group Name - **AZ-220-RG**
+#### リソース グループ
 
-### Publicly Visible Resources
+リソース グループは、サブスクリプション内で一意の名前を持つ必要があります。ただし、グローバルに一意である必要はありません。したがって、このコースでは、リソース グループ名を使用します。**AZ-220-RG**。
 
-Many of the resources that you create will have publicly-addressable (although secured) endpoints and therefore must have globally unique. Examples of such resources include IoT Hubs, Device Provisioning Services, and Azure Storage Accounts. For each of these you will be provided with a name template and expected to replace `{YOUR-ID}` with your unique ID. Here are some examples:
+  > **情報:** リソース グループ名  - **AZ-220-RG**
 
-If your Unique ID is: **CAH191216**
+#### 公開可能なリソース
 
-| Resource Type | Name Template | Example |
+作成するリソースの多くは、パブリックにアドレス指定可能な (セキュリティで保護された) エンドポイントを持つため、グローバルに一意である必要があります。このようなリソースの例としては、IoT Hub、Device Provisioning Services、Azure Storage Accounts などがあります。これらの各ユーザーには名前テンプレートが提供され、`{YOUR-ID}` を一意の ID に置き換える必要があります。以下にいくつかの例を示します。
+
+一意の ID が次の場合: **CAH191216**
+
+| リソースの種類:  | 名前テンプレート | 例 |
 | :--- | :--- | :--- |
-| IoT Hub | AZ-220-HUB-{YOUR-ID} | AZ-220-HUB-CAH191216 |
-| Device Provisioning Service | AZ-220-DPS-{YOUR-ID} | AZ-220-DPS-CAH191216 |
-| Azure Storage Account <br/> (name must be lower-case and no dashes) | az220storage{YOUR-ID} | az220storagecah191216 |
+| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ | AZ-220-HUB-CAH191216 |
+| デバイス プロビジョニング サービス | AZ-220-DPS-_{YOUR-ID}_ | AZ-220-DPS-CAH191216 |
+| Azure ストレージ アカウント<br/>(名前は小文字で、ダッシュは使用できません) | az220storage_{YOUR-ID}_ | az220storagecah191216 |
 
-You may also be required to update values within bash scripts and C# source files as well as entering the names into the Azure Portal UI. Here are some examples:
+また、Bash スクリプトと C# ソース ファイル内の値を更新するだけでなく、Azure Portal UI に名前を入力する必要があります。以下にいくつかの例を示します。
 
 ```bash
 #!/bin/bash
@@ -85,7 +87,7 @@ IoTHubName="AZ-220-HUB-$YourID"
 
 ```
 
-Notice that `YourID="{YOUR-ID}"` should be updated to `YourID="CAH191216"` - you do not change `$YourID`. Similarly, in C# you might see:
+`YourID="{YOUR-ID}"` を `YourID="CAH191216"` に更新する必要があることに注意 - `$YourID` を変更しないでください。同様に、C# では次のように表示されます。
 
 ```csharp
 private string _yourId = "{YOUR-ID}";
@@ -93,340 +95,350 @@ private string _rgName = "AZ-220-RG";
 private string _iotHubName = $"AZ-220-HUB-{_yourId}";
 ```
 
-Again, `private string _yourId = "{YOUR-ID}";` should be updated to `private string _yourId = "{CAH191216}";` - you do not change `{_yourId}`.
+繰り返しますが、`private string _yourId = "{YOUR-ID}";` は `private string _yourId = "CAH191216";` に更新する必要があります -  `_yourId` に変更しないでください。
 
-## Exercise 2: Create an IoT Hub using the Azure portal
+### 演習 2: Azure portal を使用して IoT ハブを作成する
 
-The Azure IoT Hub is a fully managed service that enables reliable and secure bidirectional communications between IoT devices and Azure. The Azure IoT Hub service provides the following:
+Azure IoT Hub は、IoT デバイスと Azure の間で信頼性とセキュリティで保護された双方向通信を実現するフルマネージド サービスです。Azure IoT Hub サービスでは、次の機能が提供されます。
 
-* Establish bidirectional communication with billions of IoT devices
-* Multiple device-to-cloud and cloud-to-device communication options, including one-way messaging, file transfer, and request-reply methods.
-* Built-in declarative message routing to other Azure services.
-* A queryable store for device metadata and synchronized state information.
-* Secure communications and access control using per-device security keys or X.509 certificates.
-* Extensive monitoring for device connectivity and device identity management events.
-* SDK device libraries for the most popular languages and platforms.
+* 数十億台の IoT デバイスと双方向通信を確立
+* 一方向メッセージング、ファイル転送、要求/応答方式など、複数の device-to-cloud への通信オプションと cloud-to-device への通信オプション。
+* 他の Azure サービスへの組み込みの宣言型メッセージ ルーティング。
+* デバイス メタデータと同期状態情報のクエリ可能なストア。
+* デバイスごとのセキュリティ キーまたは X.509 証明書を使用して、通信とアクセス コントロールを保護します。
+* デバイス接続性とデバイス ID 管理イベントの広範囲のモニタリング。
+* 最も一般的な言語とプラットフォームの SDK デバイス ライブラリ。
 
-There are several methods that you can use to create an IoT Hub. For example, you can create an IoT Hub resource using the Azure portal, which is what you will do in ths task. But you can also create an IoT Hub (and other resources) programmatically. During this course we will be investigating additional methods that can be used to to create and manage Azure resources, including Azure CLI and PowerShell.
+IoT ハブの作成には、いくつかの方法を使用できます。たとえば、Azure portal を使用して IoT ハブ リソースを作成できます。これは、このタスクで実行します。ただし、プログラムによって IoT ハブ (およびその他のリソース) を作成することもできます。このコースでは、Azure CLI や PowerShell など、Azure リソースの作成と管理に使用できる追加の方法について調査します。
 
-### Task 1: Use the Azure portal to create a resource (IoT Hub)
+#### タスク 1: Azure portal を使用して リソース (IoT Hub) を作成する
 
-1. Login to [portal.azure.com](https://portal.azure.com) using your Azure account credentials.
+1. Azure アカウントの資格情報を使用して [portal.azure.com](https://portal.azure.com) にログインします。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.  You may find it easiest to use an InPrivate / Incognito browser session to avoid accidentally using the wrong account.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。  間違ったアカウントをうっかり使用するのを避ける最も簡単な方法は、InPrivate /匿名のブラウザー セッションを使用することです。
 
-1. Notice that the AZ-220 dashboard that you created in the previous task has been loaded.
+1. 前のタスクで作成した AZ-220 ダッシュボードが読み込まれています。
 
-    You will be adding resources to your dashboard as the course continues.
+    コースが進むにつれて、ダッシュボードにリソースを追加します。
 
-1. On the portal menu, click **+ Create a resource**.
+1. Azure portal で、「**+ リソースの作成**」 をクリックします。
 
-    The Azure Marketplace is a collection of all the resources you can create in Azure. The marketplace contains resources from both Microsoft and the community.
+    Azure Marketplace は、Azure で作成できるすべてのリソースのコレクションです。Marketplace には、Microsoft とコミュニティの両方からのリソースが含まれています。
 
-1. In the Search textbox, type **IoT Hub** and then press **Enter**.
+1. Search テキストボックスで**IoT**を入力し、**Enter**を押します。
 
-1. On the search results blade, click **IoT Hub**.
+    > **注意**: 非公開の貢献者が提供する Marketplace サービスには、Microsoft Azure Pass またはその他の Microsoft クレジット オファリングの対象外のコストが含まれる場合があります。
 
-    Notice the list of _Useful Links_ displayed on this blade.
+1. 「Search 結果」ブレードで、「**IoT ハブ**」をクリックします。
 
-1. In the list of links, click **Documentation** to open a new browser tab.
+    このブレードに表示される「_役に立つリンク_」の一覧に注目してください。
 
-    The _IoT Hub Documentation_ page is the root page for IoT Hub resources and documentation. You can use this page to explore current documentation and find tutorials and other resources that will help you to explore activities that are outside the scope of this course. We will refer you to the docs.microsoft.com site throughout this course for additional reading on specific topics.
+1. リンクの一覧に、ドキュメントへのリンクがあることに注意してください。
 
-### Task 2: Create an IoT Hub with required property settings
+    このドキュメントを今すぐ調べる必要はありませんが、注目に値します。_IoT ハブドキュメント_ページは、IoT ハブのリソースとドキュメントのルート ページです。  このページを使用して、現在のドキュメントを詳しく調査すると、このコースの範囲外のアクティビティを探索するのに役立つチュートリアルやその他のリソースを見つけることができます。特定のトピックの詳細については、このコースで docs.microsoft.com サイトを参照してください。
 
-1. Use your browser to close the documentation tab and navigate back to the Azure portal tab.
+    ドキュメント リンクを開いた場合は、ブラウザーを使用してドキュメント タブを閉じ、Azure portal タブに戻ります。
 
-1. To begin the process of creating your new IoT Hub, click **Create**.
+#### タスク 2: 必要なプロパティ設定を使用して IoT ハブを作成する
 
-    >**Tip:** In the future, there are two other ways to get to the _Create_ experience of any Azure resource type:
-        1. If you have the service in your Favorites, you can click the service to navigate to the list of instances, then click the _+ Add_ button at the top.
-        2. You can search for the service name in the _Search_ box at the top of the portal to get to the list of instances, then click the _+ Add_ button at the top.
+1. 新しい IoT ハブの作成プロセスを開始するには、「**作成**」をクリックします。 
 
-    Next, you need to specify information about the Hub and your subscription. The following steps walk you through the settings, explaining each of the fields as you fill them in.
+    >**ヒント:** 今後、Azure リソースの種類の _作成_ エクスペリエンスを実現する方法は、他に 2 つあります。
+        1. お気に入りにサービスがある場合は、サービスをクリックしてインスタンスのリストに移動し、上部の「_+ 追加_」 ボタンをクリックします。
+        2. ポータルの上部にある「_Search_」ボックスでサービス名を検索して、インスタンスの一覧に移動し、上部の「_+ 追加_」ボタンをクリックします。 
 
-1. On the _IoT hub_ blade, on the _Basics_ tab, ensure that the Azure **Subscription** that you intend to use for this course is selected.
+    次に、ハブとサブスクリプションに関する情報を指定する必要があります。次の手順では、各フィールドの入力を説明しながら、設定をウォークスルーします。
 
-1. To the right of **Resource Group**, open the **Select existing** dropdown, and then click **AZ-220-RG**
+1. 「_ioT ハブ_」ブレードの「_基本_」タブで、このコースで使用する Azure 「**サブスクリプション**」が選択されていることを確認します。     
 
-    This is the resource group that you created in the previous lab. We will be grouping the resources that we create for this course together in the same resource group. This should help you to clean up your resources when you have completed the course.
+1. 「**リソース グループ**」の右側にある「**既存の選択**」ドロップダウンを開き、「**AZ-220-RG**」 をクリックします。   
 
-1. To the right of **Region**, open the drop-down list and select the same region as your resource group.  Make sure it supports Event Grid.
+    これは、前のラボで作成したリソース グループです。このコースで作成したリソースを、同じリソース グループにまとめます。これは、コースを修了した時点でリソースをクリーンアップするのに役立ちます。
 
-    As we saw previously, Azure is supported by a series of datacenters that are placed in regions all around the world. When you create something in Azure, you deploy it to one of these datacenter locations.
+1. 「**リージョン**」の右側にあるドロップダウン リストを開き、リソース グループと同じリージョンを選択します。   Event Grid がサポートされていることを確認します。
 
-    > [!NOTE] For the current list of regions that support Event Grid, see the following link: [Products available by region](https://azure.microsoft.com/en-us/global-infrastructure/services/?products=event-grid&regions=all)
-    
-    > [!NOTE] When picking a region to host your app, keep in mind that picking a region close to your end users will decrease load/response times. If you are on the other side of the world from your end users, you should not be picking the region nearest you.
+    以前、見たように、Azure は世界各地における一連のデータセンターでサポートされています。Azure で何かを作成する場合は、これらのデータセンターの場所のいずれかにデプロイします。
 
-1.  To the right of **IoT Hub Name**, enter a globally unique name for your IoT Hub.
+    > **注意**:  Event Grid をサポートするリージョンの現在のリストについては、次のリンクを参照してください。[リージョン別利用可能な製品](https://azure.microsoft.com/ja-jp/global-infrastructure/services/?products=event-grid&regions=all)
 
-    To provide a globally unique name, enter **AZ-220-HUB-_{YOUR-ID}_** (remember to replace **_{YOUR-ID}_** with the unique ID you created in Lab 1.).
+    > **注意**:  アプリをホストするリージョンを選択する場合、エンド ユーザーに近いリージョンを選択すると、読み込み/応答時間が減少することに注意してください。エンド ユーザーから世界の反対側にいる場合は、最も近いリージョンを選択しないでください。
 
-    For example: **AZ-220-HUB-CAH191021**
+1. 「**IoT ハブ名**」の右側に、IoT Hub のグローバルに一意な名前を入力します。 
 
-    The name of your IoT Hub must be globally unique because it is a publicly accessible resource that you must be able to access from any IP connected device.
+    グローバルに一意の名前を指定するには、 **AZ-220-HUB-_{YOUR-ID}_ **と入力します(**(_{YOUR-ID}_ **をラボ 1 で作成した一意の ID に置き換えることを忘れないでください)。 
 
-    Consider the following when you specify a unique name for your new IoT Hub:
+    例: **AZ-220-HUB-CAH191021**
 
-    * The value that you apply to _IoT Hub Name_ must be unique across all of Azure. This is true because the value assigned to the name will be used in the IoT Hub's connection string. Since Azure enables you to connect devices from anywhere in the world to your hub, it makes sense that all Azure hubs must be accessible from the Internet using the connection string and that connection strings must therefore be unique. We'll explore connection strings later in this lab.
+    IoT ハブの名前は、パブリックにアクセス可能なリソースなので、IP接続されたどのデバイスからでもアクセスできる、グローバルに一意である必要があります。
 
-    * The value that you assign to _IoT Hub Name_ cannot be changed once the app service has been created. If you do need to change the name, you'll need to create a new IoT Hub, re-register your devices to it, and delete your old IoT Hub.
+    新しい IoT ハブに一意の名前を指定する場合は、次の点を考慮してください。
 
-    * The _IoT Hub Name_ field is a required field.
+    * _IoT ハブ名_ に適用する値は、すべての Azure で一意である必要があります。  これは、名前に割り当てられた値が IoT ハブの接続文字列で使用されるためです。Azure では世界中のどこからでもデバイスをハブに接続できるため、すべての Azure ハブは、接続文字列を使用してインターネットからアクセスできる必要があり、したがって接続文字列は一意である必要があります。このラボでは、後で接続文字列について説明します。
 
-    > [!NOTE] Azure will ensure that the name you enter is unique. If the name that you enter is not unique, Azure will display an asterisk at the end of the name field as a warning. You can append the name suggested above with '**-01**' or '**-02**' as necessary to achieve a globally unique name.
+    * _IoT ハブ名_ に割り当てる値は、アプリ サービスの作成後に変更することはできません。  名前を変更する必要がある場合は、新しい IoT ハブを作成し、デバイスを再登録して、古い IoT ハブを削除する必要があります。
 
-1. At the top of the blade, click **Size and scale**.
+    * _IoT ハブ名_ フィールドは必須フィールドです。
 
-    Take a minute to review the information presented on this blade.
+    > **注意**:  入力した名前が一意であることを Azure が確認します。入力した名前が一意でない場合、Azure は警告として名前フィールドの最後にアスタリスクを表示します。グローバルに一意な名前を得るために必要に応じて、上記の名前に '**-01**' または '**-02**' をアペンドすることができます。
 
-1. To the right of Pricing and scale tier, open the dropdown and then select **S1: Standard tier** if it is not already selected.
+1. ブレードの上部にある**サイズと拡大縮小**をクリックします。
 
-    You can choose from several tier options depending on how many features you want and how many messages you send through your solution per day. The _S1_ tier that we are using in this course allows a total of 400,000 messages per unit per day and provides the all of the services that are required in this training. We won't actually need 400,000 messages per unit per day, but we will be using features provided at this tier level, such as _Cloud-to-device commands_, _Device management_, and _IoT Edge_. IoT Hub also offers a free tier that is meant for testing and evaluation. It has all the capabilities of the standard tier, but limited messaging allowances. However, you cannot upgrade from the free tier to either basic or standard. The free tier is intended for testing and evaluation. It allows 500 devices to be connected to the IoT hub and up to 8,000 messages per day. Each Azure subscription can create one IoT Hub in the free tier.
+    このブレードに表示される情報を確認してください。
 
-    > [!NOTE] The _S1 - Standard_ tier has a cost of $25.00 USD per month per unit. We will be specifying 1 unit. For details about the other tier options, see [Choosing the right IoT Hub tier for your solution](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling).
+1. 「価格と拡大縮小階層」の右側で、ドロップダウンを開いて「**S1**」を選択します。**Standard 階層**がまだ選択されていない場合。
 
-1. To the right of **Number of S1 IoT Hub units**, ensure that **1** is selected.
+    必要な機能の数と、1 日にソリューションを通じて送信するメッセージの数に応じて、複数の階層オプションから選択できます。このコースで使用する_S1_ 階層では、1 日あたり合計 400,000 件のメッセージを受信でき、このトレーニングに必要なすべてのサービスを提供します。  実際には 1 日あたり 400,000 メッセージは必要ありませんが、 _Cloud-to-device コマンド_、_デバイス管理_、および_IoT Edge_など、この階層レベルで提供される機能を使用します。また、IoT ハブは、テストと評価用の Free レベルも提供します。Standard 階層のすべての機能を持っていますが、メッセージングの許容量は限られています。ただし、Free レベルから Basic レベルまたは Standard レベルにアップグレードすることはできません。Free レベルは、テストと評価を目的としています。この機能により、500 台のデバイスを IoT ハブに接続でき、1 日あたり最大 8,000 件のメッセージを送信できます。各 Azure サブスクリプションは、Free レベル内に 1 つの IoT ハブを作成できます。
 
-    As mentioned above, the pricing tier that you choose establishes the number of messages that your hub can process per unit per day. To increase the number of messages that you hub can process without moving to a higher pricing tier, you can increase the number of units. For example, if you want the IoT hub to support ingress of 700,000 messages, you choose *two* S1 tier units. For the IoT courses created by Microsoft we will be using just 1 unit.
+    > **注意**:   _S1 - Standard_ 階層のコストは、単位あたり月額 25.00 米国ドルです。  1台指定します。その他の階層オプションの詳細については、[ソリューションに適した IoT ハブ階層の選択](https://docs.microsoft.com/ja-jp/azure/iot-hub/iot-hub-scaling)を参照してください。 
 
-1. Under _Advanced Settings_, ensure that **Device-to-cloud partitions** is set to **4**.
+1. 「**S1 IoT ハブ ユニットの数**」の右側で 「**1**」 が選択されていることを確認します。
 
-    The number of partitions relates the device-to-cloud messages to the number of simultaneous readers of these messages. Most IoT hubs will only need four partitions, which is the default value. For this course we will create our IoT Hub using the default number of partitions.
+    前述のように、選択した価格レベルによって 1 日あたりにハブが 1 つの単位で処理できるメッセージの数が設定されます。高い価格レベルに移行せずにハブで処理できるメッセージの数を増やすには、単位数を増やします。たとえば、IoT ハブで 800,000 メッセージのイングレスをサポートする場合は *2 つの*S1 階層単位を選択します。  Microsoft が作成した IoT コースでは、1 つの単位のみを使用します。
 
-1. At the top of the blade, click **Review + create**.
+1. Azure Security Center **センターの右側**で、「**オフ**」が選択されていることを確認します。   
 
-1. At the bottom of the blade, to finalize the creation of your IoT Hub, click **Create**.
+    Azure Security Center は、セキュリティ管理を統一し、ハイブリッド クラウド ワークロードと Azure IoT ソリューション全体でエンド ツー エンドの脅威検出と分析を可能にします。Azure Security Center については、後のラボで説明しますので、ここでは無効にします。現在、Azure portal を使用して、サブスクリプション レベルで Azure Security Center を有効にできます。Standard 階層は、最初の 30 日間は無料です。30 日を超える使用は[ここ](https://azure.microsoft.com/ja-jp/pricing/details/security-center/)で説明する価格スキームに従って自動的に課金されます。
 
-    Deployment can take a minute or more to complete. You can open the Azure portal Notification pane to monitor progress.
+1. 「_詳細設定_」で、**Device-to-cloud パーティション**が **4** に設定されていることを確認します。
 
-1. Notice that after a couple of minutes you receive a notification stating that your IoT Hub was successfully deployed to your **AZ-220-RG** resource group.
+    パーティションの数は、device-to-cloud メッセージの、同時読み取り数に関連しています。ほとんどの IoT ハブは、4 つのパーティション (既定値) のみが必要です。このコースでは、既定のパーティション数で IoT ハブを作成します。
 
-1. On the portal menu, click **Dashboard**, and then click **Refresh**.
+1. ブレードの上部で、「**レビューと作成**」 をクリックします。
 
-    You should see that your resource group tile lists your new IoT Hub.
+    設定した内容をレビューして確認します。
 
-## Exercise 3: Examine the IoT Hub Service
+1. IoT ハブ の作成を完了するには、ブレードの下部で、「 **作成** 」 をクリックします。
 
-As we have already noted, the IoT Hub is a managed service, hosted in the cloud, that acts as a central message hub for bi-directional communication between your IoT application and the devices it manages.
+    デプロイが完了するまでに 1 分以上かかることがあります。Azure portal の通知ウィンドウを開いて、進行状況を監視できます。
 
-IoT Hub's capabilities help you build scalable, full-featured IoT solutions such as managing industrial equipment used in manufacturing, tracking valuable assets in healthcare, monitoring office building usage, and many more scenarios. IoT Hub monitoring helps you maintain the health of your solution by tracking events such as device creation, device failures, and device connections.
+1. 数分後に、IoT ハブが **AZ-220-RG** リソース グループに正常にデプロイされたことを示す通知が表示されます。
 
-### Task 1: Explore the IoT Hub Overview blade
+1. Azure portal メニューで 「**ダッシュボード**」 をクリックしてから、「**更新**」 をクリックします。
 
-1. If necessary, log in to [portal.azure.com](https://portal.azure.com) using your Azure account credentials.
+    リソース グループのタイルに新しい IoT ハブが表示されます。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+### エクササイズ 3: IoT Hub サービスの確認
 
-1. Verify that your AZ-220 dashboard is being displayed.
+既に述べたとおり、IoT Hub は、クラウドでホストされるマネージド サービスで、IoT アプリケーションとそれが管理するデバイス間の双方向通信用の中央メッセージ ハブとして機能します。
 
-1. On the AZ-220-RG resource group tile, click **AZ-220-HUB-_{YOUR-ID}_**
+IoT Hub の機能は、製造で使用される産業機器の管理、ヘルスケアの貴重な資産のトラッキング、オフィス ビルの使用状況の監視など、スケーラブルですべての機能を備えた IoT ソリューションの構築に役立ちます。IoT Hub の監視は、デバイスの作成、デバイスの障害、デバイスの接続などのイベントを追跡することで、ソリューションの正常性を維持するのに役立ちます。
 
-    When you first open your IoT Hub, it will display the _Overview_ blade. As you can see, the area at the top of this blade provides some essential information about your IoT Hub service, such as datacenter location and subscription. But this blade also includes tiles that provide information about how you are using your hub and recent activities. Let's take a look at these tiles before exploring further.
+#### タスク 1: IoT ハブの概要ブレードを確認する
 
-1. At the bottom-left of the _Overview_ blade, notice the **IoT Hub Usage** tile.
+1. 必要に応じて、Azure アカウントの認証情報を使用して [portal.azure.com](https://portal.azure.com) にログインします。
 
-    > [!NOTE] The tiles flow based upon the width of the browser, so the layout may be a little different than described.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-    This tile provides a quick overview of what is connected to your hub and message count. As we add devices and start sending messages, this tile will provide nice "at-a-glance" information.
+1. AZ-220 ダッシュボードが表示されていることを確認します。
 
-1. To the right of the _IoT Hub Usage_ tile, notice the **Device twin operations** tile and the **Device to cloud messages** tile.
+1. AZ-220-RG リソース グループ タイルで 「**AZ-220-HUB-_{YOUR-ID}_**」 をクリックします。
 
-    The _Device to cloud messages_ tile provides a quick view of the incoming messages from your devices over time. You will be registering a device and sending messages to your hub in the next module.
+    IoT ハブを初めて開くと、 _概要_ ブレードが表示されます。ご覧のとおり、このブレードの上部にあるエリアには、データセンターの場所やサブスクリプションなど、IoT ハブ サービスに関する重要な情報が表示されます。ただし、このブレードには、ハブの使用方法と最近のアクティビティに関する情報を提供するタイルも含まれています。さらに探索する前に、これらのタイルを見てみましょう。
 
-    You will be learning about device twins and device twin operations during the modules of this course that cover device configuration, device provisioning, and device management. For now all you need to know is that each device that you register with your IoT Hub will have a device twin that you can use when you need to manage the device.
+1. ブレードの左下で _概要_ ブレード、「**IoT ハブの使用状況**」タイルに注目してください。   
 
-### Task 2: View features of IoT Hub using the navigation menu
+    > **注意**:  タイルはブラウザの幅に基づいてフローするため、レイアウトは説明とは少し異なる場合があります。
 
-1. Take a minute to scan the left-side navigation menu options.
+    このタイルは、ハブとメッセージ数に接続されている内容の概要を簡単に提供します。デバイスを追加してメッセージの送信を開始すると、このタイルは「一目でわかる」情報を提供します。
 
-    As you would expect, these options open blades that provide access to properties and features of your IoT Hub. They also give you access to devices that are connected to your hub.
+1. 「_IoT Hub の使用状況_」タイルの右側に、「**デバイス ツインの操作**」タイルと「**デバイスからクラウドメッセージ**」タイルが表示されます。     
 
-1. On the left-side menu, under **Explorers**, click **IoT devices**
+    _クラウドメッセージにデバイス_ タイルを使用すると、デバイスからの受信メッセージが時間の経過に応じ、すばやく表示されます。  次のモジュールでは、デバイスを登録し、ハブにメッセージを送信します。
 
-    This blade can be used to add, modify, and delete devices registered to your hub. You will get pretty familiar with this blade by the end of this course.
+    デバイス の構成、デバイス プロビジョニング、およびデバイス管理を扱うこのコースのモジュールで、デバイス ツインとデバイス ツインの操作について学習します。ここでは、IoT ハブに登録する各デバイスには、デバイスを管理する必要がある場合に使用できるデバイス ツインが用意されている必要があります。
 
-1. On the left-side menu, near the top, click **Activity log**
+#### タスク 2: ナビゲーション メニューを使用して IoT ハブの機能を表示する
 
-    As the name implies, this blade gives you access to a log that can be used to review activities and diagnose issues. You can also define queries that help with routine tasks. Very handy.
+1. 「IoT ハブ ブレード」 で、左側のナビゲーション メニュー オプションをスキャンします。
 
-1. On the left-side menu, under **Settings**, click **Built-in endpoints**
+    ご期待どおり、これらのオプションは、IoT ハブのプロパティと機能へのアクセスを提供するブレードを開きます。また、ハブに接続されているデバイスにアクセスすることもできます。
 
-    IoT Hub exposes "endpoints" that enable external connections. Essentially, an endpoint is anything connected to or communicating with your IoT Hub. You should see that your hub already has two endpoints defined:
+1. 左側のメニューの「**エクスプローラ**」で 「**IoT デバイス**」をクリックします。 
 
-    * _Events_
-    * _Cloud to device messaging_
+    このブレードを使用して、ハブに登録されているデバイスを追加、変更、および削除できます。このコースの終わりまでに、このブレードにかなり慣れます。
 
-1. On the left-side menu, under **Messaging**, click **Message routing**
+1. 左側のメニューの上部近くにある「**アクティビティ ログ**」をクリックします。
 
-    The IoT Hub message routing feature enables you to route incoming device-to-cloud messages to service endpoints such as Azure Storage containers, Event Hubs, and Service Bus queues. You can also create routing rules to perform query-based routes.
+    名前が示すように、このブレードを使用すると、アクティビティの確認や問題の診断に使用できるログにアクセスできます。ルーチン タスクに役立つクエリを定義することもできます。非常に便利です。
 
-1. At the top of the blade, click **Custom endpoints**.
+1. 左側のメニューの「**設定**」で、「**組み込みエンドポイント**」 をクリックします。 
 
-    Custom endpoints (such as Service Bus queue, Blob storage and the others listed here) are often used within an IoT implementation.
+    IoT ハブは、外部接続を有効にする 「エンドポイント」を公開します。基本的に、エンドポイントは IoT ハブに接続または通信するものです。ハブには、2 つのエンドポイントが既に定義されていることがわかります。
 
-1. Take a minute to explore some of the menu options under **Settings**
+    * _イベント_
+    * _クラウドからデバイスへのメッセージング_
 
-    > [!NOTE] This lab exercise is only intended to be an introduction to the IoT Hub service and get you more comfortable with the UI, so don't worry if you feel a bit overwhelmed at this point. We will be walking you through the process of configuring and managing your IoT Hub, devices, and communications as this course continues.
+1. 左側のメニューの 「**メッセージング**」 で、「**メッセージのルーティング**」をクリックします。 
 
-## Exercise 4: Create an Device Provisioning Service using the Azure portal
+    IoT ハブのメッセージ ルーティング機能を使用すると、受信 device-to-cloud へのメッセージを、Azure Storage Containers、Event Hubs、Service Bus キューなどのサービス エンドポイントにルーティングできます。また、クエリ ベースのルートを実行するルーティング ルールを作成することもできます。
 
-The Azure IoT Hub Device Provisioning Service is a helper service for IoT Hub that enables zero-touch, just-in-time provisioning to the right IoT hub without requiring human intervention. The Device Provisioning Service provides the following:
+1. ブレードの上部にある**カスタム エンドポイント**をクリックします。
 
-* Zero-touch provisioning to a single IoT solution without hardcoding IoT Hub connection information at the factory (initial setup)
-* Load balancing devices across multiple hubs
-* Connecting devices to their owner’s IoT solution based on sales transaction data (multitenancy)
-* Connecting devices to a particular IoT solution depending on use-case (solution isolation)
-* Connecting a device to the IoT hub with the lowest latency (geo-sharding)
-* Reprovisioning based on a change in the device
-* Rolling the keys used by the device to connect to IoT Hub (when not using X.509 certificates to connect)
+    カスタム エンドポイント (Service Bus キュー、Blob Storage、およびここに示されているその他のエンドポイントなど) は、IoT 実装内で頻繁に使用されます。
 
-There are several methods that you can use to create an instance of the IoT Hub Device Provisioning Service. For example, you can use the Azure portal, which is what you will do in ths task. But you can also create a DPS instance using Azure CLI or an Azure Resource Manager Template.
+1. 「**設定**」の下のメニュー オプションを確認します。
 
-### Task 1: Use the Azure portal to create a resource (Device Provisioning Service)
+    > **注意**:  このラボの演習は、IoT ハブ サービスの紹介であり、UI の使いやすさを高める目的だけなので、この時点で少し圧倒された場合でも心配しないでください。このコースを進めるにつれて、IoT ハブ、デバイス、および通信の構成と管理のプロセスについて説明します。
 
-1. If necessary, log in to [portal.azure.com](https://portal.azure.com) using your Azure account credentials.
+### 演習 4: Azure portal を使用して デバイス プロビジョニング サービスを作成する
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+Azure IoT Hub Device Provisioning Service は、人間の介入を必要とせずに、適切な IoT Hub に対してゼロタッチのJust-In-Time プロビジョニングを可能にする IoT Hub のヘルパー サービスです。デバイス プロビジョニング サービスでは、次の機能が提供されます。
 
-1. On the portal menu, click **+ Create a resource**.
+* 工場出荷時に IoT Hub 接続情報をハードコーディングすることなく、単一の IoT ソリューションにゼロタッチ プロビジョニングを行う (初期設定)
+* 複数のハブ間でデバイスを負荷分散
+* 販売取引データに基づいてデバイスをオーナーのIoTソリューションに接続する (マルチテナント機能)
+* ユースケースに応じた特定の IoTソリューションへのデバイスの接続 (ソリューション分離)
+* 最短待機時間の IoT ハブへのデバイスの接続 (ジオ シャーディング)
+* デバイスの変更に基づく再プロビジョニング
+* IoT Hub への接続にデバイスで使用されるキーのロール (X.509 証明書を使用して接続しない場合)
 
-    The Azure Marketplace is a collection of all the resources you can create in Azure. The marketplace contains resources from both Microsoft and the community.
+IoT Hub Device Provisioning Service のインスタンスを作成するために使用できる方法はいくつかあります。たとえば、このタスクで使用する、Azure portal を使用できます。ただし、Azure CLI または Azure Resource Manager テンプレートを使用して DPS インスタンスを作成することもできます。
 
-1. In the Search textbox, type **Device Provisioning Service** and then press Enter.
+#### タスク 1: Azure portal を使用してリソースを作成する (デバイス プロビジョニング サービス)
 
-1. On the search results blade, click **IoT Hub Device Provisioning Service**.
+1. 必要に応じて、Azure アカウントの認証情報を使用して [portal.azure.com](https://portal.azure.com) にログインします。
 
-    Notice the list of _Useful Links_ displayed on this blade.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. In the list of links, click **Documentation**.
+1. Azure portal で、「**+ リソースの作成**」 をクリックします。
 
-    The IoT Hub Device Provisioning Service Documentation page is the root page for DPS. You can use this page to explore current documentation and find tutorials and other resources that will help you to explore activities that are outside the scope of this course. We will refer you to the docs.microsoft.com site throughout this course for additional reading on specific topics.
+    Azure Marketplace は、Azure で作成できるすべてのリソースのコレクションです。Marketplace には、Microsoft とコミュニティの両方からのリソースが含まれています。
 
-### Task 2: Create a Device Provisioning Service with required property settings
+1. 「検索」 テキスト ボックスに、「**デバイス プロビジョニング サービス」**と入力し、Enter を押します。 
 
-1. Use your browser to navigate back to the Azure portal tab.
+1. 検索結果のブレードで、 「**IoT Hub デバイス プロビジョニング サービス**」 をクリックします。 
 
-1. To begin the process of creating your new DPS instance, click **Create**.
+    このブレードに表示される「_役に立つリンク_」の一覧に注目してください。
 
-    Next, you need to specify information about the Hub and your subscription. The following steps walk you through the settings, explaining each of the fields as you fill them in.
+1. リンクの一覧に、ドキュメントへのリンクがあることに注意してください。
 
-1. Under **Name**, enter a unique name for your Device Provisioning Service.
+    このドキュメントを今参照する必要はありませんが、このドキュメントが利用可能であることを知ることは良いことです。IoT Hub デバイス プロビジョニング サービス ドキュメント ページは、DPS のルート ページです。このページを使用して、現在のドキュメントを詳しく調査すると、このコースの範囲外のアクティビティを探索するのに役立つチュートリアルやその他のリソースを見つけることができます。特定のトピックの詳細については、このコースで docs.microsoft.com サイトを参照してください。
 
-    To provide a unique name, enter **AZ-220-DPS-_{YOUR-ID}_**.
+    ドキュメント リンクを開いた場合は、ブラウザーを使用してドキュメント タブを閉じ、Azure portal タブに戻ります。
 
-    For example: **AZ-220-DPS-CAH191216**
+#### タスク 2: 必要なプロパティ設定を使用してデバイス プロビジョニング サービスを作成する
 
-1. On the _IoT Hub Device Provisioning Service_ blade, ensure that the Azure **Subscription** that you intend to use for this course is selected.
+1. 新しい DPS インスタンスの作成プロセスを開始するには、「**作成**」 をクリックします。 
 
-1. Under **Resource Group**, open the **Select existing** dropdown, and then click **AZ-220-RG**
+    次に、ハブとサブスクリプションに関する情報を指定する必要があります。次の手順では、各フィールドの入力を説明しながら、設定をウォークスルーします。
 
-    This is the resource group that you created in the previous lab. We will be grouping the resources that we create for this course together in the same resource group. This should help you to clean up your resources when you have completed the course.
+1. 「**名前**」 ボックスに、デバイス プロビジョニング サービスの一意の名前を入力します。 
 
-1. Under **Location**, open the drop-down list and select the same region as your resource group.
-   
-    As we saw previously, Azure is supported by a series of datacenters that are placed in regions all around the world. When you create something in Azure, you deploy it to one of these datacenter locations.
+    一意の名前を指定するために、「**AZ-220-DPS-_{YOUR-ID}_**」と入力します。 
 
-    > [!NOTE] When picking a datacenter to host your app, keep in mind that picking a datacenter close to your end users will decrease load/response times. If you are on the other side of the world from your end users, you should not be picking the datacenter nearest you.
+    例: **AZ-220-DPS-CAH191216**
 
-1.  At the bottom of the blade, click **Create**.
+1. 「**サブスクリプション**」 で、このコースに使用しているサブスクリプションが選択されていることを確認します。
 
-    Deployment can take a minute or more to complete. You can open the Azure portal Notification pane to monitor progress.
+1. 「**リソース グループ**」 の下にある 「**既存の選択**」 ドロップダウンを開いてから、「**AZ-220-RG**」 をクリックします。   
 
-1.  Notice that after a couple of minutes you receive a notification stating that your IoT Hub Device Provisioning Service instance was successfully deployed to your **AZ-220-RG** resource group.
+    これは、前のラボで作成したリソース グループです。このコースで作成したリソースを、同じリソース グループにまとめます。これは、コースを修了した時点でリソースをクリーンアップするのに役立ちます。
 
-1.  On the portal menu, click **Dashboard**, and then click **Refresh**.
+1. 「**場所**」 でドロップダウン リストを開き、リソース グループと同じリージョンを選択します。 
 
-    You should see that your resource group tile lists your new IoT Hub Device Provisioning Service.
+    以前、見たように、Azure は世界各地における一連のデータセンターでサポートされています。Azure で何かを作成する場合は、これらのデータセンターの場所のいずれかにデプロイします。
 
-### Task 3: Link your IoT Hub and Device Provisioning Service.
+    > **注意**:  アプリをホストするデータセンターを選択する場合、エンド ユーザーに近いデータセンターを選択すると、読み込み/応答時間が短縮されます。エンド ユーザーから世界の反対側にいる場合は、最も近いデータセンターを選択しないでください。
 
-1. Notice that the AZ-220 dashboard lists both your IoT Hub and DPS resources.
+1. ブレードの最下部で、**作成**をクリックします。
 
-    You should see both your IoT Hub and DPS resources listed - (you may need to hit **Refresh** if the resources were only recently created)
+    デプロイが完了するまでに 1 分以上かかることがあります。Azure portal の通知ウィンドウを開いて、進行状況を監視できます。
 
-1. On your Resource group tile, click **AZ-220-DPS-_{YOUR-ID}_**.
+1. 数分後に、IoT ハブ デバイス プロビジョニング サービス インスタンスが **AZ-220-RG**リソース グループに正常にデプロイされたことを示す通知が表示されます。
 
-1. On the _Device Provisioning Service_ blade, under **Settings**, click **Linked IoT hubs**.
+1. Azure portal メニューで 「**ダッシュボード**」 をクリックしてから、「**更新**」 をクリックします。
 
-1. At the top of the blade, click **+ Add**.
+    リソース グループのタイルに、新しい IoT ハブ デバイス プロビジョニング サービスが表示されるはずです。
 
-    You will use the _Add link to IoT hub_ blade to provide the information required to link your Device Provisioning service instance to an IoT hub.
+#### タスク 3: IoT ハブとデバイス プロビジョニング サービスをリンクします。
 
-1. On the _Add link to IoT hub_ blade, ensure that the **Subscription** dropdown is displaying the subscription that you are using for this course.
+1. AZ-220 ダッシュボードには、IoT ハブ リソースと DPS リソースの両方が表示されます。
 
-    The subscription is used to provide a list of the available IoT hubs.
+    IoT ハブと DPS の両方のリソースが表示されます (リソースが最近作成された場合は、「**更新**」 をクリックする必要があります)
 
-1. Open the IoT hub dropdown, and then click **AZ-220-HUB-_{YOUR-ID}_**.
+1. リソース グループ タイルで、「**AZ-220-DPS-_{YOUR-ID}_**」 をクリックします。
 
-    This is the IoT Hub that you created in the previous lab.
+1. 「_デバイス プロビジョニング サービス_」 ブレードの 「**設定**」 で、「**リンクされた IoT ハブ**」 をクリックします。     
 
-1. In the Access Policy dropdown, click **iothubowner**.
+1. ブレードの上部にある 「**+ 追加**」 をクリックします。
 
-    The _iothubowner_ credentials provide the permissions needed to establish the link with the specified IoT hub.
+    「IoT _Hub へのリンクの追加_」 ブレードを使用して、デバイス プロビジョニング サービス インスタンスを IoT ハブにリンクするために必要な情報を提供します。 
 
-1. To complete the configuration, click **Save**.
+1. _IoT Hub へのリンクの追加_」 ブレードで、「**サブスクリプション**」 ドロップダウンにこのコースで使用しているサブスクリプションが表示されていることを確認します。   
 
-    You should now see the selected hub listed on the Linked IoT hubs blade. You might need to click Refresh to show Linked IoT hubs.
+    サブスクリプションは、使用可能な IoT ハブの一覧を提供するために使用されます。
 
-## Exercise 5: Examine the Device Provisioning Service
+1. IoT ハブのドロップダウンを開き、「**AZ-220-HUB-_{YOUR-ID}_**」 をクリックします。
 
-The IoT Hub Device Provisioning Service is a helper service for IoT Hub that enables zero-touch, just-in-time provisioning to the right IoT hub without requiring human intervention, enabling customers to provision millions of devices in a secure and scalable manner.
+    これは、前の演習で作成した IoT ハブです。
 
-### Task 1: Explore the Device Provisioning Service Overview blade
+1. 「アクセス ポリシー」 ドロップダウンで 「**iothubowner**」 をクリックします。 
 
-1. If necessary, log in to [portal.azure.com](https://portal.azure.com) using your Azure account credentials.
+    _iothubowner_ 認証情報は、指定された IoT ハブとのリンクを確立するために必要なアクセス許可を提供します。 
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+1. 構成を完了するには、「**保存**」をクリックします。
 
-1. Verify that your AZ-220 dashboard is being displayed.
+    選択したハブが 「リンクされた IoT ハブ」 ブレードに表示されます。リンクされた IoT ハブを表示するには、「**最新の情報に更新**」 をクリックする必要がある場合があります。
 
-1. On the _AZ-220-RG_ resource group tile, click **AZ-220-DPS-_{YOUR-ID}_**
+1. Azure portal メニューで、**「ダッシュボード」** をクリックします。
 
-    When you first open your Device Provisioning Service instance, it will display the _Overview_ blade. As you can see, the area at the top of this blade provides some essential information about your DPS instance, such as status, datacenter location and subscription. This blade also provides the _Quick Links_ section, which provide access to:
+### 演習 5: デバイス プロビジョニング サービスの確認
 
-    * [Azure IoT Hub Device Provisioning Service Documentation](https://docs.microsoft.com/en-us/azure/iot-dps/)
-    * [Learn more about IoT Hub Device Provisioning Service](https://docs.microsoft.com/en-us/azure/iot-dps/about-iot-dps)
-    * [Device Provisioning concepts](https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service)
-    * [Pricing and scale details](https://azure.microsoft.com/en-us/pricing/details/iot-hub/)
+IoT Hub Device Provisioning Service は IoT Hub のヘルパー サービスであり、人間の介入を必要とせずに、適切な IoT Hub に対してゼロタッチの Just-In-Time プロビジョニングを可能にし、お客様が安全でスケーラブルな方法で何百万ものデバイスをプロビジョニングできるようにします。
 
-    You can explore these links to learn more.
+#### タスク 1: 「デバイス プロビジョニング サービスの概要」ブレードを詳しく見る
 
-### Task 2: View features of Device Provisioning Service using the navigation menu
+1. 必要に応じて、Azure アカウントの認証情報を使用して [portal.azure.com](https://portal.azure.com) にログインします。
 
-1. Take a minute to scan the left navigation area options.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-    As you might expect, these options open blades that provide access to activity logs, properties and feature of the DPS instance.
+1. AZ-220 ダッシュボードが表示されていることを確認します。
 
-1. On the left-side menu, near the top, click **Activity log**
+1. _AZ-220-RG_ リソース グループ タイルで 「**AZ-220-DPS-_{YOUR-ID}_**」をクリックします。 
 
-    As the name implies, this blade gives you access to a log that can be used to review activities and diagnose issues. You can also define queries that help with routine tasks. Very handy.
+    デバイス プロビジョニング サービス インスタンスを初めて開くと、「_概要_」ブレードが表示されます。ご覧のとおり、このブレードの上部にあるエリアには、状態、データセンターの場所、サブスクリプションなど、DPS インスタンスに関する重要な情報が表示されます。このブレードには、次の項目にアクセスできる_クイック リンク_セクションもあります。
 
-1. On the left navigation area, under **Settings**, click **Quick Start**.
+    * [Azure IoT Hub Device Provisioning Service のドキュメント](https://docs.microsoft.com/ja-jp/azure/iot-dps/)
+    * [IoT Hub Device Provisioning Service の詳細](https://docs.microsoft.com/ja-jp/azure/iot-dps/about-iot-dps)
+    * [デバイス プロビジョニングの概念](https://docs.microsoft.com/ja-jp/azure/iot-dps/concepts-service)
+    * [価格とスケーリングの詳細](https://azure.microsoft.com/ja-jp/pricing/details/iot-hub/)
 
-    This blade lists the steps to start using the Iot Hub Device Provisioning Service, links to documentation and shortcuts to other blades for configuring DPS.
+    詳細については、これらのリンクを参照してください。
 
-1. On the left navigation area, under **Settings**, click **Shared access policies**.
+#### タスク 2: ナビゲーション メニューを使用してデバイス プロビジョニング サービスの機能を表示する
 
-    This blade provides management of access policies, lists the existing policies and the associated permissions.
+1. 左側のナビゲーション エリアのオプションをスキャンするのに 1 分かかります。
 
-1. On the left navigation area, under **Settings**, click **Linked IoT hubs**.
+    ご存知のように、これらのオプションは、DPS インスタンスのアクティビティ ログ、プロパティ、および機能へのアクセスを提供するブレードを開きます。
 
-    Here you can see the linked IoT Hub from earlier. The Device Provisioning Service can only provision devices to IoT hubs that have been linked to it. Linking an IoT hub to an instance of the Device Provisioning service gives the service read/write permissions to the IoT hub's device registry; with the link, a Device Provisioning service can register a device ID and set the initial configuration in the device twin. Linked IoT hubs may be in any Azure region. You may link hubs in other subscriptions to your provisioning service.
+1. 左側のメニューの上部近くにある「**アクティビティ ログ**」をクリックします。
 
-1. On the left navigation area, under **Settings**, click **Certificates**.
+    名前が示すように、このブレードを使用すると、アクティビティの確認や問題の診断に使用できるログにアクセスできます。ルーチン タスクに役立つクエリを定義することもできます。非常に便利です。
 
-    Here you can manage the X.509 certificates that can be used to secure your Azure IoT hub using the X.509 Certificate Authentication. You will investigate X.509 certificates in a later lab.
+1. 左側のナビゲーション領域の 「**設定**」、「**クイック スタート**」をクリックします。   
 
-1. On the left navigation area, under **Settings**, click **Manage enrollments**.
+    このブレードには、Iot Hub Device Provisioning Service の使用を開始する手順、ドキュメントへのリンク、および DPS を構成するための他のブレードへのショートカットが表示されます。
 
-    Here you can manage the enrollment groups and individual enrollments.
+1. 左側のナビゲーション エリアの、「**設定**」で「**共有アクセス ポリシー**」をクリックします。   
 
-    Enrollment groups can be used for a large number of devices that share a desired initial configuration, or for devices all going to the same tenant. An enrollment group is a group of devices that share a specific attestation mechanism. Enrollment groups support both X.509 as well as symmetric. All devices in the X.509 enrollment group present X.509 certificates that have been signed by the same root or intermediate Certificate Authority (CA). Each device in the symmetric key enrollment group present SAS tokens derived from the group symmetric key. The enrollment group name and certificate name must be alphanumeric, lowercase, and may contain hyphens.
+    このブレードでは、アクセス ポリシーの管理、既存のポリシー、および関連するアクセス許可の一覧が表示されます。
 
-    An individual enrollment is an entry for a single device that may register. Individual enrollments may use either X.509 leaf certificates or SAS tokens (from a physical or virtual TPM) as attestation mechanisms. The registration ID in an individual enrollment is alphanumeric, lowercase, and may contain hyphens. Individual enrollments may have the desired IoT hub device ID specified.
+1. 左側のナビゲーション エリアの、「**設定**」で、「**Linked IoT hubs**」 をクリックします。
 
-1. Take a minute to explore some of the other menu options under **Settings**
+    ここには、以前からリンクされた IoT ハブを表示できます。デバイス プロビジョニング サービスは、デバイスにリンクされている IoT ハブにのみデバイスをプロビジョニングできます。IoT ハブを、デバイス プロビジョニング サービスのインスタンスにリンクさせると、サービスは IoT Hub のデバイス レジストリに対する読み取り/書き込みアクセス許可を付与します。リンクにより、デバイス プロビジョニング サービスはデバイス ID を登録し、デバイス ツインの初期構成を設定することができます。リンクされた IoT ハブは、どのAzure リージョンにも存在する可能性があります。他のサブスクリプションのハブを、プロビジョニング サービスにリンクすることができます。
 
-   > [!NOTE] This lab exercise is only intended to be an introduction to the IoT Hub Device Provisioning Service and get you more comfortable with the UI, so don't worry if you feel a bit overwhelmed at this point. We will be covering DPS in much more detail as the course continues.
+1. ナビゲーションエリア左側で、**「設定」**の下にある、**「証明書」** をクリックします。
+
+    ここでは、X.509 証明書認証を使用して Azure IoT Hub をセキュリティで保護するための、 X.509 証明書を管理することができます。後程ラボで、X.509 証明書について説明します。
+
+1. ナビゲーション エリア左側で、 **「設定」**の下にある、 **「登録の管理」** をクリックします。
+
+    ここでは、登録グループと個々の登録を管理することができます。
+
+    登録グループは、必要な初期構成を共有する多数のデバイスに対して使用することも、すべて同じテナントに移動するデバイスに使用することもできます。登録グループは、特定の構成証明メカニズムを共有する、デバイスのグループです。登録グループは、X.509 と対称の両方をサポートします。X.509 登録グループ内のすべてのデバイスは、同じルートまたは中間認証機関 (CA) によって署名された X.509 証明書を提供します。対称キー登録グループ内の各デバイスは、グループ対称キーから派生した SAS トークンを提供します。登録グループ名と証明書名は、英数字、小文字でなければならず、ハイフンを含めることができます。
+
+    個別登録は、登録できる単一のデバイスのエントリです。個別の登録では、X.509 リーフ証明書または SAS トークン (物理または仮想 TPM から) を証明メカニズムとして使用できます。個別の登録の登録 ID は英数字、小文字であり、ハイフンを含めることができます。個別の登録には、必要な IoT ハブ デバイス ID が指定されている場合があります。
+
+1. 「**設定**」 の下の他のメニュー オプションをいくつか確認します。
+
+   > **注意**:  このラボの演習は、IoT Hub デバイス プロビジョニング サービスの紹介であり、UI に慣れることだけが目的ですので、この時点で少し圧倒されたと感じても心配しないでください。コースが進むにつれて、DPS について詳しく説明します。

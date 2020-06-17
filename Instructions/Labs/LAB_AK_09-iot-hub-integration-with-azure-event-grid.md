@@ -1,76 +1,210 @@
----
+﻿---
 lab:
-    title: 'Lab 09: Integrate IoT Hub with Event Grid'
-    module: 'Module 5: Insights and Business Integration'
+    title: 'ラボ 09: IoT ハブとイベント グリッドを統合する'
+    module: 'モジュール 5: インサイトとビジネス インテグレーション'
 ---
 
-# Integrate IoT Hub with Event Grid
+# IoT ハブとEvent Grid を統合する
 
-## Lab Scenario
+## ラボ シナリオ
 
-Contoso is installing new connected Thermostats to be able to monitor temperature across different cheese caves. You will create an alert to notify facilities manager when a new thermostat has been created.
+Contoso 社の経営陣は、Azure IoT サービスを使用して作成したプロトタイプ ソリューションに感銘を受けており、既に実証した機能に追加の予算を割り当てることに満足しています。現在、特定の運用サポート機能の統合を検討するよう求めています。具体的には、特定の作業領域を担当するマネージャーにアラート通知を送信する Azure ツールのサポート方法を確認したいと考えています。アラートの基準は、ビジネス エリア マネージャーによって定義されます。IoT ハブで受信するテレメトリ データが評価され、通知が生成されます。
 
-To create an alert, you will push device created event type to Event Grid when a new thermostat is created in IoT Hub. You will have a Logic Apps instance that will react on this event (on Event Grid) and will send an email to alert a facilities manager device a new device has been created, device ID, and connection state.
+過去に協働して成功を収めたビジネスマネージャーのナンシーを特定しました。ソリューションの初期段階で、彼女と一緒に作業します。
 
-## In This Lab
+施設技術者のナンシーのチームには、異なるチーズ洞窟間の温度を監視するために使用される新しく接続されたサーモスタットをインストールする責任があることをナンシーから聞いています。サーモスタット デバイスは、IoT ハブに接続できる IoT デバイスとして機能します。プロジェクトを開始するには、新しいデバイスが実装されたときに通知を生成するアラートを作成することに同意します。
 
-* Verify Lab Prerequisites
-* Create Logic App that sends an email
-* Configure Azure IoT Hub Event Subscription
-* Create new devices triggering a Logic Apps which sends an email when alert is flagged by device
+アラートを生成するには、IoT ハブで新しいサーモスタット デバイスが作成されたときに、デバイスで作成されたイベントタイプを Event Grid にプッシュします。このイベントに反応する Logic Apps インスタンスを作成し (Event Grid 上で)、デバイス ID と接続状態を指定して、新しいデバイスが作成された場合に施設に警告をするメールを送信します。
 
-## Exercise 1: Verify Lab Prerequisites
+次のリソースが作成されます。
 
-## Exercise 2: Create HTTP Web Hook Logic App that sends an email
+![ラボ 9 アーキテクチャ](media/LAB_AK_09-architecture.png)
 
-Azure Logic Apps is a cloud service that helps you schedule, automate, and orchestrate tasks, business processes, and workflows when you need to integrate apps, data, systems, and services across enterprises or organizations.
+## このラボでは
 
-In this exercise, you will create a new Azure Logic App that will be triggered via an HTTP Web Hook, then send an email using an Outlook.com email address.
+このラボでは、次のタスクを完了します。
 
-1. Login to [portal.azure.com](https://portal.azure.com) using your Azure account credentials.
+* ラボの前提条件が満たされていることを確認する (必要な Azure リソースがあること)
+* メールを送信するロジック アプリを作成する
+* Azure IoT Hub イベント サブスクリプションの構成
+* ロジック アプリをトリガーする新しいデバイスを作成する
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+### 演習 1: ラボの前提条件を確認する
 
-1. In the Azure Portal, click **+ Create a resource** to open the Azure Marketplace.
+このラボでは、次の Azure リソースが利用可能であることを前提としています。
 
-1. On the **New** blade, in the **Search the Marketplace** box, type in and search for **Logic App**.
+| リソースの種類:   | リソース名          |
+|----------------|------------------------|
+| リソース グループ | AZ-220-RG              |
+| IoT Hub        | AZ-220-HUB-_{YOUR-ID}_ |
 
-1. In the search results, select the **Logic App** item.
+これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って **lab09-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
-1. On the **Logic App** item, click **Create**.
+**lab09-setup.azcli** スクリプトは、**Bash** シェル環境で実行するように記述されています。これは Azure Cloud Shell で実行する最も簡単な方法です。
 
-2. On the **Logic App** blade, in the **Name** field, enter **AZ-220-LogicApp-_{YOUR-ID}_**.
+1. ブラウザーを使用して [Azure Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
 
-    For example: **AZ-220-LogicApp-CP191218**
+1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
 
-    The name of your Azure Logic App must be globally unique because it is a publicly accessible resource that you must be able to access from any IP connected device.
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
 
-3. In the **Resource group** dropdown, select **Use Existing**, then select the **AZ-220-RG** resource group.
+1. セットアップ スクリプトをアップロードするには、Azure Cloud Shell のツール バーで、「**ファイルのアップロード/ダウンロード**」 (右から 4 番目のボタン) をクリックします。 
 
-4. In the **Location** dropdown, choose the same Azure region that was used for the resource group.
+1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
 
-5. Leave **Log Analytics** set to **Off**.
+1. ドロップダウンで、「**アップロード**」 をクリックします。
 
-6. Click **Create**.
+1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
 
-    > [!NOTE] It will take a minute or two for the Logic App deployment to complete.
+    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
-7. Navigate to the **Logic App** resource that was just deployed.
+    * Allfiles
+        * ラボ
+            * ラボ 09: IoT ハブとEvent Grid を統合する
+                * セットアップ
 
-8. When navigating to the **Logic App** for the first time, the **Logic Apps Designer** pane will be displayed.
+    lab09-setup.azcli スクリプト ファイルは、ラボ 9 の 「セットアップ」 フォルダーにあります。
 
-    If this doesn't come up automatically, click on the **Logic app designer** link under the **Development Tools** section on the **Logic App** blade.
+1. 「**lab09-setup.azcli**」 ファイルを選択し、「**開く**」 をクリックします。   
 
-9. Select the **When a HTTP request is received** trigger under the **Start with a common trigger** section.
+    ファイルのアップロードが完了すると、通知が表示されます。
 
-10. The **Logic Apps Designer** will open with the visual designer displayed, and with the **When a HTTP request is received** trigger selected.
+1. 正しいファイルが Azure Cloud Shell にアップロードされたことを確認するには、次のコマンドを入力します。
 
-11. On the **When a HTTP request is received** trigger, under the **Request Body JSON Schema** textbox, click the **Use sample payload to generate schema** link.
+    ```bash
+    ls
+    ```
 
-12. When prompted, paste in the following sample JSON into the textbox and click **Done**.
+    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。lab09-setup.azcli ファイルが一覧表示されます。
+
+1. セットアップ スクリプトを含むディレクトリをこのラボ用に作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
+
+```bash
+    mkdir ラボ 9
+    mv lab09-setup.azcli lab9
+    CD ラボ 9
+```
+
+1. **lab09-setup.azcli** に実行権限があることを確認するには、次のコマンドを入力します。 
+
+    ```bash
+    chmod +x lab09-setup.azcli
+    ```
+
+1. Cloud Shell のツール バーで、lab09-setup.azcli ファイルを編集するには、「**エディターを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。 
+
+1. 「**ファイル**」 の一覧で、lab9 フォルダーを展開してスクリプト ファイルを開くには、**lab9**、**lab09-setup.azcli** の順にクリックします。
+
+    エディターに、**lab09-setup.azcli** ファイルの内容が表示されるようになります。
+
+1. エディターで、割り当て済みの値 `{YOUR-ID}` と `{YOUR-LOCATION}` を更新します。
+
+    サンプル例として、このコースの最初に作成した一意の ID 、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソースにとって意味のある場所に `{YOUR-LOCATION}` を設定する必要があります。
+
+```bash
+    #!/bin/bash
+
+    YourID="{YOUR-ID}"
+    RGName="AZ-220-RG"
+    IoTHubName="AZ-220-HUB-$YourID"
+
+    Location="{YOUR-LOCATION}"
+```
+
+    > **注意**:  `場所` 変数は、保存先の短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
+    >
+    > ```bash
+    > az account list-locations -o Table
+    > ```
+    >
+    > ```text
+    > DisplayName           Latitude    Longitude    Name
+    > --------------------  ----------  -----------  ------------------
+    > East Asia             22.267      114.188      eastasia
+    > Southeast Asia        1.283       103.833      southeastasia
+    > Central US            41.5908     -93.6208     centralus
+    > East US               37.3719     -79.8164     eastus
+    > East US 2             36.6681     -78.3889     eastus2
+    > ```
+
+1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、「..」 をクリックし、「**エディタを閉じる**」 をクリックします。 
+
+    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。 
+
+    > **注意**:  「**CTRL+S**」 を使っていつでも保存でき、 「**CTRL+Q**」 を押してエディターを閉じます。
+
+1. **AZ-220-RG** という名前のリソース グループおよび **AZ-220-HUB-{YourID}** という名前の IoT ハブを作成するには、次のコマンドを入力します。   
+
+```bash
+    ./lab09-setup.azcli
+```
+
+    これは、実行するのに数分かかります。各ステップが完了すると、JSON 出力が表示されます。
+
+### 演習 2: メールを送信する HTTP Web Hook ロジック アプリを作成する
+
+Azure Logic Apps は、企業や組織間でアプリ、データ、システム、サービスを統合する必要がある場合に、タスク、ビジネス プロセス、ワークフローをスケジュール、自動化および調整するのに役立つクラウド サービスです。
+
+この演習では、HTTP Web Hook を介してトリガーされる新しい Azure ロジック アプリを作成し、Outlook.com のメール アドレスを使用してメールを送信します。
+
+#### タスク 1: Azure portal でロジック アプリ リソースを作成する
+
+1. 必要に応じて、 このコースで使用している Azure アカウントの認証情報を使用して [Azure portal](https://portal.azure.com) にログインします。 
+
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+
+1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
+
+1. 「**新規**」 ブレードの 「**Marketplace を検索**」 ボックスで、「**ロジック アプリ**」と入力します
+
+1. 検索結果で 「**ロジック アプリ**」 をクリックします。
+
+1. **ロジック アプリ** ブレードで、**作成** を選択します。
+
+1. 「**基本**」 タブの 「**プロジェクトの詳細**」 で、このコースで使用している 「**サブスクリプション**」 を選択します。     
+
+1. 「**リソース グループ**」 ドロップダウンの 「**既存の選択**」 で、「**AZ-220-RG**」 をクリックします。     
+
+1. 「**インスタンスの詳細**」 の 「**名前**」 フィールドで、「**AZ-220-LogicApp-_{YOUR-ID}_**」と入力します
+
+    例: **AZ-220-LogicApp-CP191218**
+
+    Azure ロジック アプリの名前は、IP 接続デバイスからアクセスできるパブリックにアクセス可能なリソースであるため、グローバルに一意である必要があります。
+
+1. **「場所」** ドロップダウンで、リソース グループに使用された Azure リージョンと同じリージョンを選択します。 
+
+1. **「ログ分析」** を **「オフ」** に設定したままにします。   
+
+1. **「Review + create」** をクリックします。
+
+1. **「Review + create」** タブで、**「作成」** をクリックします。
+
+    > **注意**:  ロジック アプリのデプロイが完了するまでに 1 ~ 2 分かかります。
+
+1. Azure portal ダッシュボードに戻ります。
+
+#### タスク 2: ロジック アプリを構成する 
+
+1. リソース グループ タイルで、デプロイされたばかりのロジック アプリ リソースへのリンクをクリックします。
+
+    **AZ-220-LogicApp-_{YOUR-ID}_** ロジック アプリが表示されない場合は、リソース グループ タイルを更新します。 
+
+    > **注意**: **ロジック アプリ**に初めて移動すると、「**ロジック アプリ デザイナー**」 ペインが表示されます。    このページが自動的に表示されない場合は、「**ロジック アプリ**」 ブレードの 「**開発ツール**」 セクションの 「**ロジック アプリ デザイナー**」 をクリックします。     
+
+1. **「共通のトリガーで開始」** セクションの **「HTTP 要求を受信したとき」** をクリックします。 
+
+    一般的に使用されるトリガーの 1 つを使用して開始すると、ロジック アプリを使い始めるのに便利です。
+
+1. ビジュアル デザイナーが開き、「**HTTP 要求の受信時**」 トリガーが選択されていることに注意してください。
+
+1. 「**HTTP 要求の受信時**」 トリガーの 「**要求本文の JSON スキーマ**」 テキスト ボックスで、「**サンプルのペイロードを使用してスキーマを生成する**」 リンクをクリックします。
+
+    > **注意**: 次の手順では、**DeviceCreated** サンプル イベント スキーマを 「要求本文の JSON スキーマ」 テキスト ボックスに追加します。  このサンプルは、他のイベント スキーマ サンプルと関連するドキュメントの一部と共に、詳細を知りたい人のために次のリンクで見つけることができます。[IoT ハブの Azure Event Grid イベント スキーマ](https://docs.microsoft.com/en-us/azure/event-grid/event-schema-iot-hub)。
+
+1. コピーと貼り付け操作を使用して、次のサンプル JSON を 「要求本文の JSON スキーマ」 ボックスに追加し、「**完了**」 をクリックします。 
 
     ```json
-     [{
+    [{
       "id": "56afc886-767b-d359-d59e-0da7877166b2",
       "topic": "/SUBSCRIPTIONS/<subscription ID>/RESOURCEGROUPS/<resource group name>/PROVIDERS/MICROSOFT.DEVICES/IOTHUBS/<hub name>",
       "subject": "devices/LogicAppTestDevice",
@@ -115,136 +249,156 @@ In this exercise, you will create a new Azure Logic App that will be triggered v
     }]
     ```
 
-    This sample JSON is an example of the JSON that Event Grid will POST to the Web Hook endpoint for the Logic App once it's created. This sample includes the IoT Hub Message Telemetry properties for the IoT Device that will be sending telemetry messages.
+    このサンプル JSON は、作成後に Event Grid がロジック アプリの Web hook エンドポイントに投稿する JSON の例です。このサンプルには、製品利用統計情報のメッセージを送信する IoT デバイスの IoT ハブメッセージ テレメトリのプロパティが含まれています。
 
-13. Notice the **Request Body JSON Schema** box is now populated with a JSON schema that was automatically generated based on the sample JSON that was pasted in.
+1. 「**要求本文の JSON スキーマ**」 テキスト ボックスに、指定したサンプル JSON に基づいて自動的に生成された JSON スキーマが事前設定されることに注意してください。
 
-14. Click the **+ New step** button below the **When a HTTP request is received** trigger.
+1. **「HTTP 要求を受信したとき」** のトリガーの下にある、**「新しいステップ」** をクリックします。
 
-15. Enter `Outlook.com` into the search box, then locate and select the **Send an email (V2) (Preview)** action for the **Outlook.com** connector.
+1. **「アクションの選択」** の下にある 「検索」 テキスト ボックスに、**Outlook.com** と入力してください。
 
-    > [!NOTE] These instructions walk through configuring the Logic App to send an email using an **Outlook.com** email address. Alternatively, the Logic App can also be configured to send email using the Office 365 Outlook or Gmail connectors as well.
+1. 「アクション」 の一覧で、「送信」 オプションまでスクロール ダウンし、「**メールの送信 (V2)**」 をクリックします。 
 
-16. On the **Outlook.com** Connector, click the **Sign in** button, and follow the prompts to authenticate with an existing Outlook.com account.
+    > **注意**:  これらの手順で、**Outlook.com** のメール アドレスを使用してメールを送信するように ロジック アプリ を構成する手順を説明します。または、ロジック アプリを Office 365 Outlook または Gmail コネクタを使用してメールを送信するように構成することもできます。
 
-17. If prompted to **Let this app access your info**, click **Yes**. 
+1. **Outlook.com** コネクタで 「**ログイン**」をクリックし、プロンプトに従って既存の Outlook.com アカウントで認証します。   
 
-18. In the **Send an email (V2) (Preview)** action, on the **To** field, enter an email address to send email messages to.
+1. **「このアプリに情報へのアクセスを許可する」** を求められたら、**「はい」** をクリックします。   
 
-    Enter an email address where you can receive emails; such as the Outlook.com account used for this connector.
+1. **「メールの送信 (V2)」** アクションの **「宛先」** フィールドで、メール メッセージの送信先のメール アドレスを入力します。   
 
-    The Outlook.com account that was authenticated will be used to send the emails from that account. You can actually enter any email address you want to send the notifications to.
+    この演習では、メール通知を受信できるメール アドレスを指定します。このコネクタに使用する Outlook.com アカウント、またはアクセスしやすい別のメール アカウントを入力できます。
 
-19. For the **Subject**, fill in `IoT Hub alert:`.
+    上記の手順で認証されたOutlook.comアカウントは、メールの送信に使用されます。
 
-20. Next, begin work on the **Body**.  Your desired conent is the following:
-   `This is an automated email to inform you that: {eventType} occurred at {eventTime} IoT Hub: {hubName} Device ID: {deviceID} Connection state: {connectionState}`
-   Each curly-braces entry should be dynamic content.  If you can't see the Dynamic content, select the **Add dynamic content** hyperlink under the **Body** text box. If it doesn't show you the fields you want, click *more* in the Dynamic content screen to include the fields from the previous action.
-   When you add the first dynamic content value, because the input data schema is for an array, the Logic Apps Designer will automatically change the e-mail action to be nested inside of a **For each** action.  When this happens, the **Send an email (V2) (Preview)** action will collapse; simply click on it to open it up again and continue editing the body.
+1. **「件名」** フィールドに **IoT Hub アラート** と入力します。  
 
-    ![Fill out email information](../../Linked_Image_files//MM99_L09_email_content.png)
+1. **「本文**」 フィールドに、次のメッセージの内容を入力します。
 
-18. Click **Save** at the top of the designer to save all changes to the Logic App Workflow.
+    ```
+    This is an automated email to inform you that:
 
-19. Expand the **When a HTTP request is received** trigger, copy the value for the **HTTP POST URL** that is displayed, and save it for future reference. This is the _web hook_ endpoint URL for the Logic App that will be used by Event Grid to trigger the execution of the Logic App workflow.
+    {eventType} occurred at {eventTime}
 
-    ![HTTP request info](../../Linked_Image_files/MM99_L09_http_post.png)
+    IoT Hub: {hubName}
+    Device ID: {deviceID}
+    Connection state: {connectionState}
+    ```
 
+1. 入力したメッセージ本文を確認します。
 
-    The **HTTP POST URL** will be similar to the following:
+    中かっこのエントリは動的コンテンツを表すことを意図していることに気付いたかもしれません。これらのプレースホルダー エントリを実際の動的コンテンツ値に置き換える必要があります。
+
+    > **注意**: コネクタの右側に 「動的コンテンツツールの追加」 が表示されない場合は、**本文** テキスト ボックスのすぐ下にある 「**動的コンテンツ の追加**」 ハイパーリンクをクリック します。    必要なフィールドが表示されない場合は、「動的コンテンツ」 ペインの 「**さらに表示**」 をクリックして、入力したメッセージ本文に含まれるフィールドを含めます。 
+
+    次の手順では、各プレースホルダーの値を対応する動的コンテンツ値に置き換えます。
+
+1. 動的コンテンツ プレースホルダーごとに、エントリを削除し、対応する動的コンテンツ フィールドに置き換えます。
+
+    入力データ スキーマは配列用であるため、最初の動的コンテンツ値を追加すると、Logic Apps Designer は、**「For each」** アクション内で入れ子になるメール アクションを自動的に変更します。この場合、**「メールの送信 (V2)」** アクションが折りたたまれます。  メール メッセージを再度開くには、**「電子メールの送信 (V2)」** をクリックし、メッセージ本文の編集を続けます。
+
+    この手順を完了すると、次のようなメッセージ本文が表示されます。
+
+    ![メール情報の記入](./Media//LAB_AK_09-email_content.png)
+
+1. デザイナーの上部で、ロジック アプリ ワークフローに対するすべての変更を保存するには、「**保存**」をクリックします。 
+
+1. 「_HTTP 要求を受信したとき_」 トリガーを展開するには、「**HTTP 要求を受信したとき**」 をクリックします。 
+
+1. 表示されている 「**HTTP POST URL**」 の値をコピーします。
+
+    **HTTP POST URL** は次のようになります。
 
     ```text
     https://prod-87.eastus.logic.azure.com:443/workflows/b16b5556cbc54c97b063479ed55b2669/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ZGqYl-R5JKTugLG3GR5Ir1FuM0zIpCrMw4Q2WycJRiM
     ```
 
-    This URL is the Web Hook endpoint to call the Logic App trigger via HTTPS. Notice the **sig** query string parameter and it's value. The **sig** parameter contains the shared access key that is used to authenticate requests to the Web Hook endpoint.
+    この URL は、HTTPS を介してロジック アプリ トリガーを呼び出すために使用される Web hook エンドポイントです。**sig** クエリ文字列パラメーターと値に注意してください。  **sig** パラメーターには、Web hook エンドポイントへの要求を認証するために使用される共有アクセス キーが含まれています。 
 
-## Exercise 3: Configure Azure IoT Hub Event Subscription
+1. 今後の参照用に URL を保存します。
 
-Azure IoT Hub integrates with Azure Event Grid so that you can send event notifications to other services and trigger downstream processes. You can configure business applications to listen for IoT Hub events so that you can react to critical events in a reliable, scalable, and secure manner. For example, build an application that updates a database, creates a work ticket, and delivers an email notification every time a new IoT device is registered to your IoT hub.
+### 演習 3: Azure IoT Hub イベント サブスクリプションを構成する
 
-In this exercise, you will create an Event Subscription within Azure IoT Hub to setup Event Grid integration that will trigger a Logic App to send an alert email.
+Azure IoT Hub は Azure Event Grid と統合されるため、イベント通知を他のサービスに送信し、ダウンストリーム プロセスをトリガーできます。Business Applications を構成して IoT ハブ イベントをリッスンし、信頼性が高くスケーラブルで安全な方法で重要なイベントに対応できるようにします。たとえば、データベースを更新し、作業チケットを作成し、新しい IoT デバイスが IoT ハブに登録されるたびにメール通知を送信するアプリケーションをビルドします。
 
-1. Navigate back to your Azure Portal dashboard.
+この演習では、Azure IoT Hub 内にイベント サブスクリプションを作成して、アラート メールを送信するロジック アプリをトリガーする Event Grid 統合を設定します。
 
-1. On your resource group tile, click **AZ-220-HUB-_{YOUR-ID}_** to navigate to your Azure IoT Hub.
+1. Azure portal ダッシュボードに戻ります。
 
-2. On the **IoT Hub** blade, on the left side, click the **Events** link.
+1. リソース グループ タイルで、IoT ハブに移動するには、**「AZ-220-HUB-_{YOUR-ID}_」** をクリックします。 
 
-3. On the **Events** pane, at the top, click the **+ Event Subscription** button.
+1. **「IoT ハブ」** ブレードの左側のナビゲーション メニューで、**「イベント」** をクリックします。   
 
-4. Create the event subscription with the following values:
+1. **「イベント」** ペインの上部にある、**「イベント サブスクリプション」** をクリックします。   
 
-   * **EVENT SUBSCRIPTION DETAILS**
-     * **Name**: `MyDeviceCreateEvent`
-     * **EventSchema**: **Event Grid Schema**
+1. 「イベント サブスクリプションの作成」 ブレードの **「名前」** フィールドに、 **「MyDeviceCreateEvent」** と入力します。
 
-   * **TOPIC DETAILS**: will be informational and read-only
+1. **EventSchema** フィールドが  **Event Grid スキーマ**に設定されていることを確認します。
+
+1. 「**トピックの詳細** 」セクションは変更しないままにします。
+
+    このセクションは情報提供と読み取り専用です。
+
+1. 「**イベントの種類**」 で 「**イベントの種類のフィルター**」 ドロップダウンを開き、 「**作成されたデバイス**」 以外のすべての選択肢を選択解除します。
+
+1. **「エンドポイントの詳細」** で 「**エンドポイントの種類**」ドロップダウンを開き、「**ウェブフック**」 をクリックします。     
+
+1. **「エンドポイントの詳細」** で **「エンドポイントの選択」** をクリックします。   
+
+1. **「Web hook の選択」** ペインの **「サブスクライバー エンドポイント」** で、ロジックアプリからコピーした URL を貼り付け、**「選択の確認」** をクリックします。     
   
-   * **EVENT TYPES**
-     * **Filter to Event Types**: Uncheck all of the choices except **Device Created**.
+    > **重要**: 「作成」 をクリックしないでください。
 
-       ![subscription event types](../../Linked_Image_files/MM99-L09-subscription-event-types.png)
+    ここでイベント サブスクリプションを保存すると、IoT ハブで作成されたすべてのデバイスの通知を受信できます。ただし、このラボでは、オプションのフィールドを使用して特定のデバイスをフィルター処理します。 
 
-   * **ENDPOINT DETAILS**:
-     * **Endpoint Type**: **Web Hook**
-     * Click **Select an endpoint**, and then, in the **Select Web Hook** pane, under **Subscriber Endpoint**, paste the URL that you copied from your logic app, then click **Confirm Selection**.
+1. ペインの上部にある **「フィルター」** をクリックします。
 
-  *Do not yet click Create!*
+    特定のデバイスをフィルター処理するためにフィルターを使用します。
 
-   When you're done, the pane should look like the following example: 
+1. **「フィルタの詳細設定」** で **「新しいフィルタの追加」** をクリックし、フィールドに次の値を入力します。   
 
-    ![Sample event subscription form](../../Linked_Image_files/MM99-L09-subscription-form.png)
+    * **キー**: `Subject` と入力します
 
-5. You could save the event subscription here, and receive notifications for every device that is created in your IoT hub. For this tutorial, though, let's use the optional fields to filter for specific devices. Select **Filters** at the top of the pane.
+    * **演算子**: `String begins with` を選択します
 
-6. At the bottom of the pane, select **Add new filter**. Fill in the fields with these values:
+    * **値**:  `devices/CheeseCave1_` と入力します
 
-   * **Key**: Enter `Subject`.
+    この値を使用して、チーズケーブ 1 の場所 (CheeseCave1) に関連付けられたデバイス イベントをフィルター処理します。
 
-   * **Operator**: Select `String begins with`.
+1. 2 番目のフィルターを作成するには、「**新しいフィルターの追加**」 をクリックし、フィールドに次の値を入力します。
 
-   * **Value**:  Enter `devices/CheeseCave1_` to filter for device events in building 1.
-  
-   Add another filter with these values:
+    * **キー**: `Subject` と入力します
 
-   * **Key**: Enter `Subject`.
+    * **演算子**: `String ends with` を選択します
 
-   * **Operator**: Select `String ends with`.
+    * **値**: `_Thermostat` と入力します
 
-   * **Value**: Enter `_Thermostat` to filter for device events related to temperature.
+    この値を使用して、温度に関連するデバイス イベントをフィルター処理します。
 
-   The **Filters** tab of your event subscription should now look similar to this image:
+1. イベント サブスクリプションを保存するには、「**作成**」 をクリックします。 
 
-7. Select **Create** to save the event subscription.
+### 演習 4: 新しいデバイスでロジック アプリをテストする
 
-## Exercise 4: Test Your Logic App with New Devices
+新しいデバイスを作成して、イベント通知メールをトリガーしてロジック アプリをテストします。
 
-Test your logic app by creating a new device to trigger an event notification email.
+1. Azure potral で、必要に応じて IoT ハブ ブレードに移動します。
 
-1. From your IoT hub, on the left side, under **Explorers**, select **IoT Devices**.
+1. 左側のナビゲーション メニューの 「**エクスプローラ**」 で 「**IoT デバイス**」 をクリックします。   
 
-2. At the top, select **+ New**.
+1. 「IoT デバイス」 ブレードの上部にある 「**新規**」 をクリックします。
 
-3. For **Device ID**, enter `CheeseCave1_Building1_Thermostat`.
+1. 「**デバイス ID**」 フィールドに、「**CheeseCave1_Building1_Thermostat**」と入力します
 
-4. Leave all other fields at the defaults, and select **Save**.
+1. その他の設定は既定のままにして、「**保存**」 をクリックします。
 
-5. You can add multiple devices with different device IDs to test the event subscription filters. Try these other examples:
+1. イベント サブスクリプション フィルターをテストするには、次のデバイス ID を使用して追加のデバイスを作成します。
 
-   * `CheeseCave1_Building1_Light`
-   * `CheeseCave2_Building1_Thermostat`
-   * `CheeseCave2_Building2_Light`
+    * `CheeseCave1_Building1_Light`
+    * `CheeseCave2_Building1_Thermostat`
+    * `CheeseCave2_Building2_Light`
 
-   If you added the four examples total, your list of IoT devices should look like the following image:
+    合計 4 つの例を追加した場合、IoT デバイスの一覧は次の図のようになります。
 
-   ![IoT Hub device list](../../Linked_Image_files/MM99-L09-iot-hub-device-list.png)
+    ![IoT ハブ デバイスの一覧](./Media/LAB_AK_09-iot-hub-device-list.png)
 
-6. Once you've added a few devices to your IoT hub, check your email to see which ones triggered the logic app.
-
-
-
-
-
-
-
+1. IoT ハブにデバイスをいくつか追加したら、メールをチェックして、ロジック アプリがトリガーされたデバイスを確認します。

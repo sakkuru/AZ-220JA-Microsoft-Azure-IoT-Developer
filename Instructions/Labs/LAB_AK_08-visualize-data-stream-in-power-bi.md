@@ -1,363 +1,391 @@
----
+﻿---
 lab:
-    title: 'Lab 08: Visualize a Data Stream in Power BI'
-    module: 'Module 4: Message Processing and Analytics'
+    title: 'ラボ 08: Power BI でデータ ストリームを視覚化する'
+    module: 'モジュール 5: インサイトとビジネス インテグレーション'
 ---
 
-# Visualize a Data Stream in Power BI
+# Power BI でデータ ストリームを視覚化する
 
-> [!NOTE] This lab is a continuation of Lab 7 - Device Message Routing. 
-
-> [!IMPORTANT] This lab has several service prerequisites that are not related to the Azure subscription you were given for the course:
-> 1. The ability to sign in to a "Work or School Account" (Azure Active Directory account)
-> 2. You must know your account sign-in name, which may not match your e-mail address.
-> 3. Access to Power BI, which could be through:
-    1. An existing Power BI account
-    2. The ability to sign up for Power BI - some organizations block this.
+> **注意**:  このラボは、「ラボ 7 - デバイス メッセージ ルーティング」の続きです。
 >
-> The first lab exercise will validate your ability to access Power BI.  If you are not successful in the first exercise, you will not be able to complete the lab, as there is no quick workaround to this.
+> **重要**: このラボには、コース用に提供された Azure サブスクリプションとは関係なく、次のように複数のサービスの前提条件があります。
+>
+> 1. 「職場または学校アカウント」にサインインする機能 (Azure Active Directory アカウント)
+> 2. アカウントのサインイン名を知っている必要があります。ただし、電子メール アドレスと一致しない場合があります。
+> 3. Power BI へのアクセスは、次の方法で行われます。
+>       1. 既存の Power BI アカウント
+>       2. Power BI にサインアップする機能 - 一部の組織はこれをブロックします。
+>
+> 最初のラボの演習では、Power BI にアクセスする機能を検証します。  最初の演習で成功しなかった場合は、職場または学校のアカウントに対してブロックされたアクセスに対する簡易的な回避策がないため、ラボを完了できません。
 
-## Lab Scenario
+## ラボ シナリオ
 
-You have developed a device simulator that generates vibration data and other telemetry outputs for a conveyor belt system that takes packages and drops them off in mailing bins. You have built and tested a logging route that sends dat to Azure Blob storage.
+Contoso のチーズ パッケージング プロセスで使用されるコンベア ベルト システムの典型的な振動データとその他のテレメトリ出力を生成する、シミュレートされた IoT デバイスを開発しました。Azure BLOB ストレージにデータを送信するログ ルートを構築して、テストしました。テレメトリ データを Azure Event Hubs サービスに送信する IoT ハブ内の新しいルートの作業を開始します。
 
-The second route will be to an Event Hub, because an Event Hub is a convenient input to Stream Analytics. And Stream Analytics is a convenient way of handling anomaly detection, like the excessive vibration we're looking for in our scenario.
+Azure IoT Hub と Azure Event Hubs の主な違いは、Event Hubs はビッグ データ ストリーミングのために設計されているのに対して、IoT ハブは IoT ソリューションに最適化されている点です。どちらのサービスも、低遅延と高い信頼性でデータの取り込みをサポートします。Azure Event Hubs では IoT Hub と似た方法による Stream Analytics の入力を提供するため、この場合には、選択した Event Hubs により、ソリューション内の追加の Azure サービス オプションを探索できます。
 
-This route will be created for the IoT Hub, then added as an input to the Azure Stream Analytics job.
+### 組み込みの機械学習モデルへの呼び出し
 
-We need to update the job to handle two inputs and two outputs, and a more complex query.
+呼び出しの対象となる組み込み機械学習 (ML) 関数は `AnomalyDetection_SpikeAndDip` です。
 
-The process of creating the second route follows a similar process to the first, though it diverges at the creation of an endpoint. An Event Hub is chosen as the endpoint for the telemetry route.
+`AnomalyDetection_SpikeAndDip` 関数は、データのスライディング ウィンドウを取り、異常を調べます。スライディング ウィンドウは、たとえば、テレメトリ データの最新の 2 分間である可能性があります。このスライディング ウィンドウは、リアルタイムに近いテレメトリの流れで対応します。スライディング ウィンドウのサイズが大きくなると、一般に異常検出の精度も高くなります。待ち時間も同様です。
 
-In this exercise, you will create an Event Hubs *namespace*. You then have to create an *instance* of the namespace to complete the setting up of an Event Hub. You can then use this instance as the destination for the new message route.
+データの流れが続くにつれて、アルゴリズムは通常の値の範囲を確立し、その標準と新しい値を比較します。結果は各値のスコアであり、指定された値が異常であるという信頼度を決めるパーセンテージです。低いは信頼度は無視されますが、信頼度の値が許容される割合が問題です。クエリでは、この転換点を 95% に設定します。
 
-After the route is created, we move on to updating the query.
+データにギャップがある場合 (コンベア ベルトはしばらくの間、停止します) のように、常に複雑な問題があります。アルゴリズムは、値を補完することによってデータのボイドを処理します。
 
-### Make a Call to a Built-in ML Model
+> **注意**: 統計では、補完は欠損データを代入値に置き換えるプロセスになります。補完の詳細については、[ここ](https://en.wikipedia.org/wiki/Imputation_%28statistics%29)を参照してください。
 
-The built-in function we're going to call is `AnomalyDetection_SpikeAndDip`.
+利用統計情報の急上昇と急下降は一時的な異常です。ただし、振動の正弦波を扱うため、異常警報を引き起こす高い値または低い値の後に短い期間の「正常」値が続くと予想できます。オペレーターは、短時間に発生する異常のクラスターを探しています。このようなクラスターは、何かが誤っていることを示唆しています。
 
-The `AnomalyDetection_SpikeAndDip` function takes a sliding window of data, and examines it for anomalies. The sliding window could be, say, the most recent two minutes of telemetry data. This sliding window keeps up with the flow of telemetry in close to real time. If the size of the sliding window is increased, generally the accuracy of anomaly detection will increase too. As will the latency.
+この他にも、トレンドを検出するモデルなど、組み込み ML モデルがあります。このモジュールの一部としてこれらのモデルは含まれていませんが、受講生はさらに深く調査するといいでしょう。
 
-As the flow of data continues, the algorithm establishes a normal range of values, then compares new values against those norms. The result is a score for each value, a percentage that determines the confidence level that the given value is anomalous. Low confidence levels are ignored, the question is what percentage confidence value is acceptable? In our query, we're going to set this tipping point at 95%.
+### Power BI を使用したデータを視覚化する
 
-There are always complications, like when there are gaps in the data (the conveyor belt stops for a while, perhaps). The algorithm handles voids in the data by imputing values.
+数値データ、特に大量のデータを可視化することは、それ自体が課題です。何かが間違っていると推測する異常のシーケンスを人間のオペレータに警告する方法とは?
 
-Spikes and dips in telemetry data are temporary anomalies. However, as we're dealing with sine waves for vibration, we can expect a short period of "normal" values follow a high or low value that triggers an anomaly alert. The operator is looking for a cluster of anomalies occurring in a short time span. Such a cluster indicates something is wrong.
+このモジュールに使用するソリューションは、Power BI が取得できるリアルタイム形式のデータを送信するために、Azure Stream Analytics の機能と共に、Power BI の一部の組み込み機能を使用することです。
 
-There are other built-in ML models, such as a model for detecting trends. We don't include these models as part of this module, but the student is encouraged to investigate further.
+Power BI のダッシュボード機能を使用して、多数のタイルを作成します。1 つのタイルには、実際の振動測定が含まれます。もう 1 つのタイルはゲージで、値が異常であることを 0.0 から 1.0 の信頼度で示します。3 番目のタイルでは、95% の信頼度に達したかどうかを示します。最後に、4 番目のタイルは、過去 1 時間で検出された異常の数を示します。X軸として時間を含めることによって、このタイルは、複数の異常が水平に一緒にクラスタリングされるため、短時間で連続して検出されたかどうかを明確にします。
 
-### Visualize data using Power BI
+4 番目のタイルを使用すると、テレメトリ コンソール ウィンドウ内の赤いテキストと異常を比較できます。振動が強制的に実行された場合、または増加した場合、またはその両方が発生したときに異常のクラスターが検出されていますか?
 
-Visualizing numerical data, especially volumes of it, is a challenge in itself. How can we alert a human operator of the sequence of anomalies that infer something is wrong?
+次のリソースが作成されます。
 
-The solution we use in this module is to use some built-in functionality of Power BI. And the ability of Azure Stream Analytics to send data in a real-time format that Power BI can ingest.
+![ラボ 8 アーキテクチャ](media/LAB_AK_08-architecture.png)
 
-We use the dashboard feature of Power BI to create a number of tiles. One tile contains the actual vibration measurement. Another tile is a gauge, showing from 0.0 to 1.0 the confidence level that the value is an anomaly. A third tile indicates if the 95% confidence level is reached. The main tile though shows the number of anomalies detected over the past hour. This tile makes it clear if a clutch of anomalies were detected in short succession.
+## このラボでは
 
-The fourth tile includes time as the x-axis. This tile allows you to compare the anomalies with the red text in the telemetry console window. Is there a cluster of anomalies being detected when forced, or increasing, or both, vibrations are in action?
+このラボでは、次のタスクを完了します。
 
-Let's create the Event Hub, create the second route, update the SQL query, create a Power BI dashboard, and let it all run!
+* Power BI へのサインアップ
+* ラボの前提条件が満たされていることを確認する (必要な Azure リソースがあること)
+* リアルタイムでテレメトリを分析する
+* Azure Event Hubs サービスを作成する
+* リアルタイム メッセージ ルートの作成
+* IoT ハブにテレメトリ ルートを追加する
+* データ異常を視覚化する Power BI ダッシュボードの作成
 
+イベント ハブを作成し、2 番目のルートを作成して SQL クエリを更新し、Power BI ダッシュボードを作成して、すべてを実行してみましょう。
 
+## ラボの手順
 
+### 演習 1: PowerBI にサインアップする
 
+Power BI は個人データ分析および視覚化ツールになり、グループ プロジェクト、部門、または企業全体の背後にある分析と意思決定エンジンとしても機能します。後ほどこのラボで、PowerBI を使用してダッシュボードを構築し、データを視覚化します。この演習では、個人として Power BI にサインアップする方法を説明します。
 
+>**注:** PowerBI サブスクリプションが既にある場合は、次の手順にスキップできます。
 
+#### タスク 1: サポートされる電子メール アドレスについて
 
+サインアップ プロセスを開始する前に、Power BI へのサインアップに使用できるメール アドレスの種類を把握することが重要です。
 
+* Power BI では、職場または学校のメール アドレスを使用してサインアップする必要があります。コンシューマー メール サービスまたは通信プロバイダーから提供されるメール アドレスを使用してサインアップすることはできません。この中には、outlook.com、hotmail.com、gmail.com などが含まれます。
 
+* サインアップした後、 [ゲスト ユーザーを招待](https://docs.microsoft.com/azure/active-directory/active-directory-b2b-what-is-azure-ad-b2b)して、個人アカウントなど任意のメール アドレスを含む Power BI コンテンツを表示できます。
 
+* .gov または .mil アドレスを使用して Power BI にサインアップできますが、これには別のプロセスが必要です。詳しくは、「[米国政府機関の組織を Power BI サービスに登録する](https://docs.microsoft.com/en-us/power-bi/service-govus-signup)」を参照してください。
 
+#### タスク 2: Power BI アカウントにサインアップする
 
-## In This Lab
+Power BI アカウントにサインアップするには、次の手順に従います。このプロセスを完了すると、Power BI (無料) ライセンスを得られ、自分のワークスペースを使用して Power BI を試したり、Power BI Premium の容量に割り当てられた Power BI ワークスペースのコンテンツを使用したり、個々の Power BI Pro 試用版を開始したりできます。
 
-This lab includes:
+1. ブラウザーで、 [サインアップ ページ](https://signup.microsoft.com/signup?sku=a403ebcc-fae0-4ca2-8c8c-7a907fd6c235) に移動します。
 
-* Sign-up for Power BI
-* Verify Lab Prerequisites
-* Analyze Telemetry in Real-Time
-* Create EventHub
-* Create Real-time Message Route
-* Add Telemetry Route
-* Create a dashboard to visualize data anomalies, using Power BI
+1.  「**はじめに**」 ページで、サポートされているメール アドレスを入力します。
 
-## Exercise 1: Sign Up For PowerBI
+1. ロボットではないことを証明するよう求めるメッセージが表示された場合は、 「**テキスト メッセージを送信する**」 または  「**電話で確認コードを受け取る**」 のいずれかを選択し、関連情報を入力して確認コードを受け取ってから、この手順の次のステップに進みます。
 
-Power BI can be your personal data analysis and visualization tool, and can also serve as the analytics and decision engine behind group projects, divisions, or entire corporations. Later on in this lab, you will visualize data using PowerBI. This article explains how to sign up for Power BI as an individual.
+    ![あなたはロボットではありませんか](./Media/LAB_AK_08-prove-robot.png)
 
->**Note:** If you already have a PowerBI subscription, you can skip to the next step.
+    代わりに、既にアカウントを持っているという通知が表示された場合は、サインインを続行すると、PowerBI を使用する準備が整います。
 
-### Task 1: Understand Supported Email Addresses
+    ![あなたはロボットではありませんか](./Media/LAB_AK_08-existing-account.png)
 
-Before you start the sign-up process, it's important to learn which types of email addresses that you can use to sign-up for Power BI:
+1. 電話のテキストを確認するか、電話を待ってから受信したコードを入力して、 「**サインアップ**」 をクリックします。
 
-* Power BI requires that you use a work or school email address to sign up. You can't sign up using email addresses provided by consumer email services or telecommunication providers. This includes outlook.com, hotmail.com, gmail.com, and others.
+    ![サインアップ](./Media/LAB_AK_08-sign-up.png)
 
-* After you sign up, you can [invite guest users](https://docs.microsoft.com/azure/active-directory/active-directory-b2b-what-is-azure-ad-b2b) to see your Power BI content with any email address, including personal accounts.
+1. このようなメッセージについては、メールを確認してください。
 
-* You can sign-up for Power BI with .gov or .mil addresses, but this requires a different process. For more info, see [Enroll your US Government organization in the Power BI service](https://docs.microsoft.com/en-us/power-bi/service-govus-signup).
+    ![サインアップ](./Media/LAB_AK_08-email-verification.png)
 
-### Task 2: Sign up for a Power BI Account
+1. 次の画面で、メールの情報と確認コードを入力します。リージョンを選択し、この画面からリンクされているポリシーを確認して、 「開始」 を選択します。
 
-Follow these steps to sign up for a Power BI account. Once you complete this process you will have a Power BI (free) license which you can use to try Power BI on your own using My Workspace, consume content from a Power BI workspace assigned to a Power BI Premium capacity or initiate an individual Power BI Pro Trial. 
+    ![サインアップ](./Media/LAB_AK_08-create-account.png)
 
-1. In your browser, navigate to the [sign-up page](https://signup.microsoft.com/signup?sku=a403ebcc-fae0-4ca2-8c8c-7a907fd6c235).
+1. さらに、[Power BI サインイン ページ](https://powerbi.microsoft.com/landing/signin/)に移動し、Power BI の使用を開始できます。 
 
-1. On the **Get started** page, enter a supported email address.
+Power BI にアクセスできるので、リアルタイムのテレメトリ データを Power BI ダッシュボードにルーティングする準備が整いました。
 
-1. If you see a message requesting you prove you are not a robot, choose either **Text me** or **Call me** and supply the relevant information to receive a verification code, then continue to the next step in this procedure.
+### 演習 2: ラボの前提条件を確認する
 
-    ![Are you a robot](../../Linked_Image_Files/M99-L07b-prove-robot.png)
+Power BI ダッシュボードで IoT Hub のライブ ストリーミング データを視覚化するには、テレメトリ メッセージを送信する実際の IoT デバイスまたはシミュレートされた IoT デバイスが必要です。幸いにも、ラボ 7 でこの要件を満たすシミュレートされたデバイスを作成しました。
 
-    If, instead, you are informed that you already have an account, continue to sign-in and you are ready to use PowerBI.
+この演習では、前のラボの Device Simulator アプリが実行されていることを確認します。 
 
-    ![Are you a robot](../../Linked_Image_Files/M99-L07b-existing-account.png)
+> **注意**: このコースのラボ 7 を完了していない場合は、それを今実行します。
 
-1. Check your phone texts or wait for the call, then enter the code that you received, then click **Sign up**.
+#### タスク 1: Visual Studio Code で "vibrationdevice" アプリを起動する
 
-    ![Sign Up](../../Linked_Image_Files/M99-L07b-sign-up.png)
+1. Visual Studio Code を起動します。
 
-1. Check your email for a message like this one.
+1.  「**ファイル**」 メニューで、 「**フォルダーを開く**」 をクリックします。
 
-    ![Sign Up](../../Linked_Image_Files/M99-L07b-email-verification.png)
+1.  「フォルダを開く」 ダイアログで、**vibrationdevice** フォルダに移動し、 「**フォルダの選択**」 をクリックします。   
 
-1. On the next screen, enter your information and the verification code from the email. Select a region, review the policies that are linked from this screen, then select Start.
+     「Explorer」 ペインの一覧に Program.cs と vibrationdevice.csproj ファイルが表示されます。
 
-    ![Sign Up](../../Linked_Image_Files/M99-L07b-create-account.png)
+    デバイスの接続文字列が Program.cs ファイルの `s_deviceConnectionString` 変数に割り当てられていることを確認できます。ラボ 7 を完了すると、次のような変数の割り当てがコードに表示されます。
 
-1. You're then taken to [Power BI sign in page](https://powerbi.microsoft.com/landing/signin/), and you can begin using Power BI.
-
-Now you have access to Power BI, you are ready to route real-time telemetry data to a Power BI dashboard.
-
-## Exercise 2: Verify Lab Prerequisites
-
-As we need some real-time telemetry, you need to ensure the Device Simulator app from the previous lab is running.
-
-1. In Visual Studio Code, to run the app in the terminal, enter the following command:
-
-    ```bash
-    dotnet run
+    ```csharp
+    s_deviceConnectionString = "HostName=AZ-220-HUB-CAH200509.azure-devices.net;DeviceId=VibrationSensorId;SharedAccessKey=nSUbphUKsS1jEd7INrEtmVWZesMBDIxzjVe4jn01KJI=";
     ```
 
-   This command will run the **Program.cs** file in the current folder.
+1. ** 「表示」**メニューで、** 「ターミナル」** をクリック します。   
 
-1. You should quickly see console output, similar to the following:
+    コマンド プロンプトに **vibrationdevice** フォルダへのフォルダ パスが表示されていることを確認します。
+ 
+1. ターミナルでアプリを実行するには、次のコマンドを入力します。
 
-    ![Console Output](../../Linked_Image_Files/M99-L07-vibration-telemetry.png)
+    ```bash
+    dotnet 実行
+    ```
 
-    > [!NOTE] Green text is used to show things are working as they should and red text when bad stuff is happening. If you don't get a screen similar to this image, start by checking your device connection string.
+   このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
 
-1. Watch the telemetry for a short while, checking that it is giving vibrations in the expected ranges.
+1. すぐに次のようなコンソール出力が表示されます。
 
-1. You can leave this app running, as it's needed for the next section.
+    ![コンソール出力](./Media/LAB_AK_08-vibration-telemetry.png)
 
-## Exercise 3: Add Azure Event Hub Route and Anomaly Query
+    > **注意**:  緑色のテキストは、物事が本来のように機能していることを示すために使用され、赤いテキストは悪いことが起こっているときに表示されます。この画像に似た画面が表示されない場合は、まずデバイスの接続文字列を確認します。
 
-In this exercise, we're going to add a query to the Stream Analytics job, and then use Microsoft Power BI to visualize the output from the query. The query searches for spikes and dips in the vibration data, reporting anomalies. We must create the second route, after first creating an instance of an Event Hubs namespace.
+1. このアプリを実行したままにします。
 
-### Task 1: Create an Event Hubs Namespace
+    テレメトリ データは、データの視覚化に必要です。
 
-In this task, you will use the Azure portal to create an Event Hubs resource.
+### 演習 3: Azure Event Hubs サービスを作成する
 
-1. Login to [portal.azure.com](https://portal.azure.com) using your Azure account credentials.
+IoT ハブにテレメトリ データをストリーミングしたので、Azure Event Hubs の名前空間と Azure Event Hubs インスタンスをソリューションに追加します。Azure Event Hubs はストリーミング データの処理に最適で、ライブ ダッシュボード シナリオをサポートします。これは振動データを Power BI へ受け渡すのにお勧めです。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+#### タスク 1: Event Hubs 名前空間を作成
 
-1. On the portal menu, click **+ Create a resource**.
+このタスクでは、Azure portal を使用して Event Hubs リソースを作成します。
 
-    The Azure Marketplace is a collection of all the resources you can create in Azure. The marketplace contains resources from both Microsoft and the community.
+1. Azure アカウントの資格情報を使用して [portal.azure.com](https://portal.azure.com) にログインします。
 
-2. In the Search textbox, type **Event Hubs** and press **Enter**.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-3. On the search results panel under the textbox, click **Event Hubs**.
+1. Azure portal メニューで、** 「すべてのサービス」** をクリックします。
 
-4. To begin the process of creating your new Event Hubs resource, click **Create event hubs namespace**.
+1. 「検索」 テキスト ボックスに、「 **イベント**」と入力します。
 
-    The **Create Namespace** blade will be displayed.
+1. 検索テキスト ボックスの下の検索結果パネルで、** 「Event Hubs」** をクリックします。
 
-5. On the **Create Namespace** blade, under **Name**, enter **vibrationNamespace** plus a unique identifier (your initials and today's date) - i.e. **vibrationNamespaceCAH191212**
+1. 新しい Event Hubs リソースの作成プロセスを開始するには、** 「イベント ハブの名前空間の作成」** をクリックします。
 
-    This name must be globally unique.
+    ** 「名前空間の作成」** ブレードが表示されます。
 
-6. Under **Pricing tier**, select **Standard**.
+1. 「**名前空間の作成**」 ブレードの  「**名前**」で、**v brationNamespace** と一意識別子を入力します。
 
-   > [!NOTE] Choosing the standard pricing tier enables _Kafka_. The Event Hubs for Kafka feature provides a protocol head on top of Azure Event Hubs that is binary compatible with Kafka versions 1.0 and later for both reading from and writing to Kafka topics. You can learn more about Event Huibs and Apache Kafka [here](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-for-kafka-ecosystem-overview). We will not be using Kafka in this lab.
+    イニシャルと今日の日付を使用して、名前を一意なもの (**vibrationNamespaceCAH191212**) にできます 。
 
-7. Leave **Make this namespace zone redundant** unchecked.
+    この名前はグローバルに一意でなくてはなりません。
 
-    > [!NOTE] Checking this option enables enhanced availability by spreading replicas across availability zones within one region at no additional cost - however we don't need this capability for the lab.
+1. 「**価格レベル**」 で  「**標準**」 を選択します。
 
-8. Under **Subscription**, select the subscription you are using for this lab.
+   > **注意**:  標準価格レベルを選択すると、_Kafka_ が有効になります。Kafka の Event Hubs の機能として、Kafka のトピックの読み取りと書き込みの両方に対して、Kafka バージョン 1.0 以降とバイナリ互換の Azure Event Hubs の上にプロトコル ヘッドを提供します。Event Hubs と Apache Kafka の詳細については、[こちら](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-for-kafka-ecosystem-overview)を参照してください。このラボでは Kafka を使用しません。
 
-9. Under **Resource group**, select the resource group you are using for this lab - **AZ-220-RG**.
+1. **「この名前空間をゾーン冗長にする」** のチェックを外しておきます。
 
-10. Under **Location**, choose the region you are using for all lab work.
+    > **注意**:  このオプションをオンにすると、追加コストなしで 1 つのリージョン内の Availability Zones にレプリカを分散させることで可用性が向上しますが、ラボではこの機能は必要ありません。
 
-11. Under **Throughput units**, set the value to 1.
+1. 「**サブスクリプション**」 で、このラボで使用しているサブスクリプションを選択します。
 
-    This lab does not generate sufficient data to warrant increasing the number of units.
+1. 「**リソース グループ**」 で、このラボで使用しているリソース グループ **AZ-220-RG** を選択します。
 
-12. Leave **Enable Auto-Inflate** unchecked.
+1. 「**場所**」 で、すべてのラボ作業に使用するリージョンを選択します。
 
-    > [!NOTE] Auto-Inflate automatically scales the number of Throughput Units assigned to your Event Hubs Namespace when your traffic exceeds the capacity of the Throughput Units assigned to it. You can specify a limit to which the Namespace will automatically scale. We do not require this feature for this lab.
+1. **「スループット ユニット」** で、値を 1 に設定します。
 
-13. To create the resource, click **Create**, and wait for the resource to be deployed. This can take a few minutes.
+    このラボでは、ユニット数の増加を保証するのに十分なデータが生成されません。
 
-Now we have an Event Hubs Namespace, we can create and Event Hubs instance.
+1. **「自動拡張を有効にする」** はオフのままにしておきます。
 
-### Task 2: Create an Event Hubs Instance
+    > **注意**:  自動拡張は、トラフィックが割り当てられたスループット ユニットの容量を超えると、Event Hubs 名前空間に割り当てられたスループット ユニットの数を自動的にスケーリングします。名前空間を自動的にスケーリングするための制限を指定できます。このラボでは、この機能は必要ありません。
 
-1. Navigate back to the Azure Portal home page.
+1. リソースを作成するには、**「作成」** をクリックし、リソースのデプロイを待ちます。
 
-1. In your resource group tile, select your Event Hub namespace, e. g. **vibrationNamespaceCAH191212**.  (If it is not visible, refresh the tile.)
+    このデプロイには数分かかります。「通知」 ウィンドウを開いて、進行状況を監視できます。 
 
-    The **Overview** pane of the **Event Hubs Namespace** blade will be displayed.
+    Event Hubs 名前空間を作成したら、Event Hubs インスタンスを作成できます。
 
-2. To create an Event Hubs Instance, at the top of the pane, click **+ Event Hub**.
+#### タスク 2: Event Hubs インスタンスを作成する
 
-    The **Create Event Hub** blade will be displayed.
+1. Azure portal ダッシュボード のページに戻ります。
 
-3. On the **Create Event Hub** blade, under **Name**, enter **vibrationeventhubinstance**.
+1. リソース グループ タイルで、イベント ハブ名前空間を選択します。
 
-4. Leave **Partition Count** set to **1**.
+    Event Hubs の名前空間が一覧にない場合は、タイルを更新します。
 
-    > [!NOTE] Partitions are a data organization mechanism that relates to the downstream parallelism required in consuming applications. The number of partitions in an event hub directly relates to the number of concurrent readers you expect to have. You can increase the number of partitions beyond 32 by contacting the Event Hubs team. The partition count is not changeable, so you should consider long-term scale when setting partition count. In this lab, we only require 1.
+    「**Event Hubs の名前空間**」 ブレードの 「**概要**」 ウィンドウが表示されます。   
 
-5. Leave **Message Retention** set to **1**.
+1. Event Hubs インスタンスを作成するには、ウィンドウの上部にある 「**+ Event Hub**」 をクリックします。 
 
-    > [!NOTE] This is the retention period for events. You can set the retention period between 1 and 7 days. For this lab, we only require the minimum retention.
+    「**イベント ハブの作成**」 ブレードが表示されます。 
 
-6. Leave **Capture** set to **Off**.
+1. 「**イベント ハブの作成**」 ブレードで、「**名前**」 の下に 「**vibrationeventhubinstance**」 と入力します。     
 
-    > [!NOTE] Azure Event Hubs Capture enables you to automatically deliver the streaming data in Event Hubs to an Azure Blob storage or Azure Data Lake Store account of your choice, with the added flexibility of specifying a time or size interval. We do not require this feature for the lab.
+1. **「パーティション数」** を **1** に設定したままにします。   
 
-7. To create the Azure Hubs Instance, click **Create**. Wait for the resource to be deployed.
+    > **注意**:  パーティションは、アプリケーションの使用に必要なダウンストリーム並列処理に関連するデータ編成メカニズムです。イベント ハブ内のパーティションの数は、同時読み取り値の数に直接関係します。Event Hubs チームに問い合わせると、パーティションの数を 32 を超えて増やすことができます。パーティション数は変更できないため、パーティション数を設定する場合は長期的な規模で検討する必要があります。このラボでは、1 つだけ必要です。
 
-## Exercise 4: Create Real-Time Message Route
+1. **「メッセージのリテンション期間」** は **1** のままにします。
 
-Now that we have an Event Hubs Namespace and an Event Hub, we can start to build the route itself.
+    > **注意**:  これは、イベントの保持期間です。保持期間は 1 日から 7 日の間で設定できます。このラボでは、最小限のリテンション期間のみが必要です。
 
-## Create a Route to an Event Hub
+1. 「**キャプチャ**」 は 「**オフ**」 に設定したままにします。
 
-In this task we will add a message route to our IoT Hub that will send telemetry messages to the Event Hub Instance we just created.
+    > **注意**:  Azure Event Hubs を使用すると、Event Hubs のストリーミング データを選択した Azure Blob Storage または Azure Data Lake Store アカウントに自動的に配信します。時間またはサイズの間隔は柔軟に指定できます。ラボではこの機能は必要ありません。
 
-1. Navigate to your Azure Portal dashboard, and select your IoT Hub **AZ-220-HUB-*{YOURID}***) from the resource group tile.
+1. Azure Hubs インスタンスを作成するには、**「作成」** をクリックします。リソースがデプロイされるのを待ちます。
 
-    The **Overview** blade for the IoT Hub will be displayed.
+### 演習 4: リアルタイムのメッセージ ルートを作成する
 
-1. On the **Overview** blade, in the left hand navigation, under **Messaging**, select **Message routing**.
+Event Hubs 名前空間と Event Hubs サービスを作成したので、IoT ハブからイベント ハブにテレメトリ データを渡す必要があります。
 
-1. On the **Message routing** pane, to add a new message route, click **+ Add**.
+#### タスク 1: 製品利用統計情報ルートを作成する
 
-1. On the **Add a route** blade, under **Name**, enter **vibrationTelemetryRoute**.
+このタスクでは、作成したばかりの Event Hubs インスタンスに製品利用統計情報メッセージを送信するメッセージ ルートを IoT ハブに追加します。
 
-2. To the right of the **Endpoint** dropdown, click **+ Add endpoint**. This time, select **Event hubs** for the type of endpoint.
+1. Azure portal ダッシュボードに移動し、リソース グループ タイルから IoT ハブ **AZ-220-HUB-*{YOURID}***) を選択します。
 
-3. On the **Add an event hub endpoint** blade, under **Endpoint name**, enter **vibrationTelemetryEndpoint**.
+    IoT ハブの **「概要」** ウィンドウが表示されます。
 
-4. Under **Event hub namespace**, select the namespace you created earlier - i.e. **vibrationNamespaceCAH191212**.
+1. **「概要」** ウィンドウで左側のナビゲーション メニューにある **「メッセージング」** で **「メッセージ ルーティング」** を選択します。
 
-5. Under **Event hub instance**, select the namespace you created earlier - i.e. **vibrationeventhubinstance**.
+1. **「メッセージ ルーティング」** ウィンドウで、新しいメッセージ ルートを追加するには、**「+ 追加」** をクリックします。
 
-6. To create the endpoint, click **Create**, and wait for the success message.
+1. **「ルートの追加」** ブレードの **「名前」** で「**vibrationTelemetryRoute**」と入力します。
 
-    You will be returned to the **Add a route** blade and the **Endpoint** value will have been updated.
+1. **「エンドポイント」** ドロップダウンの右側で **「+ エンドポイントの追加」** をクリックした後、**「イベント ハブ」** をクリックします。
 
-7. Under **Data source**, ensure **Device Telemetry Messages** is selected.
+1. **「イベント ハブ エンドポイントの追加」** ブレードの **「エンドポイント名」** で、**「vibrationTelemetryEndpoint」**と入力します。
 
-8. Under **Enable route**, ensure **Enable** is selected.
+1. **「イベント ハブの名前空間」** で、先ほど作成した名前空間を選択します。
 
-9. Under **Routing query**, replace the existing query with the following:
+    次のようになります: **vibrationNamespaceCAH191212**
+
+1. **「イベント ハブ インスタンス」** で、**「vibrationeventhubinstance」** をクリックします。
+
+1. エンドポイントを作成するには、**「作成」** をクリックし、成功メッセージを待ちます。
+
+    **「ルートの追加」** ブレードに戻り、**「エンドポイント」** の値が更新されます。
+
+1. **「データ ソース」** で、**「デバイス テレメトリ メッセージ」** が選択されていることを確認します。
+
+1. **「ルートを有効にする」** で、**「有効」** が選択されていることを確認します。
+
+1. **「クエリのルーティング」** で、既存のクエリを次のクエリに置き換えます。
 
     ```sql
     sensorID = "VSTel"
     ```
 
-    You may recall that the earlier sent "VSLog" messages to the logging storage. This message route will be sending "VSTel" (the telemetry) to the Event Hubs Instance.
+    前のクエリで "VSLog" メッセージをログ ストレージに送信したことを覚えていますか。このメッセージ ルートは、"VSTel" (製品利用統計情報) を Event Hubs インスタンスに送信します。
 
-10. To create the message route, click **Save**.
+1. メッセージ ルートを作成するには、**「保存」** をクリックします。
 
-11. Once the **Message routing** blade is displayed, verify you have two routes that match the following:
+1. 「**メッセージ ルーティング**」 ブレードが表示されたら、次に一致する 2 つのルートがあることを確認します。
 
-    | Name | Data Source | Routing Query | Endpoint | Enabled |
+    | 名前 | データ ソース | ルーティング クエリ | エンドポイント | 有効 |
     |:-----|:------------|:--------------|:---------|:--------|
     |`vibrationLoggingRoute`|`DeviceMessages`|`sensorID = "VSLog"`|`vibrationLogEndpoint`|`true`|
     |`vibrationTelemetryRoute`|`DeviceMessages`|`sensorID = "VSTel"`|`vibrationTelemetryEndpoint`|`true`|
 
-We are now ready to update the Azure Stream Analytics job to hand the real-time device telemetry.
+Azure Stream Analytics のジョブを更新して、リアルタイム デバイス テレメトリを提供する準備ができました。
 
-## Exercise 5: Add Telemetry Route
+### 演習 5: テレメトリのルートを追加する
 
-With this new IoT Hub route in place, we need to update our Stream Analytics job to handle the telemetry stream.
+この新しい IoT ハブ ルートが整い、テレメトリ データがイベント ハブにストリーミングされた場合は、Stream Analytics ジョブを更新する必要があります。このジョブは、イベント ハブからのデータを使用し、**AnomalyDetection_SpikeAndDip** ML モデルを使用して分析し、結果を Power BI に出力する必要があります。
 
-### Task 1: Add a New Input to the Job
+#### タスク 1: ジョブに新しい入力を追加
 
-1. Return to your Azure Portal dashboard, and click on the **vibrationJob** you created in an earlier section.
+1. Azure portal ダッシュボードに戻る
 
-    The **Stream Analytics Job** blade will open displaying the **Overview** pane.
+1. リソース グループ タイルで、**「vibrationJob」** をクリックします。
 
-1. In the left hand navigation, under **Job topology**, click **Inputs**.
+    これは、前のラボで作成した Stream Analytics ジョブです。
+ 
+    **「Stream Analytics ジョブ」** ブレードが開き、**「概要」** ウィンドウが表示されます。
 
-1. On the **Inputs** pane, click **+ Add stream input** and then select **Event Hub**.
+    > **注意**: ジョブの状態が **「停止」** になっていることを確認します。
 
-1. On the **Event Hub** pane, under **Input alias**, enter **vibrationEventInput**
+1. 左側のナビゲーション メニューの **「ジョブ トポロジ」** で、**「入力」** をクリックします。
 
-1. Ensure **Select Event Hub from your subscriptions** is selected.
+1. **「入力」** ウィンドウで、「**+ ストリーム入力の追加**」 をクリックし、「**イベント ハブ**」 をクリックします。
 
-1. Under **Subscription**, select the subscription you have been using for this lab.
+1. 「**イベント ハブ**」 ウィンドウの 「**入力エイリアス**」 で「**vibrationEventInput**」と入力します
 
-1. Under **Event Hub namespace**, select the namespace you entered in the previous section.
+1. **「サブスクリプションからイベント ハブを選択する」** が選択されていることを確認します。
 
-1. Under **Event Hub name**, ensure **Use existing** is selected and then select the Event Hub instance you created in the previous section - **vibrationeventhubinstance**.
+1. 「**サブスクリプション**」 で、このラボで使用しているサブスクリプションを選択します。
 
-1. Under **Event Hub policy name**, ensure **RootManageSharedAccessKey** is selected.
+1. 「**イベント ハブの名前空間**」 で、前のセクションで入力した名前空間を選択します。
 
-    > [!NOTE] The **Event Hub policy key** is populated and read-only.
+1. 「**イベント ハブ名**」 で 「**既存の名前を使用する**」 が選択され、前のセクションで作成したイベント ハブのインスタンスが選択されていることを確認します。
 
-1. Under **Event Hub Consumer group**, leave it blank - this will use the `$Default` Consumer group.
+    「**vibrationeventhubinstance**」は既に選択されている可能性があります。
 
-1. Under **Event serialization format**, ensure **JSON** is selected.
+1. **「イベント ハブ ポリシー名」** の **「既存を使用」** をクリックし、**「RootManageSharedAccessKey」** が選択されていることを確認します。
 
-1. Under **Encoding**, ensure **UTF-8** is selected.
+    > **注意**:  **イベント ハブ ポリシー キー**は、読み取り専用で設定されます。
 
-1. Under **Event compression type**, ensure **None** is selected.
+1. **「イベント ハブ コンシューマー グループ」** の **「既存を使用」** をクリックし、`$Default` が選択されていることを確認します。
 
-1. To save the new input, click **Save**. Wait for the input to be created.
+1. **「イベントのシリアル化形式」** で **「JSON」** が選択されていることを確認します。
 
-    The **Inputs** list should be updated to show the new input.
+1. **「エンコード」** で、**「UTF-8」** が選択されていることを確認します。
 
-### Task 2: Add a New Output
+1. **「イベント圧縮のタイプ」** で **「なし」** が選択されていることを確認します。
 
-1. To create an output, in the left hand navigation, under **Job topology**, click **Outputs**.
+1. 新しい入力を保存するには、**「保存」** をクリックし、入力が作成されるまで待ちます。
 
-    The **Outputs** pane is displayed.
+    **入力** の一覧を更新し、新しい入力、**vibrationEventInput** を表示する必要があります。
 
-1. On the **Outputs** pane, click **+ Add**, and select **Power BI** from the dropdown list.
+#### タスク 2: 新しいアウトプットを追加
 
-    The **Power BI** pane is displayed.
+1. 出力を作成するには、左側のナビゲーション メニューの **「ジョブ トポロジ」** で **「出力」** をクリックします。
 
-1. Authorize the connection using the Power BI account you created earlier (or an existing account).
+    **「出力」** ウィンドウが表示されます。
 
-1. On the **New output** pane, under **Output alias**, enter **vibrationBI**.
+1. **出力** ペインで、**「+ 追加」** をクリックし、**「Power BI」** をクリックします。
 
-1. Under **Group workspace**, select the workspace you wish to use.  If this is a brand new account, this dropdown will be greyed out.  If you have an existing account, choose an appropriate workspace, or ask your instructor for assistance.
+    **Power BI** ウィンドウが表示されます。
 
-1. Under **Dataset name**, enter **vibrationDataset**.
+1. 以前に作成した Power BI アカウント (または既存のアカウント) を使用して接続を承認します。
 
-1. Under **Table name**, enter **vibrationTable**.
+1. 「**新しい出力」**」 ウィンドウの 「**出力エイリアス**」 で、「**vibrationBI**」と入力します。
 
-1. Under **Authentication mode**, select **User token**, and read the note that appears about revoking access.
+1. **「グループ ワークスペース」** で、使用するワークスペースを選択します。
 
-1. To create the output, click **Save**. Wait for the output to be created.
+    これが新しいアカウントである場合、このドロップダウンはグレー表示されます。  既存のアカウントがある場合は、適切なワークスペースを選択するか、講師にサポートを依頼してください。
 
-    The **Outputs** list will be updated with the new output.
+1. 「**データセット名**」 で 「**vibrationDataset**」と入力します。
 
-## Update the SQL query for the Job
+1. **「テーブル名」** に**「vibrationTable」**と入力します。
 
-1. In the left hand navigation, under **Job topology**, click **Query**.
+1. 「**認証モード**」 の 「**ユーザー トークン**」 をクリックし、アクセスの取り消しに関するメモを読みます。   
 
-1. Copy and paste the following SQL query, *before* the existing short query.
+1. 出力を作成するには、「**保存**」 をクリックし、出力が作成されるのを待ちます。 
+
+    **出力**リストが新しい出力で更新されます。
+
+#### タスク 3: ジョブの SQL クエリを更新する
+
+1. 左側のナビゲーション メニューの 「**ジョブ トポロジ**」 で、「**クエリ**」 をクリックします。
+
+1. 次の SQL クエリをコピーして、既存の短いクエリの *上に* 貼り付けます。
 
     ```sql
     WITH AnomalyDetectionStep AS
@@ -380,9 +408,9 @@ With this new IoT Hub route in place, we need to update our Stream Analytics job
     FROM AnomalyDetectionStep
     ```
 
-    > [!NOTE] This first section of this query takes the vibration data, and examines the previous 120 seconds worth. The `AnomalyDetection_SpikeAndDip` function will return a `Score` parameter, and an `IsAnomaly` parameter. The score is how certain the ML model is that the given value is an anomaly, specified as a percentage. If the score exceeds 95%, the `IsAnomaly` parameter has a value of 1, otherwise `IsAnomaly` has a value of 0. Notice the 120 and 95 parameters in the first section of the query. The second section of the query sends the time, vibration, and anomaly parameters to `vibrationBI`.
+    > **注意**:  このクエリの最初のセクションでは、振動データを取得し、前の 120 秒分を調べます。`AnomalyDetection_SpikeAndDip` 関数は `Score` パラメーターと `IsAnomaly` パラメーターを返します。スコアは、パーセンテージとして指定された特定の値が異常であることが ML モデルでどの程度確実なのかを表します。スコアが 95% を超える場合、`IsAnomaly` パラメーターの値は 1、それ以外の場合の `IsAnomaly` の値は 0 です。クエリの最初のセクションに 120 および 95 のパラメーターがあることに注意してください。クエリの 2 番目のセクションでは、時間、振動、および異常のパラメーターが  `vibrationBI` に送信されます。
 
-1. Verify that the query editor on lists 2 Inputs and Outputs:
+1. クエリ エディターに 2 つの入力と出力が表示されていることを確認します。
 
     * `Inputs`
       * `vibrationEventInput`
@@ -391,169 +419,170 @@ With this new IoT Hub route in place, we need to update our Stream Analytics job
       * `vibrationBI`
       * `vibrationOutput`
 
-    If you see more than 2 of each then you likely have a typo in your query or in the name you used for the input or output - correct the issue before moving on.
+    それぞれ 2 つ超が表示される場合は、クエリ、または入力や出力で使用した名前に入力ミスがある可能性があります。続行する前にこの問題を修正してください。
 
-1. To save the query, click **Save query**.
+1. クエリを保存するには、**「クエリの保存」** をクリックします。
 
-1. In the left navigation area, to navigate back to the home page of the job, click **Overview**.
+1. 左側のナビゲーション メニューで、ジョブのホーム ページに戻る場合は、**「概要」** をクリックします。
 
-2. To start the job again, click **Start** and then, at the bottom of the **Start job** pane, click **Start**.
+1. ジョブを再度開始するには、**「開始」** をクリックし、**「ジョブの開始」** ウィンドウの最下部で **「開始」** をクリックします。
 
-In order for a human operator to make much sense of the output from this query, we need to visualize the data in a friendly way. One way of doing this visualization is to create a Power BI dashboard.
+人間のオペレータがこのクエリからの出力を理解するには、データを見やすく視覚化する必要があります。この視覚化を行う 1 つの方法は、Power BI ダッシュボードを作成することです。
 
-## Exercise 6: Create a Power BI Dashboard
+### 演習 6: Power BI  ダッシュボードを作成する
 
-Now let's create a dashboard to visualize the query, using Microsoft Power BI.
+シナリオの最後の部分は、実際のデータの視覚化です。ML モデルを介して振動製品利用統計情報を処理し、Power BI に結果を出力できるようジョブを更新しました。Power BI 内で、結果を視覚化し、オペレーターに意思決定サポートを提供するため、多数のタイルを含むダッシュボードを作成する必要があります。
 
-1. In your browser, navigate to https://app.powerbi.com/.
+#### タスク 1: 新しいダッシュボードを作成する
 
-1. Once Power BI has opened, using the left navigation area, select the workspace you chose above.
+1. ブラウザーで、 [https://app.powerbi.com/](https://app.powerbi.com/)に移動します。
 
-    > [!NOTE] At the time of writing a *New Look* is in preview. The steps in this task have been written assuming the *New Look* is **Off**. To turn off the *New Look*, at the top right of the screen, ensure the toggle reads **New look off**.
+1. Power BI が開いたら、左側のナビゲーション領域を使用して、上で選択したワークスペースを選びます。
 
-1. Under **Datasets** verify that `vibrationDataset` is displayed. If not, you might have to wait a short time for this list to populate.
+    > **注意**:  執筆時点で、Power BI はプレビューで*新しい外観*になっています。このタスクの手順は、*新しい外観*が**オフ**になっているものと仮定して作成されています。*新しい外観*をオフにするには、スクリーン最上部のツールバーでトグルが **「新しい外観オフ」** になっていることを確認します。 
 
-1. At the top right of the page, click **+ Create** and select **Dashboard** from the dropdown list.
+1. **「データセット」** タブに **vibrationDataset** が表示されていることを確認します。
 
-1. In the **Create dashboard** popup, under **Dashboard name**, enter **Vibration Dash**.
+    表示されていない場合は、このリストが入力されるまでしばらく待つ必要があるかもしれません。
 
-1. To create the dashboard, click **Create**.
+1. ページの右上で **「+ 作成」** をクリックし、**「ダッシュボード」** をクリックします。
 
-    The new dashboard will be displayed as an essentially blank page.
+1. 「**ダッシュボードの作成**」 ポップアップの 「**ダッシュボード名**」 で 「**振動ダッシュ**」 と入力します。
 
-## Add the Vibration Gauge Tile
+1. ダッシュボードを作成するには、**「作成」** をクリックします。
 
-1. To add the vibration gauge, at the top of the blank dashboard, click **+ Add tile**.
+    新しいダッシュボードは、基本的に空白のページとして表示されます。
 
-1. In the **Add tile** pane, under **REAL-TIME DATA**, click **Custom Streaming Data** and then click **Next** at the bottom of the pane.
+#### タスク 2: 振動ゲージ タイルを追加する
 
-1. On the **Add a custom streaming data tile** pane, under **YOUR DATASETS**, click **vibrationDataset** and click **Next**.
+1. 振動ゲージを追加するには、空白のダッシュボードの上部にある 「**タイルの追加**」 をクリックします。 
 
-    The pane will refresh to allow you to choose a visualization type and fields.
+1. 「**タイルの追加**」 ウィンドウの 「**リアルタイム データ**」 で、「**カスタム ストリーミング データ**」、「**次へ**」 の順にクリックします。       
 
-1. Under **Visualization Type**, select **Gauge**.
+1. 「**カスタム ストリーミング データ タイルの追加**」 ウィンドウの 「**データセット**」 の下で、「**振動データセット**」、「**次へ**」 の順にクリックします。       
 
-    Notice that changing the visualization type changes the fields below.
+    ウィンドウが更新されると、視覚化の種類とフィールドを選択できます。
 
-1. Under **Value**, click **+ Add value** and select **Vibe** from the dropdown.
+1. 「**振動の種類**」 の下のドロップダウンを開き、「**ゲージ**」 をクリックします。   
 
-    Notice that the gauge appears immediately on the dashboard with a value that begins to update!
+    視覚化の種類を変更すると、以下のフィールドが変更されることに注意してください。
 
-1. To move to the tile details, click **Next**.
+1. 「**値**」 の 「**値の追加**」 をクリックし、ドロップダウンを開いて 「**Vibe**」 をクリックします。     
 
-1. In the **Tile details** pane, under **Title**, enter **Vibration**.
+    更新される値を含むゲージがダッシュボードにすぐに表示されます。
 
-1. Leave the remaining fields as they are and click **Apply**.
+1. 「タイルの詳細」 ウィンドウを表示するには、「**次へ**」 をクリックします。 
 
-    If you see a notification about creating a phone view, you can ignore it and it will disappear shortly (or dismiss it yourself).
+1. 「**タイルの詳細**」 ウィンドウで、「**タイトル**」 の下に「 **Vibration**」と入力します。
 
-1. To reduce the size of the tile, move your mouse over the bottom-right corner of the tile and click-and-drag the resize icon. Make the tile as small as you can.
+1. 残りのフィールドを既定値のままにしてウィンドウを閉じるには、「**適用**」 をクリックします。
 
-### Add the SpikeAndDipScore Clustered Bar Chart Tile
+    Phone ビューの作成に関する通知が表示された場合は、それを無視して構いません。すぐに消えます (または自分で消します)。
 
-1. To add the SpikeAndDipScore Clustered Bar Chart, at the top of the blank dashboard, click **+ Add tile**.
+1. タイルのサイズを小さくするには、タイルの右下隅にマウス オーバーし、マウス ポインタのサイズ変更をクリックしてドラッグします。
 
-1. In the **Add tile** pane, under **REAL-TIME DATA**, click **Custom Streaming Data** and then click **Next** at the bottom of the pane.
+    タイルをできるだけ小さくします。それはさまざまなプリセット サイズになります。
 
-1. On the **Add a custom streaming data tile** pane, under **YOUR DATASETS**, click **vibrationDataset** and click **Next**.
+#### タスク 3: SpikeAndDipScore 集合横棒グラフ タイルを追加する
 
-    The pane will refresh to allow you to choose a visualization type and fields.
+1. SpikeAndDipScore 集合横棒グラフを追加するには、空白のダッシュボードの上部にある 「**タイルの追加**」 をクリックします。 
 
-1. Under **Visualization Type**, select **Clustered bar chart**.
+1. 「**タイルの追加**」 ウィンドウの 「**リアルタイム データ**」 で、「**カスタム ストリーミング データ**」、「**次へ**」 の順にクリックします。       
 
-    Notice that changing the visualization type changes the fields below.
+1. 「**カスタム ストリーミング データ タイルの追加**」 ウィンドウの 「**データセット**」 の下で、「**振動データセット**」、「**次へ**」 の順にクリックします。       
 
-1. Skip the **Axis** and **Legend** fields - we don't need them.
+1. 「**視覚化の種類**」 でドロップダウンを開き、「**集合横棒グラフ**」 をクリックします。   
 
-1. Under **Value**, click **+ Add value** and select **SpikeAndDipScore** from the dropdown.
+    視覚化の種類を変更すると、以下のフィールドが変更されることに注意してください。
 
-    Notice that the chart appears immediately on the dashboard with a value that begins to update!
+1. **軸** と **凡例**のフィールドをスキップします。つまり、それらは必要ありません。   
 
-1. To move to the tile details, click **Next**.
+1. 「**値**」 の 「**値の追加**」 をクリックし、ドロップダウンを開いたら、「**SpikeAndDipScore**」 をクリックします。     
 
-1. This time, we don't need to enter a **Title** as the value label is sufficient.
+1. 「タイルの詳細」 ウィンドウを表示するには、「**次へ**」 をクリックします。 
 
-1. Leave the remaining fields as they are and click **Apply**.
+1. 今回は、値ラベルが要件を満たしているので、**タイトル**を入力する必要はありません。
 
-    If you see a notification about creating a phone view, you can ignore it and it will disappear shortly (or dismiss it yourself).
+1. 「タイルの詳細」 ウィンドウを閉じるには、「**適用**」 をクリックします。 
 
-1. Again, reduce the size of the tile by moving your mouse over the bottom-right corner of the tile and click-and-drag the resize icon. Make the tile as small as you can.
+    Phone ビューの作成に関する通知が表示された場合は、それを無視して構いません。すぐに消えます (または自分で消します)。
 
-## Add the IsSpikeAndDipAnomaly Card Tile
+1. さらにタイルのサイズを小さくして、できるだけ小さくします。
 
-1. To add the IsSpikeAndDipAnomaly Card, at the top of the blank dashboard, click **+ Add tile**.
+#### タスク 4: IsSpikeAndDipanomaly カード タイルを追加する
 
-1. In the **Add tile** pane, under **REAL-TIME DATA**, click **Custom Streaming Data** and then click **Next** at the bottom of the pane.
+1. IsSpikeAndDipAnomaly カードを追加するには、空白のダッシュボードの上部にある 「**タイルの追加**」 をクリックします。 
 
-1. On the **Add a custom streaming data tile** pane, under **YOUR DATASETS**, click **vibrationDatset** and click **Next**.
+1. 「**タイルの追加**」 ウィンドウの 「**リアルタイム データ**」 で、「**カスタム ストリーミング データ**」、「**次へ**」 の順にクリックします。       
 
-    The pane will refresh to allow you to choose a visualization type and fields.
+1. 「**カスタム ストリーミング データ タイルの追加**」 ウィンドウの 「**データセット**」 の下で、「**vibrationDatset**」、「**次へ**」 の順にクリックします。       
 
-1. Under **Visualization Type**, select **Card**.
+    ウィンドウが更新されると、視覚化の種類とフィールドを選択できます。
 
-1. Under **Value**, click **+ Add value** and select **IsSpikeAndDipAnomaly** from the dropdown.
+1. 「**視覚化の種類**」 の下のドロップダウンを開き、「**カード**」 をクリックします。   
 
-    Notice that the chart appears immediately on the dashboard with a value that begins to update!
+1. 「**値**」 の下の 「**値の追加**」 をクリックし、ドロップダウンを開いて 「**IsSpikeAndDipAnomaly**」 をクリックします。   
 
-1. To move to the tile details, click **Next**.
+1. 「タイルの詳細」 ウィンドウを表示するには、「**次へ**」 をクリックします。 
 
-1. In the **Tile details** pane, under **Title**, enter **Is anomaly?**.
+1. 「**タイルの詳細**」 ウィンドウで、「**タイトル**」 の下に 「**異常ですか?**」 と入力します
 
-1. Leave the remaining fields as they are and click **Apply**.
+1. 「タイルの詳細」 ウィンドウを閉じるには、「**適用**」 をクリックします。 
 
-    If you see a notification about creating a phone view, you can ignore it and it will disappear shortly (or dismiss it yourself).
+    Phone ビューの作成に関する通知が表示された場合は、それを無視して構いません。すぐに消えます (または自分で消します)。
 
-1. Again, reduce the size of the tile by moving your mouse over the bottom-right corner of the tile and click-and-drag the resize icon. Make the tile as small as you can.
+1. さらにタイルのサイズを小さくして、できるだけ小さくします。
 
-## Rearrange the Tiles
+#### タスク 5:  タイルの並べ替え
 
-1. Using drag-and-drop, arrange the tiles on the left of the dashboard in the following order:
+1. ドラッグ アンド ドロップを使用して、次の順序でダッシュボードの左側のタイルを縦に並べます。
 
     * SpikeAndDipScore
-    * Is Anomaly?
-    * Vibration
+    * 異常ですか?
+    * 振動
 
-## Add Anomalies Over The Hour Line Chart Tile
+#### タスク 6: 時刻上の異常の折れ線グラフ タイルを追加する
 
-Now create a fourth tile, the `Anomalies Over the Hour` line chart.  This one is a bit more complex.
+次に、4 番目のタイルを作成するには、`Anomalies Over the Hour` 折れ線グラフを作成します。  これは、もう少し複雑です。
 
-1. At the top of the blank dashboard, click **+ Add tile**.
+1. 空白のダッシュボードの上部にある 「**タイルの追加**」 をクリックします。
 
-2. In the **Add tile** pane, under **REAL-TIME DATA**, click **Custom Streaming Data** and then click **Next** at the bottom of the pane.
+2. 「**タイルの追加**」 ウィンドウの 「**リアルタイム データ**」 で、「**カスタム ストリーミング データ**」、「**次へ**」 の順にクリックします。       
 
-3. On the **Add a custom streaming data tile** pane, under **YOUR DATASETS**, click **vibrationDataset** and click **Next**.
+3. 「**カスタム ストリーミング データ タイルの追加**」 ウィンドウの 「**データセット**」 の下で、「**振動データセット**」、「**次へ**」 の順にクリックします。       
 
-    The pane will refresh to allow you to choose a visualization type and fields.
+    ウィンドウが更新されると、視覚化の種類とフィールドを選択できます。
 
-4. Under **Visualization Type**, select **Line chart**.
+4. 「**視覚化の種類**」 の下のドロップダウンを開き、「**折れ線グラフ**」 をクリックします。   
 
-    Notice that changing the visualization type changes the fields below.
+    視覚化の種類を変更すると、以下のフィールドが変更されることに注意してください。
 
-5. Under **Axis**, click **+ Add value** and select **time** from the dropdown.
+5. 「**軸**」 の下の 「**値の追加**」 をクリックし、ドロップダウンの 「**時刻**」 を選択します。   
 
-6. Under **Values**, click **+ Add value** and select **IsSpikeAndDipAnomaly** from the dropdown.
+6. 「**値**」 の下で 「**値の追加**」 をクリックし、ドロップダウンの 「**IsSpikeAndDipAnomaly**」 を選択します。     
 
-    Notice that the chart appears immediately on the dashboard with a value that begins to update!
+    更新される値を含むグラフがダッシュボードにすぐに表示されることに注意してください。
 
-7. Under **Time window to display**, next to **Last**, select **60** from the dropdown and leave the units set to **Minutes**.
+7. 「**表示する時間枠**」 で、「**過去**」 の右側でドロップダウンを開き、「**60**」 をクリックします。   
 
-8. To move to the tile details, click **Next**.
+    単位は 「**分**」 に設定したままにします。 
 
-9. In the **Tile details** pane, under **Title**, enter **Anomalies over the hour**.
+8. 「タイルの詳細」 ウィンドウを表示するには、「**次へ**」 をクリックします。 
 
-10. Leave the remaining fields as they are and click **Apply**.
+9. 「**タイルの詳細**」 ウィンドウの 「**タイトル**」 の下に「**1 時間にわたる異常**」と入力します。    
 
-    If you see a notification about creating a phone view, you can ignore it and it will disappear shortly (or dismiss it yourself).
+10. 「タイルの詳細」 ウィンドウを閉じるには、「**適用**」 をクリックします。 
 
-11. This time, stretch the tile so its height matches the 3 tiles to the left and its width fits the remaining space of the dashboard.
+    Phone ビューの作成に関する通知が表示された場合は、それを無視して構いません。すぐに消えます (または自分で消します)。
 
-12. There's a latency with so many routes and connections, but are you now seeing the vibration data coming through?
+11. 今回は、タイルの高さが左の 3 つのタイルと一致し、その幅がダッシュボードの残りのスペースに合うようにタイルを広げます。
 
-    > [!NOTE] If no data appears, check you are running the device app and  the analytics job is running.
+    非常に多くのルートと接続の遅延がありますが、視覚化された振動データが表示されるはずです
 
-13. Let the job run for a while, several minutes at least before the ML model will kick in. Compare the console output of the device app, with the Power BI dashboard. Are you able to correlate the forced and increasing vibrations to a run of anomaly detections?
+    > **注意**:  データが表示されていない場合は、デバイス アプリを実行していて、分析ジョブが実行されていることを確認します。
 
-If you're seeing an active Power BI dashboard, you've just  completed this lab. Great work. 
+    少なくとも ML モデルが作動する前の数分間、しばらくの間ジョブを実行させます。デバイス アプリのコンソール出力を Power BI ダッシュボードを使用して比較してください。強制振動と増加する振動を異常検出の実行に関連付けることができますか?
 
-> [!NOTE] Before you go, don't forget to close Visual Studio Code - this will exit the device app if it is still running.
+アクティブな Power BI ダッシュボードが表示されていれば、このラボは完了です。素晴らしい仕事です。
 
+> **注意**:  先に進む前に、Visual Studio Code を終了することを忘れないでください。この操作により、デバイス アプリがまだ実行している場合は、それを終了させます。

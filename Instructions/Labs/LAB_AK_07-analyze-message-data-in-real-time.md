@@ -1,91 +1,133 @@
----
+﻿---
 lab:
-    title: 'Lab 07: Device Message Routing'
-    module: 'Module 4: Message Processing and Analytics'
+    title: 'ラボ 07:  デバイス メッセージ ルーティング'
+    module: 'モジュール 4: メッセージ処理と分析'
 ---
 
-# Device Message Routing
+# デバイス メッセージ ルーティング
 
-## Lab Scenario
+## ラボ シナリオ
 
-Suppose you manage a packaging facility. Packages are assembled for shipping, then placed on a conveyor belt that takes the packages and drops them off in mailing bins. Your metric for success is the number of packages leaving the conveyor belt.
+Contoso の経営陣は、DPS を使用した自動デバイス登録の実装に感銘を受けています。彼らは、製品のパッケージと出荷に関連するビジネス固有の問題に対する IoT ソリューションを検討し始するよう求めています。
 
-The conveyor belt is a critical link in your process, and is monitored for vibration. The conveyor belt has three speeds: stopped, slow, and fast. The number of packages being delivered at slow speed is less than at the faster speed, though the vibration is also less at the slower speed. If the vibration becomes excessive, the conveyor belt has to be stopped and inspected.
+Contoso のチーズ製造ビジネスの重要な要素は、顧客へのチーズの梱包と出荷です。コスト効率を最大化するために、Contoso はオンプレミスのパッケージング施設を運営しています。ワークフローは簡単です。パッケージは出荷のために組み立てられ、コンベヤー ベルト システムに置かれると、運ばれて、郵便箱に落とされます。成功の指標は、所定の時間内 (通常は勤務シフト) にコンベア ベルト システムから出発するパッケージの数です。
 
-There are a number of different types of vibration. Forced vibration is vibration caused by an external force. Such a force as the broken wheel example, or a weighty package placed improperly on the conveyor belt. There's also increasing vibration, which might happen if a design limit is exceeded.
+コンベア ベルト システムは、このプロセスの重要なリンクであり、パッケージが正しく配送されることを確実にするために目視で監視されています。システムには、停止、低速、高速という 3 つのオペレータ制御速度があります。当然、低速で配送される荷物の数は、高速の場合よりも少なくなります。しかし、コンベア ベルト システムの振動レベルも、低速では低くなります。さらに、高い振動レベルでは、システムの消耗が加速することが知られており、パッケージがコンベアから落ちる可能性があります。振動が過剰になった場合は、より深刻な故障を避けるために、コンベア ベルトを停止して検査を行う必要があります。
 
-Vibration is typically measured as an acceleration (meters per second squared, m/s2).
+ソリューションの主な目的は、振動レベルに基づく予防メンテナンスの形態を実装することです。これを使用することで、深刻なシステムの損傷が発生する前に、問題を検出できます。 
 
-The ultimate goal here is preventive maintenance. Detect that something is wrong, before any damage is caused.
+> **注意**: **予防保全** (予測メンテナンスとも呼ばれる) は、機器が正常に動作している間に実行されるメンテナンス活動をスケジュールする設備メンテナンスプログラムです。このアプローチの目的は、多くの場合コストのかかる混乱が発生する、予期しない故障を回避することです。
 
-It's not always easy to detect abnormal vibration levels. For this reason, you are looking to Azure IoT Hub to detect data anomalies. You plan to have a vibration detection sensor on the conveyor belt, sending continuous telemetry to an IoT Hub. The IoT Hub will use Azure Stream Analytics, and a built-in ML model, to give you advance warning of vibration anomalies. You also plan to archive all the telemetry data, just in case it's ever needed.
+異常な振動レベルを検出することは難しい場合もあります。このため、振動レベルとデータ異常のメジャーに役立つ Azure IoT ソリューションを検討しています。振動センサーは、さまざまな場所でコンベア ベルトに取り付けられ、IoT デバイスを使用して IoT ハブにテレメトリを送信します。IoT ハブは、Azure Stream Analytics と組み込みの機械学習 (ML) モデルを使用して、リアルタイムで振動異常を警告します。また、将来さらに分析を実行できるように、すべてのテレメトリ データをアーカイブする予定です。
 
-You decide to build a prototype of the planned system, initially using simulated telemetry.
+単一の IoT デバイスからシミュレートしたテレメトリを使用して、ソリューションのプロトタイプを作成することを決定します。
 
-## In This Lab
+振動データを現実的な方法でシミュレートするには、エンジニアの 1 人と協力して、振動の原因について少しなりとも理解しておきます。全体の振動レベルに寄与する振動の種類が、さまざまに多いことが判明しました。たとえば、ガイド ホイールが壊れたり、特に重い負荷が不適切にコンベア ベルトにかかったりすると、「力振動」が発生する可能性があります。また、システム設計の限界 (速度や重量など) を超えたときに導入できる「増加する振動」もあります。多少のサポートがあれば、振動データの表現を許容可能なものとして生み出し、異常を生成する、シミュレートされた IoT デバイスのコードを開発することができます。
 
-In this lab, you will 
+次のリソースが作成されます。
 
-This lab includes:
+![ラボ 7 アーキテクチャ](media/LAB_AK_07-architecture.png)
 
-* Verify Lab Prerequisites
-* Create an Azure IoT Hub, and a device ID using Azure CLI
-* Create a C# app to send device telemetry to the IoT Hub, using Visual Studio code
-* Create a message route, through to blob storage, using the Azure portal
-* Create a second message route, through to an Azure Analytics job, using the Azure portal
-* Create an Azure Function to identify anomalies.
+## このラボの内容
 
-## Exercise 1: Verify Lab Prerequisites
+このラボでは、次のタスクを完了します。
 
-This lab assumes the following resources are available:
+* ラボの前提条件が満たされていることを確認する (必要な Azure リソースがあること)
+* Azure CLI を使用して、Azure IoT Hub とデバイス ID を作成します。
+* Visual Studio Code を使用して、デバイスのテレメトリを IoT Hub に送信する C# アプリを作成する
+* Azure portal を使用して BLOB ストレージへのメッセージ ルートを作成する
+* Azure portal を使用して Azure Stream Analytics ジョブに対する 2 番目のメッセージ ルートを作成する
 
-| Resource Type | Resource Name |
+## ラボの手順
+
+### 演習 1: ラボの前提条件を確認する
+
+このラボでは、次の Azure リソースが利用可能であることを前提としています。
+
+| リソースの種類:  | リソース名 |
 | :-- | :-- |
-| Resource Group | AZ-220-RG |
+| リソース グループ | AZ-220-RG |
 | IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
-| Device ID | VibrationSensorId |
+| デバイス ID | VibrationSensorId |
 
-If the resources are unavailable, please execute the **lab-setup.azcli** script before starting the lab.
+これらのリソースを利用できない場合は、演習 2 に進む前に、以下の手順に従って、**lab07-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
-The **lab-setup.azcli** script is written to run in a **bash** shell environment - the easiest way to execute this is in the Azure Cloud Shell.
+**lab07-setup.azcli** スクリプトは、**Bash** シェル環境で実行するように記述されています。Azure Cloud Shell でこれを実行する最も簡単な方法です。
 
-1. Using a browser, open the [Azure Shell](https://shell.azure.com/) and login with the Azure subscription you are using for this course.
+1. ブラウザーを使用して [Azure Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
 
-1. To ensure the Azure Shell is using **Bash**, ensure the dropdown selected value in the top-left is **Bash**.
+    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
 
-1. To upload the setup script, in the Azure Shell toolbar, click **Upload/Download files** (fourth button from the right).
+1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
 
-1. In the dropdown, select **Upload** and in the file selection dialog, navigate to the **lab-setup.azcli** file for this lab. Select the file and click **Open** to upload it.
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。 
 
-    A notification will appear when the file upload has completed.
+1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
 
-1. You can verify that the file has uploaded by listing the content of the current directory by entering the `ls` command.
+1. ドロップダウンで、「**アップロード**」 をクリックします。
 
-1. To create a directory for this lab, move **lab-setup.azcli** into that directory, and make that the current working directory, enter the following commands:
+1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
+
+    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
+
+    * Allfiles
+      * ラボ
+          * 07-デバイス メッセージ ルーティング
+            * セットアップ
+
+    lab07-setup.azcli スクリプト ファイルは、ラボ 7 のセットアップ フォルダーにあります。
+
+1. **lab07-setup.azcli** ファイルを選択し、「**開く**」 をクリックします。   
+
+    ファイルのアップロードが完了すると、通知が表示されます。
+
+1. 正しいファイルが Azure Cloud Shell にアップロードされたことを確認するには、次のコマンドを入力します。
+
+    ```bash
+    ls
+    ```
+
+    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。lab07-setup.azcli ファイルが一覧表示されます。
+
+1. セットアップ スクリプトを含むディレクトリをこのラボ用に作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
 
     ```bash
     mkdir lab7
-    mv lab-setup.azcli lab7
+    mv lab07-setup.azcli lab7
     cd lab7
     ```
 
-1. To ensure the **lab-setup.azcli** has the execute permission, enter the following commands:
+1. **lab07-setup.azcli** に実行権限があることを確認するには、次のコマンドを入力します。 
 
     ```bash
-    chmod +x lab-setup.azcli
+    chmod +x lab07-setup.azcli
     ```
 
-1. To edit the **lab-setup.azcli** file, click **{ }** (Open Editor) in the toolbar (second button from the right). In the **Files** list, select **lab7** to expand it and then select **lab-setup.azcli**.
+1. Cloud Shell のツール バーで、lab07-setup.azcli ファイルを編集するには、「**エディターを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。
 
-    The editor will now show the contents of the **lab-setup.azcli** file.
+1. 「**ファイル**」 の一覧で、lab7 フォルダーを展開してスクリプト ファイルを開き、「**lab7**」 をクリックして、「**lab07-setup.azcli**」 をクリックします。     
 
-1. In the editor, update the values of the `YourID` and `Location` variables. Set `YourID` to your initials and todays date - i.e. **CAH121119**, and set `Location` to the location that makes sense for your resources.
+    エディターは、**lab07-setup.azcli** ファイルの内容を表示します。
 
-    > [!NOTE] The `Location` variable should be set to the short name for the location. You can see a list of the available locations and their short-names (the **Name** column) by entering this command:
+1. エディターで、割り当て済みの値 `{YOUR-ID}` と `{YOUR-LOCATION}` を更新します。
+
+    サンプル例として、このコースの最初に作成した一意の ID 、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソースにとって意味のある場所に `{YOUR-LOCATION}` を設定する必要があります。
+
+    ```bash
+    #!/bin/bash
+
+    YourID="{YOUR-ID}"
+    RGName="AZ-220-RG"
+    IoTHubName="AZ-220-HUB-$YourID"
+
+    Location="{YOUR-LOCATION}"
+    ```
+
+    > **注意**:  `{YOUR-LOCATION}` 変数は、リージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な領域とその短い名前 (「**名前**」 列) の一覧を表示できます。
+    >
     > ```bash
     > az account list-locations -o Table
-    > ```
-    > ```text
+    >
     > DisplayName           Latitude    Longitude    Name
     > --------------------  ----------  -----------  ------------------
     > East Asia             22.267      114.188      eastasia
@@ -95,97 +137,112 @@ The **lab-setup.azcli** script is written to run in a **bash** shell environment
     > East US 2             36.6681     -78.3889     eastus2
     > ```
 
-1. To save the changes made to the file and close the editor, click **...** in the top-right of the editor window and select **Close Editor**.
+1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、「**..**」 をクリックし、「**エディタを閉じる**」 をクリックします。 
 
-    If prompted to save, click **Save** and the editor will close.
+    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。 
 
-    > [!NOTE] You can use **CTRL+S** to save at any time and **CTRL+Q** to close the editor.
+    > **注意**:  「**CTRL+S**」 を使っていつでも保存でき、 「**CTRL+Q**」 を押してエディターを閉じます。
 
-1. To create a resource group named **AZ-220-RG**, create an IoT Hub named **AZ-220-HUB-{YourID}**, add a device with an ID of **VibrationSensorId**, and display the device connection string, enter the following command:
+1. この実習ラボに必要なリソースを作成するには、次のコマンドを入力します。
 
     ```bash
-    ./lab-setup.azcli
+    ./lab07-setup.azcli
     ```
 
-    This will take a few minutes to run. You will see JSON output as each step completes.
+    このスクリプトの実行には数分かかります。各ステップが完了すると、JSON 出力が表示されます。
 
-1. Notice that, once the script has completed, the connection string for the device is displayed.
+    このスクリプトは、まず **AZ-220-RG** という名前のリソース グループ と **AZ-220-ハブ-{YourID}** という名前の IoT ハブを作成します。  既に存在する場合は、対応するメッセージが表示されます。次に、スクリプトにより **VibrationSensorId** の ID を持つデバイスを IoT ハブに追加し、デバイスの接続文字列を表示します。 
 
-    The connection string starts with "HostName="
+1. スクリプトが完了すると、デバイスの接続文字列が表示されることに注意してください。
 
-1. Copy the connection string into a text document, and note that it is for the **VibrationSensorId** device.
+    接続文字列は「HostName=」で始まります。
 
-    The next step is to code the sending of telemetry messages.
+1. 接続文字列をテキスト ドキュメントにコピーし、**VibrationSensorId** デバイス用であることに注意します。 
 
-## Exercise 2: Write Code for Vibration Telemetry
+    接続文字列を簡単に見つけることができる場所に保存すると、ラボを続ける準備が整います。
 
-The key to monitoring our conveyor belt is the output of vibration telemetry. Vibration is usually measured as an acceleration (m/s^2), although sometimes it's measured in g-forces, where 1 g = 9.81 m/s^2. There are three types of vibration.
+### 演習 2: 振動テレメトリのコードを記述する
 
-* Natural vibration, which is just the frequency a structure tends to oscillate.
-* Free vibration, which occurs when the structure is impacted, but then left to oscillate without interference.
-* Forced vibration, which occurs when the structure is under some stress.
+コンベヤー ベルトを監視するキーは、振動テレメトリの出力です。振動は通常加速度(m/s2)として測定されますが、時には1 g = 9.81 m/s2 の g力で測定されることもあります。振動には 3 つのタイプがあります。
 
-Forced vibration is the dangerous one for our conveyor belt. Even if it starts at a low level this vibration can build so that the structure fails prematurely. There's less of a case for free vibration in conveyor belt operation. Most machines, as we all know, have a natural vibration.
+* 構造が振動する傾向がある周波数にすぎない、自然振動。
+* 構造に影響を与えたときに発生するが、その後干渉なしに振動する、自由振動。
+* 構造が何らかのストレスを受けているときに発生する強制振動。
 
-The code sample that you will build simulates a conveyor belt running at a range of speeds (stopped, slow, fast). The faster the belt is running, the more packages are delivered, but the greater the effects of vibration. We'll add natural vibration, based on a sine wave with some randomization. It's possible our anomaly detection system will falsely identify a spike or dip in this sine wave as an anomaly. We'll then add two forms of forced vibration. The first has the effect of a cyclic increase in vibration (see the images below). And secondly, an increasing vibration, where an additional sine wave is added, starting small but growing.
+強制振動は、私たちのコンベア ベルトにとって危険なものです。低レベルで始めたとしても、構造に途中で障害が発生するようにこの振動を構築できます。コンベヤ ベルトの操作で自由振動が発生するケースは少なくなります。ご存知のとおり、ほとんどの機械は自然振動を持っています。
 
-We assume that our conveyor belt has just one sensor device (our simulated IoT Device). In addition to communicating vibration data, the sensor also pumps out some other data (packages delivered, ambient temperature, and similar metrics). For this lab, the additional values will be sent to a storage archive.
+構築するコード サンプルは、速度の範囲 (停止、低速、高速) で実行されるコンベア ベルトをシミュレートします。ベルトの回転が速ければ速いほど、より多くの荷物が配達されますが、振動の影響は大きくなります。ランダム化した正弦波に基づいて、自然振動を追加します。異常検出システムは、この正弦波のスパイクまたはディップを異常として誤って識別する可能性があります。次に、2つの形態の強制振動を追加します。1つ目は、振動の周期的増加の影響をします (下の画像を参照) 。そして2つ目は、増加する振動。正弦波が追加され、小さなものから始まり成長します。
 
-Almost all the coding in this lab will be completed during this exercise. You will be using Visual Studio Code to build the simulator code in C#.
+このプロトタイプ フェーズ時に、コンベア ベルトにセンサー デバイス (シミュレートされた IoT デバイス) が 1 つだけあるものとします。振動データの通信に加えて、センサーも他のデータ (荷物の配送、周囲温度、および同様のメトリック) をポンプで送り出します。このラボでは、追加の値がストレージ アーカイブに送信されます。
 
-In this exercise, you will:
+このラボでのほぼすべてのコーディングは、この演習で完了します。C# でシミュレーター コードをビルドするのには、 Visual Studio Code を使用します。このラボの後半で、少量の SQL コーディングを完成させます。
 
-* build the conveyor belt simulator
-* send telemetry messages to the IoT Hub created in the previous unit
+この演習では、次の操作を行います。
 
-Later in this lab you will complete a small amount of SQL coding.
+* コンベア ベルトシミュレータを構築する
+* 前ユニットで作成した IoT Hub にテレメトリ メッセージを送信する
 
-### Task 1: Create an App to Send Telemetry
+#### タスク 1: テレメトリを送信するアプリを作成する
 
-1. To use C# in Visual Studio Code, ensure both [.NET Core](https://dotnet.microsoft.com/download), and the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp) are installed.
+1. Visual Studio Code を開き、C# 拡張機能がインストールされていることを確認します。
 
-1. To open a terminal in Visual Studio Code, open the **Terminal** menu and click **New Terminal**.
+    このコースのラボ 3 で開発環境を設定しますが、デバイス アプリの構築を開始する前にざっと確認しておく価値があります。 
 
-1. In the terminal, to create a directory called "vibrationdevice" and change the current directory to that directory, enter the following commands:
+    Visual Studio Code で C# を使用するには、[.NET Core](https://dotnet.microsoft.com/download) と [C# の拡張機能](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)の両方をインストールする必要があります。    上から 5 番目のボタンをクリックすると、左側のツール バーを使用して Visual Studio Code 拡張機能のウィンドウを開くことができます。
+
+1. 「**ターミナル**」 メニューで、「**新しいターミナル**」 をクリックします。
+
+    コマンド プロンプトの一部として表示されたディレクトリ パスに注目してください。以前のラボ プロジェクトのフォルダー構造内で、このプロジェクトのビルドを開始したくありません。
+  
+1. ターミナル コマンド プロンプトで、"vibrationdevice" という名前のディレクトリを作成して現在のディレクトリをそのディレクトリに変更するには、次のコマンドを入力します。
 
    ```bash
    mkdir vibrationdevice
    cd vibrationdevice
    ```
 
-1. To create a new .NET console application. enter the following command in the terminal:
+1. 新しい .NET コンソール アプリケーションを作成します。次のコマンドを入力してください。
 
     ```bash
     dotnet new console
     ```
 
-    This command creates a **Program.cs** file in your folder, along with a project file.
+    このコマンドを実行すると、プロジェクト ファイルと共に、フォルダに **Program.cs** ファイルが作成されます。 
 
-1. In the terminal, to install the required libraries. Enter the following commands:
+1. デバイス アプリに必要なコード ライブラリをインストールするには、次のコマンドを入力します。
 
     ```bash
     dotnet add package Microsoft.Azure.Devices.Client
     dotnet add package Newtonsoft.Json
     ```
 
-1. From the **File** menu, open up the **Program.cs** file, and delete the default contents.
+    次のタスクでは、シミュレートされたデバイス アプリをビルドしてテストします。
 
-    > [!NOTE] If you are unsure where the **Program.cs** file is located, enter the command `pwd` in the console to see the current directory.
+#### タスク 2: テレメトリを送信するコードを追加する
 
-1. After you've entered the code below into the **Program.cs** file, you can run the app with the command `dotnet run`. This command will run the **Program.cs** file in the current folder.
+このタスクで構築するシミュレートされたデバイス アプリは、コンベア ベルトを監視している IoT デバイスをシミュレートします。アプリは、センサー信号をシミュレートして 2 秒ごとに振動センサー データを報告します。
 
-### Task 2: Add Code to Send Telemetry
+1. Visual Studio Code の 「**ファイル**」 メニューの 「**フォルダを開く**」 をクリックします。   
 
-The following app simulates a conveyor belt, and reports vibration sensor data every two seconds.
+    ターミナル コマンド プロンプト内にリストされているフォルダ パスを使用して、プロジェクト フォルダを検索します。
+  
+1. 「フォルダを開く」 ダイアログで、ターミナル コマンド プロンプト内に表示されるディレクトリ パスに移動し、**vibrationdevice**、「**フォルダーの選択**」 の順にクリックします。
 
-1. If it isn't already open in Visual Studio Code, open the **Program.cs** file for the device app.
+    必要なアセットを読み込むよう求められたら、「**はい**」 をクリックします。
 
-1. Copy and paste the following code:
+    Visual Studio Code Explorer ペインが開くはずです。そうでない場合は、左側のツールバーを使用してエクスプローラーのウィンドウを開きます。ツール バーのボタンの上にマウス ポインタを置くと、ボタン名を表示できます。
+
+1. エクスプローラー ウィンドウで、**Program.cs** をクリックします。
+
+1. コード エディター ビューで、Program.cs ファイルの既定のコンテンツを削除します。
+
+    既定のコンテンツは、前のタスクで `dotnet new console` コマンドを実行したときに作成されました。
+
+1. シミュレートされたデバイスのコードを作成するには、空の Program.cs ファイルに次のコードを貼り付けます。
 
     ```csharp
-    // Copyright (c) Microsoft. All rights reserved.
-    // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
+    // Copyright (c) Microsoft.All rights reserved.
+    // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
     using System;
     using Microsoft.Azure.Devices.Client;
     using Newtonsoft.Json;
@@ -197,35 +254,35 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
         class SimulatedDevice
         {
             // Telemetry globals.
-            private const int intervalInMilliseconds = 2000;                                // Time interval required by wait function.
-            private static readonly int intervalInSeconds = intervalInMilliseconds / 1000;  // Time interval in seconds.
+            private const int intervalInMilliseconds = 2000;                                 // wait 関数で必要な時間間隔。
+            private static readonly int intervalInSeconds = intervalInMilliseconds / 1000;   // 秒単位の時間間隔。
 
-            // Conveyor belt globals.
+            // コンベアベルト グローバル。
             enum SpeedEnum
             {
                 stopped,
                 slow,
                 fast
             }
-            private static int packageCount = 0;                                        // Count of packages leaving the conveyor belt.
-            private static SpeedEnum beltSpeed = SpeedEnum.stopped;                     // Initial state of the conveyor belt.
-            private static readonly double slowPackagesPerSecond = 1;                   // Packages completed at slow speed/ per second
+            private static int packageCount = 0;                                        // コンベア ベルトから出るパッケージの数。
+            private static SpeedEnum beltSpeed = SpeedEnum.stopped;                     // コンベア ベルトをの初期状態。
+            private static readonly double slowPackagesPerSecond = 1;                   // 低速で完了したパッケージ / 秒あたり
             private static readonly double fastPackagesPerSecond = 2;                   // Packages completed at fast speed/ per second
-            private static double beltStoppedSeconds = 0;                               // Time the belt has been stopped.
-            private static double temperature = 60;                                     // Ambient temperature of the facility.
-            private static double seconds = 0;                                          // Time conveyor belt is running.
+            private static double beltStoppedSeconds = 0;                               // ベルトが停止した時刻。
+            private static double temperature = 60;                                     // 施設の周囲温度
+            private static double seconds = 0;                                          // タイムコンベア ベルトが動いてる時間。
 
-            // Vibration globals.
-            private static double forcedSeconds = 0;                                    // Time since forced vibration started.
-            private static double increasingSeconds = 0;                                // Time since increasing vibration started.
-            private static double naturalConstant;                                      // Constant identifying the severity of natural vibration.
-            private static double forcedConstant = 0;                                   // Constant identifying the severity of forced vibration.
-            private static double increasingConstant = 0;                               // Constant identifying the severity of increasing vibration.
+            // 振動グローバル
+            private static double forcedSeconds = 0;                                    // 強制振動が始まってからの時間。
+            private static double increasingSeconds = 0; 				// 振動の増加が始まってからの時間
+            private static double naturalConstant;      				// 固有振動の強さを特定する定数
+            private static double forcedConstant = 0;      				// 強制振動の強さを特定する定数
+            private static double increasingConstant = 0;				// 増加する振動の強さを特定する定数
 
-            // IoT Hub global variables.
+            // IoT Hub グローバル変数
             private static DeviceClient s_deviceClient;
 
-            // The device connection string to authenticate the device with your IoT hub.
+            // IoT ハブでデバイスを認証するためのデバイス接続文字列。
             private readonly static string s_deviceConnectionString = "<your device connection string>";
 
             private static void colorMessage(string text, ConsoleColor clr)
@@ -244,16 +301,16 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                 colorMessage(text, ConsoleColor.Red);
             }
 
-            // Async method to send simulated telemetry.
+            // シミュレーションされたテレメトリを送信する非同期メソッド。
             private static async void SendDeviceToCloudMessagesAsync(Random rand)
             {
-                // Simulate the vibration telemetry of a conveyor belt.
-                double vibration;
+                // コンベアベルトの振動テレメトリをシミュレートする
+                ダブル振動;
 
                 while (true)
                 {
-                    // Randomly adjust belt speed.
-                    switch (beltSpeed)
+                    // ベルト速度をランダムに調整する
+                    スイッチ (ベルトスピード)
                     {
                         case SpeedEnum.fast:
                             if (rand.NextDouble() < 0.01)
@@ -285,33 +342,33 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                             break;
                     }
 
-                    // Set vibration levels.
+                    // 振動レベルを設定する
                     if (beltSpeed == SpeedEnum.stopped)
                     {
-                        // If the belt is stopped, all vibration comes to a halt.
+                        // ベルトが停止すると、振動はすべて停止します。
                         forcedConstant = 0;
                         increasingConstant = 0;
                         vibration = 0;
 
-                        // Record how much time the belt is stopped, in case we need to send an alert.
-                        beltStoppedSeconds += intervalInSeconds;
+                        // 警告を送信する必要がある場合に備えて、ベルトが停止した時間を記録する
+                        ベルト停止秒 += 間隔イン秒;
                     }
                     else
                     {
-                        // Conveyor belt is running.
+                        // コンベアベルトが動いています。
                         beltStoppedSeconds = 0;
 
-                        // Check for random starts in unwanted vibrations.
+                        // 不要な振動のランダムな開始を確認します。
 
-                        // Check forced vibration.
+                        // 強制振動を確認します。
                         if (forcedConstant == 0)
                         {
                             if (rand.NextDouble() < 0.1)
                             {
-                                // Forced vibration starts.
-                                forcedConstant = 1 + 6 * rand.NextDouble();             // A number between 1 and 7.
+                                // 強制振動が開始します。
+                                forcedConstant = 1 + 6 * rand.NextDouble();             // 1 から 7 の間の数字です。
                                 if (beltSpeed == SpeedEnum.slow)
-                                    forcedConstant /= 2;                                // Lesser vibration if slower speeds.
+                                    forcedConstant /= 2;                                // 速度が遅くなると振動がより少なくなります。
                                 forcedSeconds = 0;
                                 redMessage($"Forced vibration starting with severity: {Math.Round(forcedConstant, 2)}");
                             }
@@ -325,19 +382,19 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                             }
                             else
                             {
-                                redMessage($"Forced vibration: {Math.Round(forcedConstant, 1)} started at: {DateTime.Now.ToShortTimeString()}");
+                                redMessage($"Forced vibration: {Math.Round (forcedConstant, 1)} は次の時点で開始される: {DateTime.Now.ToShortTimeString()}");
                             }
                         }
 
-                        // Check increasing vibration.
+                        // 振動の増加を確認します。
                         if (increasingConstant == 0)
                         {
                             if (rand.NextDouble() < 0.05)
                             {
-                                // Increasing vibration starts.
-                                increasingConstant = 100 + 100 * rand.NextDouble();     // A number between 100 and 200.
+                                // 振動の増加が始まります。
+                                increasingConstant = 100 + 100 * rand.NextDouble();     // 100 から 200 の間の数字です。
                                 if (beltSpeed == SpeedEnum.slow)
-                                    increasingConstant *= 2;                            // Longer period if slower speeds.
+                                    increasingConstant *= 2;                            // 速度が遅くなると期間がより長くなります。
                                 increasingSeconds = 0;
                                 redMessage($"Increasing vibration starting with severity: {Math.Round(increasingConstant, 2)}");
                             }
@@ -355,28 +412,28 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                             }
                         }
 
-                        // Apply the vibrations, starting with natural vibration.
+                        // 固有振動から始まる振動を適用します。
                         vibration = naturalConstant * Math.Sin(seconds);
 
                         if (forcedConstant > 0)
                         {
-                            // Add forced vibration.
+                            // 強制振動を追加します。
                             vibration += forcedConstant * Math.Sin(0.75 * forcedSeconds) * Math.Sin(10 * forcedSeconds);
                             forcedSeconds += intervalInSeconds;
                         }
 
                         if (increasingConstant > 0)
                         {
-                            // Add increasing vibration.
+                            // 振動の増加を追加します。
                             vibration += (increasingSeconds / increasingConstant) * Math.Sin(increasingSeconds);
                             increasingSeconds += intervalInSeconds;
                         }
                     }
 
-                    // Increment the time since the conveyor belt app started.
+                    // コンベア ベルト アプリが起動してから、時間を増やします。
                     seconds += intervalInSeconds;
 
-                    // Count the packages that have completed their journey.
+                    // 作業を終えたパッケージを数えます。
                     switch (beltSpeed)
                     {
                         case SpeedEnum.fast:
@@ -388,18 +445,18 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                             break;
 
                         case SpeedEnum.stopped:
-                            // No packages!
+                            // パッケージはありません!
                             break;
                     }
 
-                    // Randomly vary ambient temperature.
+                    // ランダムに周囲温度を変化させます。
                     temperature += rand.NextDouble() - 0.5d;
 
-                    // Create two messages:
-                    // 1. Vibration telemetry only, that is routed to Azure Stream Analytics.
-                    // 2. Logging information, that is routed to an Azure storage account.
+                    // 次のように 2 つのメッセージを作成します。
+                    // 1.振動テレメトリのみ、Azure Stream Analytics にルーティングされます。
+                    // 2.ログ情報が、Azure ストレージ アカウントにルーティングされます。
 
-                    // Create the telemetry JSON message.
+                    // テレメトリの JSON メッセージを作成します。
                     var telemetryDataPoint = new
                     {
                         vibration = Math.Round(vibration, 2),
@@ -407,19 +464,19 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                     var telemetryMessageString = JsonConvert.SerializeObject(telemetryDataPoint);
                     var telemetryMessage = new Message(Encoding.ASCII.GetBytes(telemetryMessageString));
 
-                    // Add a custom application property to the message. This is used to route the message.
-                    telemetryMessage.Properties.Add("sensorID", "VSTel");
+                    // メッセージにカスタム アプリケーション プロパティを追加.これはメッセージをルーティングするために使用されます。
+                    テレメトリメッセージ.プロパティ.追加(「センサーID」、"VSTel")。
 
-                    // Send an alert if the belt has been stopped for more than five seconds.
+                    // ベルトが5秒より長く停止した場合は、警告を送信します。
                     telemetryMessage.Properties.Add("beltAlert", (beltStoppedSeconds > 5) ? "true" : "false");
 
                     Console.WriteLine($"Telemetry data: {telemetryMessageString}");
 
-                    // Send the telemetry message.
+                    // テレメトリ メッセージを送信します。
                     await s_deviceClient.SendEventAsync(telemetryMessage);
                     greenMessage($"Telemetry sent {DateTime.Now.ToShortTimeString()}");
 
-                    // Create the logging JSON message.
+                    // ログ記録 JSON メッセージを作成する
                     var loggingDataPoint = new
                     {
                         vibration = Math.Round(vibration, 2),
@@ -430,15 +487,15 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                     var loggingMessageString = JsonConvert.SerializeObject(loggingDataPoint);
                     var loggingMessage = new Message(Encoding.ASCII.GetBytes(loggingMessageString));
 
-                    // Add a custom application property to the message. This is used to route the message.
+                    // メッセージにカスタム アプリケーション プロパティを追加.これはメッセージをルーティングするために使用されます。
                     loggingMessage.Properties.Add("sensorID", "VSLog");
 
-                    // Send an alert if the belt has been stopped for more than five seconds.
+                    // ベルトが 5 秒以上停止した場合に警告を送信します。
                     loggingMessage.Properties.Add("beltAlert", (beltStoppedSeconds > 5) ? "true" : "false");
 
                     Console.WriteLine($"Log data: {loggingMessageString}");
 
-                    // Send the logging message.
+                    // ログ メッセージを送信します。
                     await s_deviceClient.SendEventAsync(loggingMessage);
                     greenMessage("Log data sent\n");
 
@@ -451,10 +508,10 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
                 Random rand = new Random();
                 colorMessage("Vibration sensor device app.\n", ConsoleColor.Yellow);
 
-                // Connect to the IoT hub using the MQTT protocol.
+                // MQTT プロトコルを使用して IoT ハブに接続します。
                 s_deviceClient = DeviceClient.CreateFromConnectionString(s_deviceConnectionString, TransportType.Mqtt);
 
-                // Create a number between 2 and 4, as a constant for normal vibration levels.
+                // 通常の振動レベルの定数として、2 から 4 の間の数値を作成します。
                 naturalConstant = 2 + 2 * rand.NextDouble();
 
                 SendDeviceToCloudMessagesAsync(rand);
@@ -464,60 +521,82 @@ The following app simulates a conveyor belt, and reports vibration sensor data e
     }
     ```
 
-    > **Important:** Take a few minutes, and read through the comments in the code. Notice how the vibration math from the description of the scenario in the introduction has worked its way into the code. The most important section of code for learning about IoT messages, starts with the "Create two messages:" comment.
+1. 少し時間をかけてコードについてレビューしてください。
 
-1. Replace the `<your device connection string>` (line 44) with the device connection string you saved off in the previous unit. No other lines of code need to be changed.
+    > **重要:** 少し時間をかけて、コード内のコメントを一読します。IoT メッセージについて学習するためのコードの中でも最も重要なセクションは、「2 つのメッセージを作成する:」というコメントから始まります。また、コンベア ベルトの振動レベルを定義するために使用される数学が (このラボの初めのシナリオの説明に記載されている)、どのようにコードの中に入り込んでいるかを確認することに興味が湧くかもしれません。
 
-1. Save the **Program.cs** file.
+1. `<your device connection string>` (44 行目) を、前の演習中に保存されたデバイスの接続文字列に置き換えます。
 
-    > [!NOTE] The code is also available in the `/labFiles` folder - remember to replace the `<your device connection string>`.
+    > **注意**: これは、このコードに対して行う必要がある唯一の変更です。
 
-### Task 3: Test your Code to Send Telemetry
+1. **Program.cs** ファイルを保存します。
 
-1. To run the app in the terminal, enter the following command:
+    > **注意**:  このコードは、ラボ 7 の `/Starter` フォルダーでも使用できます。Starter フォルダのコードを使用する場合は、忘れずに `<your device connection string>` を置き換えてください。
+
+#### タスク 3: テレメトリを送信するコードをテストする
+
+1. ターミナルでアプリを実行するには、次のコマンドを入力します。
 
     ```bash
     dotnet run
     ```
 
-   This command will run the **Program.cs** file in the current folder.
+   このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
 
-1. You should quickly see console output, similar to the following:
+1. 次のようなコンソール出力が表示されます。
 
-    ![Console Output](../../Linked_Image_Files/M99-L07-vibration-telemetry.png)
+    ```
+    Vibration sensor device app.
 
-    > [!NOTE] Green text is used to show things are working as they should and red text when bad stuff is happening. If you don't get a screen similar to this image, start by checking your device connection string.
+    Telemetry data: {"vibration":0.0}
+    Telemetry sent 10:29 AM
+    Log data: {"vibration":0.0,"packages":0,"speed":"stopped","temp":60.22}
+    Log data sent
 
-1. Watch the telemetry for a short while, checking that it is giving vibrations in the expected ranges.
+    Telemetry data: {"vibration":0.0}
+    Telemetry sent 10:29 AM
+    Log data: {"vibration":0.0,"packages":0,"speed":"stopped","temp":59.78}
+    Log data sent
+    ```
 
-1. You can leave this app running, as it's needed for the next section.
+    > **注意**:  ターミナルウィンドウでは、緑色のテキストは正常に機能していることを示し、赤色のテキストは問題が発生している場合に使用されます。エラー メッセージが表示された場合は、まずデバイスの接続文字列を確認します。
 
-### Task 4: Verify the IoT Hub is Receiving Telemetry
+1. しばらくの間テレメトリを見て、予想される範囲で振動していることを確認します。
 
-1. To verify that your IoT Hub is receiving the telemetry, open the [Azure Portal](https://portal.azure.com) and navigate to the Azure IoT Hub **AZ-220-HUB-_{YourID}_** **Overview** pane.
+1. 次のタスクのために、このアプリを実行したままにします。
 
-1. On the **Overview** page, scroll down to the bottom of the page where the metrics tiles are displayed.
+    次のタスクに進めない場合は、ターミナルウィンドウで**Ctrl-C**を入力してアプリを停止できます。`dotnet run` コマンドを使用すれば、後で再起動できます。
 
-1. Adjacent to **Show data for last**, change the time range to one hour. The **Device to cloud messages** plot should show some activity.
+#### タスク 4: IoT Hub がテレメトリを受信していることを確認する
 
-    If no activity is shown, wait a short while, as there's some latency.
+このタスクでは、Azure portal を使用して、IoT Hub がテレメトリを受信していることを確認します。
 
-    With your device pumping out telemetry, and your hub receiving it, the next step is to route the messages to their correct endpoints.
+1. [Azure portal](https://portal.azure.com) を開きます。
 
-## Exercise 3: Create a Message Route to Azure Blob Storage
+1. ダッシュボードの **AZ-220-RG** リソース グループ タイルで、「**AZ-220-HUB-_{YourID}_**」 をクリックします。 
 
-The architecture of our vibration monitoring system requires data be sent to two destinations: storage and analysis. Azure IoT provides a great method of directing data to the right service, through *message routing*.
+1. 「**概要**」 ウィンドウで、下にスクロールしてメトリック タイルを表示します。 
 
-In our scenario, we need create two routes:
+1. 「**最後のデータを表示**」 に隣接した時間の範囲を 1 時間に変更します。  
 
-* the first route will be to storage for achiving data
-* the second route will to an Event Hub for anomoly detection
+    「**デバイスからクラウドへのメッセージ**」 タイルでは、いくつかの現在のアクティビティがプロットされている必要があります。  アクティビティが表示されていない場合は、多少の待ち時間があるので、しばらくお待ちください。
 
-Since message routes are best built and tested one at a time, this exercise will focus on the storage route. We'll call this route the "logging" route, and it involves digging a few levels deep into the creation of Azure resources. All the features required to build this route are available in the Azure portal.
+    デバイスによりテレメトリが送信されると、ハブによりテレメトリが受信されるので、次の手順はメッセージを正しいエンドポイントにルーティングすることです。
 
-We will keep the storage route simple, and use Azure Blob storage (though Data Lake storage is also available). The key feature of message routing is the filtering of incoming data. The filter, written in SQL, streams output down the route only when certain conditions are met.
+### 演習 3: Azure BLOB ストレージにメッセージ ルートを作成する
 
-One of the easiest ways to filter data is on a message property, which is why we added these two lines to our code:
+振動監視システムのアーキテクチャでは、データをアーカイブする保管場所と、より迅速な分析用の場所となる 2 つの目的地にデータが送信される必要があります。Azure IoT は、*メッセージ ルーティング*を通じて、適切なサービスにデータを移動させる優れた方法を提供します。 
+
+シナリオでは、2 つのルートを作成する必要があります。
+
+* 最初のルートは、データをアーカイブするためのストレージです
+* 2 番目のルートは、異常検出のためにイベント ハブになる
+
+メッセージ ルートは一度に 1 つずつ構築およびテストするのが最善であるため、この演習ではストレージ ルートに焦点を当てます。このルートを「ログ」ルートと呼びます。これには、Azure リソースの作成のいくつかのレベルを掘り下げることが含まれます。このルートを構築するために必要なすべての機能は、Azure portal で使用できます。
+
+ストレージ ルートをシンプルに保ち、Azure BLOB Storage を使用します (ただし、Data Lake Storage も利用できます)。メッセージ ルーティングの重要な機能は、受信データのフィルター処理です。SQL で書かれたフィルターは、特定の条件が満たされた場合にのみ、ルートを下に出力します。
+
+データをフィルターする最も簡単な方法の 1 つは、メッセージ プロパティで、そのため、次の2行をコードに追加しました。
 
 ```csharp
 ...
@@ -526,231 +605,249 @@ telemetryMessage.Properties.Add("sensorID", "VSTel");
 loggingMessage.Properties.Add("sensorID", "VSLog");
 ```
 
-An SQL query embedded into our message route can test the `sensorID` value.
+メッセージルートに組み込まれた SQL クエリは、`sensorID` 値をテストできます。
 
-In this exercise, you will create and test the logging route.
+この演習では、ログ記録ルートを作成してテストします。
 
-### Task 1: Route the logging message to Azure storage
+#### タスク 1: ログ メッセージを Azure ストレージにルーティングする
 
-1. In the [Azure Portal](https://portal.azure.com/), ensure the **Overview** page for the IoT Hub you created (**AZ-220-HUB-_{YourID}_**) is open.
+1. [Azure portal](https://portal.azure.com/) で、IoT ハブの 「**概要**」 ウィンドウが開いていることを確認します、
 
-1. In the left-hand menu, under **Messaging**, select **Message routing**.
+1. 左側のメニューの 「**メッセージング**」 の下で、「**メッセージ ルーティング**」 をクリックします。   
 
-1. On the **Message routing** page, ensure that **Routes** is selected.
+1. 「**メッセージ ルーティング**」 ウィンドウで、「**ルート**」 タブが選択されていることを確認します。   
 
-1. Click **+ Add** to add the first route.
+1. 最初のルートを追加するには、「**追加**」 をクリックします。
 
-    The **Add a route** blade is displayed.
+    「**ルートの追加**」 ブレードが表示されます。 
 
-1. One the **Add a route** blade, under **Name**, enter `vibrationLoggingRoute`.
+1. 「**ルートの追加**」 ブレードの 「**名前**」 に `vibrationLoggingRoute` と入力します。   
 
-1. To the right of **Endpoint**, click **+ Add endpoint**, and select **Storage** from the drop-down list.
+1. 「**エンドポイント**」 の右側の 「**エンドポイントの追加**」 をクリックし、ドロップダウン リストで 「**ストレージ**」 をクリックします。     
 
-    The **Add a storage endpoint** pane is displayed.
+    「**ストレージ エンドポイントの追加**」 ブレードが表示されます。 
 
-1. Under **Endpoint name**, enter `vibrationLogEndpoint`.
+1. 「**エンドポイント名**」 に `vibrationLogEndpoint` と入力します。 
 
-1. To create storage and select a container, click **Pick a container**.
+1. ストレージを作成してコンテナーを選択するには、「**コンテナーの選択**」 をクリックします。 
 
-    A list of the storage accounts already present in the Azure Subscription is listed. At this point you could select an existing storage account and container, however for this lab we will create new ones.
+    Azure サブスクリプションに既に存在するストレージ アカウントの一覧が表示されます。この時点で既存のストレージ アカウントとコンテナーを選択できますが、このラボでは新しいストレージ アカウントとコンテナーを作成します。
 
-1. To create a new storage account, click **+ Storage account**.
+1. 新しいストレージ アカウントを作成するには、「**ストレージ アカウント**」 をクリックします。 
 
-    The **Create storage** pane is displayed.
+    「**ストレージの作成**」 ウィンドウが表示されます。 
 
-1. On the **Create Storage** pane, under **Name**, enter **vibrationstore** and add your initials and today's date - **vibrationstorecah191211**. 
+1. 「**ストレージの作成**」 ウィンドウの 「**名前**」 に、「**vibrationstore**」と入力すると、イニシャルと今日の日付「**vibrationstorecah191211**」でアペンドされます。
 
-    > [!NOTE] This field can only contain lower-case letters and numbers, must be between 3 and 24 characters, and must be unique.
+    > **注意**:  このフィールドには、小文字と数字のみを含めることができ、3 ~ 24 文字で、一意である必要があります。
 
-1. Under **Account kind**, select **StorageV2 (general purpose V2)**.
+1. 「**アカウントの種類**」 の一覧で、**StorageV2 (汎用 V2)** を選択します。
 
-1. Under **Performance**, select **Standard** if it is not selected.
+1. 「**パフォーマンス**」 で 「**標準**」 が選択されていることを確認します。   
 
-    This keeps costs down at the expense of overall performance.
+    これにより、全体的なパフォーマンスを犠牲にして、コストを抑えることができます。
 
-1. Under **Replication**, select **Locally-redundant storage (LRS)** if it is not already selected.
+1. 「**レプリケーション**」 で、「**ローカル冗長ストレージ (LRS)**」 が選択されていることを確認します。
 
-    This keeps costs down at the expense of risk mitigation for disaster recovery. In production your solution may require a more robust replication strategy.
+    これにより、ディザスター リカバリーのリスク軽減を犠牲にして、コストを抑えることができます。運用環境では、ソリューションにはより堅牢なレプリケーション戦略が必要になる場合があります。
 
-1. Under **Location**, choose the region you are using for all of your lab work.
+1. 「**場所**」 で、このコースの演習で使用している地域を選択します。
 
-1. To create the storage account, click **OK**, then wait until the request is validated, then completed. Validation and creation can take a minute or two.
+1. ストレージ アカウントを作成するには、「**OK**」 をクリックします。 
 
-    Once complete, the **Create storage account** pane will close. The **Storage accounts** screen will now appear. It should have updated and show the storage account that was just created.
+1. 要求が検証され、ストレージ アカウントのデプロイが完了するまで待ちます。
 
-1. Search for **vibrationstore**, and select the storage account you just created. 
+    検証と作成には 1 分から 2 分かかることがあります。
 
-   The **Containers** blade should appear. As this is a new storage account, there are no containers to list.
+    完了すると、「**ストレージ アカウントの作成**」 ウィンドウが閉じ、「**ストレージ アカウント**」 ブレードが表示されます。作成したストレージ アカウントを表示するように、「ストレージ アカウント」 ブレードが更新されている必要があります。
 
-1. To create a container, click **+ Container**.
+1. 「**vibrationstore**」を検索し、作成したストレージ アカウントを選択します。 
 
-    The **New container** popup is displayed.
+   「**コンテナー**」 ブレードが表示されます。これは新しいストレージ アカウントであるため、一覧表示するコンテナーはありません。
 
-1. In the **New container** popup, under **Name**, enter **vibrationcontainer**
+1. コンテナーを作成するには、「**コンテナー**」 をクリックします。 
 
-   Again, only lower-case letters and numbers are accepted.
+    「**新しいコンテナー**」 ポップアップが表示されます。 
 
-1. Under **Public access level**, ensure **Private (no anonymous access)** is selected.
+1. 「**新しいコンテナー**」 ポップアップで、「**名前**」 に 「**vibrationcontainer**」 と入力します
 
-1. To create the container, click **OK**, then wait for your container to be available. 
+   この場合も、小文字と数字のみが受け入れられます。
 
-1. To choose the container for the solution, highlight the container in the list, and click **Select** at the bottom of the page.
+1. 「**パブリック アクセス レベル**」 で 「**プライベート (匿名アクセスなし)**」 が選択されていることを確認します。   
 
-    You will return to the **Add a storage endpoint** pane. Note that the **Azure Storage container** has been set to the URL for the storage account and container you just created.
+1. コンテナーを作成するには 、「**OK**」  をクリックします。 
 
-1. Leave the **Batch frequency** and **Chunk size window** to the default values of **100**.
+    しばらくすると、コンテナーの **リース状態** に 「**利用可能** 」 と表示されます。
 
-1. Under **Encoding**, note there are two options and that **AVRO** is selected.
+1. ソリューションのコンテナーを選択するには、「**vibrationcontainer**」 をクリックし、「**選択 **」 をクリックします。   
 
-    > [!NOTE] By default IoT Hub writes the content in Avro format, which has both a message body property and a message property. The Avro format is not used for any other endpoints. Although the Avro format is great for data and message preservation, it's a challenge to use it to query data. In comparison, JSON or CSV format is much easier for querying data. IoT Hub now supports writing data to Blob storage in JSON as well as AVRO.
+    「**ストレージ エンドポイントの追加**」 ウィンドウに戻ります。  **Azure Storage コンテナー**が、作成したストレージ アカウントとコンテナーの URL に設定されていることに注意してください。
 
-1. The final field **File name format** specifies the pattern used to write the data to files in storage. The various tokens are replace with values as the file is created.
+1. 「**バッチの頻度**」 ウィンドウと **「チャンク サイズ」 ウィンドウ** は既定値の **100**のままにします。
 
-1. To create the endpoint, click **Create** at the bottom of the pane. Validation and creation will take a few moments.
+1. 「**エンコード**」 で、2 つのオプションがあり、**AVRO** が選択されていることに注意してください。   
 
-    You should now be back at the **Add a route** blade. 
+    > **注意**:  既定では、IoT Hub は Avro 形式でコンテンツを書き込み、メッセージ本文プロパティとメッセージ プロパティの両方があります。Avro 形式は、他のエンドポイントには使用されません。Avro 形式はデータとメッセージの保存に適していますが、データのクエリに使用するのは難しいことです。これに対して、JSON 形式または CSV 形式の方が、データのクエリがはるかに簡単です。IoT ハブでは、データの JSON と AVRO での Blob Storage へのデータの書き込みがサポートされるようになりました。
 
-1. Under **Data source**, ensure **Device Telemetry Messages** is selected.
+1. 「**ファイル名の形式**」 フィールドで指定した値を調べます。
 
-1. Under **Enable route**, ensure **Enable** is selected.
+    「**ファイル名の形式**」 フィールドは、ストレージ内のファイルにデータを書き込むために使用するパターンを指定します。  ファイルが作成されると、さまざまなトークンが値に置き換えられます。
 
-1. Under **Routing query**, replace **true** with the query below:
+1. ペインの下部で、エンドポイントを作成するには、「**作成**」 をクリックします。 
+
+    検証と作成には少し時間がかかります。完了したら、「**ルートの追加**」 ブレードに戻ります。
+
+1. 「**ルートの追加**」 ブレードの 「**データソース**」 で、「**デバイス テレメトリ メッセージ**」 が選択されていることを確認します。     
+
+1. **「ルートを有効にする」** で、**「有効」** が選択されていることを確認します。
+
+1. 「**ルーティング クエリ**」 の下で、次のクエリに **true** を置き換えます。 
 
     ```sql
     sensorID = "VSLog"
     ```
 
-    This ensures that messages only follow this route if the `sensorID = "VSLog"`.
+    これにより、メッセージは `sensorID = "VSLog"` の場合にのみこのルートに従います。
 
-1. To save this route, click **Save**. Wait for the success message.
+1. このルートを保存するには、「**保存**」 をクリックします。 
 
-    Once completed, the route should be listed on the **Message routing** blade.
+    成功メッセージを待ちます。完了すると、ルートが 「**メッセージ ルーティング**」 ブレードに表示されます。
 
-The next step will be to verify that the logging route is working.
+1. Azure portal ダッシュボードに戻ります。
 
-## Exercise 4: Logging Route Azure Stream Analytics Job
+次の手順では、ログ記録ルートが機能していることを確認します。
 
-To verify that the logging route is working as expected, we will create a Stream Analytics job that routes logging messages to Blob storage. 
+### 演習 4: ログ ルート Azure Stream Analytics ジョブ
 
-This will enable us to verify that our route includes the following settings:
+ログ記録ルートが期待どおりに動作していることを確認するために、ログ 記録メッセージを Blob Storage にルーティングする Stream Analytics ジョブを作成し、Azure Portal の Storage Explorer を使用して検証できます。
 
-* **Name** - vibrationLoggingRoute
-* **Data Source** - DeviceMessages
-* **Routing query** - sensorID = "VSLog"
-* **Endpoint** - vibrationLogEndpoint
-* **Enabled** - true
+これにより、ルートに次の設定が含まれていることを確認できます。
 
-### Task 1: Create the Stream Analytics Job
+* **名前** - vibrationLoggingRoute
+* **データ ソース** - DeviceMessages
+* **ルーティング クエリ** - sensorID = "VSLog"
+* **エンドポイント** - vibrationLogEndpoint
+* **有効化** -  true
 
-1. In the [Azure portal], select **+ Create a resource**. 
+> **注意**: このラボでは、奇妙に思えるかもしれませんが、データをストレージにルーティングし、Azure Stream Analytics を使用してデータをストレージにも送信しています。作成シナリオでは、両方のパスを長期的には使用しません。代わりに、ここで作成している 2 番目のパスが存在しない可能性があります。ここでは、ラボ環境でルーティングが期待どおりに機能していることを検証し、Azure Stream Analytics の簡単な実装を示す方法として使用しています。
 
-2. Search for and select `Stream Analytics job`. Click **Create**.
+#### タスク 1: Streaming Analytics ジョブを作成する
 
-    The **New Stream Analytics job** pane is displayed.
+1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
 
-3. On the **New Stream Analytics job** pane, under **Name**, enter `vibrationJob`.
+1. 「**新規**」 ブレードの 「**マーケットプレースの検索**」 ボックスに 「**Stream Analytics ジョブ**」 と入力し、「**Stream Analytics ジョブ**」 をクリックします。       
 
-4. Under **Subscription**, choose the subscription you are using for the lab.
+1. 「**Stream Analytics ジョブ**」 ブレードで、「**作成**」 をクリックします。
 
-5. Under **Resource group**, select **AZ-220-RG**.
+    「**新しい Stream Analytics ジョブ**」 ウィンドウが表示されます。 
 
-6. Under **Location**, select the region you are using for all of your lab work.
+1. 「**新しい Stream Analytics ジョブ**」 ウィンドウの 「**名前**」 の下に `vibrationJob` と入力します。
 
-7. Under **Hosting environment**, select **Cloud**.
+1. 「**サブスクリプション**」 で、ラボで使用しているサブスクリプションを選択します。
 
-    Edge hosting will be discussed later in the course.
+1. 「**リソース グループ**」 で 「**AZ-220-RG**」 を選択します。   
 
-8. Under **Streaming units**, reduce the number from **3** to **1**.
+1. 「**場所**」 で、すべてのラボ作業に使用するリージョンを選択します。 
 
-    This lab does not require 3 units and this will reduce costs.
+1. 「**ホスティング環境**」 で 「**クラウド**」 を選択します。   
 
-9.  To create the streaming analytics job, click **Create**.
+    エッジ ホスティングについては、コースの後半で説明します。
 
-10. Wait for the **Deployment succeeded** message, then open the new resource.
+1. 「**ストリーミング ユニット**」 で、数値を **3** から **1** に減ら します。     
 
-    > **Tip:** If you miss the message to go to the new resource, or need to find a resource at any time, select **Home/All resources**. Enter enough of the resource name for it to appear in the list of resources.
+    このラボでは 3 ユニットは必要ありません。これによりコストが削減されます。
 
-    You'll now see the empty job, showing no inputs or outputs, and a skeleton query. The next step is to populate these entries.
+1. Stream Analytics ジョブを作成するには、**作成**をクリックします。
 
-11. To create an input, in the left hand navigation, under **Job topology**, click **Inputs**.
+1. 「**デプロイの成功**」 メッセージを待ってから、新しいリソースを開きます。 
 
-    The **Inputs** pane is displayed.
+    > **ヒント:** 新しいリソースに移動するメッセージが見つからない場合、またはいつでもリソースを見つける必要がある場合は、「**ホーム/すべてのリソース**」を選択します。リソースの一覧に表示するため、リソース名を入力します。
 
-12. On the **Inputs** pane, click **+ Add stream input**, and select **IoT Hub** from the dropdown list.
+1. お手数ですが、新しい Stream Analytics ジョブを調べてください。
 
-    The **New Input** pane will be displayed.
+    空のジョブがあり、入力または出力が表示されておらず、スケルトン クエリが存在することに注意してください。次に、これらのエントリを作成します。
 
-13. On the **New Input** pane, under **Input alias**, enter `vibrationInput`.
+1. 入力を作成するには、左側のナビゲーションの 「**ジョブ トポロジ**」 で 「**入力**」 をクリックします。   
 
-14. Ensure **Select IoT Hub from your subscriptions** is selected.
+    「**入力**」 ウィンドウが表示されます。 
 
-15. Under **Subscription**, ensure the subscription you used to create the IoT Hub earlier is selected.
+1. 「**入力**」 ウィンドウで、「**ストリーム入力の追加**」 をクリックし、ドロップダウン リストから 「**IoT Hub**」 を選択します。
 
-16. Under **IoT Hub**, select the IoT Hub you created at the beginning of the course labs, **AZ-220-HUB-_{YourID}_**.
+    「**新しい入力**」 ウィンドウが表示されます。 
 
-17. Under **Endpoint**, ensure **Messaging** is selected.
+1. 「**新しい入力**」 ウィンドウの 「**入力エイリアス**」 に `vibrationInput` と入力します。
 
-18. Under **Shared access policy name**, ensure **iothubowner** is selected.
+1. 「**サブスクリプションから IoT Hub を選択**」 が選択されていることを確認します。
 
-    > [!NOTE] The **Shared access policy key** is populated and read-only.
+1. 「**サブスクリプション**」 で、以前に IoT Hub の作成に使用したサブスクリプションが選択されていることを確認します。
 
-19. Under **Consumer group**, ensure **$Default** is selected.
+1. 「**IoTHub**」 で、コース ラボの最初に作成した IoT Hub **AZ-220-HUB-_{YourID}_** を選択します。
 
-20. Under **Event serialization format**, ensure **JSON** is selected.
+1. 「**エンドポイント**」 で 、「**メッセージング**」 が選択されていることを確認します。
 
-21. Under **Encoding**, ensure **UTF-8** is selected.
+1. 「**共有アクセス ポリシー名**」 で **iothubowner** が選択されていることを確認します。   
 
-22. Under **Event compression type**, ensure **None** is selected.
+    > **注意**:  **共有アクセス ポリシー キー**は読み取り専用で実装されます。 
 
-23. To save the new input, click **Save**, then wait for the input to be created.
+1. 「**コンシューマー グループ**」 で **$Default** が選択されていることを確認します。
 
-    The **Inputs** list should be updated to show the new input.
+1. **「イベントのシリアル化形式」** で **「JSON」** が選択されていることを確認します。
 
-24. To create an output, in the left hand navigation, under **Job topology**, click **Outputs**.
+1. **「エンコード」** で、**「UTF-8」** が選択されていることを確認します。
 
-    The **Outputs** pane is displayed.
+    フィールドの一部を表示させるために、下にスクロールする必要がある場合があります。
 
-25. On the **Outputs** pane, click **+ Add**, and select **Blob storage/Data Lake Storage Gen2** from the dropdown list.
+1. 「**イベントの圧縮タイプ**」 で 「**なし**」 が選択されていることを確認します。   
 
-    The **New output** pane is displayed.
+1. 新しい入力を保存するには、**「保存」** をクリックし、入力が作成されるまで待ちます。
 
-26. On the **New output** pane, under **Output alias**, enter `vibrationOutput`.
+    **入力**リストが更新されて、新しい入力が表示されるはずです。
 
-27. Ensure **Select storage from your subscriptions** is selected.
+1. 出力を作成するには、左側のナビゲーションの 「**ジョブ トポロジ**」 の下で、「**出力**」 をクリックします。   
 
-28. Under **Subscription**, choose the subscription you are using for this lab.
+    **「出力」** ウィンドウが表示されます。
 
-29. Under **Storage account**, choose the storage account you created earlier - **vibrationstore** plus your initials and date.
+1. 「**出力**」 ウィンドウで 「**追加**」 をクリックし、ドロップダウン リストから 「**BLOB ストレージ/Data Lake Storage Gen2**」 を選択します。     
 
-    > [!NOTE] The **Storage account key** is automatically populated and read-only.
+    「**新規出力**」 ウィンドウが表示されます。 
 
-30. Under **Container**, ensure **Use existing** is selected and select **vibrationcontainer** from the dropdown list.
+1. 「**新しい出力**」 ウィンドウの 「**出力エイリアス**」 の下に、`vibrationOutput` と入力します。   
 
-31. Leave the **Path pattern** blank.
+1. 「**サブスクリプションからストレージを選択**」 が選択されていることを確認します。 
 
-32. Leave the **Date format** and **Time format** at their defaults.
+1. 「**サブスクリプション**」 で、このラボで使用しているサブスクリプションを選択します。
 
-32. Under **Event serialization format**, ensure **JSON** is selected.
+1. 「**ストレージ アカウント**」 で、以前に作成したストレージ アカウント  (**vibrationstore** とイニシャルと日付) を選択します。   
 
-33. Under **Encoding**, ensure **UTF-8** is selected.
+    > **注意**:  **ストレージ アカウント キー**は自動的に設定され、読み取り専用になります。 
 
-34. Under **Format**, ensure **Line separated**.
+1. 「**コンテナー**」 で、「**既存の使用**」 が選択され、ドロップダウン リストから 「**vibrationcontainer**」 が選択されていることを確認します。     
 
-    > [!NOTE] This setting stores each record as a JSON object on each line and, taken as a whole, results in a file that is an invalid JSON record. The other option, **Array**, ensures that the entire document is formatted as a JSON array where each record is an item in the array. This allows the entire file to be parsed as valid JSON.
+1. **パス パターン**は空白のままにします。 
 
-35. Leave **Minimum rows** blank.
+1. 「**日付の形式**」 と 「**時刻の形式**」 は既定値のままにします。   
 
-36. Leave **Minimum time Hours** and **Minutes** blank.
+1. **「イベントのシリアル化形式」** で **「JSON」** が選択されていることを確認します。
 
-37. Under **Authentication mode**, ensure **Connection string** is selected.
+1. **「エンコード」** で、**「UTF-8」** が選択されていることを確認します。
 
-38. To create the output, click **Save**, then wait for the output to be created.
+1. 「**形式**」 で、「**線区切り**」 が選択されていることを確認します。   
 
-    The **Outputs** list will be updated with the new output.
+    > **注意**:  この設定では、各レコードを各行に JSON オブジェクトとして格納し、全体として取得すると、ファイルが無効な JSON レコードになります。もう 1 つのオプション 「**配列**」 は、各レコードが配列内の項目である JSON 配列として文書全体がフォーマットされることを保証します。  これにより、ファイル全体を有効な JSON として解析できます。
 
-39. To edit the query, in the left hand navigation, under **Job topology**, click **Query**.
+1. **最小行は**空白のままにします。
 
-40. In the query edit pane, replace the existing query with the query below:
+1. 「**最大時間**」 で、「**時間** と **分**」 を空白のままにします。
+
+1. 「**認証モード**」 で 「**接続文字列**」 が選択されていることを確認します。
+
+1. 出力を作成するには、「**保存**」 をクリックし、出力が作成されるのを待ちます。 
+
+    **出力**リストが新しい出力で更新されます。
+
+1. クエリを編集するには、左側のナビゲーションの 「**ジョブ トポロジ**」 で 「**クエリ**」 をクリック します。
+
+1. クエリ編集ウィンドウで、既存のクエリを以下のクエリに置き換えます。
 
     ```sql
     SELECT
@@ -761,48 +858,58 @@ This will enable us to verify that our route includes the following settings:
         vibrationInput
     ```
 
-41. Above the edit pane, in the toolbar, click **Save Query**.
+1. 編集ペインの真上にある 「**クエリの保存**」 をクリックします。 
 
-42. In the left hand navigation, click **Overview**.
+1. 左側のナビゲーションで、「**概要**」 をクリックします。
 
-### Task 2: Test the Logging Route
+#### タスク 2: ログ ルートをテストする
 
-Now for the fun part. Does the telemetry your device app is pumping out work its way along the route, and into the storage container?
+さて次は、楽しい部分になります。デバイス アプリによって送り出されるテレメトリは、ルートに沿ってストレージ コンテナーの中に入り込みますか。
 
-1. Ensure the device app you create in Visual Studio Code is still running. If not, run it in the Visual Studio Code terminal using `dotnet run`.
+1. Visual Studio Code で作成したデバイス アプリが、依然として実行されていることを確認します。 
 
-1. In the **vibrationJob** blade's **Overview** page, click **Start**.
-   
-2. In the **Start job** pane, leave the **Job output start time** at **Now**, and click **Start**.
+    そうでない場合は、`dotnet run` を使用して Visual Studio Code ターミナルで実行します。
 
-    It will take a few moments for the job to start.
+1. Stream Analytics ジョブの 「**概要**」 ウィンドウで、「**開始**」 をクリックします。   
 
-3. Return to the [Azure Portal](https://portal.azure.com/#home).
+1. 「**ジョブの開始**」 ウィンドウで、「**ジョブ出力の開始時刻**」 を 「**現在**」 のままにし、「**開始**」 をクリック します。       
 
-4. Select the **vibrationstore** (plus your initials and date) resource from your resource group tile.  (If it's not visible, use the **Refresh** button at the top of the resource group tile.)
+    ジョブが開始するまでに、すこし時間がかかります。
 
-6. On the **Overview** page, scroll down until you can see the **Monitoring** section.
+1. Azure portal メニューで、**「ダッシュボード」** をクリックします。
 
-7. Under **Monitoring**, adjacent to **Show data for last**, change the time range to **1 hour**. You should see activity in the charts.
+1. リソース グループ タイルで、 **vibrationstore** (およびイニシャルと日付) ストレージ アカウントを選択します。
 
-8. For added reassurance that all the data is getting to the account, open the storage in **Storage Explorer (preview)**. You can find links to **Storage Explorer (preview)** in multiple locations; the easiest to find is probably in the left hand navigation area.
+    ストレージ アカウントが表示されない場合は、 リソース グループ タイルの上部にある 「**更新**」 ボタンを使用します。
 
-    > [!NOTE] The Storage Explorer is currently in preview mode, so its exact mode of operation may change.
+1. ストレージ アカウントの 「**概要**」 ウィンドウで、「**監視**」 セクションが表示されるまで下にスクロールします。
 
-9.  In **Storage Explorer (preview)**, under **BLOB CONTAINERS**, select **vibrationcontainer**.
+1. 「**監視**」 で、「**最後のデータを表示**」 の横にある時間の範囲を **1 時間** に変更します。
 
-10. To view the data, you will need to navigate down a hierarchy of folders. The first folder will be named for the IoT Hub, the next will be a partition, then year, month, day and finally hour. Within the hour folder, you will see files named for the minute they were generated.
+    グラフにアクティビティが表示されます。
 
-11. To stop the Azure Streaming Analytics job, return to your portal dashboard and select **vibrationJob**.
+1. 左側のナビゲーション メニューで、「**ストレージ エクスプローラー (プレビュー)**」 をクリックします。
 
-12. On the **Stream Analytics Job** page, click **Stop** and click **Yes** in the confirmation popup.
+    ストレージ エクスプローラーを使用して、すべてのデータがストレージ アカウントに到達していることを再確認できます。 
 
-You've traced the activity from the device app, to the hub, down the route, and to the storage container. Great progress!
+    > **注意**:  ストレージ エクスプローラーは現在プレビュー モードであるため、操作の正確なモードが変更される可能性があります。
 
-## Next Steps
+1. **Storage Explorer (プレビュー)** の 「**BLOB コンテナー**」 の下で、「**振動コンテナ**」 をクリックします。     
 
-The final part of this scenario requires that the telemetry data is sent to an EventHub for real-time analysis in PowerBI. We will cover this second part in the next lab, after you have been introduced to data visualization.
+    データを表示するには、フォルダの階層を下に移動する必要があります。最初のフォルダには IoT Hub の名前が付けられ、その次はパーティション、それから年、月、日、そして最後の時間になります。 
 
-You may wish to exit the device simulator app by pressing **CTRL-C** in the Visual Studio Code Terminal.
+1. 右側のウィンドウの 「**名前**」 の下で、IoT Hub のフォルダーをダブルクリックし、次に、最新の時間フォルダーを開くまで、ダブルクリックを使用して階層まで移動します。
 
-    >[!IMPORTANT] Do not remove these resources until you have completed the Data Visualization module of this course.
+    時間フォルダ内には、生成された分をとって名前につけてあるファイルが表示されます。
+
+1. Azure Streaming Analytics ジョブを停止するには、ポータル ダッシュボードに戻り、「**vibrationJob**」 を選択します。 
+
+1. 「**Stream Analytics ジョブ**」 ページで、「**停止**」、「**はい**」 の順にクリックします。     
+
+    デバイス アプリから、ルートに沿って、ハブ、ストレージ コンテナーへとアクティビティをトレースしました。大きな進歩です! データの視覚化をすばやく確認する場合は、次のモジュールでこのシナリオのストリーム分析を続行します。
+
+1. 「Visual Studio Code」 ウィンドウに切り替えます。
+
+1. ターミナル コマンド プロンプトで、デバイス シミュレータ アプリを終了するには、**Ctrl-C** キーを押します。
+
+> **重要**: このコースのデータ視覚化モジュールを完了するまで、これらのリソースを削除しないでください。

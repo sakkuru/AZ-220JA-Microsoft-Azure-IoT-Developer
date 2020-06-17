@@ -1,38 +1,48 @@
-# AZ-220: Microsoft Azure IoT Developer - BETA
+﻿# AZ-220: Microsoft Azure IoT Developer
 
-*Please note: Course is in Beta stage and labs are in the process of review in work in progress.*
+- **[最新の受講者ハンドブックと AllFiles コンテンツをダウンロードする](../../releases/latest)**
+- **MCTの場合は、** - [MCT 向けの GitHub ユーザー ガイド](https://microsoftlearning.github.io/MCT-User-Guide-JA/)をご覧ください。
+- **ラボの手順を手動でビルドする必要がある場合は、** - [Microsoft Learning/Docker-Build](https://github.com/MicrosoftLearning/Docker-Build) リポジトリで手順を入手できます。
+- **[ラボ VM にインストールされているもの。](lab.md)**
 
-- **[Download Latest Student Handbook and AllFiles Content](../../releases/latest)**
-- **Are you a MCT?** - Have a look at our [GitHub User Guide for MCTs](https://microsoftlearning.github.io/MCT-User-Guide/)
-- **Need to manually build the lab instructions?** - Instructions are available in the [MicrosoftLearning/Docker-Build](https://github.com/MicrosoftLearning/Docker-Build) repository
-- **[Want to know what is installed on the lab VM?](lab.md)**
+## やり方
 
-## What are we doing?
+- このコースをサポートするには、コースで使用される Azure Services を最新の状態に保つために、コースコンテンツを頻繁に更新する必要があります。  コース作成者と MCT の間でオープンな貢献を行い、Azure Platform の変更に伴ってコンテンツを最新の状態に保つため、GitHub でラボの手順とラボファイルを公開しています。
 
-- To support this course, we will need to make frequent updates to the course content to keep it current with the Azure services used in the course.  We are publishing the lab instructions and lab files on GitHub to allow for open contributions between the course authors and MCTs to keep the content current with changes in the Azure platform.
+- Azure が変更され、ライブ配信中に最初に見つかった場合に、ラボソースで強化を行うなど、これまでにないコラボレーションがラボにもたらされることを願っています。  仲間の MCT を助けましょう。
 
-- We hope that this brings a sense of collaboration to the labs like we've never had before - when Azure changes and you find it first during a live delivery, go ahead and make an enhancement right in the lab source.  Help your fellow MCTs.
+## リリースされた MOC ファイルを基準にしてこれらのファイルを使用する場合。
 
-## How should I use these files relative to the released MOC files?
+- 講師用ハンドブックと PowerPoint は、コースの内容を教えるための主要なソースになります。
 
-- The instructor handbook and PowerPoints are still going to be your primary source for teaching the course content.
+- GitHub 上のこれらのファイルは、受講者ハンドブックと組み合わせて使用するように設計されていますが、MCT とコースの作成者が最新のラボファイルの共有ソースを持つことができるように、中央リポジトリとして GitHub にあります。
 
-- These files on GitHub are designed to be used in conjunction with the student handbook, but are in GitHub as a central repository so MCTs and course authors can have a shared source for the latest lab files.
+- すべての配信について、トレーナーは GitHub に最新の Azure Services をサポートの変更がないか確認し、配信用の最新のファイルを取得することをお勧めします。
 
-- It will be recommended that for every delivery, trainers check GitHub for any changes that may have been made to support the latest Azure services, and get the latest files for their delivery.
+## 学習ハンドブックの変更についてはどうでしょうか。
 
-## What about changes to the student handbook?
+- 学習ハンドブックを四半期ごとに確認し、必要に応じて通常の MOC リリース チャネルを通じて更新します。
 
-- We will review the student handbook on a quarterly basis and update through the normal MOC release channels as needed.
+## リクエストやフィードバックについて
 
-## How do I contribute?
+- MCT は、GitHub repro のコードまたはコンテンツにプルリクエストを送信できます。マイクロソフトとコースの作成者は、必要に応じてコンテンツとラボコードの変更を協議して含めます。
 
-- Any MCT can submit a pull request to the code or content in the GitHub repro, Microsoft and the course author will triage and include content and lab code changes as needed.
+- バグ、変更、改善、意見を送信できます。 新しい Azure 機能を見つけましたか。 新しいデモを提出してください。
 
-- You can submit bugs, changes, improvement and ideas.  Find a new Azure feature before we have?  Submit a new demo!
+## メモ
 
-## Notes
+### 教室の教材
 
-### Classroom Materials
+MCT とパートナーがこれらの資料にアクセスできるようにし、受講者に個別に提供することを強くお勧めします。  進行中のクラスの一部としてラボ の手順にアクセスするために GitHub を紹介すると、さらに別の UI にアクセスする必要が生じ、受講者にとってわかりにくい経験になる恐れがあります。ラボにおいて個別の指示を受ける理由について受講者に説明すると、常に変化するクラウド ベースのインターフェイスとプラットフォームの性質が強調されます。GitHub 上のファイルへのアクセスに関する Microsoft Learning サポートと GitHub サイトのナビゲーションのサポートは、このコースを教える MCT に限定されます。
 
-It is strongly recommended that MCTs and Partners access these materials and in turn, provide them separately to students.  Pointing students directly to GitHub to access Lab steps as part of an ongoing class will require them to access yet another UI as part of the course, contributing to a confusing experience for the student. An explanation to the student regarding why they are receiving separate Lab instructions can highlight the nature of an always-changing cloud-based interface and platform. Microsoft Learning support for accessing files on GitHub and support for navigation of the GitHub site is limited to MCTs teaching this course only.
+マークダウン ファイルの処理済みのフォーマット済みバージョンは、https://aka.ms/az220labs にあります。
+
+### 現在のリリースでの既知の問題
+
+新しい問題が既存の問題と重複していないことを確認するために、現在の未解決問題を参照**してください**。 以下は、既に作業を行っている未解決な問題ではない既知の問題です。
+
+* ほとんどのラボでは、具体的に名前を付けられた IoT デバイスを作成するために、セットアップ スクリプトを実行する必要があります。ラボ内およびラボ全体でデバイス リソースを "クリーンアップ" する作業が行われています。
+
+* ラボ演習の多くは、定義されたタスクに分割されておらず、迷ったり、ステップを見逃しやすくなります。この書式設定に対処する作業が行われています。
+
+* ラボの手順には、イメージによって指示の明確さを改善できる箇所があります。現在、必要とされる箇所に画像がラボに追加されています。ただし、Azure UI の流動的な性質のため、画像の数を少なく抑える予定です。

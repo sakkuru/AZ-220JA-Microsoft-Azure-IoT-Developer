@@ -1,436 +1,626 @@
----
+﻿---
 lab:
-    title: 'Lab 12: Setup an IoT Edge Gateway'
-    module: 'Module 6: Azure IoT Edge Deployment Process'
+    title: 'ラボ 12: IoT Edge ゲートウェイ'を設定する'
+    module: 'モジュール 6: Azure IoT Edge のデプロイプロセス'
 ---
 
-# Setup an IoT Edge Gateway
+# IoT Edge ゲートウェイを設定する
 
-## Lab Scenario
+## ラボシナリオ
 
-This lab is theoretical and will walk you through how an IoT Edge device can be used as a gateway.
+このラボは理論に基づいた形で、IoT Edge デバイスをゲートウェイとして使用する方法について説明します。
 
-There are three patterns for using an IoT Edge device as a gateway: transparent, protocol translation, and identity translation:
+IoT Edge デバイスをゲートウェイとして使用するパターンには、透過、プロトコル変換、および ID 変換の 3 つのパターンがあります。
 
-**Transparent** – Devices that theoretically could connect to IoT Hub can connect to a gateway device instead. The downstream devices have their own IoT Hub identities and are using any of the MQTT, AMQP, or HTTP protocols. The gateway simply passes communications between the devices and IoT Hub. The devices are unaware that they are communicating with the cloud via a gateway, and a user interacting with the devices in IoT Hub is unaware of the intermediate gateway device. Thus, the gateway is transparent. Refer to Create a transparent gateway for specifics on using an IoT Edge device as a transparent gateway.
+**透過** – 理論的に IoT ハブに接続できるデバイスは、代わりにゲートウェイ デバイスに接続できます。ダウンストリーム デバイスは、独自の IoT ハブ ID があり、MQTT、AMQP、または HTTP プロトコルのいずれかを使用しています。ゲートウェイは、デバイスと IoT ハブの間の通信を単純に受け渡します。デバイスは、ゲートウェイ経由でクラウドと通信していることを認識しません。また、IoT ハブでデバイスと対話するユーザーは、中間ゲートウェイ デバイスを認識しません。したがって、ゲートウェイは透過的です。「IoT Edge デバイスを透過ゲートウェイとして使用して透過ゲートウェイを作成する」を参照してください。
 
-**Protocol translation** – Also known as an opaque gateway pattern, devices that do not support MQTT, AMQP, or HTTP can use a gateway device to send data to IoT Hub on their behalf. The gateway understands the protocol used by the downstream devices, and is the only device that has an identity in IoT Hub. All information looks like it is coming from one device, the gateway. Downstream devices must embed additional identifying information in their messages if cloud applications want to analyze the data on a per-device basis. Additionally, IoT Hub primitives like twins and methods are only available for the gateway device, not downstream devices.
+**プロトコルの変換**- 非透過なゲートウェイ パターンとしても知られる、MQTT、AMQP、または HTTP をサポートしないデバイスは、ゲートウェイ デバイスを代理として使用して IoT Hub にデータを送信できます。ゲートウェイは、ダウンストリーム デバイスによって使用されるプロトコルを認識する、IoT Hub の ID を持つ唯一のデバイスです。すべての情報は、1 つのデバイスまたはゲートウェイから来ているように見えます。クラウド アプリケーションでデバイスごとにデータを分析する場合、ダウンストリーム デバイスはそのメッセージに追加の識別情報を埋め込む必要があります。また、ツインやメソッドなどの IoT Hub プリミティブは、ゲートウェイ デバイスに対してのみ使用できるものであり、ダウンストリーム デバイスに対しては使用できません。
 
-**Identity translation** - Devices that cannot connect to IoT Hub can connect to a gateway device, instead. The gateway provides IoT Hub identity and protocol translation on behalf of the downstream devices. The gateway is smart enough to understand the protocol used by the downstream devices, provide them identity, and translate IoT Hub primitives. Downstream devices appear in IoT Hub as first-class devices with twins and methods. A user can interact with the devices in IoT Hub and is unaware of the intermediate gateway device.
+**ID の変換** -  IoT Hub に接続できないデバイスは、その代わりとして、ゲートウェイ デバイスに接続できます。ゲートウェイは、ダウンストリーム デバイスの代理で IoT Hub の ID を提供し、プロトコルを変換します。ゲートウェイは、ダウンストリーム デバイスが使用するプロトコルを理解するほど賢く、これらのデバイスに ID を提供して IoT Hub プリミティブを変換します。ダウンストリーム デバイスは、ツインとメソッドを持つファースト クラスのデバイスとして IoT Hub に表示されます。ユーザーは IoT Hub のデバイスとやり取りできますが、中間ゲートウェイ デバイスは認識しません。
 
-## In This Lab
+次のリソースが作成されます。
 
-In this lab, you will:
+![ラボ 12 アーキテクチャ](media/LAB_AK_12-architecture.png)
 
-* Verify Lab Prerequisites
-* Deploy Azure IoT Edge Enabled Linux VM as an IoT Edge Device
-* Generate and Configure IoT Edge Device CA Certificates
-* Create IoT Edge Device Identity in IoT Hub using Azure Portal
-* Setup IoT Edge Gateway Hostname
-* Connect IoT Edge Gateway Device to IoT Hub
-* Open IoT Edge Gateway Device Ports for Communication
-* Create Downstream Device Identity in IoT Hub
-* Connect Downstream Device to IoT Edge Gateway
-* Verify Event Flow
+## このラボで
 
+このラボでは、次のタスクを正常に達成します。
 
-## Exercise 1: Verify Lab Prerequisites
+* ラボの前提条件を確認する
+* IoT Edge デバイスとして Azure IoT Edge 対応 Linux VM をデプロイする
+* IoT Edge デバイス CA 証明書を生成および構成する
+* Azure portal を使用して IoT Hub で IoT Edge デバイス ID を作成する
+* IoT Edge ゲートウェイのホスト名を設定する
+* IoT Edge ゲートウェイ デバイスを IoT Hub に接続する
+* 通信用に IoT Edge ゲートウェイ デバイス ポートを開く
+* IoT Hub でダウンストリーム デバイス ID を作成する
+* ダウンストリーム デバイスを IoT Edge ゲートウェイに接続する
+* イベント フローの検証
 
+## ラボの手順
 
+### 演習 1: ラボの前提条件を確認する
 
-## Exercise 2: Deploy Azure IoT Edge enabled Linux VM
+このラボでは、次の Azure リソースが使用可能であることを前提としています。
 
-In this exercise, you will deploy an Ubuntu Server VM with Azure IoT Edge runtime support from the Azure Marketplace.
+| リソースの種類:  | リソース名 |
+| :-- | :-- |
+| リソース グループ | AZ-220-RG |
+| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+これらのリソースが利用できない場合は、演習 2 に進む前に、以下の指示に従って **lab12-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+> **注意**:   **lab12-setup.azcli** スクリプトは、**bash** シェル環境で実行されるように記述されています。Azure Cloud Shell でこれを実行するのが、最も簡単な方法です。
 
-1. In the Azure Portal, click **Create a resource** open the Azure Marketplace.
+1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
 
-1. On the **New** blade, in the **Search the Marketplace** box, type in and search for **Azure IoT Edge on Ubuntu**.
+1. Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
 
-1. In the search results, select the **Azure IoT Edge on Ubuntu** item.
+1. Azure シェルが **Bash** を使用していることを確認します。
 
-1. On the **Azure IoT Edge on Ubuntu** item, click **Create**.
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
 
-1. On the **Create a virtual machine** blade, select your Azure Subscription and use the **Create new** Resource group option to create a new Resource Group for the VM named `AZ-220-GWVM-RG`.
+1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
 
-1. In the **Virtual machine name** box, enter `AZ-220-VM-EDGEGW-{YOUR-ID}` for the name of the Virtual Machine.
+1. ドロップダウンで、「**アップロード**」 をクリックします。
 
-1. In the **Region** dropdown, select the Azure Region closest to you, or the region where your Azure IoT Hub is provisioned.
+1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
 
-1. Notice the **Image** dropdown has the **Ubuntu Server 16.04 LTS + Azure IoT Edge runtime** image selected.
+    このコースのラボ 3 にあたる「開発環境のセットアップ」では、ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
-1. Under **Size**, click **Change size**. In the displayed list of sizes, select **DS1_v2** and click **Select**.
+    * すべてのファイル
+      * ラボ
+          * 12 - IoT Edge ゲートウェイをセットアップする
+            * セットアップ
 
-    > [!NOTE] Not all VM sizes are available in all regions. If, in a later step, you are unable to select the VM size, try a different region. For example, if **West US** doesn't have the sizes available, try **West US 2**.
+    lab12-setup.azcli スクリプト ファイルは、ラボ 12 のセットアップ フォルダにあります。
 
-1. Under **Administrator account**, select the **Password** option for **Authentication type**.
+1. **lab12-setup.azcli** ファイルを選択したら、「**開く**」 をクリックします。   
 
-1. Enter an Administrator **Username** and **Password** for the VM.
+    ファイルのアップロードが完了すると、通知が表示されます。
 
-1. Notice the **Inbound port rules** is configured to enable inbound **SSH** access to the VM. This will be used to remote into the VM to configure/manage it.
+1. 正しいファイルがアップロードされたことを確認するには、次のコマンドを入力します。
 
-1. Click **Review + create** to create the IoT Edge on Ubuntu virtual machine.
+    ```bash
+    ls
+    ```
 
-1. Once validation passes, click **Create** to begin deploying the virtual machine.
+    `ls` コマンドを使用して、現在のディレクトリの内容を表示します。一覧にある lab12-setup.azcli ファイルを確認する必要があります。
 
-    > [!NOTE] Deployment will take approximately 5 minutes to complete. You can continue on to the next unit while it is deploying.
+1. セットアップ スクリプトを含むこのラボのディレクトリを作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
 
-## Exercise 3: Generate and Configure IoT Edge Device CA Certificates
+    ```bash
+    mkdir lab12
+    mv lab12-setup.azcli lab12
+    cd lab12
+    ```
 
-In this exercise, you will generate test certificates using Linux. You will do this on the `AZ-220-VM-EDGEGW-{YOUR-ID}` Virtual Machine using a helper script contained within the `Azure/IoTEdge` GitHub project.
+    これらのコマンドは、このラボのディレクトリを作成し、**lab12-setup.azcli** ファイルをそのディレクトリに移動させ、新しいディレクトリを現在の作業ディレクトリにするための変更を行います。 
 
-1. Navigate to the `AZ-220-VM-EDGEGW-{YOUR-ID}` IoT Edge virtual machine within the Azure Portal.
+1. **lab12-setup.azcli** に実行権限があることを確認するには、次のコマンドを入力します。 
 
-1. On the **Overview** pane of the **Virtual machine** blade, click the **Connect** button at the top.
+    ```bash
+    chmod +x lab12-setup.azcli
+    ```
 
-1. Within the **Connect to virtual machine** pane, select the **SSH** option, then copy the **Login using VM local account** value.
+1. Cloud Shell ツールバーで **lab12-setup.azcli** ファイルを編集するには、「**エディターを開く**」 (右からの 2 番目のボタン - { }) をクリックします。
 
-    This is a sample SSH command that will be used to connect to the virtual machine that contains the IP Address for the VM and the Administrator username. The command is formatted similar to `ssh username@52.170.205.79`.
+1. 「**ファイル**」 の一覧で lab4 フォルダーを展開し、**lab12** をクリックして、**lab12-setup.azcli** をクリックします。
 
-1. At the top of the Azure Portal click on the **Cloud Shell** icon to open up the **Azure Cloud Shell** within the Azure Portal. When the pane opens, choose the option for the **Bash** terminal within the Cloud Shell.
+    エディターに、**lab12-setup.azcli** ファイルの内容が表示されます。 
 
-1. Within the Cloud Shell, paste in the `ssh` command that was copied, and press **Enter**.
+1. エディターで、`{YOUR-ID}` と `{YOUR-LOCATION}` 変数の値を更新します。
 
-1. When prompted with **Are you sure you want to continue connecting?**, type `yes` and press Enter. This prompt is a security confirmation since the certificate used to secure the connection to the VM is self-signed. The answer to this prompt will be remembered for subsequent connections, and is only prompted on the first connection.
+    例として以下のサンプルを参照し、このコースの開始時に作成した一意の ID、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソース グループと一致する場所に `{YOUR-LOCATION}` を設定する必要があります。
 
-1. When prompted to enter the password, enter the Administrator password that was entered when the VM was provisioned.
+    ```bash
+    #!/bin/bash
 
-1. Once connected, the terminal will change to show the name of the Linux VM, similar to the following. This tells you which VM you are connected to.
+    RGName="AZ-220-RG"
+    IoTHubName="AZ-220-HUB-{YOUR-ID}"
 
-    ```cmd/sh
+    Location="{YOUR-LOCATION}"
+    ```
+
+    > **注意**:  `{YOUR-LOCATION}` 変数は、すべてのリソースをデプロイするリージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
+    >
+    > ```bash
+    > az account list-locations -o Table
+    >
+    > DisplayName           Latitude    Longitude    Name
+    > --------------------  ----------  -----------  ------------------
+    > East Asia             22.267      114.188      eastasia
+    > Southeast Asia        1.283       103.833      southeastasia
+    > Central US            41.5908     -93.6208     centralus
+    > East US               37.3719     -79.8164     eastus
+    > East US 2             36.6681     -78.3889     eastus2
+    > ```
+
+1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、「..」 をクリックし、「**エディタを閉じる**」 をクリックします。 
+
+    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。 
+
+    > **注意**:  **CTRL+S**を使っていつでも保存でき、 **CTRL+Q**を押してエディターを閉じます。
+
+1. このラボに必要なリソースを作成するには、次のコマンドを入力します。
+
+    ```bash
+    ./lab12-setup.azcli
+    ```
+
+    これは、実行するのに数分かかります。各ステップが完了すると、JSON 出力が表示されます。
+
+スクリプトが完了したら、ラボを続行することができます。
+
+### 演習 2: Azure IoT Edge 対応 Linux VM をデプロイする
+
+この演習では、 Azure Marketplace の Azure IoT Edge ランタイム サポートを使用して Ubuntu サーバー VM をデプロイします。このシミュレートされた IoT Edge デバイスを Edge ゲートウェイとして使用するように構成します。
+
+1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+
+1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
+
+1. 「**新規**」 ブレードの 「**Marketplace の検索**」 ボックスに、「**Azure IoT Edge on**」と入力し 「**Azure IoT Edge on Ubuntu**」 をクリックします。       
+
+1. 「**Azure IoT Edge on Ubuntu**」 ブレードで 「**作成**」 をクリックします。
+
+1. 「**仮想マシンの作成**」 ブレードの 「**サブスクリプション**」 ドロップダウンで、このコースに使用するサブスクリプションが選択されていることを確認します。   
+
+1. 「**リソース グループ**」 ドロップダウンの下にある 「**新規作成**」 をクリックします。
+
+1. 「**名前**」 の下にあるリソース グループの 「名前」 ポップアップで、「**AZ-220-GWVM-RG**」と入力し、「**OK**」 をクリックします。
+
+1. 「**インスタンスの詳細**」 の下にある 「**仮想マシン名**」 ボックスに、「**AZ-220-VM-EDGEGW-{YOUR-ID}**」と入力します。     
+
+1. 「**リージョン**」 ドロップダウンで、Azure IoT Hub がプロビジョニングされているリージョンを選択します。 
+
+1. 「**可用性オプション**」 フィールドを 「**No infrastructure redundancy required (インフラストラクチャの冗長性は不要)**」 に設定したままにします。
+
+1. **「イメージ」** ドロップダウンで **Ubuntu Server 16.04 LTS + Azure IoT Edge ランタイム**イメージが選択されています。
+
+1. 「**Azure Spot インスタンス**」 フィールドを 「**いいえ**」 に設定したままにします。  
+
+1. 「**サイズ**」 で、「**サイズの変更**」 をクリックします。   
+
+1. 「**VM サイズの選択**」 ブレードで 「**DS1_v2**」、「**選択**」 の順にクリックします。     
+
+    「**すべてのフィルターをクリア**」 リンクを使用して、このサイズを一覧で表示されるようにする必要があります。
+
+    > **注意**: すべてのリージョンですべての VM サイズを使用できるわけではありません。後の手順で VM サイズを選択できない場合は、別のリージョンを試してください。たとえば、**米国西部** で利用できるサイズがない場合は、**米国西部 2** を試してみてください。 
+
+1. 「**管理者アカウント**」 の 「**認証の種類**」 の右側で、「**パスワード**」 をクリックします。     
+
+1. VM 管理者アカウントの場合は、「**ユーザー名**」、「**パスワード**」、「**パスワードの確認入力**」 の各フィールドの値を入力します。
+
+    > **重要:** これらの値を失くしたり忘れたりしないでください - それらが無いと VM に接続できません。
+
+1. **受信ポートの規則**は、VM の受信 **SSH** アクセスを有効にするために構成されていることに注意してください。
+
+    これは、VM をにリモートで設定して管理するために使用されます。
+
+1. 「**確認と作成**」 をクリックします。
+
+1. 「**検証に成功しました**」というメッセージがブレードの上部に表示されるのを待ち、「**作成**」 をクリックします。   
+
+    > **注意**:  展開が完了するには 5 分ほどかかる場合があります。展開中に次の演習に進むことができます。
+
+### エクササイズ 3: IoT Edge デバイス CA 証明書を生成および構成する
+
+このエクササイズでは、Linux を使用してテスト証明書を生成します。この操作は、このコースのラボ 3 の間に作成したこのラボの "スターター" フォルダー内に含まれるヘルパー スクリプトを使用して、`AZ-220-VM-EDGEGW-{YOUR-ID}` 仮想マシンで実行します。
+
+1. IoT Edge 仮想マシンが正常に展開されたことを確認します。
+
+    Azure portal で通知ウィンドウを確認できます。
+
+1. Azure portal メニューで、**「リソース グループ」** をクリックします。
+
+1. **リソース グループ** ブレードで、AZ-220-GWVM-RG-RG リソース グループを検索します。
+
+1. **AZ-220-GWVM-RG** の向かいにあるブレードの右側で 「**クリックしてコンテキスト メニューを開く**」 をクリックします (省略記号アイコン - ...)  
+
+1. コンテキスト メニューで、「**ダッシュボードにピン留めする**」 をクリックし、ダッシュボードに戻ります。 
+
+    リソースへのアクセスが容易にする場合は、ダッシュボードを**編集**して、タイルを並べ替えることができます。 
+ 
+1. **AZ-220-GWVM-RG** リソース グループ タイルで、Edge ゲートウェイ仮想マシンを開き、「**AZ-220-GWVM-EDGE-{YOUR-ID}**」 をクリックします。
+
+    > **注意**: リソース名は長く、一部は類似しているので、ディスク、パブリック IP アドレス、またはネットワーク セキュリティ グループではなく、必ず VM を選択してください。  
+
+1. 「**AZ-220-GWVM-EDGE-{YOUR-ID}**」 ブレードの上部にある 「**接続**」 をクリックし、「**SSH**」 をクリックします。
+
+1. 「**接続**」 ウィンドウの 「**4. 次のコマンドの例を実行して VM に接続する**」 で、サンプル コマンドをコピーします。
+
+    これは、VM の IP アドレスと管理者ユーザー名を含む仮想マシンに接続するために、使用できるサンプル SSH コマンドです。コマンドは、`ssh username@52.170.205.79` のように形式化される必要があります。
+
+    > **注意**: サンプル コマンドが `-i <private key path>` を含む場合は、テキスト エディターを使用してコマンドのその部分を削除し、更新されたコマンドをクリップボードにコピーします。
+
+1. Azure portal のツールバーで、「**Cloud Shell**」 をクリックします。
+
+1. Cloud Shell コマンド プロンプトで、テキスト エディターで更新した `ssh` コマンドを貼り付け、**Enter キー**を押します。 
+
+1. 「**接続を続行しますか?**」というメッセージが表示されたら、`yes` と入力して **Enter キー**を押します。   
+
+    VM への接続を保護するために使用される証明書は自己署名されているので、このプロンプトはセキュリティの確認です。このプロンプトに対する答えは、その後の接続のために記憶され、最初の接続時にのみプロンプトが表示されます。
+
+1. パスワードを入力するよう求められたら、Edge ゲートウェイ VM がプロビジョニングされる時に作成した管理者パスワードを入力します。
+
+1. 接続したら、ターミナルには次のように Linux VM の名前が表示されます。これにより、接続された VM が分かります。
+
+    ``` bash
     username@AZ-220-VM-EDGEGW-{YOUR-ID}:~$
     ```
 
-1. The `Azure/IoTEdge` GitHub project contains scripts to generate non-production certificates. These scripts will help you create the necessary scripts to set up a Transparent IoT Edge Gateway. Run the following command:
+    > **重要**: 接続すると、Edge VM に対して未処理の OS 更新プログラムがあることを知らせてくれます。  ラボの目的としてはこれを無視しますが、運用環境では、常に Edge デバイスを最新の状態に保つ必要があります。
 
-    ```cmd/sh
+1. Azure IoT Edge ヘルパー スクリプトをダウンロードして構成するには、次のコマンドを入力します。
+
+    ```bash
     git clone https://github.com/Azure/iotedge.git
     ```
 
-    > [!NOTE] The [Azure/iotedge](https://github.com/Azure/iotedge) open source project is the official open source project for Azure IoT Edge. This project contains source code for the Edge Agent, Edge Hub, and IoT Edge Security Daemon; in addition to the helper script used in this unit.
+    `Azure/IoTEdge` GitHub プロジェクトには、**非運用**証明書を生成するスクリプトが含まれます。これらのスクリプトは、透過的な IoT Edge ゲートウェイを設定するために必要なスクリプトを作成するのに役立ちます。
 
-1. Run the following commands to create a working directory named `~/certificates` that will be used for generating the certificates, then move to that directory:
+    > **注意**:   [Azure/iotedge](https://github.com/Azure/iotedge) オープンソース プロジェクトは、Azure IoT Edge の公式オープンソース プロジェクトです。  このプロジェクトには、このユニットで使用されるヘルパー スクリプトの他に、Edge エージェント、Edge ハブ、および IoT Edge セキュリティ デーモンのソース コードが含まれます。
 
-    ```cmd/sh
-    mkdir certificates
-    cd certificates
+1. "lab12" という名前の作業ディレクトリを作成して、そのディレクトリに移動するには、次のコマンドを入力します。
+
+    ```bash
+    mkdir lab12
+    cd lab12
     ```
 
-1. To generate the certificates, the helper scripts need to be copied to the working directory. To do this, run the following commands:
+    > **注意**: 証明書を生成するには、ゲートウェイ VM の "lab12" ディレクトリを使用します。証明書を生成するには、ヘルパー スクリプトを作業ディレクトリにコピーする必要があります。
 
-    ```cmd/sh
+1.  ヘルパー スクリプトを lab12 ディレクトリにコピーするには、次のコマンドを入力します。
+
+    ```bash
     cp ../iotedge/tools/CACertificates/*.cnf .
     cp ../iotedge/tools/CACertificates/certGen.sh .
     ```
 
-    These commands will copy just the necessary files for running the helper script for generating test CA certificates. The rest of the source files within the Azure/iotedge repository are not needed for this unit.
+    これらのコマンドは、テスト CA 証明書を生成するために、ヘルパー スクリプトを実行するのに必要なファイルだけをコピーします。このラボでは、Azure/iotedge リポジトリ内の残りのソース ファイルは必要ありません。
 
-1. Within the working directory, run the following command to verify the helper script files have been copied correctly.
+1. ヘルパー スクリプト ファイルが正しくコピーされたことを確認するには、次のコマンドを入力します。
 
-    ```cmd/sh
+    ```bash
     ls
     ```
 
-    This command should output there are 2 files within the directory. The `certGen.sh` is the helper bash script, and the `openssl_root_ca.cnf` file is the configuration file needed for generating the certificates with the helper script using OpenSSL.
+    このコマンドは、ディレクトリ内に 2 つのファイルがあることを示すファイル リストを出力します。`certGen.sh` はヘルパー Bash スクリプトであり、`openssl_root_ca.cnf` ファイルは、OpenSSL を使用するヘルパー スクリプトで証明書を生成するために必要な構成ファイルです。
 
-    ```text
-    username@AZ-220-VM-EDGEGW:~/certificates$ ls
-    certGen.sh  openssl_root_ca.cnf
-    ```
+    コマンド プロンプトに `~/lab12` が含まれていることを確認し、正しい場所でコマンドを実行していることを確認します。これは、`/home/<username>/lab12` ディレクトリにマップされ、 `<username>` は SSH にログインしたユーザーです。  生成された証明書を使用するように Azure IoT Edge を構成する場合は、後でこのディレクトリの場所を使用する必要があります。
 
-    Make note that the directory where you're running the script is located at `~/certificates`. This maps to the `/home/<username>/certificates` directory, where `<username>` is the user your logged into SSH with. You will need to use this directory location later when configuring Azure IoT Edge to use the generated certificates.
+1. ルート CA 証明書と 1 つの中間証明書を生成するには、次のコマンドを入力します。
 
-1. The `certGen.sh` helper script is run with the `create_root_and_intermediate` parameter to generate the root CA certificate and one intermediate certificate. Run the following command to do this:
-
-    ```cmd/sh
+    ```bash
     ./certGen.sh create_root_and_intermediate
     ```
 
-    The script created several certificate and key files. Make note of the following **root CA certificate** file that will be referred to later:
+    `certGen.sh` ヘルパー スクリプトは、`create_root_and_intermediate` パラメーターを使用して、ルート CA 証明書と 1 つの中間証明書を生成します。スクリプトは、複数の証明書とキー ファイルを作成します。後で参照される次の **ルート CA 証明書** ファイルをメモします。 
 
     ```text
-    # Root CA certificate
-    ~/certificates/certs/azure-iot-test-only.root.ca.cert.pem
+    # ルート CA 証明書
+    ~/lab12/certs/azure-iot-test-only.root.ca.cert.pem
     ```
 
-1. Now that the root CA has been generated, the IoT Edge device CA certificate and private key need to be generated. Run the following command to generate the IoT Edge device CA certificate, and uses `MyEdgeDeviceCA` as the name for the CA certificate that is generated.
+    ルート CA が生成されたので、IoT Edge デバイス CA 証明書と秘密キーが生成される必要があります。 
 
-    ```cmd/sh
+1. IoT Edge デバイス CA 証明書を生成するには、次のコマンドを入力します。
+
+    ```bash
     ./certGen.sh create_edge_device_ca_certificate "MyEdgeDeviceCA"
     ```
 
-    The generated certificates are created with the name specified to this command. If a name other than `MyEdgeDeviceCA` is used, then the generated certificates will reflect that name.
+    生成された証明書は、このコマンドに指定された名前で作成されます。`MyEdgeDeviceCA` 以外の名前を使用すると、生成された証明書にはその名前が反映されます。
 
-    This script created several certificate and key files. Make note of the following files that will be referred to later:
+    このスクリプトでは、複数の証明書とキー ファイルを作成しました。後で参照される次のファイルをメモします。
 
     ```text
-    # Device CA certificate
-    ~/certificates/certs/iot-edge-device-ca-MyEdgeDeviceCA-full-chain.cert.pem
-    # Device CA private key
-    ~/certificates/private/iot-edge-device-ca-MyEdgeDeviceCA.key.pem
+    # デバイス CA 証明書
+    ~/lab12/certs/iot-edge-device-ca-MyEdgeDeviceCA-full-chain.cert.pem
+    # デバイス CA 秘密キー
+    ~/lab12/private/iot-edge-device-ca-MyEdgeDeviceCA.key.pem
     ```
 
-    > [!NOTE] Now that the IoT Edge Device CA certificate has been generated, do not re-run the previous command that generates the root CA certificate. Doing so will overwrite the existing certificate with a new one that will no longer match the `MyEdgeDeviceCA` IoT Edge Device CA certificate that was just generated.
+    > **注意**: IoT Edge デバイス CA 証明書が生成されましたが、ルート CA 証明書を生成する前のコマンドを再実行しないでください。そうすることによって、既存の証明書が生成されたばかりの `MyEdgeDeviceCA` IoT Edge デバイス CA 証明書と一致しなくなる、新しい証明書で上書きされます。
 
-1. To confirm that the Azure IoT Edge Runtime is installed on the VM, run the following command:
+1. Azure IoT Edge ランタイムが VM にインストールされていることを確認するには、次のコマンドを入力します。
 
-    ```cmd/sh
+    ```bash
     iotedge version
     ```
 
-    This command will output the version of the Azure IoT Edge Runtime that is currently installed on the virtual machine.
+    このコマンドは、仮想マシンに現在インストールされている Azure IoT Edge ランタイムのバージョンを出力します。
 
-    The version output will be similar to the following:
+    バージョンの出力は次のようになります。
 
-    ```sh
-    username@AZ-220-VM-EDGEGW:~/certificates$ iotedge version
+    ```bash
+    username@AZ-220-VM-EDGEGW:~/lab12$ iotedge version
     iotedge 1.0.8 (208b2204fd30e856d00b280112422130c104b9f0)
     ```
 
-1. To configure Azure IoT Edge, the `/etc/iotedge/config.yaml` configuration file needs to be modified to contain the full path to the certificate and key files on the IoT Edge Device. Before the file can be edited, you must be sure the `config.yaml` file is not read-only. Run the following command to set the file to be writable:
+1. Azure IoT Edge を構成できることを確認するには、次のコマンドを入力します。
 
-    ```cmd/sh
+    ```bash
     sudo chmod a+w /etc/iotedge/config.yaml
     ```
 
-1. Run the following command to open the `config.yaml` file within the vi/vim editor:
+    Azure IoT Edge を構成するには、IoT Edge デバイス上の証明書とキー ファイルへの完全なパスを含む、`/etc/iotedge/config.yaml` 構成ファイルを変更する必要があります。ファイルを編集できるようにする前に、`config.yaml` ファイルが読み取り専用でないことを確認する必要があります。上記のコマンドは、`config.yaml` ファイルを書き込み可能に設定します。
 
-    ```cmd/sh
+1. vi/vim エディター内で `config.yaml` ファイルを開くには、次のコマンドを入力します。
+
+    ```bash
     sudo vi /etc/iotedge/config.yaml
     ```
 
-1. Locate the **Certificate settings** section within the file, remove the leading `#` character before the certificate properties to uncomment those lines, then edit the certificate settings to contain the correct certificate and key paths. After changes are made, save the file and exit the editor.
+    > **注意**: むしろ `code`、 `nano`、 `emacs` などの別のエディターを使いたい場合は、それでも構いません。
 
-    After the x.509 certificate settings changes made to the `config.yaml` file, this section of the file will look like the following:
+1. vi/vim エディターで、「**証明書設定**」 セクションが見つかるまでファイル内を下にスクロールします。 
+
+    > **注意**:  `config.yaml` ファイルを編集する際に **vi** を使用するためのヒントがあります。
+    > * `i` キーを押してエディターを挿入モードにすると、変更することができます。
+    > * `Esc` キーを押して挿入モードを停止し、標準モードに戻ります。
+    > * 保存して終了するには、`:x` と入力し、`Enter` キーを押します。
+    > * ファイルを保存するには、`:w` と入力して、`Enter` キーを押します。
+    > * vi を終了するには、`:quit` と入力し、`Enter` キーを押します。
+    >
+    > 保存または終了する前に、挿入モードを停止する必要があります。
+
+1. `certificates` コードの行を更新するには、先頭の `# ` 文字を削除し、以下に示すように証明書のパスを入力します。
 
     ```yaml
-        certificates:
-          device_ca_cert: "/home/<username>/certificates/certs/iot-edge-device-ca-MyEdgeDeviceCA-full-chain.cert.pem"
-          device_ca_pk: "/home/<username>/certificates/private/iot-edge-device-ca-MyEdgeDeviceCA.key.pem"
-          trusted_ca_certs: "/home/<username>/certificates/certs/azure-iot-test-only.root.ca.cert.pem"
+    certificates:
+        device_ca_cert: "/home/<username>/lab12/certs/iot-edge-device-ca-MyEdgeDeviceCA-full-chain.cert.pem"
+        device_ca_pk: "/home/<username>/lab12/private/iot-edge-device-ca-MyEdgeDeviceCA.key.pem"
+        trusted_ca_certs: "/home/<username>/lab12/certs/azure-iot-test-only.root.ca.cert.pem"
     ```
 
-    Be sure to replace the `<username>` placeholder within the file locations with the **Username** of the user your connected to SSH with.
+    > **注意**: 上記のファイル パスの指定内の `<username>` プレースホルダーを必ず置き換えてください。SSH に接続しているユーザー (VM の作成時に指定した管理者ユーザー) の**ユーザー名**を指定する必要があります。 
 
-    The x.509 certificates configured in this section are used for the following purposes:
+    > **重要**: YAML は、スペースを重要な文字として扱います。上で入力した行で、これは `certificates:` の前に先頭のスペースがあってはならないこと、および `device_ca_cert:`、`device_ca_pk:`、および `trusted_ca_certs:` の前に 2 つの先頭スペースがあることを意味します。
 
-    | Setting | Purpose |
+    このセクションで構成された X.509 証明書は、次の目的で使用されます。
+
+    | 設定 | 目的 |
     | :--- | :--- |
-    | `device_ca_cert` | This is the Device CA Certificate for the IoT Edge Device. |
-    | `device_ca_pk` | This is the Device CA Private Key for the IoT Edge Device. |
-    | `trusted_ca_certs` | This is the Root CA Certificate. This certificate must contain all the trusted CA certificates required for Edge module communications.|
+    | `device_ca_cert` | これは IoT Edge デバイスのデバイス CA 証明書です。 |
+    | `device_ca_pk` | これは IoT Edge デバイスのデバイス CA 秘密キーです。 |
+    | `trusted_ca_certs` | これはルート CA 証明書です。この証明書には、Edge モジュールの通信に必要なすべての信頼できる CA 証明書が含まれている必要があります。|
 
-    > [!NOTE] Here are some tips for using **vi** when editing the `config.yaml` file:
-    > - Press the `i` key to put the editor into Insert mode, then you will be able to make changes.
-    > - Press `Esc` to go stop Insert mode and return to Normal mode.
-    > - To Save and Quit, type `:x`, and press `Enter`.
-    > - Save the file, type `:w`, and press `Enter`.
-    > - To quit vi, type `:quit` and press `Enter`.
+1. 変更を保存してエディターを終了するには、「**x**」と入力して **Enterキー** を押します。 
 
-1. The `MyEdgeDeviceCA` certificate needs to be downloaded from the `AZ-220-VM-EDGEGW` virtual machine so it can be used to configure the IoT Edge device enrollment within Azure IoT Hub Device Provisioning Service. Type `exit` in the **Azure Cloud Shell** to end the SSH session.
+    vi/vim エディターを保存または終了する前に、「挿入」モードを停止する必要があることを忘れないでください。
+
+1. SSH セッションを終了するには、Cloud Shell コマンド プロンプトで次のコマンドを入力します。
 
     ```sh
     exit
     ```
 
-1. Within the **Cloud Shell** run the following commands to download the `~/certificates` directory and its contents from the **AZ-220-VM-EDGEGW** virtual machine to the **Cloud Shell** storage:
+    次に、`AZ-220-VM-EDGEGW` 仮想マシンから `MyEdgeDeviceCA` 証明書をダウンロードして、Azure IoT Hub Device Provisioning Service 内で IoT Edge デバイス登録の構成に使用できるようにします。
 
-    ```cmd/sh
-    mkdir certificates
-    scp -r -p <username>@<ipaddress>:~/certificates .
+1. Cloud Shell コマンド プロンプトで、**AZ-220-VM-EDGEGW** 仮想マシンから **Cloud Shell** ストレージに `~/lab12` ディレクトリをダウンロードするには、次のコマンドを入力します。
+
+    ```bash
+    mkdir lab12
+    scp -r -p <username>@<ipaddress>:~/lab12 .
     ```
 
-    Replace the `<username>` placeholder with the username of the admin user for the VM, and replace the `<ipaddress>` placeholder with the IP Address fo the VM.
+    > **注意**: `<username>` プレースホルダーを VM の管理者ユーザーのユーザー名に置き換え、`<ipaddress>` プレースホルダーを VM の IP アドレスに置き換えます。必要に応じて、SSH セッションを開くために使用されるコマンドを参照してください。
 
-    When executing the command, enter the Admin password for the VM when prompted.
+    `scp` コマンドを入力した後にプロンプトが表示されたら、VM の管理者パスワードを入力します。
 
-1. Once the command has executed, it will have downloaded a copy of the `~/certificates` directory with the certificate and key files over SSH to the Cloud Shell storage. You can verify the file has been downloaded by running the `ls` command within the `~/certificates` directory to view its contents.
+    コマンドが実行されると、SSH 経由で証明書とキー ファイルを含む `~/lab12` ディレクトリのコピーが Cloud Shell ストレージにダウンロードされます。 
+    
+1. ファイルがダウンロードされたことを確認するには、次のコマンドを入力します。
 
-    ```cmd/sh
-    chris@Azure:~$ cd certificates
-    chris@Azure:~/certificates$ ls
+    ```bash
+    cd lab12
+    ls
+    ```
+
+    次の一覧表示されたファイルを確認する必要があります。
+
+    ```bash
     certGen.sh  csr        index.txt.attr      index.txt.old  openssl_root_ca.cnf  serial
     certs       index.txt  index.txt.attr.old  newcerts       private              serial.old
     ```
 
-    Once the files are copied to the **Azure Cloud Shell** storage, from the **AZ-220-VM-EDGEGW** virtual machine, you will be able to easily download any of the IoT Edge Device certificate and key files to your local machine as necessary. Files can be downloaded from the Azure Cloud Shell using the `download <filename>` command.
+    ファイルが `AZ-220-VM-EDGEGW` 仮想マシンから Cloud Shell ストレージにコピーされたら、必要に応じて、任意の IoT Edge デバイス証明書とキー ファイルをローカル コンピューターに簡単にダウンロードできるようになります。`download <filename>` コマンドを使用して、ファイルを Cloud Shell からダウンロードできます。  ラボの後半でこれを行います。
 
-## Exercise 4: Create IoT Edge Device Identity in IoT Hub using Azure Portal
+### 演習 4: Azure portal を使用して IoT Hub で IoT Edge デバイス ID を作成する
 
-In this exercise, you will create a new IoT Edge Device identity in Azure IoT Hub for the IoT Edge Transparent Gateway.
+この演習では、Azure IoT Hub を使用して、IoT Edge の透過的なゲートウェイの新しい IoT Edge デバイス ID を作成します。
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. On your Resource group tile, click **AZ-220-HUB-{YOUR-ID}** to navigate to the Azure IoT Hub.
+1. 「**AZ-220-RG**」 タイルで IoT Hub を開くには、**AZ-220-HUB-{YOUR-ID}** をクリックします。   
 
-1. On the IoT Hub summary blade, click **IoT Edge** under the Automatic Device Management section. This section of the IoT Hub blade allows you to manage the IoT Edge devices connected to the IoT Hub.
+1. 「**AZ-220-HUB-{YOUR-ID}**」 ブレードの **「自動デバイス管理**」 の左側のナビゲーション メニューで、「**IoT Edge**」 をクリックします。
 
-1. Click the **Add an IoT Edge device** button to begin adding a new IoT Edge Device to the IoT Hub.
+    「IoT Edge」 ウィンドウを使用すると、IoT Hub に接続されている IoT Edge デバイスを管理できます。
 
-1. On the **Create a device** blade, enter `AZ-220-VM-EDGEGW-{YOUR-ID}` into the **Device ID** field. This is the device identity used for authentication and access control.
+1. ウィンドウの上部で、「**IoT Edge デバイスの追加**」 をクリックします。
 
-1. Select **Symmetric key** for the **Authentication type**, and leave the **Auto-generate keys** box checked. This will have IoT Hub automatically generate the Symmetric keys for authenticating the device.
+1. 「**デバイスの作成**」 ブレードの 「**デバイス ID**」 フィールドで、「**AZ-220-VM-EDGEGW-{YOUR-ID}**」と入力します。
 
-1. Click **Save**.
+    {YOUR-ID} をコースの開始時に作成した値に必ず置き換えてください。これは、認証とアクセス制御に使用されるデバイス ID です。
 
-1. Once the IoT Edge Device is added, click on the **Device ID** in the list of IoT Edge devices.
+1. 「**認証タイプ**」 で 「**「対称キー**」 が選択されていることを確認し、「**キーの自動生成**」 ボックスをオンのままにします。
 
-1. On the IoT Edge Device summary blade, copy the **Primary Connection String** and save it for later.
+    これにより、デバイスを認証するための対称キーが IoT Hub によって自動的に生成されます。
 
-1. Notice the list of **Modules** configured for the IoT Edge Device contains the **\$edgeAgent** and **\$edgeHub** modules.
+1. その他の設定は既定のままにして、「**保存**」 をクリックします。
 
-    The IoT Edge Agent (`$edgeAgent`) and IoT Edge Hub (`$edgeHub`) modules are a part of the IoT Edge Runtime. The Edge Hub is responsible for communication, and the Edge Agent deploys and monitors the modules on the device.
+    しばらくすると、新しい IoT Edge デバイスが IoT Edge デバイスの一覧に追加されます。
 
-1. Click the **Set Modules** button at the top of the IoT Edge Device summary blade. This is used to add additional modules to the IoT Edge Device. At this time, you'll use this to ensure the message routing is configured correctly for the IoT Edge Gateway device.
+1. 「**デバイス ID**」 で 「**AZ-220-VM-EDGEGW-{YOUR-ID}**」 をクリックします。
 
-1. Leave all fields as they are in the **Modules** step, and click **Next: Routes >**.
+1. 「**AZ-220-VM-EDGEGW-{YOUR-ID}**」 ブレードで **プライマリ接続文字列**をコピーします。
 
-1. Within the **Specify Routes**, the editor will display the configured default route for the IoT Edge Device. At this time, it should be configured with a route that sends all messages from all modules to Azure IoT Hub. If the route configuration doesn't match this, then update it to match the following route:
+    値の右側に 「コピー」 ボタンが表示されます。
 
-    - Name: **route**
-    - Value: `FROM /* INTO $upstream`
+1. **プライマリ接続文字列**の値をファイルに保存し、関連付けられているデバイスに関するメモを取ります。 
 
-    The `FROM /*` part of the message route will match all device-to-cloud messages or twin change notifications from any module or leaf device. Then, the `INTO $upstream` tells the route to send those messages to the Azure IoT Hub.
+1. **「AZ-220-VM-EDGEGW-{YOUR-ID}」** ブレードで、**モジュール**の一覧が **\$edgeAgent** と **\$edgeHub** に制限されていることに注意してください。       
 
-    > [!NOTE] To learn more about configuring message routing within Azure IoT Edge, reference the [Learn how to deploy modules and establish routes in IoT Edge](https://docs.microsoft.com/azure/iot-edge/module-composition#declare-routes#declare-routes) documentation article.
+    IoT Edge エージェント (`$edgeAgent`) および IoT Edge ハブ (`$edgeHub`) モジュールは、IoT Edge ランタイムの一部です。Edge ハブは通信に関与し、Edge エージェントはデバイス上のモジュールを展開および監視します。
 
-1. Click the **Next: Review + create >** button.
+1. ブレードの上部で、「**モジュールの設定**」 をクリックします。
 
-1. On the **Review + create** step, click the **Create** button.
+    「**デバイスにモジュールを設定する**」 ブレードを使用して、IoT Edge デバイスにモジュールを追加できます。しかし、さしあたりは、このブレードを使用して IoT Edge ゲートウェイ デバイスに対し、メッセージ ルーティングが正しく構成されていることを確認します。
 
-## Exercise 5: Setup IoT Edge Gateway Hostname
+1. 「**デバイスにモジュールを設定する**」 ブレードの上部で、「**ルート**」 をクリックします。
 
-In this exercise, you will configure the DNS name for Public IP Address of the **AZ-220-VM-EDGEGW-{YOUR-ID}**, and configure that DNS name as the `hostname` of the IoT Edge Gateway device.
+    「**ルート**」 の下に、IoT Edge デバイス用に構成された既定のルートがエディタによって表示されます。  この時点で、すべてのモジュールから Azure IoT Hub にすべてのメッセージを送信するルートを用いて構成されている必要があります。ルート構成がこれに一致しない場合は、次のルートに一致させるために更新します。
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+    * **名前**: `route`
+    * **値**: `FROM /* INTO $upstream`
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+    メッセージ ルートの `FROM /*` 部分は、すべての device-to-cloud メッセージ、または任意のモジュールまたはリーフ デバイスからのツイン変更通知と一致します。次に、`INTO $upstream` は、これらのメッセージを Azure IoT Hub に送信するルートを示します。
 
-1. Navigate to the `AZ-220-VM-EDGEGW-{YOUR-ID}` IoT Edge virtual machine within the Azure Portal.
+    > **注意**:  Azure IoT Edge 内のメッセージ ルーティングの構成に関する詳細については、「「IoT Edge にモジュールをデプロイしてルートを確立する方法の詳細」(https://docs.microsoft.com/azure/iot-edge/module-composition#declare-routes#declare-routes)」に関するドキュメント記事を参照してください。 
 
-1. On the **Overview** pane of the **Virtual machine** blade, click the **Configure** link next to **DNS name**.
+1. ブレードの上部で、「**レビューと作成**」 をクリックします。
 
-1. On the **Public IP Address** Configuration blade for the AZ-220-VM-EDGEGW-{YOUR-ID} virtual machine, enter `az-220-vm-edgegw-{your-id}` into the **DNS name label** field (the label must be globally unique, and only lowercase letters, numbers and hyphens).
+    「**デバイスにモジュールを設定する**」 ブレードのこのタブには、Edge デバイスの配置マニフェストが表示されます。  ブレードの上部に「検証が成功しました」というメッセージが表示されるはずです。
 
-1. Click **Save**.
+1. 時間をとって配置マニフェストを確認してください。
 
-1. Note the full DNS name for the Public IP Address of the **AZ-220-VM-EDGEGW-{YOUR-ID}** virtual machine, and save it for reference later.
+1. ブレードの最下部で、**作成**をクリックします。
 
-    The full DNS name is comprised of the `AZ-220-VM-EDGEGW-{YOUR-ID}` value suffixed by the text below the **DNS name label** field.
+### 演習 5: IoT Edge ゲートウェイのホスト名を設定する
 
-    For example, the full DNS name will be:
+この演習では、**AZ-220-VM-EDGEGW-_{YOUR-ID}_** のシミュレートされた Edge デバイスのパブリック IP アドレス用の DNS 名を構成し、その DNS 名を IoT Edge ゲートウェイ デバイスの `hostname` として構成します。 
+
+1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+
+1. 「ダッシュボード」 ページで IoT Edge 仮想マシンを開くには、**AZ-220-VM-EDGEGW-_{YOUR-ID}_** をクリックします。 
+
+1. 「**AZ-220-VM-EDGEGW-_{YOUR-ID}_**」 ブレードの上部セクションで、「**「DNS 名**」 フィールドを見つけます。
+
+    「概要」 ブレードの上部にある 「要点」 セクションが折りたたまれている場合は、「**要点**」 をクリックします。
+
+1. 「**DNS 名**」 フィールドの右側にある 「**構成**」 をクリックします。
+
+1. 「**AZ-220-VM-EDGEGW-_{YOUR-ID}_-ip - Configuration**」 ブレードの 「**DNS 名ラベル**」 フィールドで、「**az-220-vm-edgegw-{your-id}**」と入力します。
+
+    このラベルは、グローバルに一意であり、かつ小文字、数字、ハイフンのみである必要があります。
+
+1. ブレードの上部で、「**保存**」 をクリックします。
+
+1. 「**DNS 名ラベル**」 フィールドの下と右側にテキストが表示されています。
+
+    次のようになるはずです。`.westus2.cloudapp.azure.com` ですが、別のリージョンが一覧に表示される可能性があります。
+
+    完全な DNS 名は、**DNS 名ラベル** フィールドの下に位置するこのテキストを末尾に追加した `AZ-220-VM-EDGEGW-{YOUR-ID}` の値で構成されます。
+
+    たとえば、完全な DNS 名は次のようになります。
 
     ```text
-    az-220-vm-edgegw-cah123019.eastus.cloudapp.azure.com
+    az-220-vm-edgegw-cah191230.westus2.cloudapp.azure.com
     ```
 
-    All Public IP Address DNS names will be at the **.cloudapp.azure.com** domain name. This example is for the VM being hosted in the **eastus** Azure region. This part fo the DNS name will vary depending on what Azure region the VM is hosted within.
+    標準 Azure 商用クラウド内のすべてのパブリック IP アドレス DNS 名は、**cloudapp.azure.com**ドメイン名になります。  これは、**westus2** Azure リージョンでホストされている VM の例です。DNS 名のこの部分は、VM がホストされている Azure リージョンによって異なります。
 
-    Setting the DNS name for the Public IP Address of the **AZ-220-VM-EDGEGW** will give it a FQDN (Fully Qualified Domain Name) for the downstream device(s) to use as the **GatewayHostName** to connect to it. Since the VM, in this case, is accessible across the Internet an Internet DNS name is needed. If the Azure IoT Edge Gateway were hosted in a Private or Hybrid network, then the machine name would meet the requirements of a **GatewayHostName** for on-premises downstream devices to connect.
+    **AZ-220-VM-EDGEGW** 仮想マシンのパブリック IP アドレス用の DNS 名を設定すると、それに接続するために、`GatewayHostName` として使用するダウンストリーム デバイスの FQDN (完全修飾ドメイン名) が提供されます。  この場合、VM はインターネット経由でアクセスできるため、インターネット DNS 名が必要とされます。Azure IoT Edge ゲートウェイがプライベート ネットワークまたはハイブリッド ネットワークでホストされている場合、コンピューター名は、オンプレミスのダウンストリーム デバイスが接続するために `GatewayHostName` の要件を満たします。
 
-1. Navigate to the **AZ-220-VM-EDGEGW** IoT Edge virtual machine within the Azure Portal.
+1. **AZ-220-VM-EDGEGW-{YOUR-ID}** 仮想マシンの完全な DNS 名のレコードを作成し、後の参照用に保存します。 
 
-1. On the **Overview** pane of the **Virtual machine** blade, click the **Connect** button at the top.
+1. 「**AZ-220-VM-EDGEGW-{YOUR-ID}**」 ブレードに戻り、「**更新**」 をクリックします。    
 
-1. Within the **Connect to virtual machine** pane, select the **SSH** option, then copy the **Login using VM local account** value.
+    > **注意**: 「IP 構成」 ブレードに残っている場合は、ページ上部の階層リンクを使用すると、VM にすばやく戻ることができます。  その場合は、「**概要**」 ペインの上部にある 「更新」 ボタンを使用して、表示内の DNS 名を更新します。 
 
-    This is a sample SSH command that will be used to connect to the virtual machine that contains the IP Address for the VM and the Administrator username. Now that the DNS name label has been configured, the command is formatted similar to `ssh demouser@AZ-220-VM-EDGEGW.eastus.cloudapp.azure.com`.
+1. ブレードの上部にある 「**接続**」 をクリックし、「**SSH**」 をクリックします。
 
-    > [!NOTE] If a "_Host key verification failed_" messages displays, then use the VM's **IP Address** with the `ssh` command to connect tot he virtual machine.
+1. 前のように、「**4. 次のコマンド例を実行して VM に接続する**」の値を見つけます。
 
-1. At the top of the Azure Portal click on the **Cloud Shell** icon to open up the **Azure Cloud Shell** within the Azure Portal. When the pane opens, choose the option for the **Bash** terminal within the Cloud Shell.
+1. このコマンド例には、以前に含まれていた IP アドレスではなく、新しい DNS 名が含まれていることに注意してください。
 
-1. Within the Cloud Shell, paste in the `ssh` command that was copied, and press **Enter**.
+1. 「**4. 次のコマンド例を実行して VM に接続する**」で、コマンドをコピーするには 「**クリップボードにコピー**」 をクリックします。   
 
-1. When prompted to enter the password, enter the Administrator password that was entered when the VM was provisioned.
+    この SSH コマンド例は、VM の IP アドレスと管理者ユーザー名を含む仮想マシンに接続するために使用できます。DNS 名ラベルが構成されたので、コマンドは次のようになります。`ssh demouser@AZ-220-VM-EDGEGW.eastus.cloudapp.azure.com`
 
-1. Run the following command to open the `config.yaml` file within the vi/vim editor:
+    > **注意**: サンプル コマンドが `-i <private key path>` を含む場合は、テキスト エディターを使用してコマンドのその部分を削除し、更新されたコマンドをクリップボードにコピーします。
+ 
+1. Azure portal のツール バーで、**「Cloud Shell」** をクリックします。
 
-    ```cmd/sh
+    Cloud Shell 環境が **Bash** を使用するように設定されていることを確認します。
+
+1. Cloud Shell コマンド プロンプトで、上記の `ssh` コマンドを入力し、**Enter キー**を押します。
+
+    続行するかどうかを確認する警告が表示された場合は、「**はい**」と入力します。
+
+1. パスワードの入力を求められたら、VM のプロビジョニング時に指定した管理者パスワードを入力します。
+
+1. vi/vim エディター内で `config.yaml` ファイルを開くには、次のコマンドを入力します。
+
+    ```bash
     sudo vi /etc/iotedge/config.yaml
     ```
 
-1. Locate the **Edge device hostname** section within the file. Update the **hostname** value to be set to the **DNS name** set previously for the Public IP Address of the **AZ-220-VM-EDGEGW-{YOUR-ID}** virtual machine.
+    > **注意**: この場合もやはり、必要に応じて別のエディターを使用できます。
 
-    The resulting value will look similar to the following:
+1. ファイル内で下方向にスクロールして、「**Edge デバイスのホスト名**」 セクションを見つけます。 
+
+1. **ホスト名** の値を、先ほど保存した**完全な DNS 名**の値に設定します。   
+
+    これは、**AZ-220-VM-EDGEGW-_{YOUR-ID}_** 仮想マシンの**完全な DNS 名**です。
+
+    > **注意**: 名前を保存しなかった場合は、仮想マシンの 「**概要**」 ウィンドウで見つけられます。  そこからコピーして Cloud Shell ウィンドウに貼り付けることもできます。
+
+    結果の値は、次のようになります。
 
     ```yaml
-    hostname: "az-220-vm-edgegw-{your-id}.eastus.cloudapp.azure.com"
+    hostname: "az-220-vm-edgegw-{YOUR-ID}.eastus.cloudapp.azure.com"
     ```
 
-    The `hostname` setting configures the Edge Hub server hostname. Regardless of the case used for this setting, a lowercase value is used to configure the Edge Hub server. This is also the hostname that downstream IoT devices will need to use when connecting to the IoT Edge Gateway for the encrypted communication to work properly.
+    `hostname` 設定により、Edge ハブ サーバーのホスト名を構成します。この設定に使用されている大文字と小文字の区別にかかわらず、Edge ハブ サーバーの構成には小文字の値が使用されます。これは、ダウンストリーム IoT デバイスが暗号化された通信を正常に機能させるために IoT Edge ゲートウェイに接続する際に使用する必要があるホスト名でもあります。
 
-    > [!NOTE] Here are some tips for using **vi** when editing the `config.yaml` file:
-    > - Press `Esc` and enter `/` followed by a search string, then press enter to search
-    >   - Pressing `n` will cycle through matches.
-    > - Press the `i` key to put the editor into Insert mode, then you will be able to make changes.
-    > - Press `Esc` to go stop Insert mode and return to Normal mode.
-    > - To Save and Quit, type `:x`, and press `Enter`.
-    > - Save the file, type `:w`, and press `Enter`.
-    > - To quit vi, type `:quit` and press `Enter`.
+    > **注意**: `config.yaml` ファイルを編集する際に **vi** を使用するためのヒントがあります。
+    > * `Esc` キーを押して `/` の後に検索文字列を入力したら、Enter キーを押して検索します。
+    > * `n` を押すと、一致するものを順番に切り替えます。
+    > * `i` キーを押してエディターを挿入モードにすると、変更することができます。
+    > * `Esc` キーを押して挿入モードを停止し、標準モードに戻ります。
+    > * 保存して終了するには、`:x` と入力し、`Enter` キーを押します。
+    > * ファイルを保存するには、`:w` と入力して、`Enter` キーを押します。
+    > * vi を終了するには、`:quit` と入力し、`Enter` キーを押します。
 
-1. Save the file and exit vi/vim.
+1. ファイルを保存して、vi/vim を終了します。
 
-## Exercise 6: Connect IoT Edge Gateway Device to IoT Hub
+### 演習 6: IoT Edge ゲートウェイ デバイスを IoT Hub に接続する
 
-In this exercise, you will connect the IoT Edge Device to Azure IoT Hub.
+この演習では、IoT Edge デバイスを Azure IoT Hub に接続します。
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+1. Azure portal で Cloud Shell SSH セッションが開かなくなった場合、再接続します。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+1. Azure IoT Hub の接続文字列を使用して Edge デバイスを構成するには、次のコマンドを実行します。
 
-1. Navigate to the `AZ-220-VM-EDGEGW-{YOUR-ID}` IoT Edge virtual machine within the Azure Portal.
-
-1. On the **Overview** pane of the **Virtual machine** blade, click the **Connect** button at the top.
-
-1. Within the **Connect to virtual machine** pane, select the **SSH** option, then copy the **Login using VM local account** value.
-
-    This is a sample SSH command that will be used to connect to the virtual machine that contains the IP Address for the VM and the Administrator username. The command is formatted similar to `ssh demouser@52.170.205.79`.
-
-1. At the top of the Azure Portal click on the **Cloud Shell** icon to open up the **Azure Cloud Shell** within the Azure Portal. When the pane opens, choose the option for the **Bash** terminal within the Cloud Shell.
-
-1. Within the Cloud Shell, paste in the `ssh` command that was copied, and press **Enter**.
-
-1. When prompted with **Are you sure you want to continue connecting?**, type `yes` and press Enter. This prompt is a security confirmation since the certificate used to secure the connection to the VM is self-signed. The answer to this prompt will be remembered for subsequent connections, and is only prompted on the first connection.
-
-1. When prompted to enter the password, enter the Administrator password that was entered when the VM was provisioned.
-
-1. Once connected, the terminal will change to show the name of the Linux VM, similar to the following. This tells you which VM you are connected to.
-
-    ```cmd/sh
-    demouser@AZ-220-VM-EDGEGW-{YOUR-ID}:~$
+    ```bash
+    sudo /etc/iotedge/configedge.sh "{iot-edge-device-connection-string}"
     ```
 
-1. You will need to run the command to configure the Edge device to connect to IoT Hub as Administrator. Run the following `sudo` command to elevate the terminal to run as Administrator:
+    必ず `{iot-edge-device-device-string}` プレース ホルダーを、IoT Edge デバイス用に以前コピーした接続文字列に置き換えてください。
 
-    ```cmd/sh
-    sudo su -
-    ```
+    `/etc/iotedge/configedge.sh` スクリプトは、Azure IoT Edge ランタイムの一部としてインストールされます。それは、Azure IoT Hub に接続するために必要な接続文字列を使用して Edge デバイスを構成するために使用されます。
 
-1. The `/etc/iotedge/configedge.sh` script is used to configure the Edge device with the Connection String necessary to connect it to Azure IoT Hub. This script is installed as part of the Azure IoT Edge Runtime.
+    このコマンドが完了すると、入力された接続文字列を使用して Azure IoT Hub に接続するために IoT Edge デバイスが構成されます。
 
-1. To configure the Edge device with the Connection String for Azure IoT Hub, run the following command:
+1. しばらくお待ちください。
 
-    ```cmd/sh
-    /etc/iotedge/configedge.sh "{iot-edge-device-connection-string}"
-    ```
-
-    Be sure to replace the `{iot-edge-device-connection-string}` placeholder with the Connection String you copied previously for your IoT Edge Device.
-
-1. Once this command completes, the IoT Edge Device will be configured to connect to Azure IoT Hub using the Connection String that was entered.
-
-1. After a moment, run the following command that will list out all the **IoT Edge Modules** currently running on the IoT Edge Device.
+1. IoT Edge デバイスで現在実行されているすべての **IoT Edge モジュール**を一覧表示するには、次のコマンドを入力します。 
 
     ```sh
-    iotedge list
+    iotedge リスト
     ```
 
-    After a moment, this command will show the `edgeAgent` and `edgeHub` modules are running. The output will look similar to the following:
+    しばらくすると、このコマンドにより `edgeAgent` モジュールと `edgeHub` モジュールが実行されていることが示されます。出力は、以下のようなものになります。
 
     ```text
     root@AZ-220-VM-EDGEGW:~# iotedge list
@@ -439,156 +629,207 @@ In this exercise, you will connect the IoT Edge Device to Azure IoT Hub.
     edgeAgent        running          Up 18 seconds    mcr.microsoft.com/azureiotedge-agent:1.0
     ```
 
-    If an error is reported, then you'll need to double check the configurations are set correctly. For troubleshooting, the `iotedge check --verbose` command can be run to see if there are any errors.
+    エラーが報告された場合は、構成が正しく設定されていることを再確認する必要があります。トラブルシューティングの場合は、エラーがあるかどうかを確認するための `iotedge check --verbose` コマンドを実行できます。
 
-## Exercise 7: Open IoT Edge Gateway Device Ports for Communication
+### 演習 7: 通信用に IoT Edge ゲートウェイ デバイス ポートを開く
 
-In this exercise, you will configure the Network Security Group (NSG) that secures access to the Azure IoT Edge Gateway from the Internet. The necessary ports for MQTT, AMQP, and HTTPS communications need to be opened so the downstream IoT device(s) can communicate with the gateway.
+この演習では、インターネットから Azure IoT Edge ゲートウェイへのアクセスをセキュリティで保護するネットワーク セキュリティ グループ (NSG) を構成します。ダウンストリーム IoT デバイスがゲートウェイと通信できるよう、MQTT、AMQP、および HTTPS 通信に必要なポートが開かれている必要があります。
 
-For the Azure IoT Edge Gateway to function, at least one of the IoT Edge hub's supported protocols must be open for inbound traffic from downstream devices. The supported protocols are MQTT, AMQP, and HTTPS.
+Azure IoT Edge ゲートウェイが機能するには、少なくとも IoT Edge ハブでサポートされているプロトコルの 1 つが、ダウンストリーム デバイスからの受信トラフィックに対して開いている必要があります。サポートされるプロトコルは、MQTT、AMQP、および HTTPS です。
 
-The IoT communication protocols supported by Azure IoT Edge have the following port mappings:
+Azure IoT Edge によってサポートされる IoT 通信プロトコルには、次のポート マッピングがあります。
 
-| Protocol | Port Number |
+| プロトコル | ポート番号 |
 | --- | --- |
-| MQTT | 8883 |
-| AMQP | 5671 |
-| HTTPS<br/>MQTT + WS (Websocket)<br/>AMQP + WS (Websocket) | 443 |
+| MQTT | 8883 年 |
+| AMQP | 5671 年 |
+| HTTPS<br/>MQTT + WS (Websocket)<br/>AMQP + WS (Websocket) | 443 年 |
 
-The IoT communication protocol chosen for your devices will need to have the corresponding port opened for the firewall that secures the IoT Edge Gateway device. In the case of this lab, an Azure Network Security Group (NSG) is used to secure the IoT Edge Gateway, so Inbound security rules for the NSG will be opened on these ports.
+デバイス用に選択された IoT 通信プロトコルは、IoT Edge ゲートウェイ デバイスを保護するファイアウォールに対し、対応するポートを開いている必要があります。このラボの場合は、IoT Edge ゲートウェイをセキュリティで保護するために Azure ネットワーク セキュリティ グループ (NSG) が使用されるため、NSG の受信セキュリティ規則は、これらのポートで開かれます。
 
-In a production scenario, you will only want to open the minimum number of ports for your devices to communicate. If you are using MQTT, then only open port 8883 for inbound communications. Opening additional ports will introduce addition security attack vectors that attackers could take exploit. It is a security best practice to only open the minimum number of ports necessary for your solution.
+運用シナリオでは、デバイスが通信するポートの最小数のみを開きます。MQTT を使用している場合は、インバウンド通信用にポート 8883 のみをオープンします。追加のポートを開くと、攻撃者が悪用する可能性がある追加のセキュリティ攻撃ベクトルが導入されます。セキュリティのベスト プラクティスとして、ソリューションに必要な最小数のポートのみを開く方法をお勧めします。
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. Navigate to the Resource Group that contains the  **AZ-220-VM-EDGEGW-{YOUR-ID}** VM.
+1. Azure ダッシュボードで、**AZ-220-VM-EDGEGW-{YOUR-ID}** VM を含む 「リソース」 タイルを見つけます。
 
-1. On the Resource Group blade, click on the **AZ-220-VM-EDGEGW-{YOUR-ID}-nsg** Network Security Group (NSG) resource.
+    このリソース グループ タイルには、関連付けられたネットワーク セキュリティ グループへのリンクも含まれていることに注意してください。
+  
+1. 「リソース」 タイルで、**AZ-220-VM-EDGEGW-_{YOUR-ID}_-nsg** をクリックします。
 
-1. On the Network security group blade, click on **Inbound security rules** under the Settings section.
+1. 「**ネットワーク セキュリティ グループ**」 ブレードの左側のナビゲーション メニューの 「**設定**」 で、「**受信セキュリティ規則**」 をクリック します。
 
-1. On the **Inbound security rules** pane, click the **Add** button.
+1. 「**受信セキュリティ規則**」 ウィンドウの上部にある 「**追加**」 をクリックします。
 
-1. On the **Add inbound security rule** pane, change the **Destination port ranges** to `8883` and set the **Name** to `MQTT`. This will define an inbound security rule that will allow communication for the MQTT protocol to the IoT Edge Gateway.
+1. 「**受信セキュリティ規則の追加**」 ウィンドウの 「**「宛先ポート範囲**」 で、値を **8883** に変更します。
 
-1. Click **Add** to save the new security rule.
+1. 「**プロトコル**」 で 「**TCP**」 をクリックします。
 
-1. To open ports for **AMQP** and **HTTPS** communication protocols, add two more rules with the following values:
+1. 「**名前**」 で値を **MQTT** に変更します。
 
-    | Destination port ranges | Name |
-    | :--- | :--- |
-    | 5671 | AMQP |
-    | 443 | HTTPS |
+1. その他すべての設定を既定のままにして、「**追加**」 をクリックします。
 
-1. With these three ports open on the Network Security Group (NSG), the downstream devices will be able to connect to the IoT Edge Gateway using either MQTT, AMQP, or HTTPS protocols.
+    これにより、IOT Edge ゲートウェイへの MQTT プロトコルの通信を許可する受信セキュリティ規則が定義されます。
 
-## Exercise 8: Create Downstream Device Identity in IoT Hub
+1. MQTT ルールを追加した後、**AMQP** および **HTTPS** 通信プロトコルのポートを開くには、次の値を持つ 2 つのルールを追加します。
 
-In this exercise, you will create a new IoT Device identity in Azure IoT Hub for the downstream IoT device. This device identity will be configured so that the Azure IoT Edge Gateway is a parent device for this downstream device.
+    | 宛先ポート範囲 | プロトコル | 名前 |
+    | :--- | :--- | :--- |
+    | 5671 年 | TCP | AMQP |
+    | 443 年 | TCP | HTTPS |
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+   > **注意**: 新しいルールが表示されるのを確認するには、ウィンドウの上部にあるツールバーの 「**更新**」 ボタンを使用する必要がある場合があります。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+1. ネットワーク セキュリティ グループ (NSG) でこれら 3 つのポートが開かれていると、ダウンストリーム デバイスは MQTT プロトコル、AMQP プロトコル、HTTPS プロトコルのいずれかを使用して IoT Edge ゲートウェイに接続できるようになります。
 
-1. On your Resource group tile, click **AZ-220-HUB-{YOUR-ID}** to navigate to the Azure IoT Hub.
+### 演習 8: IoT Hub でダウンストリーム デバイス ID を作成する
 
-1. On the IoT Hub summary blade, click **IoT devices** under the Explorers section. This section of the IoT Hub blade allows you to manage the IoT Devices connected to the IoT Hub.
+この演習では、ダウンストリーム IoT デバイスの Azure IoT Hub に新しい IoT デバイス ID を作成します。このデバイス ID は、Azure IoT Edge ゲートウェイがこのダウンストリーム デバイスの親デバイスになるように構成されます。
 
-1. Click the **New** button to begin adding a new IoT Device Identity to the IoT Hub.
+1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
-1. On the **Create a device** blade, enter `DownstreamDevice1` into the **Device ID** field. This is the device identity used for authentication and access control.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. Select **Symmetric key** for the **Authentication type**, and leave the **Auto-generate keys** box checked. This will have IoT Hub automatically generate the Symmetric keys for authenticating the device.
+1. Azure ダッシュボードで IoT Hub を開くには **AZ-220-HUB-_{YOUR-ID}_** をクリックします。
 
-1. Under **Parent device** click the **Set a parent device** link to begin configuring this downstream device to communicate with IoT Hub through the IoT Edge Gateway.
+1. 「**AZ-220-HUB-_{YOUR-ID}_**」 ブレードで、**エクスプローラー**の下にある左側のナビゲーション メニューで、「**IoT デバイス**」 をクリックします。
 
-1. On the **Set an Edge device as a parent device** blade, select the `AZ-220-VM-EDGEGW-{YOUR-ID}` Device ID in the list of IoT Edge Devices.
+    「IoT Hub」 ブレードのこのウィンドウを使用して、IoT Hub に接続されている IoT デバイスを管理できます。
 
-1. Click **OK** to select the parent device.
+1. ウィンドウの上部で、新しい IoT デバイスの構成を開始するには、「**新規**」 をクリックします。
 
-1. Click **Save** to create the IoT Device identity for the downstream device.
+1. 「**デバイスの作成**」 ブレードの 「**デバイス ID**」 で、「**DownstreamDevice1**」と入力します。
 
-1. Once the `DownstreamDevice1` IoT Device Identity is created, click on the Device ID in the list. This will open the details view for this device.
+    これは、認証とアクセス制御に使用されるデバイス ID です。
 
-1. On the IoT Device summary pane, copy the **Primary Connection String** for the `DownstreamDevice1` IoT Device, and save it for reference later.
+1. 「**認証の種類**」 で、「**対称キー**」 が選択されていることを確認します。
 
-## Exercise 9: Connect Downstream Device to IoT Edge Gateway
+1. 「**キーの自動生成**」 の下のボックスはオンのままにします。
 
-In this exercise, you will configure a pre-built Downstream Device to connect to the IoT Edge Gateway.
+    これにより、IoT Hub はデバイスを認証するための対称キーを自動的に生成します。
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+1. 「**親デバイス**」 で 「**親デバイスの設定**」 をクリックします。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+    このラボで先ほど作成した IoT Edge ゲートウェイ デバイスを介して IoT Hub と通信するように、このダウンストリーム デバイスを構成します。
 
-1. At the top of the Azure Portal click on the **Cloud Shell** icon to open up the **Azure Cloud Shell** within the Azure Portal. When the pane opens, choose the option for the **Bash** terminal within the Cloud Shell.
+1. 「**エッジ デバイスを親デバイスとして設定する**」 ブレードの 「**デバイス ID**」 で、「**AZ-220-VM-EDGEGW-_{YOUR-ID}_**」 をクリックし、「**OK**」 をクリックします。
 
-1. Within the **Cloud Shell**, run the following command to download the **root CA** x.509 certificate for the Azure IoT Edge Gateway (`AZ-220-VM-EDGEGW-{YOUR-ID}`) virtual machine.
+1. 「**デバイスの作成**」 ブレードで、ダウンストリーム デバイスの IoT デバイス ID を作成するには、「**保存**」 をクリックします。
 
-    ```cmd/sh
-    download certificates/certs/azure-iot-test-only.root.ca.cert.pem
+1. 「**IoT デバイス**」 ウィンドウの上部にある 「**更新**」 をクリックします。   
+
+1. 「**デバイス ID**」 の下の 「**DownstreamDevice1**」 をクリックします。 
+
+    これにより、このデバイスの詳細ビューが開きます。
+
+1. 「IoT デバイスの概要」 ペインで、「**プライマリ接続文字列**」 フィールドの右側にある 「**コピー**」 をクリックします。   
+
+1. 後の参照用に接続文字列を保存します。
+
+    この接続文字列は、ダウンストリーム デバイス 1 用であることに注意してください。
+
+### エクササイズ 9: ダウンストリーム デバイスを IoT Edge ゲートウェイに接続する
+
+このエクササイズでは、IoT Edge ゲートウェイに接続するために事前に構築されたダウンストリーム デバイスを構成します。
+
+1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+
+1. クラウド シェルが開かれていない場合は、Azure ポータル のツール バーで 「**Cloud Shell**」 をクリックします。 
+
+    環境が **Bash** に設定されていることを確認します。
+
+    > **注意**: Cloud Shell がすでに開いていて、Edge デバイスに接続されている場合は、`exit` コマンドを使用して SSH セッションを終了します。
+
+1. Cloud Shell コマンド プロンプトで、IoT Edge ゲートウェイ仮想マシンのルート CA X.509 証明書をダウンロードするには、次のコマンドを入力します。
+
+    ```bash
+    download lab12/certs/azure-iot-test-only.root.ca.cert.pem
     ```
 
-    The Azure IoT Edge Gateway was configured (within the `/etc/iotedge/config.yaml` file) previously to use this **root CA** x.509 certificate for encrypting communications with any downstream devices connecting to the gateway. This x.509 certificate will need to be copied to the downstream devices so they can use it to encrypt communications with the gateway.
+    Azure IoT Edge ゲートウェイは、以前 、ゲートウェイに接続しているダウンストリーム デバイスを使用して通信を暗号化する際に、このルート CA X.509 証明書を使用する `etc/iotedge/config.yaml` ファイル内で構成されていました。この X.509 証明書は、ゲートウェイとの通信を暗号化するために使用できるよう、ダウンストリーム デバイスにコピーされる必要があります。
 
-1. Copy the `azure-iot-test-only.root.ca.cert.pem` x.509 certificate file to the `/LabFiles/DownstreamDevice` directory where the source code for the downstream IoT device is located.
+1. `azure-iot-test-only.root.ca.cert.pem` X.509 証明書ファイルを、ダウンストリーム IoT デバイスのソース コードがある `/Starter/DownstreamDevice` ディレクトリにコピーします。
 
-1. Open the `/LabFiles/DownstreamDevice` directory within **Visual studio Code**.
+    > **重要**: ファイルに正確な名前が付いていることを確認してください。  以前のラボと異なる名前 (たとえば、`(1)` が追加されている) を持つことがあるため、必要に応じてコピー後に名前を変更します。
 
-1. Open the **SimulatedDevice.cs** source code file.
+1. Visual Studio Code を起動します。
 
-1. Locate the declaration for the `s_connectionString` variable and replace the value placeholder with the **IoT Hub Connection String** for the **DownstreamDevice1** IoT Device.
+1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
 
-1. Modify the **IoT Hub Connection String** to include the `GatewayHostName` property with the value set to the full **DNS name** for the IoT Edge Gateway Device (`AZ-220-VM-EDGEGW`).
+1. 「**フォルダーを開く**」 ダイアログで、ラボ 12 のスターター フォルダーに移動し、**DownstreamDevice** をクリックして、「**フォルダーの選択**」 をクリック します。
 
-    The Connection String will match the following format:
+    エクスプローラーのウィンドウに、SimulatedDevice.cs ファイルと共に、azure-iot-test-only.root.ca.cert.pem ファイルが表示されるはずです。
+
+    > **注意**: dotnet を復元および/または C# 拡張機能を読み込むためのメッセージが表示された場合は、インストールを完了します。
+
+1. エクスプローラーのウィンドウで、**SimulatedDevice.cs** をクリックします。
+
+1. `s_connectionString` 変数の宣言を見つけて、プレースホルダーの値を `DownstreamDevice1` IoT デバイスの IoT Hub 接続文字列に置き換えます。
+
+1. `GatewayHostName` プロパティを含むように `s_connectionString` 値を変更し、GatewayHostName の値を IoT Edge ゲートウェイ デバイス (`AZ-220-VM-EDGEGW`) の完全な DNS 名に設定します。
+
+    接続文字列は、次の形式と一致します。
 
     ```text
     HostName=<IoT-Hub-Name>.azure-devices.net;DeviceId=DownstreamDevice1;SharedAccessKey=<IoT-Device-Primary-Key>;GatewayHostName=<IoT-Edge-Device-DNS-Name>
     ```
 
-    Be sure to replace the placeholders with the appropriate values:
+    上記のプレースホルダーを適切な値に置き換えてください。
 
-    - `<IoT-Hub-Name>`: The Name of the Azure IoT Hub.
-    - `<IoT-Device-Primary-Key>`: The Primary Key for the **DownstreamDevice1** IoT Device in Azure IoT Hub.
-    - `<IoT-Edge-DNS-Name>`: The DNS name set for the **AZ-220-VM-EDGEGW**.
+    * `<IoT-Hub-Name>`: Azure IoT Hub の名前。
+    * `<IoT-Device-Primary-Key>`: Azure IoT Hub の **DownstreamDevice1** IoT デバイスの主キー。
+    * `<IoT-Edge-DNS-Name>`: **AZ-220-VM-EDGEGW** の DNS 名セット。
 
-    The `s_connectionString` variable with the Connection String value will look similar to the following:
+    `s_connectionString` の変数の接続文字列の値は、次のようになります。
 
     ```csharp
     private readonly static string s_connectionString = "HostName=AZ-220-HUB-1119.azure-devices.net;DeviceId=DownstreamDevice1;SharedAccessKey=ygNT/WqWs2d8AbVD9NAlxcoSS2rr628fI7YLPzmBdgE=;GatewayHostName=AZ-220-VM-EDGEGW.eastus.cloudapp.azure.com";
     ```
 
-1. Save the file.
+1. 「**ファイル**」 メニューの 「**上書き保存**」 をクリックします。   
 
-1. Locate the **Main** method. This method contains the code that instantiates the `DeviceClient` using the configured Connection String, and specifies **MQTT** as the transport protocol to use for communicating with the Azure IoT Edge Gateway.
+1. 下にスクロールして **Main** メソッドを表示し、少し時間をかけてコードをレビューします。
 
-    ```csharps_deviceClient = DeviceClient.CreateFromConnectionString(s_connectionString, TransportType.Mqtt);
-    SendDeviceToCloudMessagesAsync();
+    このメソッドには、構成された接続文字列を使用して `DeviceClient` をインスタンス化するコードが含まれ、Azure IoT Edge ゲートウェイとの通信に使用するトランスポート プロトコルとして `MQTT` が指定されています。
+
+    ```csharp
+    s_deviceClient = DeviceClient.CreateFromConnectionString(s_connectionString, TransportType.Mqtt);
+    SendDeviceToCloudMessagesAsync().GetAwaiter().GetResult();;
     ```
 
-    This method also executes the **InstallCACert** method which has some code to automatically install the **root CA** x.509 certiifcate to the local machine. And it executes the **SendDeviceToCloudMessagesAsync** method that sends event telemetry from the simulated device.
+    このメソッドは、ローカル マシンにルート CA X.509 認定を自動的にインストールするコードを含む **InstallCACert** メソッドも実行します。また、シミュレートされたデバイスからイベント テレメトリを送信する **SendDeviceToCloudMessagesAsync** メソッドを実行します。
 
-1. Locate the **SendDeviceToCloudMessagesAsync** method. This method contains the code that generates the simulated device telemetry, and sends the events to the IoT Edge Gateway.
+    > **注意**: `GetAwaiter().GetResult()` 呼び出しは気にしないでください。これは、C＃ 7.1 以前の `Main` メソッドから C＃ が非同期呼び出しを処理する方法のアーティファクトです。  ラボではサポート レベルを前提としないので、回避策を少し使用しています。
 
-1. Locate the **InstallCACert** and browse the code that installed the **root CA** x.509 certificate to the local machine certificate store.
+1. **SendDeviceToCloudMessagesAsync** メソッドを見つけ、少し時間をかけてコードをレビューします。
 
-1. Open a command-prompt / terminal and navigate to the location of the `/LabFiles/DownstreamDevice` directory.
+    このメソッドには、シミュレートされたデバイス テレメトリを生成し、IoT Edge ゲートウェイにイベントを送信するコードが含まれています。
 
-1. Run the following command to build the code for the **DownstreamDevice1** simulated device, and execute it to start sending device telemetry:
+1. **InstallCACert** を見つけ、ルート CA X.509 証明書をローカル マシン証明書ストアにインストールするコードを参照します。
 
-    ```cmd/sh
+1. Visual Studio Code で、`SimulatedDevice.cs` ファイルが開いたままの状態で、「**ターミナル**」 メニューの 「**新しいターミナル**」 を選択します。
+
+1. Visual Studio Code の下部にある 「**ターミナル**」 ウィンドウで、次のコマンドを実行します。
+
+    ```bash
     dotnet run
     ```
 
-1. When the app installed the **x.509 certificate** on the local machine so it can use it to authenticate with the IoT Edge Gateway, it may prompt asking if you would like to install the certificate. Click **Yes** to allow it and continue.
+    このコマンドは、**DownstreamDevice1** のシミュレートされたデバイスのコードをビルドして実行し、 デバイス テレメトリの送信を開始します。
 
-1. Once the simulated device is running, the console output will display the events being sent to the Azure IoT Edge Gateway.
+    > **注**: アプリが (IoT Edge ゲートウェイで認証するために使用できるように) ローカル コンピューターに X.509 証明書をインストールしようとすると、証明書のインストールに関するセキュリティ警告が表示されることがあります。アプリを続行するには、「**はい **」 をクリックする必要があります。
 
-    The terminal output will look similar to the following:
+1. 証明書をインストールするかどうか尋ねられたら、「**はい**」 をクリックします。
 
-    ```cmd/sh
+1. シミュレートされたデバイスが実行されると、コンソール出力に Azure IoT Edge ゲートウェイに送信されるイベントが表示されます。
+
+    ターミナル出力は次のようになります。
+
+    ```bash
     IoT Hub Quickstarts #1 - Simulated device. Ctrl-C to exit.
 
     User configured CA certificate path: azure-iot-test-only.root.ca.cert.pem
@@ -600,31 +841,35 @@ In this exercise, you will configure a pre-built Downstream Device to connect to
     11/27/2019 4:18:29 AM > Sending message: {"temperature":32.81164186439088,"humidity":72.6606041624493}
     ```
 
-1. Leave the simulated device running while you move on to the next unit.
+    > **注意**: デバイス送信が最初の送信で 1 秒以上長く一時停止しているように見える場合は、NSG 受信ルールを以前に正しく追加していなかったため、MQTT トラフィックがブロックされている可能性があります。  NSG の構成を確認します。
 
-## Exercise 10: Verify Event Flow
+1. 次の演習に進むときは、シミュレートされたデバイスを実行したままにします。
 
-In this exercise, you will use the Azure CLI to monitor the events being sent to Azure IoT Hub from the downstream IoT Device through the IoT Edge Gateway. This will validate that everything is working correctly.
+### エクササイズ 10: イベント フローの検証
 
-1. If necessary, log in to your Azure portal using your Azure account credentials.
+この演習では、Azure CLI を使用して、IoT Edge ゲートウェイを経由してダウンストリーム IoT デバイスから Azure IoT Hub に送信されるイベントを監視します。これは、すべてが正しく動作していることを検証します。
 
-    If you have more than one Azure account, be sure that you are logged in with the account that is tied to the subscription that you will be using for this course.
+1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
-1. At the top of the Azure Portal click on the **Cloud Shell** icon to open up the **Azure Cloud Shell** within the Azure Portal. When the pane opens, choose the option for the **Bash** terminal within the Cloud Shell.
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. Within the **Cloud Shell**, run the following command to monitor the stream of events flowing to the Azure IoT Hub. This will verify that events from the simulate device, being sent to the IoT Edge Gateway, are being received by the Azure IoT Hub.
+1. Cloud Shell が実行されていない場合は、Azure portal のツールバーで 「**Cloud Shell**」 をクリックします。
 
-    ```cmd/sh
-    az iot hub monitor-events -n <IoT-Hub-Name>
+1. Cloud Shell で SSH 接続を使用して Edge デバイスに接続している場合は、その接続を終了します。
+
+1. Cloud Shell コマンド プロンプトで、Azure IoT Hub にフローするイベントのストリームを監視するには、次のコマンドを実行します。
+
+    ```bash
+    az iot hub monitor-events -n AZ-220-HUB-{YOUR-ID}
     ```
 
-    Be sure to replace the `<IoT-Hub-Name>` placeholder for the `-n` parameter with the name of your Azure IoT Hub.
+    `-n` パラメーターの `{YOUR-ID}` プレースホルダーを Azure IoT Hub の名前に置き換えてください。
 
-    The `az iot hub monitor-events` command enables you to monitor device telemetry & messages sent to an Azure IoT Hub.
+    `az iot hub monitor-events` コマンドを使用すると、デバイス テレメトリと Azure IoT Hub に送信されるメッセージを監視できます。これにより、シミュレートされたデバイスから IoT Edge ゲートウェイに送信されるイベントが Azure IoT Hub によって受信されていることを確認します。
 
-1. With everything working correctly, the output from the `az iot hub monitor-events` command will look similar to the following:
+1. すべてが正常に動作すると、`az iot hub monitor-events` コマンドの出力は次のようになります。
 
-    ```cmd/sh
+    ```bash
     chris@Azure:~$ az iot hub monitor-events -n AZ-220-HUB-1119
     Starting event monitor, use ctrl-c to stop...
     {
@@ -641,7 +886,4 @@ In this exercise, you will use the Azure CLI to monitor the events being sent to
     }
     ```
 
-Once you have completed this lab and verified the event flow, exit the console application by pressing **CTRL+C**.
-
-
-
+このラボを完了してイベント フローを確認したら、**CTRL+C** キーを押してコンソール アプリケーションを終了します。 

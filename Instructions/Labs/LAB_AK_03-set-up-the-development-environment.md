@@ -1,170 +1,292 @@
----
+﻿---
 lab:
-    title: 'Lab 03: Setup the Development Environment'
-    module: 'Module 2: Devices and Device Communication'
+    title: '課題 03:  開発環境の設定'
+    module: 'モジュール 2：デバイスとデバイス通信'
 ---
 
-# Setup the Development Environment
+# 開発環境の設定
 
-## Lab Scenario
+## ラボシナリオ
 
-As one of the developers at Contoso, setting up your development environment is an important step before starting to build in IoT solution. Azure IoT offers multiple developer tools and support across top IDEs.
+Contoso の開発者の 1 人として、Azure IoT ソリューションの構築を開始する前に、開発環境をセットアップすることが重要なステップであることをご存じでしょう。Microsoft  には、IoT ソリューションの開発とサポートに使用できるツールが多数用意されており、チームがどのツールを使用するかについて決定する必要があることをご存じでしょう。チームが IoT ソリューションの開発に使用できる作業環境を、Azure クラウド側とローカルの作業環境の両方で準備します。
 
-## In This Lab
+議論した後に、チームは開発環境について次の大まかな決定を下しました。
 
-In this lab you will:
+* オペレーティング システム:  Windows 10 は OS として使用されます。Windows はほとんどのチームで使用されているので、論理的な選択でした。Azure IoT サービスは他のオペレーティング システム (Mac OS や Linux など) をサポートしており、Microsoft では、これらの代替案のいずれかを選択したチームのメンバー向けにサポート ドキュメントが用意されています。
+* 一般的なコーディング ツール:  Visual Studio Code と Azure CLI は、主要なコーディング ツールとして使用されます。これらのツールでは両方とも、Azure IoT SDK を活用する IoT の拡張機能がサポートされます。
+* IoT Edge ツール: Docker Desktop コミュニティと Python は、カスタムの IoT Edge モジュールの開発をサポートするために使用されます。
 
-* Install the .NET Core 3 SDK, Azure CLI, and the Visual Studio Code (VSCode) editor.
-* Install the VSCode extensions for developing Azure IoT solutions.
-* Verify your Development Environment setup
+これらの決定を支持して、次の環境を設定します。
 
-## Exercise 1: Install Developer Tools and Products
+* Windows 10 64 ビット: Pro、Enterprise、または Education (ビルド 15063 以降)。下記が含まれます。
+  * 4 GB – 8 GB システム RAM (Docker の場合は高い方が良い)
+  * Windows の Hyper-V およびコンテナの機能を有効にする必要があります。
+  * BIOS レベルのハードウェア仮想化サポートは、BIOS 設定で有効にする必要があります。
 
- > [!NOTE] Check with you Instructor to understand if the lab hosting environment has already been prepared with some or all of the required tools.
+  > **注意**: 仮想マシンに開発環境を設定する場合、VM 環境は入れ子になった仮想化 「入れ子になった仮想化」(https://docs.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/nested-virtualization) をサポートする必要があります。
 
-### Task 1: Install .NET Core
+* Azure CLI (現在/最新)
+* .NET Core 3.1.200 (またはそれ以降) の SDK
+* VS Code (最新)
+* Python 3.7 (3.8 ではない)
+* Linux コンテナーに設定された Docker Desktop Community 2.1.0.5 以降
+* Power BI Desktop (データ視覚化用)
+* VS Code と Azure CLI の IoT 拡張機能
 
-.NET Core is a cross-platform version of .NET for building websites, services, and console apps.
+> **注意**: 仮想マシンは、このコースに向けて作成されました。ここでは、上記で指定されているツールの大部分を提供しています。以下の手順では、準備済み VM の使用、または Windows PC をローカルで使用する環境の設定をサポートしています。
 
-1. To open the .NET Core download page, use the following link: [.NET Download](https://dotnet.microsoft.com/download)
+## このラボで
 
-1. On the .NET download page, under .NET Core, click **Download .NET Core SDK**.
+この課題では、次の内容を学習します。
 
-    The .NET Core 3.1 SDK is used to build .NET Core apps.
+* このコースの課題で使用する基本ツールおよび製品をインストールします。
+* Azure CLI および Visual Studio Code 向けの Azure IoT 拡張機能をインストールします。
+* 開発環境のセットアップを確認する
 
-    If all you need to do is run an app that uses .NET Core on a Windows computer, you can install the .NET Core Runtime. In addition, preview and legacy versions of .NET Core can be installed using the link for "All .NET Core downloads...".
+## ラボの手順
 
-1. On the popup menu, click **Run**, and then follow the on-screen instructions to complete the installation.
+### 演習 1: 開発者ツールと製品のインストール
 
-    The installation should take less than a minute to complete. The following components will be installed:
+> **注意**: この演習に関連付けられているツールと製品は、このコース用に作成された仮想マシンに事前インストールされています。続行する前に、ホストされたラボの VM 環境を使用してラボを完了するのか、またはお使いの PC にローカルで開発環境を設定するのかについて、コース担当講師に確認してください。
 
-    * .NET Core SDK 3.1.100 or later
-    * .NET Core Runtime 3.1.100 or later
-    * ASP.NET Core Runtime 3.1.100 or later
-    * .NET Core Windows Desktop Runtime 3.1.0 or later
+#### タスク 1: .NET Core のインストール
 
-    The following resources are available for further information:
+.NET Core は、Web サイト、サービス、およびコンソール アプリを構築するためのクロスプラットフォーム バージョンの .NET です。
 
-    * [.NET Core Documentation](https://aka.ms/dotnet-docs)
-    * [.NET Core dependencies and requirements](https://docs.microsoft.com/en-us/dotnet/core/install/dependencies?tabs=netcore31&pivots=os-windows)
-    * [SDK Documentation](https://aka.ms/dotnet-sdk-docs)
-    * [Release Notes](https://aka.ms/netcore3releasenotes)
-    * [Tutorials](https://aka.ms/dotnet-tutorials)
+1. .NET Core ダウンロード ページを開くには、次のリンクを使用します。「.NET のダウンロード」(https://dotnet.microsoft.com/download)
 
-## Task 2: Install Visual Studio Code
+1. .NET ダウンロード ページの 「.NET Core」 で、「**.NET Core SDK のダウンロード**」 をクリックします。 
 
-Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux. It comes with built-in support for JavaScript, TypeScript and Node.js and has a rich ecosystem of extensions for other languages (such as C++, C#, Java, Python, PHP, Go) and run times (such as .NET and Unity).
+    .NET Core SDK は、.NET Core アプリのビルドに使用されます。このコースのラボでは、コード ファイルをビルドしたり、編集したりするために、is を使用します。
 
-1. To open the Visual Studio Code download page, click the following link: [Download Visual Studio Code](https://code.visualstudio.com/Download)
+    Windows コンピューターで .NET Core を使用するアプリを実行するだけで済む場合は、.NET Core ランタイムをインストールできます。また、プレビュー版と従来のバージョンの .NET Core をインストールするには、「すべての .NET Core のダウンロード..」 のリンクを使用します。
 
-    Instructions for installing Visual Studio Code on Mac OS X and Linux can be found on the Visual Studio Code set up guide [here](https://code.visualstudio.com/docs/setup/setup-overview). This page also includes more detailed instructions and tips for the Windows installation.
+1. ポップアップ メニューの **「実行」** をクリックし、画面の指示に従ってインストールを完了します。 
 
-1. On the Download Visual Studio Code page, click **Windows**.
+    インストールは、1 分未満で完了します。次のコンポーネントがインストールされます。
 
-    When you start the download, two things will happen: a popup dialog opens and some getting started guidance will be displayed.
+    * .NET Core SDK 3.1.100 以降
+    * .NET Core Runtime 3.1.100 以降
+    * ASP.NET Core Runtime 3.1.100 以降
+    * .NET Core Windows Desktop Runtime 3.1.0 以降
 
-1. On the popup dialog, to begin the setup process, click **Run** and then follow the on-screen instructions.
+    詳細については、以下のリソースを参照することができます。
 
-    If you choose to Save the installer to your Downloads folder, you you can complete the installation by opening the folder and then double-clicking the VSCodeSetup executable.
+    * [.NET Core に関するドキュメント](https://aka.ms/dotnet-docs-jpn)
+    * [.NET Core の依存関係と要件](https://docs.microsoft.com/ja-jp/dotnet/core/install/dependencies?tabs=netcore31&pivots=os-windows)
+    * [SDK に関するドキュメント](https://aka.ms/dotnet-sdk-docs-jpn)
+    * [リリース ノート](https://aka.ms/netcore3releasenotes)
+    * [チュートリアル:](https://aka.ms/dotnet-tutorials-jpn)
 
-    By default, Visual Studio Code is installed in the "C:\Program Files (x86)\Microsoft VS Code" folder location (for a 64-bit machine). The setup process should only take about a minute.
+#### タスク 2: Visual Studio Code のインストール
 
-    > [!NOTE] .NET Framework 4.5 is required for Visual Studio Code when installing on Windows. If you are using Windows 7, please ensure [.NET Framework 4.5](https://www.microsoft.com/en-us/download/details.aspx?id=30653) is installed.
+Visual Studio Code は、デスクトップ上で実行され、Windows、macOS、および Linux で使用できる、軽量で強力なソース コード エディターです。JavaScript、TypeScript、Node.js 向けの組み込みのサポートが付属しており、他の言語(C++、C#、Java、Python、PHP、Go など) や実行時間 (.NET、Unity など) の拡張機能の豊富なエコシステムを備えています。
 
-1. In Visual Studio Code, click the **Extensions** button on the left side of the window.
+1. 「Visual Studio Code のダウンロード」 ページを開くには、次のリンクをクリックします。[Visual Studio Code のダウンロード](https://code.visualstudio.com/Download)
 
-1. In the Visual Studio Code Extension manager, search for and install the following **Extensions**:
+    Mac OS X および Linux に Visual Studio Code をインストールする手順については、[こちら](https://code.visualstudio.com/docs/setup/setup-overview) の Visual Studio Code セットアップ ガイドを参照してください。このページには、Windows のインストールに関する詳細な手順とヒントも記載されています。
 
-    * [Azure IoT Tools](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-tools) (`vsciot-vscode.azure-iot-tools`) by Microsoft
-    * [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp) (`ms-vscode.csharp`) by Microsoft
+1. 「Visual Studio Code のダウンロード」 ページで、**Windows** をクリックします。
 
-    For detailed instructions on installing Visual Studio Code, see the Microsoft Visual Studio Code Installation Instruction guide here: <https://code.visualstudio.com/Docs/editor/setup>
+    ダウンロードを開始すると、2 つのことが起こります。ポップアップ ダイアログが開き、開始ガイダンスが一部表示されます。
 
-### Task 3: Install Azure CLI
+1. ポップアップ ダイアログでセットアップ プロセスを開始するには、**「実行」** をクリックし、画面の指示に従います。 
 
-Azure CLI 2.0 is a command-line tool that is designed to make scripting Azure-related tasks easier. It also enables you to flexibly query data, and it supports long-running operations as non-blocking processes.
+    インストーラをダウンロード フォルダに保存する場合は、フォルダを開いて、VSCodeSetup 実行可能ファイルをダブルクリックして、インストールを完了できます。
 
-1. Open your browser, and then navigate to the Azure CLI 2.0 tools download page: [Install Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest "Azure CLI 2.0 Install")
+    既定では、Visual Studio Code は "C:\Program Files (x86)\Microsoft VS Code" フォルダーの場所 (64 ビット コンピューターの場合) にインストールされます。このセットアップ プロセスは、約 1 分間かかるのみです。
 
-1. On the Install Azure CLI 2.0 page, select the install option for your OS, and then follow the on-screen instructions to install the Azure CLI tool.
+    > **注意**:  .NET Framework 4.5 は、Windows にインストールするときに、Visual Studio Code が必要です。Windows 7 を使用している場合は、[.NET Framework 4.5](https://www.microsoft.com/ja-jp/download/details.aspx?id=30653) がインストールされていることを確認してください。
 
-    We will be providing detailed instructions for using the Azure CLI 2.0 tools during the labs in this course, but if you want more information now, see [Get started with Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/get-started-with-azure-cli?view=azure-cli-latest)
-    
-1. Open a new command-line / terminal window use the following command to install the Azure CLI extension for IoT:
+    Visual Studio Code をインストールする詳細な手順については、Microsoft Visual Studio Code インストール手順ガイドを参照してください。[https://code.visualstudio.com/Docs/editor/setup」(https://code.visualstudio.com/Docs/editor/setup]
 
-    ```
+#### タスク 3: Azure CLI のインストール
+
+Azure CLI 2.2 は、Azure 関連のスクリプト作成タスクを簡単に実行できるように設計されたコマンドライン ツールです。また、柔軟にデータをクエリすることができ、非ブロッキング プロセスとして長時間実行される操作をサポートします。
+
+1. ブラウザーを開き、「Azure CLI 2.2 ツールのダウンロード」 ページに移動します。[Azure CLI 2.2 のインストール](https://docs.microsoft.com/ja-jp/cli/azure/install-azure-cli?view=azure-cli-latest "Azure CLI 2.2 Install")
+
+    Azure CLI ツールの最新バージョンをインストールする必要があります。バージョン 2.2 が、この 「"azure-cli-latest" ダウンロード」 ページに記載されている最新バージョンでない場合は、より新しいバージョンをインストールしてください。
+
+1. 「Azure CLI  2.2 のインストール」 ページで、OS のインストール オプションを選択し、画面の指示に従って Azure CLI ツールをインストールします。
+
+    このコースのラボで、Azure CLI 2.2 ツールを使用する手順の詳細について説明しますが、さらなる詳細については、[Azure CLI 2.2 の使用を開始する](https://docs.microsoft.com/ja-jp/cli/azure/get-started-with-azure-cli?view=azure-cli-latest)を参照してください
+
+#### タスク 4: Python 3.7 のインストール
+
+IoT Edge と Docker をサポートするために Python 3.7 を使用します。 
+
+1. Web ブラウザで、[https://www.python.org/downloads/](https://www.python.org/downloads/) に移動します
+
+1. 「特定のリリースを探す」 の下にある Python 3.7.6 の右側にある **「ダウンロード」** をクリックします。
+
+1. Python 3.7.6 ページで、ページの 「ファイル」 セクションまでスクロールします。
+
+1. 「ファイル」 で、お使いのオペレーティング システムに適したインストーラー ファイルを選択します。
+
+1. プロンプトが表示されたら、インストーラを実行するオプションを選択します。
+
+1. 「Python 3.7.6 のインストール」 ダイアログで、**「Python 3.7 を PATH に追加」**  をクリックします。 
+
+1. **「今すぐインストール」** をクリックします。
+
+1. 「セットアップが成功しました」 ページが表示されたら、**「パスの長さの制限を無効にする」** をクリックします。 
+
+1. インストール プロセスを完了するには、**「閉じる」** をクリックします。 
+
+#### タスク 5:  Docker Desktop のインストール
+
+IoT Edge モジュールの展開を扱う課題では、Docker Desktop コミュニティ 2.1.0.5 以降を Linux コンテナに設定して使用します。
+
+1. Web ブラウザで、[https://docs.docker.com/docker-for-windows/install/](https://docs.docker.com/docker-for-windows/install/) に移動します:
+
+    左側のナビゲーション メニューから、追加のオペレーティング システムのインストールにアクセスできます。
+
+1. Windows PC がシステム要件を満たしていることを確認します。
+
+    Windows の設定を使用して、「Windows の機能」ダイアログ ボックスを開き、Hyper-V とコンテナが有効になっていることを確認できます。
+
+1. **「Docker ハブからダウンロード」** をクリックします
+
+1. 「Windows 用の Docker Desktop」 で、**「Windows 用 Docker Desktop を取得する (安定版)」** をクリックします。 
+
+1. インストールを開始するには、**「実行」** をクリックします。
+
+    Docker Desktop のインストール ダイアログを表示するには、少し時間がかかることがあります。
+
+1. インストールに成功しましたというメッセージが表示されたら、 **「閉じる」** をクリックします。 
+
+    インストール後、Docker Desktop は自動的に起動しません。Docker Desktop を起動するには、"Docker" を検索し、検索結果で 「Docker Desktop」 を選択します。ステータス バーのホエール アイコンが安定している場合、Docker Desktop は稼働中で、ターミナル ウィンドウからアクセスできます。
+
+### エクササイズ 2: 開発ツール拡張機能のインストール
+
+Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリューションをより効率的に作成するのに役立つ拡張機能をサポートします。Microsoft によって開発された IoT の拡張機能は、IoT SDK を活用し、開発期間を短縮します。
+
+#### タスク 1: Visual Studio Code 拡張機能のインストール
+
+1. Visual Studio Code を起動します。
+
+1. 「Visual Studio Code」 ウィンドウの左側で、**「拡張機能」** をクリックします。
+
+    「拡張機能」 ボタンは、上から 6 番目です。ボタンの上にマウス ポインターを置くと、ボタンのタイトルを表示できます。
+
+1. Visual Studio Code の拡張機能マネージャーで、次の拡張機能を検索して、インストールします。
+
+    * Microsoft による [Azure IoT Tools](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-tools) (`vsciot-vscode.azure-iot-tools`)
+    * Microsoft による [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp) (`ms-vscode.csharp`)
+
+#### タスク 2: Azure CLI 拡張機能をインストールする
+
+1. 新しいコマンドライン/ターミナル ウィンドウを開きます。
+
+1. コマンド プロンプトで、IoT 用の Azure CLI 拡張機能をインストールするには、次のコマンドを入力します。
+
+    ```bash
     az extension add --name azure-cli-iot-ext
     ```
 
-### Task 4: Install Azure PowerShell
+#### タスク 3: 開発環境の設定を確認する
 
-Azure PowerShell is designed for managing and administering Azure resources from the command line, and for building automation scripts that work against the Azure Resource Manager. You can use it in your browser with Azure Cloud Shell, or you can install it on your local machine and use it in any PowerShell session. If you are running Azure PowerShell locally, you need to have Windows PowerShell configured.
+開発環境が正常に設定されたことを確認する必要があります。これが完了すると、IoT ソリューションの構築を開始する準備が整います。
 
-1. On the Windows 10 Start menu, to begin installing the Azure PowerShell tools, right-click **Windows Powershell**, and then click **Run as Administrator**.
+1. 新しいコマンドライン/ターミナル ウィンドウを開きます。
 
-    Administrator rights are required to install PowerShell modules, so you will need to run as an administrator to get started.
-
-1. At the command prompt, to determine the version of PowerShellGet installed on your computer, enter the following command:
-
-    `Get-Module -Name PowerShellGet -ListAvailable | Select-Object -Property Name,Version,Path`
-
-    PowerShellGet should be installed by default with Windows 10. However, to install the Azure PowerShell module, you will need PowerShellGet version 1.1.2.0 or higher.
-
-1. If you are running an older version of PowerShellGet (such as version 1.0.0.1), to update PowerShellGet, enter the following command:
-
-    `Install-Module PowerShellGet -Force`
-
-    It will take a moment for your computer to respond.
-
-    If you are prompted to install a newer version of the NuGet provider, type **Y** and then press Enter.
-
-    > [!NOTE] If you re-run the command that we used above to determine the installed version of PowerShellGet, you should see that PowerShellGet version 1.6.0 (or higher) is now installed.
-
-1. To install the Azure Resource Manager modules from the PowerShell Gallery, enter the following command:
-
-    `Install-Module -Name AzureRM -AllowClobber`
-
-    If you see a message stating that "You are installing the modules from an untrusted repository", type **A** and then press Enter.
-
-    > [!NOTE] Once again, it can take a minute for the installation to begin, so just give it a chance.
-
-    The AzureRM module is a rollup module for the Azure Resource Manager cmdlets. When you install the AzureRM module, any Azure PowerShell module not previously installed is downloaded and installed from the PowerShell Gallery.
-
-1. Close the version of PowerShell that is running at elevated privileges, and then open a PowerShell session at a normal privilege level.
-
-    Once the AzureRM module is installed, you need to load the module into your PowerShell session. It is best to do this in a normal (non-elevated) PowerShell session.
-
-1. To load the modules using the Import-Module cmdlet, enter the following command:
-
-    `Import-Module -Name AzureRM`
-
-    We will be providing detailed instructions for using the Azure PowerShell tools during the labs in this course, but if you want more information now, see [Getting started with Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/get-started-azureps?view=azurermps-5.7.0)
-
-### Task 5: Verify Development Environment Setup
-
-You should verify that the development environment has been set up successfully. Once this is complete, you will be ready to start building your IoT solutions.
-
-1. Open a new command-line / terminal window.
-
-1. Validate the **Azure CLI** installation by running the following command that will output the version information for the currently installed version of the Azure CLI.
+1. 現在インストールされているバージョンの Azure CLI のバージョン情報を出力する次のコマンドを実行して、**Azure CLI** のインストールを検証します。 
 
     ```cmd/sh
     az --version
     ```
 
-1. The `az --version` command will output the version information for the currently installed version of the Azure CLI. The `azure-cli` version number is the version of the Azure CLI that's installed, and will be the first version number output by the command. This command also outputs versions of all the Azure CLI modules installed.
+    `az --version` コマンドは、インストールした Azure CLI のバージョン情報 (`azure-cli` バージョン番号) を出力します。このコマンドにより、IoT 拡張機能を含む、インストールされているすべての Azure CLI モジュールのバージョン番号も出力されます。次のような出力が表示されます。
 
     ```cmd/sh
-    localmachine:~ User$ az --version
-    azure-cli                         2.0.64
+    azure-cli                           2.2.0
+
+    command-modules-nspkg               2.0.3
+    core                                2.2.0
+    nspkg                               3.0.4
+    telemetry                           1.0.4
+
+    拡張機能: 
+    azure-cli-iot-ext                   0.8.9
     ```
 
-1. Validate the **.NET Core 3.x SDK** installation by running the following command that will output the version number for the currently installed version of the .NET Core SDK.
+1. 次のコマンドを実行して、現在インストールされているバージョンの .NET Core SDK のバージョン番号を出力して、**NET Core 3.x SDK** のインストールを検証します。
 
     ```cmd/sh
     dotnet --version
     ```
 
-1. The `dotnet --version` command will output the version of the .NET Core SDK that is currently installed. This must be .NET Core 3.0 or higher.
+1. `dotnet --version` コマンドは、現在インストールされている .NET Core SDK のバージョンを出力します。これは .NET Core 3.1 以上である必要があります。
 
-Your development environment should be now setup!
+開発環境を設定する必要があります。
+
+### エクササイズ 3: コースの課題ファイルと代替ツールの設定
+
+このコースの多くのラボでは、課題活動の開始点として使用できるコード プロジェクトなど、あらかじめ構築されたリソースを使用しています。GitHub プロジェクトを使用して、これらのラボ リソースへのアクセスを提供します。コース ラボ (GitHub プロジェクトに含まれるリソース) を直接サポートするリソースに加えて、実際のコース以外の学習機会をサポートするために使用できるツールもあります。以下の手順は、これらのリソースの種類の両方の構成を示しています。
+
+#### タスク 1: コース課題ファイルをダウンロードする
+
+Microsoft は、ラボ リソース ファイルへのアクセスを提供する GitHub リポジトリを作成しました。これらのファイルを開発環境でローカルに保有することが、一部の場合では必要であり、その他の多くの場合では便利です。このタスクでは、開発環境内でリポジトリの内容をダウンロードして抽出します。
+
+1. Web ブラウザーで、次の場所に移動します。[https://github.com/MicrosoftLearning/AZ-220-Microsoft-Azure-IoT-Developer](https://github.com/MicrosoftLearning/AZ-220-Microsoft-Azure-IoT-Developer)
+
+1. ページの右側で、**「複製またはダウンロード」** をクリックし、**「ZIP のダウンロード」** をクリックします。   
+
+1. ZIP ファイルを開発環境に保存するには、**「保存」** をクリックします。 
+
+1. ファイルを保存したら、**「フォルダを開く」** をクリックします。
+
+1. 保存した ZIP ファイルを右クリックし、「**すべて抽出**」 をクリックします
+
+1. 「**参照**」 をクリックし、アクセスに便利なフォルダーの場所に移動します。 
+
+1. ファイルを抽出するには、「**抽出**」 をクリックします。 
+
+    ファイルの場所をメモしておきます。
+
+#### タスク 2: Azure PowerShell モジュールのインストール
+
+> **注意**: このコースの課題アクティビティでは、PowerShell を使用しませんが、PowerShell を使用するリファレンス ドキュメントにサンプル コードが記載されている場合があります。PowerShell コードを実行する場合は、次の手順を使用してインストール手順を完了できます。
+
+Azure PowerShell は、PowerShell コマンド ラインから直接 Azure リソースを管理するためのコマンドレットのセットです。Azure PowerShell は、簡単に学習し、使用を開始できるように設計されていながら、自動化のための強力な機能を提供しています。.NET 標準で記述された Azure PowerShell は、Windows 上では PowerShell 5.1、すべてのプラットフォームでは PowerShell 6.x 以降で動作します。
+
+> **警告**:  Windows 用 PowerShell 5.1 用の AzureRM モジュールと Az モジュールの両方を、同時にインストールできません。システムで AzureRM を使用可能な状態に保つ必要がある場合は、PowerShell Core 6.x 以降の Az モジュールをインストールします。これを行うには、PowerShell Core 6.x 以降をインストールした後、PowerShell Core ターミナルでこれらの手順に従います。
+
+1. Azure PowerShell モジュールを、現在のユーザーのみに対してインストールするか (推奨されるアプローチ)、すべてのユーザーに対してインストールするかを決定します。
+
+1. 選択した PowerShell ターミナルを起動する - すべてのユーザーに対してインストールする場合、「**管理者として実行**」 を選択するか、macOS または Linux で **sudo** コマンドを使用することで、管理者特権で PowerShell セッションを起動する必要があります。
+
+1. 現在のユーザーに対してのみインストールするには、次のコマンドを入力します。
+
+    ```powershell
+    Install-Module -Name Az -AllowClobber -Scope CurrentUser
+    ```
+
+    または、システム上のすべてのユーザーに対してインストールするには、次のコマンドを入力します。
+
+    ```powershell
+    Install-Module -Name Az -AllowClobber -Scope AllUsers
+    ```
+
+1. 既定では、PowerShell ギャラリーは PowerShellGet の信頼されたリポジトリとして構成されていません。PowerShell ギャラリーを初めて使用すると、次のプロンプトが表示されます。
+
+    ```output
+    信頼されていないリポジトリ
+
+    信頼されていないリポジトリからモジュールをインストールしようとしています。このリポジトリを信頼している場合は、
+    Set-PSRepository コマンドレットを実行して、InstallationPolicy の値を変更してください。
+
+    「PSCallery」からモジュールをインストールしますか。
+    「Y」 はい 「A」 すべてにはい 「N」 いいえ 「L」 すべてにいいえ 「S」 中断する 「?」ヘルプ (既定は "N"):
+    ```
+
+1. インストールを続行するには、「**はい**」 または 「**すべてにはい**」 と答えます。
+
+    AZ モジュールは、Azure PowerShell コマンドレットのロールアップ モジュールです。これをインストールすると、使用可能な Azure Resource Manager モジュールがすべてダウンロードされ、そのコマンドレットを利用できるようになります。
+
+> **注意**: **AZ** モジュールが既にインストールされている場合は、次の方法で最新バージョンに更新できます。
+> 
+> ```powershell
+> Update-Module -Name Az
+> ```

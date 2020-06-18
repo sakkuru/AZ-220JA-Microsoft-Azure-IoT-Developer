@@ -1,7 +1,7 @@
 ﻿---
 lab:
-    title: '課題 03:  開発環境の設定'
-    module: 'モジュール 2：デバイスとデバイス通信'
+    title: '課題 03: 開発環境の設定'
+    module: 'モジュール 2： デバイスとデバイス通信'
 ---
 
 # 開発環境の設定
@@ -23,7 +23,7 @@ Contoso の開発者の 1 人として、Azure IoT ソリューションの構�
   * Windows の Hyper-V およびコンテナの機能を有効にする必要があります。
   * BIOS レベルのハードウェア仮想化サポートは、BIOS 設定で有効にする必要があります。
 
-  > **注意**: 仮想マシンに開発環境を設定する場合、VM 環境は入れ子になった仮想化 「入れ子になった仮想化」(https://docs.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/nested-virtualization) をサポートする必要があります。
+  > **注意**: 仮想マシンに開発環境を設定する場合、VM 環境は入れ子になった仮想化 [入れ子になった仮想化](https://docs.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/nested-virtualization) をサポートする必要があります。
 
 * Azure CLI (現在/最新)
 * .NET Core 3.1.200 (またはそれ以降) の SDK
@@ -53,7 +53,7 @@ Contoso の開発者の 1 人として、Azure IoT ソリューションの構�
 
 .NET Core は、Web サイト、サービス、およびコンソール アプリを構築するためのクロスプラットフォーム バージョンの .NET です。
 
-1. .NET Core ダウンロード ページを開くには、次のリンクを使用します。「.NET のダウンロード」(https://dotnet.microsoft.com/download)
+1. .NET Core ダウンロード ページを開くには、次のリンクを使用します。[.NET のダウンロード](https://dotnet.microsoft.com/download)
 
 1. .NET ダウンロード ページの 「.NET Core」 で、「**.NET Core SDK のダウンロード**」 をクリックします。 
 
@@ -98,7 +98,7 @@ Visual Studio Code は、デスクトップ上で実行され、Windows、macOS�
 
     > **注意**:  .NET Framework 4.5 は、Windows にインストールするときに、Visual Studio Code が必要です。Windows 7 を使用している場合は、[.NET Framework 4.5](https://www.microsoft.com/ja-jp/download/details.aspx?id=30653) がインストールされていることを確認してください。
 
-    Visual Studio Code をインストールする詳細な手順については、Microsoft Visual Studio Code インストール手順ガイドを参照してください。[https://code.visualstudio.com/Docs/editor/setup」(https://code.visualstudio.com/Docs/editor/setup]
+    Visual Studio Code をインストールする詳細な手順については、Microsoft Visual Studio Code インストール手順ガイドを参照してください。[https://code.visualstudio.com/Docs/editor/setup](https://code.visualstudio.com/Docs/editor/setup)
 
 #### タスク 3: Azure CLI のインストール
 
@@ -207,7 +207,7 @@ Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリ�
     nspkg                               3.0.4
     telemetry                           1.0.4
 
-    拡張機能: 
+    Extensions:
     azure-cli-iot-ext                   0.8.9
     ```
 
@@ -229,7 +229,7 @@ Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリ�
 
 Microsoft は、ラボ リソース ファイルへのアクセスを提供する GitHub リポジトリを作成しました。これらのファイルを開発環境でローカルに保有することが、一部の場合では必要であり、その他の多くの場合では便利です。このタスクでは、開発環境内でリポジトリの内容をダウンロードして抽出します。
 
-1. Web ブラウザーで、次の場所に移動します。[https://github.com/MicrosoftLearning/AZ-220-Microsoft-Azure-IoT-Developer](https://github.com/MicrosoftLearning/AZ-220-Microsoft-Azure-IoT-Developer)
+1. Web ブラウザーで、次の場所に移動します。[https://github.com/MicrosoftLearning/AZ-220JA-Microsoft-Azure-IoT-Developer](https://github.com/MicrosoftLearning/AZ-220JA-Microsoft-Azure-IoT-Developer)
 
 1. ページの右側で、**「複製またはダウンロード」** をクリックし、**「ZIP のダウンロード」** をクリックします。   
 

@@ -98,7 +98,7 @@ Contoso の開発者の 1 人として、Azure IoT ソリューションの構�
   * Windows の Hyper-V およびコンテナの機能を有効にする必要があります。
   * BIOS レベルのハードウェア仮想化サポートは、BIOS 設定で有効にする必要があります。
 
-  > **注意**: 仮想マシンに開発環境を設定する場合、VM 環境は入れ子になった仮想化 ([入れ子になった仮想化](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization)) をサポートする必要があります。
+  > **注意**: 仮想マシンに開発環境を設定する場合、VM 環境は入れ子になった仮想化 ([入れ子になった仮想化](https://docs.microsoft.com/ja-jp/virtualization/hyper-v-on-windows/user-guide/nested-virtualization)) をサポートする必要があります。
 
 * Azure CLI (現在/最新)
 * .NET Core 3.0.100 (or later) SDK

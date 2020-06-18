@@ -62,7 +62,7 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 
 1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
 
-    「Azure Cloud Shell] ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
+    「Azure Cloud Shell] ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash**であることを確認します。 
 
 1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
 
@@ -147,7 +147,7 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 1. この実習ラボに必要なリソースを作成するには、次のコマンドを入力します。
 
     ```bash
-    /lab14-setup.azcli
+    ./lab14-setup.azcli
     ```
 
     このスクリプトの実行には数分かかります。各ステップが完了すると、JSON 出力が表示されます。
@@ -197,7 +197,7 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 
     2 番目のコマンドは、実際に上記で指定したリソース グループ内にVMを作成します。`AZ220EdgeVM{YOUR-ID}` を一意の ID で更新し、`{YOUR-PASSWORD-HERE}` を適切で安全なパスワードに置き換えてください。
 
-    > **注意**: 実稼働環境では、ユーザー名/パスワードの方法ではなく、SSH キーの生成を選択することができます。Linux VM と SSH の詳細については、こちらをご参照ください。[https://docs.microsoft.com/ja-jp/azure/virtual-machines/linux/create-ssh-keys-detailed](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed).
+    > **注意**: 実稼働環境では、ユーザー名/パスワードの方法ではなく、SSH キーの生成を選択することができます。Linux VM と SSH の詳細については、こちらをご参照ください。[https://docs.microsoft.com/ja-jp/azure/virtual-machines/linux/create-ssh-keys-detailed](https://docs.microsoft.com/ja-jp/azure/virtual-machines/linux/create-ssh-keys-detailed).
     >
     > **注意**:  処理がデプロイされるまでに約 5 分程かかります。デプロイ中は、次のユニットに進むことができます。
 
@@ -261,7 +261,7 @@ IoT Edge ゲートウェイ (親) と、他 IoT デバイス (子またはリー
           "capabilities": {
             "iotEdge": true
           },
-          "cloudToDeviceMessageCount": 0
+          "cloudToDeviceMessageCount": 0,
           "connectionState": "Disconnected",
           "connectionStateUpdatedTime": "0001-01-01T00:00:00",
           "deviceId": "IoTEdgeGateway",
@@ -615,7 +615,7 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 
 1. **「ランタイム設定」** ウィンドウの  **「Edge ハブ」** で、**「ストア アンド フォワードの構成 - Time to Live (秒)」** フィールドを見つけます。 
 
-1. **「保存と転送の設定 - 有効期限 (秒)」**で、値を **1209600** に変更します。　
+1. **「保存と転送の設定 - 有効期限 (秒)」** で、値を **1209600** に変更します。　
 
     これにより、IoT Edge デバイス向けに 2 週間のメッセージ有効期限が指定されます。
 
@@ -706,7 +706,7 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 
 1. **「AZ220EdgeVM{YOUR-ID}」** ブレードの最上部で **「接続」** をクリックしてから、**「SSH」** をクリックします。
 
-1. **「クライアントを使用して SSH 経由で接続する」** で **4. 「次のコマンド例を実行して VM に接続する」**フィールドを見つけます。
+1. **「クライアントを使用して SSH 経由で接続する」** で **4. 「次のコマンド例を実行して VM に接続する」** フィールドを見つけます。
 
     これは、仮想マシンへの接続に使用されるサンプル SSH コマンドです。VM の IP アドレスと管理者ユーザー名が含まれています。このコマンドは、たとえば `ssh username@52.170.205.79` のような形式になります。
 
@@ -737,7 +737,7 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 1. 実行中の IoT Edge モジュールを表示するには、次のコマンドを入力します。
 
     ```bash
-    iotedge リスト
+    iotedge list
     ```
 
 1. `iotedge list` コマンドの出力を確認してください。
@@ -964,14 +964,14 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 1. *edgeHub* モジュールが正常に再起動したことを確認するには、次のコマンドを入力します。
 
     ```bash
-    iotedge リスト
+    iotedge list
     ```
 
     *edgeHub* モジュールの再起動に失敗した場合は、次のコマンドを入力して再試行します。
 
     ```bash
     iotedge restart edgeHub
-    iotedge リスト
+    iotedge list
     ```
 
 1. **IoTEdgeGateway** を使用して `ssh` セッションを終了するには、次のコマンドを入力します。

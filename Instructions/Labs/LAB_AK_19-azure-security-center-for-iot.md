@@ -246,7 +246,7 @@ Azure Security Center for IoT が有効になっている場合は、既定の A
 
     VM を構成または管理する必要がある場合に、SSH を使用して VM にリモートでアクセスします。
 
-1. ブレードの最下部で、**「レビュー + 作成」**をクリックします。
+1. ブレードの最下部で、**「レビュー + 作成」** をクリックします。
 
 1. 「検証が成功しました」というメッセージを確認したら、「**作成**」 をクリックします。
 
@@ -365,7 +365,7 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
 
     コマンドは次のようになるはずです。`ssh demouser@52.170.205.79`
 
-1. Azure portal のツール バーで、**「Cloud Shell」**をクリックします。
+1. Azure portal のツール バーで、**「Cloud Shell」** をクリックします。
 
     Cloud Shell 内で **Bash** 環境が選択されていることを確認します。 
 
@@ -489,9 +489,9 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
             └─1092 /var/ASCIoTAgent/ASCIoTAgent
     ```
 
-    具体的には、サービスが **読み込み済み: 読み込み済み**で、**アクティブ: アクティブ (実行中)**であることを確認する必要があります。
+    具体的には、サービスが **読み込み済み: 読み込み済み**で、**アクティブ: アクティブ (実行中)** であることを確認する必要があります。
 
-    > **注意**: Azure Security Center for IoT エージェントが実行されていないか、アクティブではない場合、[Linux 用の Azure Security Center for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/en-us/azure/asc-for-iot/how-to-deploy-linux-cs) ガイドの「トラブルシューティング」セクションを確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
+    > **注意**: Azure Security Center for IoT エージェントが実行されていないか、アクティブではない場合、[Linux 用の Azure Security Center for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/ja-jp/azure/asc-for-iot/how-to-deploy-linux-cs) ガイドの「トラブルシューティング」セクションを確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
 
 1. Azure portal で、IoT Hub のブレードに戻り、「**vm-device01**」 デバイス ブレードを開きます。
 

@@ -84,7 +84,7 @@ Power BI は個人データ分析および視覚化ツールになり、グル�
 
 * サインアップした後、 [ゲスト ユーザーを招待](https://docs.microsoft.com/azure/active-directory/active-directory-b2b-what-is-azure-ad-b2b)して、個人アカウントなど任意のメール アドレスを含む Power BI コンテンツを表示できます。
 
-* .gov または .mil アドレスを使用して Power BI にサインアップできますが、これには別のプロセスが必要です。詳しくは、「[米国政府機関の組織を Power BI サービスに登録する](https://docs.microsoft.com/en-us/power-bi/service-govus-signup)」を参照してください。
+* .gov または .mil アドレスを使用して Power BI にサインアップできますが、これには別のプロセスが必要です。詳しくは、「[米国政府機関の組織を Power BI サービスに登録する](https://docs.microsoft.com/ja-jp/power-bi/service-govus-signup)」を参照してください。
 
 #### タスク 2: Power BI アカウントにサインアップする
 
@@ -142,14 +142,14 @@ Power BI ダッシュボードで IoT Hub のライブ ストリーミング デ
     s_deviceConnectionString = "HostName=AZ-220-HUB-CAH200509.azure-devices.net;DeviceId=VibrationSensorId;SharedAccessKey=nSUbphUKsS1jEd7INrEtmVWZesMBDIxzjVe4jn01KJI=";
     ```
 
-1. ** 「表示」**メニューで、** 「ターミナル」** をクリック します。   
+1. **「表示」** メニューで、** 「ターミナル」** をクリック します。   
 
     コマンド プロンプトに **vibrationdevice** フォルダへのフォルダ パスが表示されていることを確認します。
  
 1. ターミナルでアプリを実行するには、次のコマンドを入力します。
 
     ```bash
-    dotnet 実行
+    dotnet run
     ```
 
    このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
@@ -176,15 +176,15 @@ IoT ハブにテレメトリ データをストリーミングしたので、Azu
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. Azure portal メニューで、** 「すべてのサービス」** をクリックします。
+1. Azure portal メニューで、**「すべてのサービス」** をクリックします。
 
-1. 「検索」 テキスト ボックスに、「 **イベント**」と入力します。
+1. 「検索」 テキスト ボックスに、「**イベント**」 と入力します。
 
-1. 検索テキスト ボックスの下の検索結果パネルで、** 「Event Hubs」** をクリックします。
+1. 検索テキスト ボックスの下の検索結果パネルで、**「Event Hubs」** をクリックします。
 
-1. 新しい Event Hubs リソースの作成プロセスを開始するには、** 「イベント ハブの名前空間の作成」** をクリックします。
+1. 新しい Event Hubs リソースの作成プロセスを開始するには、**「イベント ハブの名前空間の作成」** をクリックします。
 
-    ** 「名前空間の作成」** ブレードが表示されます。
+    **「名前空間の作成」** ブレードが表示されます。
 
 1. 「**名前空間の作成**」 ブレードの  「**名前**」で、**v brationNamespace** と一意識別子を入力します。
 
@@ -194,7 +194,7 @@ IoT ハブにテレメトリ データをストリーミングしたので、Azu
 
 1. 「**価格レベル**」 で  「**標準**」 を選択します。
 
-   > **注意**:  標準価格レベルを選択すると、_Kafka_ が有効になります。Kafka の Event Hubs の機能として、Kafka のトピックの読み取りと書き込みの両方に対して、Kafka バージョン 1.0 以降とバイナリ互換の Azure Event Hubs の上にプロトコル ヘッドを提供します。Event Hubs と Apache Kafka の詳細については、[こちら](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-for-kafka-ecosystem-overview)を参照してください。このラボでは Kafka を使用しません。
+   > **注意**:  標準価格レベルを選択すると、_Kafka_ が有効になります。Kafka の Event Hubs の機能として、Kafka のトピックの読み取りと書き込みの両方に対して、Kafka バージョン 1.0 以降とバイナリ互換の Azure Event Hubs の上にプロトコル ヘッドを提供します。Event Hubs と Apache Kafka の詳細については、[こちら](https://docs.microsoft.com/ja-jp/azure/event-hubs/event-hubs-for-kafka-ecosystem-overview)を参照してください。このラボでは Kafka を使用しません。
 
 1. **「この名前空間をゾーン冗長にする」** のチェックを外しておきます。
 
@@ -270,7 +270,7 @@ Event Hubs 名前空間と Event Hubs サービスを作成したので、IoT �
 
 1. **「エンドポイント」** ドロップダウンの右側で **「+ エンドポイントの追加」** をクリックした後、**「イベント ハブ」** をクリックします。
 
-1. **「イベント ハブ エンドポイントの追加」** ブレードの **「エンドポイント名」** で、**「vibrationTelemetryEndpoint」**と入力します。
+1. **「イベント ハブ エンドポイントの追加」** ブレードの **「エンドポイント名」** で、**「vibrationTelemetryEndpoint」** と入力します。
 
 1. **「イベント ハブの名前空間」** で、先ほど作成した名前空間を選択します。
 
@@ -373,7 +373,7 @@ Azure Stream Analytics のジョブを更新して、リアルタイム デバ�
 
 1. 「**データセット名**」 で 「**vibrationDataset**」と入力します。
 
-1. **「テーブル名」** に**「vibrationTable」**と入力します。
+1. **「テーブル名」** に **「vibrationTable」** と入力します。
 
 1. 「**認証モード**」 の 「**ユーザー トークン**」 をクリックし、アクセスの取り消しに関するメモを読みます。   
 
@@ -473,7 +473,7 @@ Azure Stream Analytics のジョブを更新して、リアルタイム デバ�
 
 1. 「タイルの詳細」 ウィンドウを表示するには、「**次へ**」 をクリックします。 
 
-1. 「**タイルの詳細**」 ウィンドウで、「**タイトル**」 の下に「 **Vibration**」と入力します。
+1. 「**タイルの詳細**」 ウィンドウで、「**タイトル**」 の下に「**Vibration**」と入力します。
 
 1. 残りのフィールドを既定値のままにしてウィンドウを閉じるには、「**適用**」 をクリックします。
 

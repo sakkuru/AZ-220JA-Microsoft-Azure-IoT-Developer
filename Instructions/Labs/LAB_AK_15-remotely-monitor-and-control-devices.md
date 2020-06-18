@@ -1,7 +1,7 @@
 ﻿---
 lab:
-    title: '「ラボ 15: Azure IoT Hub を使用してリモートによるデバイスの監視および制御」'
-    module: 'モジュール 8: デバイス管理」'
+    title: 'ラボ 15: Azure IoT Hub を使用してリモートによるデバイスの監視および制御'
+    module: 'モジュール 8: デバイス管理'
 ---
 
 # Azure IoT Hub を使用してリモートによるデバイスを監視および制御する
@@ -67,7 +67,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 | IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
 | IoT デバイス | CheeseCaveID |
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って** lab15-setup.azcli **スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って**lab15-setup.azcli**スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
 **lab15-setup.azcli** スクリプトは、Azure Cloud Shell でこれを実行するのが最も簡単な **Bash** シェル環境で実行するように記述されています。 
 
@@ -83,7 +83,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash**であることを確認します。 
 
 1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
 
@@ -253,7 +253,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 このタスクでは、シミュレートされたデバイスからテレメトリを送信するコードを追加します。デバイスは、バックエンド アプリがリッスンしているかどうかに関係なく、温度 (華氏度) と湿度 (パーセンテージ) を送信します。
 
-1. **Program.cs **ファイルが Visual Studio Code で開かれていることを確認します。 
+1. **Program.cs**ファイルが Visual Studio Code で開かれていることを確認します。 
 
     「コード エディター」 ペインには、空のコード ファイルが表示されます。
 
@@ -263,7 +263,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     // Copyright (c) Microsoft.All rights reserved.
     // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
 
-    システムを使用;
+    using System;
     using Microsoft.Azure.Devices.Client;
     using Microsoft.Azure.Devices.Shared;
     using Newtonsoft.Json;
@@ -437,7 +437,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 1. ターミナル コマンド プロンプトで、シミュレートされたデバイス アプリを実行するには、次のコマンドを入力します。
 
     ```bash
-    dotnet 実行
+    dotnet run
     ```
 
    このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
@@ -503,7 +503,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 このタスクでは、IoT ハブ イベント ハブのエンドポイントからテレメトリを受信するために使用するコードを、バックエンド アプリに追加します。
 
-1. **Program.cs **ファイルが Visual Studio Code で開かれていることを確認します。 
+1. **Program.cs**ファイルが Visual Studio Code で開かれていることを確認します。 
 
     [コード エディター] ペインには、空のコード ファイルが表示されます。
 
@@ -513,11 +513,11 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     // Copyright (c) Microsoft.All rights reserved.
     // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
 
-    システムを使用;
+    using System;
     using System.Threading.Tasks;
     using System.Text;
     using System.Collections.Generic;
-    System.Linq を使用します；
+    using System.Linq;
 
     using Microsoft.Azure.EventHubs;
     using Microsoft.Azure.Devices;
@@ -655,7 +655,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 1. ターミナルで `cheesecaveoperator` バックエンド アプリを実行するには、ターミナル ウィンドウを開き、次のコマンドを入力します。
 
     ```bash
-    dotnet 実行
+    dotnet run
     ```
 
    このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
@@ -739,7 +739,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                 string result = "{\"result\":\"Executed direct method: " + methodRequest.Name + "\"}";
                 return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 200));
             }
-            キャッチ
+            catch
             {
                 //  400の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
                 string result = "{\"result\":\"Invalid parameter\"}";
@@ -814,7 +814,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
             methodInvocation.SetPayloadJson(payload);
 
-            ダイレクト メソッドを非同期的に呼び出し、シミュレートされたデバイスから応答を取得します。
+            // ダイレクト メソッドを非同期的に呼び出し、シミュレートされたデバイスから応答を取得します。
             var response = await s_serviceClient.InvokeDeviceMethodAsync("CheeseCaveID", methodInvocation);
 
             if (response.Status == 200)
@@ -826,7 +826,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
                 redMessage("Direct method failed: " + response.GetPayloadAsJson());
             }
         }
-        キャッチ
+        catch
         {
             redMessage("Direct method failed: timed-out");
         }
@@ -985,7 +985,7 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
 
             greenMessage("\nTwin state reported: " + reportedProperties.ToJson());
         }
-        キャッチ
+        catch
         {
             redMessage("Failed to update device twin");
         }

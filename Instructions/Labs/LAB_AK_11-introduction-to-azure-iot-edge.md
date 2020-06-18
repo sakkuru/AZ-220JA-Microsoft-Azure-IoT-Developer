@@ -52,7 +52,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. Azure シェルが **Bash** を使用していることを確認します。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。 
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash**であることを確認します。 
 
 1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
 
@@ -248,7 +248,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
         "capabilities": {
             "iotEdge": true
         },
-        "cloudToDeviceMessageCount": 0
+        "cloudToDeviceMessageCount": 0,
         "connectionState": "Disconnected",
         "connectionStateUpdatedTime": "0001-01-01T00:00:00",
         "deviceId": "myEdgeDevice",
@@ -571,7 +571,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. ブレードの最下部で、**レビュー + 作成**をクリックします。
 
-1. 「**検証が成功しました**」のメッセージが表示されるまで待ってから、「**作成 **」 をクリックします。   
+1. 「**検証が成功しました**」のメッセージが表示されるまで待ってから、「**作成**」 をクリックします。   
 
     デプロイが完了するまでに少し時間がかかる場合があります。作成している間に Stream Analytics のリソースの作成を継続できます。
 
@@ -656,7 +656,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
     このクエリは、`temperature` 入力に入るイベントを調べ、15 秒間隔のタンブリング ウィンドウでグループ化して、そのグループ内の平均温度値が 25 よりも大きいかどうかをチェックします。平均が 25 より大きい場合、`command` プロパティが `reset` の値に設定されたイベントを `alert` 出力に送信します。
 
-    `TumblingWindow` 関数の詳細については、次のリンクを参照してください: [https://docs.microsoft.com/en-us/stream-analytics-query/tumbling-window-azure-stream-analytics](https://docs.microsoft.com/en-us/stream-analytics-query/tumbling-window-azure-stream-analytics)
+    `TumblingWindow` 関数の詳細については、次のリンクを参照してください: [https://docs.microsoft.com/ja-jp/stream-analytics-query/tumbling-window-azure-stream-analytics](https://docs.microsoft.com/ja-jp/stream-analytics-query/tumbling-window-azure-stream-analytics)
 
 1. クエリ エディターの上部にある 「**クエリの保存**」 をクリックします。
 
@@ -720,7 +720,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
 1. すべての値を既定値のままにして、「**IoT Edge カスタム モジュール**」 ペインを閉じます。
 
-1. 「**デバイスのモジュールを設定: myEdgeDevice**」 ペインで、「**次へ**」  をクリックします。 ** ルート >**。
+1. 「**デバイスのモジュールを設定: myEdgeDevice**」 ペインで、「**次へ**」  をクリックします。 **ルート >**。
 
     既存のルーティングが表示されることを確認します。
 
@@ -741,7 +741,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     定義されるルートは次のとおりです。
 
     * **telemetryToCloud** ルートは、`tempsensor` モジュール出力から Azure IoT Hub にすべてのメッセージを送信します。 
-    * **alertsToReset** ルートは、Stream Analytics モジュール出力から **tempsensor ** モジュールの入力に、すべての警告メッセージを送信します。   
+    * **alertsToReset** ルートは、Stream Analytics モジュール出力から **tempsensor** モジュールの入力に、すべての警告メッセージを送信します。   
     * **telemetryToAsa** ルートは、`tempsensor` モジュール出力から Stream Analytics モジュール入力にすべてのメッセージを送信します。 
 
 1. **「デバイスのモジュールを設定: myEdgeDevice**」 ブレードの下部にある、**「Review + create**」 をクリックします。   

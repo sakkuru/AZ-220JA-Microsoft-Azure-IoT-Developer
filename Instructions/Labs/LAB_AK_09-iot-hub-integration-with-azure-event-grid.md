@@ -299,7 +299,7 @@ Azure Logic Apps は、企業や組織間でアプリ、データ、システム
 
     この手順を完了すると、次のようなメッセージ本文が表示されます。
 
-    ![メール情報の記入](./Media//LAB_AK_09-email_content.png)
+![メール情報の記入](./Media//LAB_AK_09-email_content.png)
 
 1. デザイナーの上部で、ロジック アプリ ワークフローに対するすべての変更を保存するには、「**保存**」をクリックします。 
 
@@ -399,6 +399,6 @@ Azure IoT Hub は Azure Event Grid と統合されるため、イベント通知
 
     合計 4 つの例を追加した場合、IoT デバイスの一覧は次の図のようになります。
 
-    ![IoT ハブ デバイスの一覧](./Media/LAB_AK_09-iot-hub-device-list.png)
+![IoT ハブ デバイスの一覧](./Media/LAB_AK_09-iot-hub-device-list.png)
 
 1. IoT ハブにデバイスをいくつか追加したら、メールをチェックして、ロジック アプリがトリガーされたデバイスを確認します。

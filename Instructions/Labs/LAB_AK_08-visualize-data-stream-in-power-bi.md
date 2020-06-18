@@ -96,23 +96,23 @@ Power BI アカウントにサインアップするには、次の手順に従�
 
 1. ロボットではないことを証明するよう求めるメッセージが表示された場合は、 「**テキスト メッセージを送信する**」 または  「**電話で確認コードを受け取る**」 のいずれかを選択し、関連情報を入力して確認コードを受け取ってから、この手順の次のステップに進みます。
 
-    ![あなたはロボットではありませんか](./Media/LAB_AK_08-prove-robot.png)
+![あなたはロボットではありませんか](./Media/LAB_AK_08-prove-robot.png)
 
     代わりに、既にアカウントを持っているという通知が表示された場合は、サインインを続行すると、PowerBI を使用する準備が整います。
 
-    ![あなたはロボットではありませんか](./Media/LAB_AK_08-existing-account.png)
+![あなたはロボットではありませんか](./Media/LAB_AK_08-existing-account.png)
 
 1. 電話のテキストを確認するか、電話を待ってから受信したコードを入力して、 「**サインアップ**」 をクリックします。
 
-    ![サインアップ](./Media/LAB_AK_08-sign-up.png)
+![サインアップ](./Media/LAB_AK_08-sign-up.png)
 
 1. このようなメッセージについては、メールを確認してください。
 
-    ![サインアップ](./Media/LAB_AK_08-email-verification.png)
+![サインアップ](./Media/LAB_AK_08-email-verification.png)
 
 1. 次の画面で、メールの情報と確認コードを入力します。リージョンを選択し、この画面からリンクされているポリシーを確認して、 「開始」 を選択します。
 
-    ![サインアップ](./Media/LAB_AK_08-create-account.png)
+![サインアップ](./Media/LAB_AK_08-create-account.png)
 
 1. さらに、[Power BI サインイン ページ](https://powerbi.microsoft.com/landing/signin/)に移動し、Power BI の使用を開始できます。 
 
@@ -142,7 +142,7 @@ Power BI ダッシュボードで IoT Hub のライブ ストリーミング デ
     s_deviceConnectionString = "HostName=AZ-220-HUB-CAH200509.azure-devices.net;DeviceId=VibrationSensorId;SharedAccessKey=nSUbphUKsS1jEd7INrEtmVWZesMBDIxzjVe4jn01KJI=";
     ```
 
-1. **「表示」** メニューで、** 「ターミナル」** をクリック します。   
+1. **「表示」** メニューで、**「ターミナル」** をクリック します。   
 
     コマンド プロンプトに **vibrationdevice** フォルダへのフォルダ パスが表示されていることを確認します。
  
@@ -156,7 +156,7 @@ Power BI ダッシュボードで IoT Hub のライブ ストリーミング デ
 
 1. すぐに次のようなコンソール出力が表示されます。
 
-    ![コンソール出力](./Media/LAB_AK_08-vibration-telemetry.png)
+![コンソール出力](./Media/LAB_AK_08-vibration-telemetry.png)
 
     > **注意**:  緑色のテキストは、物事が本来のように機能していることを示すために使用され、赤いテキストは悪いことが起こっているときに表示されます。この画像に似た画面が表示されない場合は、まずデバイスの接続文字列を確認します。
 

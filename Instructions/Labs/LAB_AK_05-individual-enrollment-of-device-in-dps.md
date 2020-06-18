@@ -18,7 +18,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 次のリソースが作成されます。
 
-!「ラボ 5 アーキテクチャ」(media/LAB_AK_05-architecture.png)
+![ラボ 5 アーキテクチャ](media/LAB_AK_05-architecture.png)
 
 ## このラボでは
 

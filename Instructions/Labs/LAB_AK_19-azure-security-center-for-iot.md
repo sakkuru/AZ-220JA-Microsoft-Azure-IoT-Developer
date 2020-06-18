@@ -306,13 +306,13 @@ Azure Security Center for IoT は、モジュール ツイン メカニズムを
 
     > **重要**: モジュール ID は、別の一意の名前ではなく、**azureiotsecurity** と呼ばれる必要があります。
 
-    ![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-module-identity.png)
+![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-module-identity.png)
 
 1. 「**vm-device01**」 ブレードで、「**主キー**」 の右側にある 「**コピー**」 をクリックします。  
 
     > **注意**: 接続文字列ではなく、デバイスの**主キー**を必ずコピーしてください。
 
-    ![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-primary-key.png)
+![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-primary-key.png)
 
 1. IoT Hub ブレードに戻ります。
 
@@ -499,7 +499,7 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
 
 1. 「**モジュール ID**」 で、**azureiotsecurity** モジュールが**接続済み**状態になったことを確認します。
 
-    ![接続済みの Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-device-connected-agent.png)
+![接続済みの Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-device-connected-agent.png)
 
 これで、Azure Security Center for IoT デバイス エージェントがデバイスにインストールされ、エージェントはデバイスから生のセキュリティ イベントを収集、集計、分析できるようになりました。
 
@@ -550,7 +550,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
     デバイス、ハブ、およびその他のリソースの正常性の概要が 2 つのグラフに表示されます。Azure Security Center for IoT を有効にしたときに有効になった、組み込みのリアルタイム監視、推奨事項、およびアラートを確認できます。
 
-    ![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-security-dashboard.png)
+![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-security-dashboard.png)
 
 1. 左側のナビゲーション メニューの 「**セキュリティ**」 で、「**リソース**」 をクリックします。
 
@@ -561,7 +561,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
     次の図は、セキュリティ評価が実行された後のダッシュボードの状態を示しています。
 
-    ![Azure IoT セキュリティ モジュールのスクリーンショットを更新しました](media/LAB_AK_19-updated-security-dashboard.png)
+![Azure IoT セキュリティ モジュールのスクリーンショットを更新しました](media/LAB_AK_19-updated-security-dashboard.png)
 
 ### 演習 7: カスタム アラートの導入
 
@@ -634,7 +634,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
     カスタム警告の一覧に戻ります。以下は、カスタム警告の数を示す画像です。
 
-    ![多くのカスタム警告](media/LAB_AK_19-many-custom-alerts.png)
+![多くのカスタム警告](media/LAB_AK_19-many-custom-alerts.png)
 
 ### 演習 8: デバイス アプリの構成
 
@@ -842,11 +842,11 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
     「**脅威の検出**」セクションをご覧ください。「**デバイス セキュリティ警告**」 グラフに 1 つ以上の警告が表示されます。
 
-    ![デバイス セキュリティ警告グラフ](media/LAB_AK_19-device-security-alert-chart.png)
+![デバイス セキュリティ警告グラフ](media/LAB_AK_19-device-security-alert-chart.png)
 
     「**Devices with the most alerts (アラートが最も多いデバイス)**」 タイルでも、 **CheeseCave1-Sensor1** デバイスのエントリが表示されるはずです。
 
-    ![Devices with the most alerts (アラートが最も多いデバイス) タイル](media/LAB_AK_19-devices-with-most-alerts-tile.png)
+![Devices with the most alerts (アラートが最も多いデバイス) タイル](media/LAB_AK_19-devices-with-most-alerts-tile.png)
 
     > 「!注意」
     > ダッシュボードにアラートが表示されるまで 10 ~ 15 分かかる場合があります。
@@ -857,7 +857,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
     セキュリティ アラートの一覧が表示されます。
 
-    ![セキュリティ アラートの一覧](media/LAB_AK_19-security-alert-list.png)
+![セキュリティ アラートの一覧](media/LAB_AK_19-security-alert-list.png)
 
     最新のアラートには**新しい**ラベルが付 きます。
 
@@ -865,7 +865,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
     詳細ウィンドウが開きます。「**全般情報**」 は、警告に関する概要情報を提供します。この下の**最後の 10 の影響を受けるデバイス**には、**CheeseCave1-Sensor1** デバイスが一覧表示されます。
 
-    ![カスタム警告の詳細ウィンドウ](media/LAB_AK_19-custom-alert-details-pane.png)
+![カスタム警告の詳細ウィンドウ](media/LAB_AK_19-custom-alert-details-pane.png)
 
 1. Visual Studio Code に戻り、デバイス アプリを終了します。
 

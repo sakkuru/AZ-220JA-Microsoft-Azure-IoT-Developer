@@ -18,7 +18,7 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
 
 次のリソースが作成されます。
 
-!「ラボ 4 アーキテクチャ」(media/LAB_AK_04-architecture.png)
+![ラボ 4 アーキテクチャ](media/LAB_AK_04-architecture.png)
 
 ## このラボで
 

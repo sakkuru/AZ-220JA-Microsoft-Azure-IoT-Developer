@@ -446,7 +446,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     すぐに次のようなコンソール出力が表示されます。
 
-![コンソール出力](./Media/LAB_AK_15-cheesecave-telemetry.png)
+![コンソール出力](Media/LAB_AK_15-cheesecave-telemetry.png)
 
     > **注意**:  緑色のテキストは、物事が本来のように機能していることを示すために使用され、赤いテキストは悪いことが起こっているときに表示されます。この画像に似た画面が表示されない場合は、まずデバイスの接続文字列を確認します。
 
@@ -668,7 +668,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     それ以外の場合は、IoT ハブサービスの接続文字列を慎重に確認し、文字列がサービス接続文字列であり、他の接続文字列ではないことを確認します。
 
-![コンソール出力](./Media/LAB_AK_15-cheesecave-telemetry-received.png)
+![コンソール出力](Media/LAB_AK_15-cheesecave-telemetry-received.png)
 
     > **注意**:  緑色のテキストは、物事が本来のように機能していることを示すために使用され、赤いテキストは悪いことが起こっているときに表示されます。この画像に似た画面が表示されない場合は、まずデバイスの接続文字列を確認します。
 
@@ -867,11 +867,11 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     次のような出力に注目してください。
 
-![コンソール出力](./Media/LAB_AK_15-cheesecave-direct-method-sent.png)
+![コンソール出力](Media/LAB_AK_15-cheesecave-direct-method-sent.png)
 
 1. これで、 **cheesecavedevice** デバイス アプリのコンソール出力を確認すると、ファンがオンになっていることがわかるはずです。 
 
-![コンソール出力](./Media/LAB_AK_15-cheesecave-direct-method-received.png)
+![コンソール出力](Media/LAB_AK_15-cheesecave-direct-method-received.png)
 
 リモート デバイスの監視と制御が正常に行われています。クラウドから呼び出すことができるダイレクト メソッドをデバイスに実装しました。このシナリオでは、ダイレクト メソッドを使用してファンをオンにし、ケーブ内の環境を希望の設定にします。
 
@@ -1025,11 +1025,11 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
 
 1. **cheesecavedevice** デバイス アプリのコンソール出力を検査し、デバイス ツインが正しく同期されていることを確認します。
 
-![コンソール出力](./Media/LAB_AK_15-cheesecave-device-twin-received.png)
+![コンソール出力](Media/LAB_AK_15-cheesecave-device-twin-received.png)
 
     ファンを動作させる場合、最終的に赤いアラートを取り除く必要があります!
 
-![コンソール出力](./Media/LAB_AK_15-cheesecave-device-twin-success.png)
+![コンソール出力](Media/LAB_AK_15-cheesecave-device-twin-success.png)
 
 1. Visual Studio Code の両方のインスタンスに対して、アプリを停止してから、Visual Studio Code ウィンドウを閉じます。
 

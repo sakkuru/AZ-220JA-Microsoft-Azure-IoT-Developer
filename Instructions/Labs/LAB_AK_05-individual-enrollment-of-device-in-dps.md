@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 05: DPS のデバイスの個別登録'
     module: 'モジュール 3: 大規模なデバイス プロビジョニング'
@@ -172,9 +172,9 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 1. 「メカニズム」 設定のすぐ下で、「**キーの自動生成**」 オプションがオンになっていることを確認します。
 
-    これにより、DPS は デバイス登録時に **主キー** と **2 次キー** の両方の値を自動的に生成するように設定されます。オプションで、このオプションのチェックを外して、カスタムキーを手動で入力できます。
+    これにより、DPS は デバイス登録時に **主キー** と **セカンダリキー** の両方の値を自動的に生成するように設定されます。オプションで、このオプションのチェックを外して、カスタムキーを手動で入力できます。
 
-1. 「**登録 ID**」 フィールドで、DPS 内のデバイス登録に使用する登録 ID を指定するには 「**DPSSimulatedDevice1**」 と入力します 
+1. 「**登録 ID**」 フィールドで、DPS 内のデバイス登録に使用する登録 ID を指定するには 「**sensor-thl-1000**」 と入力します 
 
     既定では、登録からデバイスがプロビジョニングされるときに、登録 ID が IoT ハブデバイス ID として使用されます。これらの値を異なる値にする必要がある場合は、そのフィールドに必要な IoT ハブデバイス ID を入力します。
 
@@ -190,16 +190,16 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
    登録に関連付けられている IoT ハブは 1 つしかないため、この設定は重要ではありません。  複数の分散ハブがある大規模な環境では、この設定によって、このデバイス登録を受信する IoT ハブの選択方法を制御できます。サポートされている割り当てポリシーは 4 つあります。
 
-    * **最低限の待ち時間**: デバイスは、デバイスに対する待ち時間が最も低いハブに基づいて IoT ハブにプロビジョニングされます。
+    * **最短待機時間**: デバイスは、デバイスに対する待ち時間が最も低いハブに基づいて IoT ハブにプロビジョニングされます。
     * **加重が均等に分布 (デフォルト)**: リンクされた IoT ハブは、デバイスがプロビジョニングされている可能性が同じになります。これがデフォルトの設定です。デバイスを 1 つの IoT ハブのみにプロビジョニングする場合、この設定を維持できます。 
-    * **登録リストを介した静的構成**: 登録リストで必要な IoT ハブの仕様は、デバイス プロビジョニング サービス レベルの割り当てポリシーよりも優先されます。
+    * **静的な構成**: 登録リストは、デバイス プロビジョニング サービス レベルの割り当てポリシーよりも優先されます。
     * **カスタム (Azure 関数を使用)**: デバイス プロビジョニング サービスは、デバイスと登録に関するすべての関連情報を提供する Azure 関数コードを呼び出します。関数コードが実行され、デバイスのプロビジョニングに使用される IoT ハブ情報が返されます。
 
 1. 「**このデバイスを割り当てることができる IoT ハブを選択する**」 ドロップダウンで 作成した **AZ-220-HUB-_{YOUR-ID}_** IoT ハブが指定されていることに注意してください。
 
-   このフィールドは、_DPSSimulatedDevice1_ デバイスに割り当てられる IoT ハブを指定するために使用されます。
+   このフィールドはデバイスに割り当てられる IoT ハブを指定するために使用されます。
 
-1. 「**Select how you want device data to be handled on re-provisioning (再プロビジョニングするときのデバイス データの処理方法を選択してください)**」 フィールドを、既定値の 「**Re-provision and migrate data (再プロビジョニングしてデータを移行する)**」 に設定したままにします。
+1. 「**再プロビジョニングするときのデバイス データの処理方法を選択する**」 フィールドを、既定値の 「**データの再プロビジョニングと移行**」 に設定したままにします。
 
     このフィールドによって、同じデバイス (同じ登録 ID で示される) が、少なくとも 1 回正常にプロビジョニングされた後に、プロビジョニング要求を後で送信する再プロビジョニング動作を高度に制御できます。次の 3 つのオプションがあります。
 
@@ -224,7 +224,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
     このフィールドには、デバイスの必要なプロパティの初期構成を表す JSON データが含まれます。入力したデータは、センサー テレメトリの読み取りと IoT ハブへのイベントの送信の遅延時間を設定するためにデバイスによって使用されます。
 
-1. 「**入力可能な項目**」 フィールドは 「**有効**」 に設定したままにします。   
+1. 「**エントリの有効化**」 フィールドは 「**有効**」 に設定したままにします。   
 
     一般的に、新しい登録エントリを有効にし、有効を維持する必要があります。
 
@@ -232,21 +232,21 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 #### タスク 2: 登録を検証する
 
-1. 「**登録の管理**」 ブレードで、個別のデバイス登録の一覧を表示するには、「**個別の登録**」 をクリックします。   
+1. 「**登録の管理**」 ブレードで、個別のデバイス登録の一覧を表示するには、「**個々の登録**」 をクリックします。   
 
-1. 「個別の登録」 で 「**DPSSimulatedDevice1**」 をクリックします。
+1. 「個別の登録」 で 「**sensor-thl-1000**」 をクリックします。
 
     これにより、作成した個々の登録の登録詳細を表示できます。
 
-1. 「**認証タイプ**」 セクションを見つけ、 **メカニズム**が**対称キー**に設定されていることに注意してください。     
+1. 「**認証の種類**」 セクションを見つけ、 **メカニズム**が**対称キー**に設定されていることに注意してください。     
 
-1. このデバイスの登録の**主キー**と **2 次キー**の値をコピーし (この目的のために各テキスト ボックスの右側にボタンがあります)、後で参照できるように保存します。
+1. このデバイスの登録の**主キー**と **セカンダリキー**の値をコピーし (この目的のために各テキスト ボックスの右側にボタンがあります)、後で参照できるように保存します。
 
     これらは、デバイスがサービスで認証するための認証キーです。
 
 1. **初期デバイス ツインの状態**を見つけ、デバイス ツインの Desired State の JSON に、`telemetryDelay` プロパティが値 `2` に設定されていることに注意してください。 
 
-1. 「**DPSSimulatedDevice1**」 ビューを閉じて、「**AZ-220-DPS-_{YOUR-ID}_**」 ブレードに戻ります。   
+1. 「**sensor-thl-1000**」 ビューを閉じて、「**AZ-220-DPS-_{YOUR-ID}_**」 ブレードに戻ります。   
 
 ### 演習 3: シミュレートされたデバイスの構成
 
@@ -266,14 +266,15 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
     **ID スコープ**は、次の値と似ています。  `0ne0004E52G`
 
-1. **Visual Studio Code** を使用して、ラボ 5 のスターター フォルダーを開きます。
+1. **Visual Studio Code** を使用して、ラボ 5 の プログラムフォルダーを開きます。
 
     ここでも、これはラボ 3 で開発環境を設定するときにダウンロードしたラボ リソース ファイルを指しています。フォルダ パスは次のとおりです。
 
     * Allfiles
-      * ラボ
-          * 05 - DPS におけるデバイスの個別登録
-            * スターター
+      * Labs
+          * 05-Individual Enrollment of a Device in DPS
+            * Starter
+               * ContainerDevice
 
 1. 「**表示**」 メニューの 「**ターミナル**」 をクリックします。   
 
@@ -291,15 +292,15 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
     > **注意**: ID スコープの値が使用できない場合は、DPS サービスの 「概要」 ブレード (Azure portal) で確認できます。
 
-1. `registrationId` 変数を見つけて、値を **DPSSimulatedDevice1** に置き換えます
+1. `registrationId` 変数を見つけて、値を **sensor-thl-1000** に置き換えます
 
     この変数は、デバイス プロビジョニング サービスで作成した個々の加入契約の **登録 ID** 値を表します。
 
-1. `individualEnrollmentPrimaryKey` と `individualEnrollmentSecondaryKey` 変数を見つけて、それらの値をシミュレートされたデバイスの個々の登録を構成するときに保存した**主キー**と **2 次キー**の値に置き換えます。
+1. `individualEnrollmentPrimaryKey` と `individualEnrollmentSecondaryKey` 変数を見つけて、それらの値をシミュレートされたデバイスの個々の登録を構成するときに保存した**主キー**と **セカンダリキー**の値に置き換えます。
 
     > **注意**: これらのキー値が利用できない場合は、次のように Azure portal からコピーできます。
     >
-    > 「**登録の管理**」 ブレードを開き、「**個別の登録**」 をクリックし、「**DPSSimulatedDevice1**」 をクリックします。値をコピーし、上記の手順に示すように貼り付けます。
+    > 「**登録の管理**」 ブレードを開き、「**個別の登録**」 をクリックし、「**sensor-thl-1000**」 をクリックします。値をコピーし、上記の手順に示すように貼り付けます。
 
 1. シミュレートされたデバイスのソース コードを確認し、次の項目に着目してください。
 
@@ -314,79 +315,190 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
     遅延の既定値が `1` 秒に設定されていることに注意してください。次の手順では、デバイス ツイン値を使用して遅延時間を制御するコードを統合します。
 
+#### タスク 2: プロビジョニングコードの追加
+
+このタスクでは、DPSを介してデバイスをプロビジョニングするコードを実装し、IoT Hubへの接続に使用できるDeviceClientインスタンスを作成します。
+
+1. Program.csファイル内のコードをスキャンするのに1分かかります。
+
+    ContainerDeviceアプリケーションの全体的なレイアウトは、ラボ4で作成したCaveDeviceアプリケーションに似ています。両方のアプリケーションに以下が含まれていることに注意してください。
+
+    * ステートメントの使用
+    * 名前空間の定義
+        * プログラムクラス-Azure IoTへの接続とテレメトリの送信を担当します
+        * EnvironmentSensorクラス-センサーデータの生成を担当
+
+1. コードエディターで、`// INSERT Main method below here` を見つけます。
+
+1. シミュレートされたデバイスアプリケーションのMainメソッドを作成するには、次のコードを入力します。
+
+    ```csharp
+    public static async Task Main(string[] args)
+    {
+
+        using (var security = new SecurityProviderSymmetricKey(registrationId,
+                                                                individualEnrollmentPrimaryKey,
+                                                                individualEnrollmentSecondaryKey))
+        using (var transport = new ProvisioningTransportHandlerAmqp(TransportFallbackType.TcpOnly))
+        {
+            ProvisioningDeviceClient provClient =
+                ProvisioningDeviceClient.Create(GlobalDeviceEndpoint, dpsIdScope, security, transport);
+
+            using (deviceClient = await ProvisionDevice(provClient, security))
+            {
+                await deviceClient.OpenAsync().ConfigureAwait(false);
+
+                // INSERT Setup OnDesiredPropertyChanged Event Handling below here
+
+                // INSERT Load Device Twin Properties below here
+
+                // Start reading and sending device telemetry
+                Console.WriteLine("Start reading and sending device telemetry...");
+                await SendDeviceToCloudMessagesAsync(deviceClient);
+
+                await deviceClient.CloseAsync().ConfigureAwait(false);
+            }
+        }
+    }
+    ```
+
+    このアプリケーションのMainメソッドは、前のラボで作成したCaveDeviceアプリケーションのMainメソッドと同様の目的を果たしますが、少し複雑です。 CaveDeviceアプリで、デバイス接続文字列を使用してIoT Hubに直接接続しました。今回は、最初にデバイスをプロビジョニングする（または、以降の接続では、デバイスがまだプロビジョニングされていることを確認する）必要があります。次に、適切なIoT Hub接続を取得します詳細。
+
+    DPSに接続するには、**dpsScopeId**と**GlobalDeviceEndpoint**（変数で定義）が必要なだけでなく、次のものも指定する必要があります。
+
+    * **security** - 登録の認証に使用される方法。以前に対称キーを使用するように個別の登録を構成したため、**SecurityProviderSymmetricKey**が論理的な選択です。ご想像のとおり、X.509およびTPMをサポートするプロバイダーもあります。
+
+    * **transport** - プロビジョニングされたデバイスで使用されるトランスポートプロトコル。この例では、AMQPハンドラーが選択されました（**ProvisioningTransportHandlerAmqp **）。もちろん、HTTPおよびMQTTハンドラーも使用できます。
+
+    **security**および**transport**変数が入力されたら、**ProvisioningDeviceClient**のインスタンスを作成します。このインスタンスを使用してデバイスを登録し、**ProvisionDevice**メソッドで**DeviceClient**を作成します。
+
+    **Main**メソッドの残りの部分は、**CaveDevice**で行ったのとは少し異なる方法でデバイスクライアントを使用します - 今回は、デバイス接続を明示的に開いて、アプリがデバイスツインを使用できるようにします（詳細については、次の演習）、次に**SendDeviceToCloudMessagesAsync**メソッドを呼び出してテレメトリの送信を開始します。
+
+    **SendDeviceToCloudMessagesAsync**メソッドは、**CaveDevice**アプリケーションで作成したものとよく似ています。 **EnvironmentSensor**クラスのインスタンスを作成し（これも圧力と位置のデータを返します）、メッセージを作成して送信します。メソッドループ内の固定遅延ではなく、**telemetryDelay**変数を使用して遅延が計算されることに注意してください： `await Task.Delay（telemetryDelay * 1000）;`。時間が許せば、自分自身をより深く見て、これを以前のラボで使用したクラスと比較してください。
+
+    最後に、**Main**メソッドに戻り、デバイスクライアントを閉じます。
+    
+    > **Information**：**ProvisioningDeviceClient**のドキュメントは[こちら]（https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.provisioning.client.provisioningdeviceclient?view=azure-dotnet） - そこから、他の関連クラスに簡単に移動できます。
+
+1. `// INSERT ProvisionDevice method below here`コメントを見つけます。
+
+1. **ProvisionDevice**メソッドを作成するには、次のコードを入力します。
+
+    ```csharp
+    private static async Task<DeviceClient> ProvisionDevice(ProvisioningDeviceClient provisioningDeviceClient, SecurityProviderSymmetricKey security)
+    {
+        var result = await provisioningDeviceClient.RegisterAsync().ConfigureAwait(false);
+        Console.WriteLine($"ProvisioningClient AssignedHub: {result.AssignedHub}; DeviceID: {result.DeviceId}");
+        if (result.Status != ProvisioningRegistrationStatusType.Assigned)
+        {
+            throw new Exception($"DeviceRegistrationResult.Status is NOT 'Assigned'");
+        }
+
+        var auth = new DeviceAuthenticationWithRegistrySymmetricKey(
+            result.DeviceId,
+            security.GetPrimaryKey());
+
+        return DeviceClient.Create(result.AssignedHub, auth, TransportType.Amqp);
+    }
+    ```
+    
+    ご覧のとおり、このメソッドは、以前に作成したプロビジョニングデバイスクライアントとセキュリティインスタンスを受け取ります。 `provisioningDeviceClient.RegisterAsync（）`が呼び出され、**DeviceRegistrationResult**インスタンスが返されます。この結果には、**DeviceId**、**AssignedHub**、および**Status**を含む多数のプロパティが含まれています。
+
+    > **Information**：**DeviceRegistrationResult**プロパティの詳細については、[こちら]（https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.provisioning.client.deviceregistrationresult?view=azure-dotnet）。
+
+    次に、メソッドはプロビジョニングステータスが設定されていることを確認し、デバイスが*割り当てられていない*場合に例外をスローします。ここで考えられるその他の結果には、*Unassigned*、*Assigning*、*Failed*、*Disabled*があります。
+
+    * **Program.ProvisionDevice**メソッドには、DPSを介してデバイスを登録するためのロジックが含まれています。
+    * **Program.SendDeviceToCloudMessagesAsync**メソッドは、テレメトリをデバイスからクラウドへのメッセージとしてAzure IoT Hubに送信します。
+    * **EnvironmentSensor**クラスには、温度、湿度、圧力、緯度、経度のセンサー読み取り値をシミュレートするためのロジックが含まれています。
+
+1. **SendDeviceToCloudMessagesAsync**メソッドを見つけます。
+
+1. **SendDeviceToCloudMessagesAsync**メソッドの下部で、 `Task.Delay（）`の呼び出しに注目してください。
+
+    `Task.Delay（）`は、次のテレメトリメッセージを作成して送信する前に、しばらくの間「while」ループを「一時停止」するために使用されます。 **telemetryDelay**変数は、次のテレメトリメッセージを送信するまでに待機する秒数を定義するために使用されます。 Contosoでは、遅延時間を構成可能にする必要があります。
+
+1. **Program**クラスの上部で、**telemetryDelay**変数宣言を見つけます。
+
+    遅延のデフォルト値が**1**秒に設定されていることに注意してください。次のステップは、デバイスツイン値を使用して遅延時間を制御するコードを統合することです。
+
+
 #### タスク 2: デバイス ツインのプロパティを統合する
 
 デバイスで (Azure IoT Hub から) デバイス ツインのプロパティを使用するには、デバイス ツインのプロパティにアクセスして適用するコードを作成する必要があります。この場合、シミュレートされたデバイス コードを更新してデバイス ツインの必要なプロパティを読み取ってから、その値を `_telemetryDelay` 変数に割り当てます。また、現在デバイスに実装されている遅延値を示すために、デバイス ツインの報告されるプロパティを更新します。
 
-1. Visual Studio Code エディターで、`RunAsync` メソッドを見つけます。
-
-1. コードを確認してから、`// TODO: を見つけてください。OnDesiredPropertyChanged Event Handling` コメントをセットアップします。
+1. Visual Studio Code エディターで、`Main` メソッドを見つけます。
 
     デバイス ツイン プロパティの統合を開始するには、デバイス ツイン プロパティが更新されたときに、シミュレートされたデバイスに通知を有効にするコードが必要です。
 
     これを実現するには、`DeviceClient.SetDesiredPropertyUpdateCallbackAsync` メソッドを使用し、`OnDesiredPropertyChanged` イベントを作成することによってイベント ハンドラーを設定します。
 
-1. OnDesiredPropertyChanged イベントの DeviceClient を設定するには、`// TODO 1:` コメントを次のコードに置き換えます。
+1. コードを確認してから、`// INSERT Setup OnDesiredPropertyChanged Event Handling below here` コメントを見つけます。
+
+1. OnDesiredPropertyChanged イベントの DeviceClient を設定するには、次のコードを入力します。
 
     ```csharp
-    Console.WriteLine("Connecting SetDesiredPropertyUpdateCallbackAsync event handler...");
-    await iotClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).ConfigureAwait(false);
+    await deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).ConfigureAwait(false);
     ```
+    
+    **SetDesiredPropertyUpdateCallbackAsync**メソッドを使用して、**DesiredPropertyUpdateCallback**イベントハンドラーをセットアップし、デバイスツインの必要なプロパティの変更を受信します。 このコードは、デバイスツインのプロパティ変更イベントを受信したときに**OnDesiredPropertyChanged**という名前のメソッドを呼び出すように**deviceClient**を構成します。
 
-    疑問に思っているかもしれませんが、ProvisioningDeviceLogic クラスの先頭に、DeviceClient `iotClient` インスタンスを作成しました。
+     これで、**SetDesiredPropertyUpdateCallbackAsync**メソッドを使用してイベントハンドラーを設定できたので、それが呼び出す**OnDesiredPropertyChanged**メソッドを作成する必要があります。
 
-    次に、`OnDesiredPropertyChanged` メソッドを `ProvisioningDeviceLogic` クラスに追加する必要があります。
+1. `// INSERT OnDesiredPropertyChanged method below here`コメントを見つけます。
 
-1. イベント ハンドラーの設定を完了するには、次のメソッド コードを ProvisioningDeviceLogic クラスに追加します。
-
-    > **注意**: このコードは `RunAsync` メソッドの下に配置できます (そうすれば、更新する他のコードの近くになります)。
+1. **OnDesiredPropertyChanged**メソッドを作成するには、次のコードを入力します。
 
     ```csharp
-    private async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
+    private static async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
     {
         Console.WriteLine("Desired Twin Property Changed:");
         Console.WriteLine($"{desiredProperties.ToJson()}");
 
-        // 必要なツイン プロパティを読み取る
+        // Read the desired Twin Properties
         if (desiredProperties.Contains("telemetryDelay"))
         {
-            string desiredTelemetryDelay = desiredProperties「"telemetryDelay"」;
+            string desiredTelemetryDelay = desiredProperties["telemetryDelay"];
             if (desiredTelemetryDelay != null)
             {
-                this._telemetryDelay = int.Parse(desiredTelemetryDelay);
+                telemetryDelay = int.Parse(desiredTelemetryDelay);
             }
-            // 必要な telemetryDelay が null または未指定の場合は、変更しないでください
+            // if desired telemetryDelay is null or unspecified, don't change it
         }
 
-
-        // ツイン プロパティをレポートする
+        // Report Twin Properties
         var reportedProperties = new TwinCollection();
-        reportedProperties「"telemetryDelay"」 = this._telemetryDelay.ToString();
-        await iotClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
+        reportedProperties["telemetryDelay"] = telemetryDelay.ToString();
+        await deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
         Console.WriteLine("Reported Twin Properties:");
         Console.WriteLine($"{reportedProperties.ToJson()}");
     }
     ```
 
-    `OnDesiredPropertyChanged` メソッドは、デバイス ツインの必要なプロパティを読み取るコードを含み、`_telemetryDelay` 変数を構成してから、報告されるプロパティをデバイス ツインに報告して、シミュレートされたデバイスの現在の状態がどの状態に構成されているかを Azure IoT Hub に伝えることに注意してください。
+    **OnDesiredPropertyChanged**イベントハンドラーは、**TwinCollection**タイプの**desiredProperties**パラメーターを受け入れることに注意してください。
 
-1. `RunAsync` メソッドで、`//TODO 2: を見つけます。デバイス ツイン プロパティのコメントを読み込みます`。
+    **desiredProperties**パラメーターの値に**telemetryDelay**（デバイスツインの目的のプロパティ）が含まれている場合、コードはデバイスツインプロパティの値を**telemetryDelay**変数に割り当てます。 **SendDeviceToCloudMessagesAsync**メソッドには、**telemetryDelay **変数を使用してIoTハブに送信されるメッセージ間の遅延時間を設定する**Task.Delay**呼び出しが含まれていることを思い出してください。
 
-1. デバイス ツインの必要なプロパティを読み取り、デバイスの起動時に一致するようにデバイスを構成するには、`// TODO 2:` コメントを次のコードに置き換えます。
+    次のコードブロックを使用して、デバイスの現在の状態をAzure IoT Hubに報告します。このコードは、**DeviceClient.UpdateReportedPropertiesAsync**メソッドを呼び出し、デバイスプロパティの現在の状態を含む**TwinCollection**を渡します。これは、デバイスがデバイスツインの必要なプロパティ変更イベントを受信したことをIoT Hubに報告し、それに応じて構成を更新した方法です。これは、目的のプロパティのエコーではなく、プロパティの現在の設定を報告することに注意してください。デバイスから送信されたレポートされたプロパティがデバイスが受信した望ましい状態と異なる場合、IoT Hubはデバイスの状態を反映する正確なデバイスツインを維持します。
+
+    デバイスがAzure IoT Hubからデバイスツインの必要なプロパティへの更新を受信できるようになったので、デバイスの起動時に初期セットアップを構成するようにコード化する必要もあります。これを行うには、デバイスは、Azure IoT Hubから現在のデバイスツインの必要なプロパティを読み込み、それに従って構成する必要があります。
+
+1. **Main**メソッドで、 `// INSERT Load Device Twin Properties below here`コメントを見つけます。
+
+1.デバイスツインの必要なプロパティを読み取り、デバイスの起動時に一致するようにデバイスを構成するには、次のコードを入力します。
 
     ```csharp
-    Console.WriteLine("Loading device twin Properties...");
-    var twin = await iotClient.GetTwinAsync().ConfigureAwait(false);
+    var twin = await deviceClient.GetTwinAsync().ConfigureAwait(false);
     await OnDesiredPropertyChanged(twin.Properties.Desired, null);
     ```
 
-    このコードは、シミュレートされたデバイスのデバイス ツインを取得する `DeviceTwin.GetTwinAsync` メソッドを呼び出します。次に、`Properties.Desired` プロパティ オブジェクトにアクセスして、デバイスの現在の必要な状態を取得し、それをシミュレートされたデバイスの `_telemetryDelay` 変数を構成する `OnDesiredPropertyChanged` メソッドに渡します。
+    このコードは、 `DeviceTwin.GetTwinAsync`メソッドを呼び出して、シミュレートされたデバイスのデバイスツインを取得します。次に、 `Properties.Desired`プロパティオブジェクトにアクセスしてデバイスの現在のDesired Stateを取得し、それを**OnDesiredPropertyChanged**メソッドに渡して、シミュレートされたデバイスの**telemetryDelay**変数を構成します。
 
-    このコードでは、_OnDesiredPropertyChanged_ イベントを処理するために既に作成されている `OnDesiredPropertyChanged` メソッドを再利用しています。  これにより、デバイス ツインの目的の状態プロパティを読み取り、起動時にデバイスを 1 か所で構成するコードを保持できます。結果のコードは、より簡単で保守が容易になります。
+    このコードは、_OnDesiredPropertyChanged_イベントを処理するためにすでに作成されている**OnDesiredPropertyChanged**メソッドを再利用していることに注意してください。これにより、デバイスツインの望ましい状態プロパティを読み取り、起動時にデバイスを1か所で構成するコードを維持できます。結果のコードは、保守が簡単で簡単です。
 
-1. Visual Studio Code のトップ メニューで、「**ファイル**」 をクリックしてから、「**保存**」 をクリックします。   
+1. Visual Studio Code **[ファイル]**メニューで、[**保存**]をクリックします。
 
-    次に、シミュレートされたデバイスは、Azure IoT Hub のデバイス ツイン プロパティを使用して、テレメトリ メッセージ間の遅延を設定します。
+    シミュレートされたデバイスは、Azure IoT Hubのデバイスツインプロパティを使用して、テレメトリメッセージ間の遅延を設定します。
 
 ### 演習 4: シミュレートされたデバイスのテスト
 
@@ -413,19 +525,12 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     ターミナル ペインを上にスクロールして、出力を確認できます。次のようになるはずです。
 
     ```text
-    RegistrationID = DPSSimulatedDevice1
-    ProvisioningClient RegisterAsync ...デバイス登録ステータス: 割り当て済み
-    ProvisioningClient AssignedHub: AZ-220-HUB-CP1019.azure-devices.net; DeviceID: DPSSimulatedDevice1
-    対称キー DeviceClient 認証の作成
-    シミュレートされたデバイス。Ctrl-C を押して終了します。
-    DeviceClient OpenAsync.
-    SetDesiredPropertyUpdateCallbackAsync イベント ハンドラーに接続しています...
-    デバイス ツインのプロパティを読み込んでいます...
-    必要なツイン プロパティが変更されました:
+    ProvisioningClient AssignedHub: iot-az220-training-{your-id}.azure-devices.net; DeviceID: sensor-thl-1000
+    Desired Twin Property Changed:
     {"telemetryDelay":"2","$version":1}
-    報告されるツイン プロパティ:
-    {"telemetryDelay":2}
-    デバイス テレメトリの読み取りと送信を開始します
+    Reported Twin Properties:
+    {"telemetryDelay":"2"}
+    Start reading and sending device telemetry...
     ```
 
 1. シミュレートされたデバイス アプリケーションが Azure IoT Hub にテレメトリ イベントを送信し始めることに注意してください。
@@ -454,12 +559,12 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 1. Azure Cloud Shell で、次のコマンドを入力します。
 
     ```cmd/sh
-    az iot hub monitor-events --hub-name {IoTHubName} --device-id DPSSimulatedDevice1
+    az iot hub monitor-events --hub-name {IoTHubName} --device-id sensor-thl-1000
     ```
 
-    _必ず、**{IoTHubName}** プレースホルダーを Azure IoT Hub の名前に置き換えてください。_
+    _必ず、**{IoTHubName}**プレースホルダーを Azure IoT Hub の名前に置き換えてください。_
 
-1. IoT ハブが DPSSimulatedDevice1 デバイスからテレメトリ メッセージを受信していることに注意してください。
+1. IoT ハブが sensor-thl-1000 デバイスからテレメトリ メッセージを受信していることに注意してください。
 
     次のタスクのために、シミュレートされたデバイス アプリケーションを実行したままにします。
 
@@ -471,7 +576,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 1. IoT ハブ」 ブレードの左側にある 「**エクスプローラ**」 セクションで、「**IoT デバイス**」 をクリックします。   
 
-1. IoT デバイスの一覧で、「**DPSSimulatedDevice1**」 をクリックします。 
+1. IoT デバイスの一覧で、「**sensor-thl-1000**」 をクリックします。 
 
     > **重要**: このラボで使用しているデバイスを選択していることを確認します。
 
@@ -498,15 +603,14 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 1. デバイスが、デバイス ツインプロパティの変更を認識することに注意してください。
 
     出力には、新しい必要な `telemetryDelay` プロパティ値の JSON と共に、`Desired Twin Property Changed`というメッセージが表示されます。デバイスは、デバイス ツインの必要な状態の新しい構成を選択すると、現在構成されているように、5 秒ごとにセンサー テレメトリの送信を開始するよう自動的に更新されます。
-
+    
     ```text
-    必要なツイン プロパティが変更されました:
+    Desired Twin Property Changed:
     {"telemetryDelay":"5","$version":2}
-    報告されるツイン プロパティ:
-    {"telemetryDelay":5}
-    11/6/2019 7:29:55 PM > メッセージ送信: {"temperature":33.01780830277959,"humidity":68.52464504936927,"pressure":1023.0929576073974,"latitude":39.97641877038439,"longitude":-98.49544472071804}
-    11/6/2019 7:30:00 PM > メッセージ送信: {"temperature":33.95490410689027,"humidity":71.57070464062072,"pressure":1013.3468084112261,"latitude":40.01604868659767,"longitude":-98.51051877869526}
-    11/6/2019 7:30:05 PM > メッセージ送信: {"temperature":22.055266337494956,"humidity":67.50505594886144,"pressure":1018.1765662249767,"latitude":40.22292566031555,"longitude":-98.4367936214764}
+    Reported Twin Properties:
+    {"telemetryDelay":"5"}
+    4/21/2020 1:20:16 PM > Sending message: {"temperature":34.417625961088405,"humidity":74.12403526442313,"pressure":1023.7792049974805,"latitude":40.172799921919186,"longitude":-98.28591913777421}
+    4/21/2020 1:20:22 PM > Sending message: {"temperature":20.963297521678403,"humidity":68.36916032636965,"pressure":1023.7596862048422,"latitude":39.83252821949164,"longitude":-98.31669969393461}
     ```
 
 1. Azure Cloud Shell で Azure CLI コマンドを実行しているブラウザー ページに切り替えます。
@@ -519,13 +623,13 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 1. Azure portal で、「**デバイス ツイン**」 ブレードに移動します。
 
-1. Azure portal の 「シミュレートされたデバイス」 ブレードで、「**デバイス ツイン**」 をクリックします。
+1. Azure portal の 「sensor-thl-1000」 ブレードで、「**デバイス ツイン**」 をクリックします。
 
 1. 今回は、`properties.reported` オブジェクトの JSON を探します。
 
     これには、デバイスによって報告された状態が含まれます。`telemetryDelay` プロパティもここに存在し、`5` に設定されていることに注意してください。  また、値が最後に更新された時点と、特定のレポート値が最後に更新された時刻を示す `$metadata` 値もあります。
 
-1. もう一度 **デバイス ツイン**ブレードを閉じます。
+1. もう一度**デバイス ツイン**ブレードを閉じます。
 
 1. シミュレートされたデバイス ブレードを閉じ、IoT Hub ブレードを閉じます。
 
@@ -555,7 +659,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 1. ブレードの上部で、「**削除**」 をクリックします。
 
-    > **注意**: DPS から個々の登録を削除すると、登録が恒久的に削除されます。一時的に登録を無効にするには、個々の登録の 「**登録の詳細**」 で 「**エントリを有効にする」** 設定を 「**無効にする**」 に設定します。
+    > **注意**: DPS から個々の登録を削除すると、登録が恒久的に削除されます。一時的に登録を無効にするには、個々の登録の 「**登録の詳細**」 で 「**エントリを有効にする」**設定を 「**無効にする**」 に設定します。
 
 1. 「**登録の削除**」 プロンプトで 「**はい**」 をクリックします。
 
@@ -569,7 +673,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 1. IoT ハブ ブレードの左側にある**エクスプローラ** セクションで、「**IoT デバイス**」 をクリックします。
 
-1. IoT デバイスのリスト内で、DPSSimulatedDevice1 デバイス ID の左側にあるチェックボックスをオンにします。
+1. IoT デバイスのリスト内で、sensor-thl-1000 デバイス ID の左側にあるチェックボックスをオンにします。
 
     > **重要**: このラボで使用したシミュレートされたデバイスを表すデバイスを選択していることを確認します。
 

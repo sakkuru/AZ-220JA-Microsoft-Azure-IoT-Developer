@@ -50,8 +50,8 @@ lab:
 
 | リソースの種類:  | リソース名 |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
+| リソース グループ | rg-az220 |
+| IoT Hub | iot-az220-training-{your-id} |
 
 これらのリソースが利用できない場合は、演習 2 に進む前に、以下の指示に従って **lab13-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
@@ -74,9 +74,9 @@ lab:
     このコースのラボ 3 にあたる「開発環境のセットアップ」では、ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
     * Allfiles
-      * ラボ
-          * 13-VS コードを使用して Azure IoT Edge でカスタム モジュールを開発、デプロイ、デバッグする
-            * セットアップ
+      * Labs
+          * 13-Develop, Deploy and debug a custom module on Azure IoT Edge with VS Code
+            * Setup
 
     lab13-setup.azcli スクリプト ファイルは、ラボ 13 の設定フォルダー内にあります。
 
@@ -121,8 +121,8 @@ lab:
     ```bash
     #!/bin/bash
 
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-{YOUR-ID}"
+    RGName="rg-az220"
+    IoTHubName="iot-az220-training-{your-id}"
 
     Location="{YOUR-LOCATION}"
     ```
@@ -208,15 +208,13 @@ Azure Container Registry は、コンテナーをデプロイするためのプ�
 
 1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
 
-1. 「**新規**」 ブレードの 「**Marketplace の検索**」 テキストボックスに「**コンテナー レジストリ**」と入力し、「**Enter**」 を押します。
-
-1. 「**Marketplace**」 ブレードで、「**コンテナー レジストリ**」 をクリックします。
+1. 「**新規**」 ブレードの 「**Marketplace の検索**」 テキストボックスに「**Container Registry**」と入力し、「**Enter**」 を押します。
 
 1. 「**コンテナー レジストリ**」 ブレードで、「**作成**」 を選択します。
 
 1. 「**コンテナー レジストリの作成**」 ブレードの 「**レジストリ名**」 で、グローバルに一意な名前を入力します。
 
-    グローバルに一意な名前を付けるには、「**AZ220ACR{YOUR-ID}**」と入力します。
+    グローバルに一意な名前を付けるには、「**acraz220training{your-id}**」と入力します。
 
     例: **AZ220ACRCAH191204**
 
@@ -232,27 +230,27 @@ Azure Container Registry は、コンテナーをデプロイするためのプ�
 
 1. 「**サブスクリプション**」 で、このコースに使用しているサブスクリプションが選択されていることを確認します。
 
-1. 「**リソース グループ**」 ドロップダウンで、「**AZ-220-RG-RG**」 をクリックします。
+1. 「**リソース グループ**」 ドロップダウンで、「**rg-az220-RG**」 をクリックします。
 
 1. 「**場所**」 ドロップダウンで、リソース グループに使用された Azure リージョンと同じリージョンを選択します。
-
-1. 「**管理者ユーザー**」で「**有効にする**」 をクリックします。
-
-    このオプションを使用すると、パスワードとしてユーザー名と管理者ユーザー アクセス キーとしてレジストリ名を使用して、Azure Container Registry サービスに Docker ログインできます。
 
 1. 「**SKU**」ドロップダウンで、「**Standard**」が選択されていることを確認します。
 
     Azure Container Registry は、SKU と呼ばれる複数のサービス レベルで使用できます。これらの SKU は、予測可能な価格と、Azure のプライベート Docker レジストリの容量と使用パターンに合わせるためのいくつかのオプションを提供します。
 
-1. ブレードの最下部で、**「レビュー + 作成」** をクリックします。
+1. ブレードの最下部で、**「確認および作成」** をクリックします。
 
     入力した設定が検証されます。
 
 1. コンテナー レジストリの作成を完了するには、ブレードの下部にある 「**作成**」 をクリック します。
 
-1. ダッシュボードで 「リソース」 タイルを更新し、「**AZ220ACR{YOUR-ID}**」 をクリックします。
+1. ダッシュボードで 「リソース」 タイルを更新し、「**acraz220training{your-id}**」 をクリックします。
 
 1. 左側のナビゲーション メニューの 「**設定**」 で、「**アクセス キー**」 をクリック します。
+
+1. 「**管理者ユーザー**」を「**有効にする**」 をクリックします。
+
+    このオプションを使用すると、パスワードとしてユーザー名と管理者ユーザー アクセス キーとしてレジストリ名を使用して、Azure Container Registry サービスに Docker ログインできます。
 
     **管理者ユーザー**のユーザー名とパスワードを確認します。  
 
@@ -262,25 +260,23 @@ Azure Container Registry は、コンテナーをデプロイするためのプ�
     * **ユーザー名**
     * **パスワード**
 
-    デフォルトでは、管理者のユーザー名は ACR 名と一致します - **AZ220ACR{YOUR-ID}**
+    デフォルトでは、管理者のユーザー名は ACR 名と一致します - **acraz220training{your-id}**
 
     この情報により、今後の手順で Docker 操作の実行に必要となる、新しいレジストリに対して認証を行えるようになります。  
 
 1. コマンド プロンプトを開いて、次のコマンドを入力します。
 
     ```cmd/sh
-    docker login --username <username> --password-stdin <loginserver>
+    docker login <loginserver>
     ```
 
     プレースホルダーを記録した情報に置き換え、プロンプトが表示されたら記録したパスワードを入力します。  例:
 
     ```cmd/sh
-    docker login --username az220acrcah191204 --password-stdin  az220acrcah191204.azurecr.io
+    docker login az220acrcah191204.azurecr.io
     ```
 
     このコマンドは、Docker ツールセットで将来使用するために、ローカル Docker クライアント構成ファイル (`$HOME/.docker/config.json`) またはオペレーティング システムの安全な資格情報ストレージ メカニズム (Docker の構成に応じて) に資格情報を記録します。
-
-    > **注意**: パスワードの入力を求めるプロンプトは表示されません。上記のコマンドを入力した後にパスワードを入力するだけです。パスワードを入力すると、そのパスワードが表示されます。**Enter** キーを押してパスワードを送信します。「**ログインに成功しました**」メッセージが表示されるまでに、しばらく時間がかかることがあります。
 
 Azure Container Registry を作成し、これに対してローカル マシンを認証したので、レジストリに格納するカスタム IoT Edge モジュール コンテナーを作成できます。
 
@@ -292,7 +288,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. 「**表示**」 メニューの 「Visual Studio コマンド パレット」 を開き、「**コマンド パレット**」 をクリックします。
 
-1. コマンド プロンプトに、「**Azure IoT Edge**」と入力します。「**新規**」 をクリックし、「**Azure IoT Edge**」 をクリックします。**新しい IoT Edge ソリューション**
+1. コマンド パレットに、「**IoT Edge**」と入力し、「**Azure IoT Edge: New IoT Edge Solution**」 をクリックします。
 
 1. 新しいソリューションを作成するフォルダーを参照し、「**フォルダーの選択**」 をクリックします。
 
@@ -300,7 +296,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     この名前は、作成される新しい **IoT Edge ソリューション**のディレクトリ名として使用 されます。
 
-1. モジュール テンプレートを選択するように求めるメッセージが表示されたら、「**C# モジュール**」 をクリックします。
+1. モジュール テンプレートを選択するように求めるメッセージが表示されたら、「**C# Module**」 をクリックします。
 
     これにより、ソリューションに追加されたカスタム IoT Edge モジュールの開発言語として `C#` が定義されます。
 
@@ -310,7 +306,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. モジュールの Docker イメージ リポジトリの名前を求めるメッセージが表示されたら、プレースホルダーの値を次のように更新します。
 
-    デフォルトの `localhost:5000/objectcountingmodule` リポジトリの場所の `localhost:5000` の部分を Azure Container Registry サーバーの名前に置き換えます `az220acr{your-id}.azurecr.io`
+    デフォルトの `localhost:5000/objectcountingmodule` リポジトリの場所の `localhost:5000` の部分を Azure Container Registry サーバーの名前に置き換えます `acraz220training{your-id}.azurecr.io`
 
     これは、IoT Edge モジュールの docker イメージが公開される Docker リポジトリになります。 
 
@@ -408,7 +404,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. Visual Studio Code の 「**表示**」 メニューで、「**コマンド パレット**」 をクリックします。
 
-1. コマンド プロンプトに、「**Azure IoT Edge**」と入力します。**「既定を設定」** して、**「Azure IoT Edge」** をクリックします。**「エッジ ソリューションの既定のターゲット プラットフォームを設定」**:
+1. コマンド パレットに、「**Azure IoT Edge**」と入力し、「**Azure IoT Edge: Set Default**」を選択します。
 
 1. ターゲット プラットフォームを選択するには、 **amd64** をクリックします。 
 
@@ -416,7 +412,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     > **注意**:  **Ubuntu Linux VM で IoT エッジ**を使用しているため、`amd64` オプションが適切な選択です。  Windows VM の場合は `windows-amd64` を使用し、ARM CPU アーキテクチャで実行されるモジュールの場合は `arm32v7` オプションを選択します。
 
-1. 「**Explorer**」 ペインで、`/modules/ObjectCountingModule` ディレクトリを展開するには、「**モジュール**」 をクリックします。   
+1. 「**Explorer**」 ペインで、`/modules/ObjectCountingModule` ディレクトリを展開するには、「**modules**」 をクリックします。   
 
     このディレクトリには、開発中の新しい IoT Edge モジュールのソース コード ファイルが含まれていることに注意してください。
 
@@ -424,7 +420,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     このファイルには、新しく作成されたカスタム IoT Edge モジュールのテンプレート ソース コードが含まれています。このコードは、カスタム IoT Edge モジュールを作成するための開始点を提供します。
 
-1. Program.cs ファイルで、 `static async Task Init()` メソッドを見つけてコードを確認するのに 1 分かかります。
+1. Program.cs ファイルで、 `static async Task Init()` メソッドを見つけてコードを確認します。
 
     このメソッドは、モジュールに送信されるメッセージを処理するための `ModuleClient` を初期化し、メッセージを受信するコールバックを設定します。このメソッドのコード内のコード コメントを読み、コードの各セクションの動作を確認します。
 
@@ -454,11 +450,13 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 この演習では、Visual Studio Code内から IoT Edge シミュレーターを使用して、カスタム IoT Edge モジュール ソリューションをビルドして実行します。
 
+#### タスク 1: IoT Edge デバイスの作成
+
 1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. 「リソース グループ」 タイルで、**「AZ-220-HUB-_{YOUR-ID}_**」 をクリックします。
+1. 「リソース グループ」 タイルで、「**iot-az220-training-{your-id}**」 をクリックします。
 
 1. 左側のナビゲーション メニューの 「**設定**」 で、「**共有アクセス ポリシー**」 をクリック します。   
 
@@ -486,11 +484,13 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     これにより、IoT Hub はデバイスを認証するための対称キーを自動的に生成します。
 
-1. その他の設定は既定のままにして、「**OK**」 をクリックします。
+1. その他の設定は既定のままにして、「**保存**」 をクリックします。
+
+#### タスク 2: テストモジュールの構成
 
 1. IoT Edge ソリューションを含む **「Visual Studio Code」** インスタンスに切り替えます。
 
-1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「シミュレータで IoT Edge ソリューションを構築および実行」** をクリックします。    
+1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「Build and Run IoT Edge Solution in Simulator」** をクリックします。    
 
     このファイルは、デバッグ配置マニフェスト ファイルです。これは IoT Edge ソリューションのルート ディレクトリにあります。
 
@@ -510,7 +510,9 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     これで、IoT Edge シミュレーターでモジュールをビルドして実行すると、期待どおりに実行されます。
 
-1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「シミュレータで IoT Edge ソリューションを構築および実行」** をクリックします。   
+#### タスク 3: モジュールのビルドと起動
+
+1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「Build and Run IoT Edge Solution in Simulator」** をクリックします。   
 
     > **注意**: Windows を使用していて、**「ターミナル」** で `open //./pipe/docker_engine: The system cannot find the file specified.`。 指定されたファイルが見つからない場合、Docker が起動していないか、または正常に実行されていない可能性があります。  Docker の再起動やコンピューターの完全な再起動が必要になる場合があります。
 
@@ -540,10 +542,10 @@ Azure Container Registry を作成し、これに対してローカル マシン
 1. 「Cloud Shell」 のコマンド プロンプトで次のコマンドを入力して、ローカル コンピューターの IoT Edge シミュレーターで実行している `SimulatedDevice` から Azure IoT Hub に送信されるメッセージを監視します。
 
     ```cmd/sh
-    az iot hub monitor-events --hub-name "AZ-220-HUB-{YOUR-ID}"
+    az iot hub monitor-events --hub-name "iot-az220-training-{your-id}"
     ```
 
-    上記のコマンドの `AZ-220-HUB-{YOUR-ID}` の値を Azure IoT Hub サービスの名前に置き換えてください。
+    上記のコマンドの `iot-az220-training-{your-id}` の値を Azure IoT Hub サービスの名前に置き換えてください。
 
 1. Cloud Shell に表示される出力を確認します。
 
@@ -645,7 +647,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. 「リソース グループ」 タイルで Azure Container Registry (ACR) サービスを開くには、**AZ220ACR{YOUR-ID}** をクリックします。
+1. 「リソース グループ」 タイルで Azure Container Registry (ACR) サービスを開くには、**acraz220training{your-id}** をクリックします。
 
 1. 左側のナビゲーション メニューの 「**サービス**」 で、「**リポジトリ**」 をクリックします。
 
@@ -685,7 +687,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     カスタムの `objectcountingmodule` IoT Edge モジュールが Azure Container Registry (ACR) に公開されている場合、次の手順は、IoT ハブ内に新しい IoT Edge デバイスを作成し、新しいカスタム IoT Edge モジュールを実行するように構成することです。
 
-1. 「**AZ-220-HUB-{YOUR-ID}**」 ブレードの 「**自動デバイス管理**」 の左側のナビゲーション メニューで、「**IoT Edge**」をクリックします。
+1. 「**iot-az220-training-{your-id}**」 ブレードの 「**自動デバイス管理**」 の左側のナビゲーション メニューで、「**IoT Edge**」をクリックします。
 
 1. 「**IoT Edge**」 ペインの上部にある 「**IoT Edge デバイスの追加**」 をクリックします。
 

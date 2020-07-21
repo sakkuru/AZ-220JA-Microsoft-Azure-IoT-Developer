@@ -61,16 +61,16 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
 
 | リソースの種類:  | リソース名 |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
-| IoT デバイス | SimulatedSolutionThermostat |
+| リソース グループ | rg-az220 |
+| IoT Hub | iot-az220-training-{your-id} |
+| IoT デバイス | sensor-th-0155 |
 
 これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って**lab16-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
->**注:** **SimulatedSolutionThermostat**デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
+>**注:** **sensor-th-0155**デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
 >
 > ```bash
-> az iot hub device-identity show-connection-string --hub-name AZ-220-HUB-_{YOUR-ID}_ --device-id SimulatedThermostat -o tsv
+> az iot hub device-identity show-connection-string --hub-name iot-az220-training-{your-id} --device-id SimulatedThermostat -o tsv
 > ```
 
 **lab16-setup.azcli** のスクリプトは、**bash**シェル環境内で実行するように記述されています - これを実行する最も簡単な方法は Azure Cloud Shell 内です。 
@@ -91,10 +91,10 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
 
     _ラボ 3: 開発環境のセットアップ_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
-    * すべてのファイル
-      * ラボ
-          * Azure IoT Hub を使用した 16 の IoT デバイス管理の自動化
-            * セットアップ
+    * Allfiles
+      * Labs
+          * 16-Automate IoT Device Management with Azure IoT Hub
+            * Setup
 
     lab16-setup.azcli スクリプト ファイルは、課題 16 のセットアップ フォルダにあります。
 
@@ -137,8 +137,8 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
     ```bash
     #!/bin/bash
 
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-{YOUR-ID}"
+    RGName="rg-az220"
+    IoTHubName="iot-az220-training-{your-id}"
 
     Location="{YOUR-LOCATION}"
     ```
@@ -171,13 +171,13 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
 
     このスクリプトの実行には数分かかります。各ステップが完了すると、JSON 出力が表示されます。
 
-    このスクリプトは、まず **AZ-220-RG** という名前のリソース グループ と **AZ-220-ハブ-{YourID}** という名前の IoT ハブを作成します。  既に存在する場合は、対応するメッセージが表示されます。次にスクリプトは、**SimulatedSolutionThermostat** の ID を持つデバイスを IoT ハブに追加し、デバイスの接続文字列を表示します。 
+    このスクリプトは、まず **rg-az220** という名前のリソース グループ と **AZ-220-ハブ-{YourID}** という名前の IoT ハブを作成します。  既に存在する場合は、対応するメッセージが表示されます。次にスクリプトは、**sensor-th-0155** の ID を持つデバイスを IoT ハブに追加し、デバイスの接続文字列を表示します。 
 
 1. スクリプトが完了すると、デバイスの接続文字列が表示されることに注意してください。
 
     接続文字列は「ホスト名=」で始まります。
 
-1. 接続文字列をテキスト ドキュメントにコピーし、**SimulatedSolutionThermostat** デバイス用であることに注意してください。
+1. 接続文字列をテキスト ドキュメントにコピーし、**sensor-th-0155** デバイス用であることに注意してください。
 
     接続文字列を簡単に見つけることができる場所に保存したら、課題を続ける準備が整います。
 
@@ -243,8 +243,8 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
 1. 次のコードをコピーして Program.cs ファイルに貼り付けます。
 
     ```cs
-    // Copyright (c) Microsoft.All rights reserved.
-    // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
+    // Copyright (c) Microsoft. All rights reserved.
+    // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
     using Microsoft.Azure.Devices.Shared;
     using Microsoft.Azure.Devices.Client;
@@ -255,54 +255,54 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
     {
         class SimulatedDevice
         {
-            // IoT ハブでデバイスを認証するためのデバイス接続文字列。
+            // The device connection string to authenticate the device with your IoT hub.
             static string s_deviceConnectionString = "";
 
-            // デバイス ID 変数
+            // Device ID variable
             static string DeviceID="unknown";
 
-            // ファームウェア バージョン変数
+            // Firmware version variable
             static string DeviceFWVersion = "1.0.0";
 
-            // シンプルなコンソール ログ関数
+            // Simple console log function
             static void LogToConsole(string text)
             {
-                // デバイス ID にログを前に付けます
+                // we prefix the logs with the device ID
                 Console.WriteLine(DeviceID + ": " + text);
             }
 
-            // OS/HW からファームウェア バージョンを取得する機能
+            // Function to retrieve firmware version from the OS/HW
             static string GetFirmwareVersion()
             {
-                // ここでは、ハードウェアから実際のファームウェアのバージョンを取得します。シミュレーションの目的で FWVersion 変数値を返送します
+                // In here you would get the actual firmware version from the hardware. For the simulation purposes we will just send back the FWVersion variable value
                 return DeviceFWVersion;
             }
 
-            // 現在のファームウェア (更新) の状態を報告するデバイス ツイン報告プロパティを更新する機能
-            // IoT Hub のファームウェア更新の構成によって 「ファームウェア」更新プロパティで想定される値を次に示します
-            //  currentFwVersion: デバイスで現在実行されているファームウェアのバージョン。
-            //  pendingFwVersion: 更新後の次のバージョン、一致すべき項目
-            //                    目的のプロパティで指定されています。空白の場合
-            //                    保留中の更新はありません (fwUpdateStatus は '最新' です)。
-            //  fwUpdateStatus:   更新の進行状況を定義して、
-            //                    概要ビューから分類できるようにします。次のいずれかです。
-            //         - 最新:     保留中のファームウェア更新はありません。currentFwVersion は
-            //                    目的のプロパティの fwVersion と一致する必要があります。
-            //         - ダウンロード中: ファームウェア更新イメージをダウンロード中です。
-            //         - 検証:   イメージ ファイルのチェックサムおよびその他の検証を検証しています。
-            //         - 適用:    新しいイメージ ファイルへの更新が進行中です。
-            //        - 再起動:   デバイスは更新プロセスの一部として再起動中です。
-            //         - エラー:       更新処理中にエラーが発生しました。その他の詳細
-            //                    ffwUpdateSubstatusで指定する必要があります。
-            //        - ロールバック:  エラーのため、更新プログラムは以前のバージョンにロールバックされました。
-            //  fwUpdateSubstatus: fwUpdateStatus の追加の詳細。含めることができます
-            //                     エラーまたはロールバックの状態、またはダウンロードの % の理由。
+            // Function for updating a device twin reported property to report on the current Firmware (update) status
+            // Here are the values expected in the "firmware" update property by the firmware update configuration in IoT Hub
+            //  currentFwVersion: The firmware version currently running on the device.
+            //  pendingFwVersion: The next version to update to, should match what's
+            //                    specified in the desired properties. Blank if there
+            //                    is no pending update (fwUpdateStatus is 'current').
+            //  fwUpdateStatus:   Defines the progress of the update so that it can be
+            //                    categorized from a summary view. One of:
+            //         - current:     There is no pending firmware update. currentFwVersion should
+            //                    match fwVersion from desired properties.
+            //         - downloading: Firmware update image is downloading.
+            //         - verifying:   Verifying image file checksum and any other validations.
+            //         - applying:    Update to the new image file is in progress.
+            //         - rebooting:   Device is rebooting as part of update process.
+            //         - error:       An error occurred during the update process. Additional details
+            //                    should be specified in fwUpdateSubstatus.
+            //         - rolledback:  Update rolled back to the previous version due to an error.
+            //  fwUpdateSubstatus: Any additional detail for the fwUpdateStatus . May include
+            //                     reasons for error or rollback states, or download %.
             //
-            // レポート済み: {
-            //       ファームウェア: {
+            // reported: {
+            //       firmware: {
             //         currentFwVersion: '1.0.0',
             //         pendingFwVersion: '',
-            //         fwUpdateStatus: '現在'、
+            //         fwUpdateStatus: 'current',
             //         fwUpdateSubstatus: '',
             //         lastFwUpdateStartTime: '',
             //         lastFwUpdateEndTime: ''
@@ -331,13 +331,13 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
                 await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
             }
 
-            // デバイスでファームウェアの更新を実行します
+            // Execute firmware update on the device
             static async Task UpdateFirmware(DeviceClient client, string fwVersion, string fwPackageURI, string fwPackageCheckValue)
             {
                 LogToConsole("A firmware update was requested from version " + GetFirmwareVersion() + " to version " + fwVersion);
                 await UpdateFWUpdateStatus(client, null, fwVersion, null, null, DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"), null);
 
-                // 新しいファームウェア バイナリを取得します。ここでは、バイナリをダウンロードするか、お使いのデバイスの指示に従ってソースから取得し、ダウンロードしたバイナリの整合性をハッシュで再確認します
+                // Get new firmware binary. Here you would download the binary or retrieve it from the source as instructed for your device, then double check with a hash the integrity of the binary you downloaded
                 LogToConsole("Downloading new firmware package from " + fwPackageURI);
                 await UpdateFWUpdateStatus(client, null, null, "downloading", "0", null, null);
                 await Task.Delay(2 * 1000);
@@ -348,48 +348,47 @@ IT 部署は、オペレータ向けに開発したバックエンド ポータ�
                 await UpdateFWUpdateStatus(client, null, null, "downloading", "75", null, null);
                 await Task.Delay(2 * 1000);
                 await UpdateFWUpdateStatus(client, null, null, "downloading", "100", null, null);
-                // バイナリがダウンロードされたことを報告する
-LogToConsole("The new firmware package has been successfully downloaded.");
+                // report the binary has been downloaded
+                LogToConsole("The new firmware package has been successfully downloaded.");
 
-
-                // バイナリの整合性を確認する
+                // Check binary integrity
                 LogToConsole("Verifying firmware package with checksum " + fwPackageCheckValue);
                 await UpdateFWUpdateStatus(client, null, null, "verifying", null, null, null);
                 await Task.Delay(5 * 1000);
-                // バイナリがダウンロードされたことを報告する
+                // report the binary has been downloaded
                 LogToConsole("The new firmware binary package has been successfully verified");
 
-                // 新しいファームウェアを適用
+                // Apply new firmware
                 LogToConsole("Applying new firmware");
                 await UpdateFWUpdateStatus(client, null, null, "applying", null, null, null);
                 await Task.Delay(5 * 1000);
 
-                // 実際のデバイスでは、プロセスの最後に再起動し、ブート時にデバイスは実際のファームウェアバージョンを報告します。成功した場合、新バージョンになります。
-                // シミュレーションのために、しばらく待って新しいファームウェアのバージョンを報告します
+                // On a real device you would reboot at the end of the process and the device at boot time would report the actual firmware version, which if successful should be the new version.
+                // For the sake of the simulation, we will simply wait some time and report the new firmware version
                 LogToConsole("Rebooting");
                 await UpdateFWUpdateStatus(client, null, null, "rebooting", null, null, DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"));
                 await Task.Delay(5 * 1000);
 
-                // 実際のデバイスでは、デバイスを再起動するコマンドを発行します。ここでは、単に init 関数を実行しています
+                // On a real device you would issue a command to reboot the device. Here we are simply running the init function
                 DeviceFWVersion = fwVersion;
                 await InitDevice(client);
 
             }
 
-            // 必要なプロパティの変更に応答するためのコールバック
-            静的非同期タスク OnDesiredPropertyChanged (TwinCollection desiredProperties、object userContext)
+            // Callback for responding to desired property changes
+            static async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
             {
                 LogToConsole("Desired property changed:");
                 LogToConsole($"{desiredProperties.ToJson()}");
 
-                // ファームウェアの更新を実行します
+                // Execute firmware update
                 if (desiredProperties.Contains("firmware") && (desiredProperties["firmware"]!=null))
                 {
-                    // 目的のプロパティでは、次の情報が表示されます。
-                    // fwVersion: フラッシュする新しいファームウェアのバージョン番号
-                    // fwPackageURI: 新しいファームウェア バイナリをダウンロードする場所の URI
-                    // fwPackageCheckValue: ダウンロードされたバイナリの整合性を検証するためのハッシュ
-                    // ファームウェアのバージョンは新しいものと仮定します
+                    // In the desired properties, we will find the following information:
+                    // fwVersion: the version number of the new firmware to flash
+                    // fwPackageURI: URI from where to download the new firmware binary
+                    // fwPackageCheckValue: Hash for validating the integrity of the binary downloaded
+                    // We will assume the version of the firmware is a new one
                     TwinCollection fwProperties = new TwinCollection(desiredProperties["firmware"].ToString());
                     await UpdateFirmware((DeviceClient)userContext, fwProperties["fwVersion"].ToString(), fwProperties["fwPackageURI"].ToString(), fwProperties["fwPackageCheckValue"].ToString());
 
@@ -405,7 +404,7 @@ LogToConsole("The new firmware package has been successfully downloaded.");
 
             static async Task Main(string[] args)
             {
-                // コマンド ラインからデバイス接続文字列を取得します
+                // Get the device connection string from the command line
                 if (string.IsNullOrEmpty(s_deviceConnectionString) && args.Length > 0)
                 {
                     s_deviceConnectionString = args[0];
@@ -423,7 +422,7 @@ LogToConsole("The new firmware package has been successfully downloaded.");
                     return;
                 }
 
-                // デバイス ID を取得します
+                // Get the device ID
                 string[] elements = s_deviceConnectionString.Split('=',';');
 
                 for(int i=0;i<elements.Length; i+=2)
@@ -431,13 +430,13 @@ LogToConsole("The new firmware package has been successfully downloaded.");
                     if (elements[i]=="DeviceId") DeviceID = elements[i+1];
                 }
 
-                // デバイスの初期化ルーチンを実行します
+                // Run device init routine
                 await InitDevice(deviceClient);
 
-                // 必要なプロパティの変更に対するコールバックのアタッチ
+                // Attach callback for Desired Properties changes
                 await deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, deviceClient).ConfigureAwait(false);
 
-                // アプリを終了するキーストロークを待つ
+                // Wait for keystroke to end app
                 // TODO
                 while (true)
                 {
@@ -476,7 +475,7 @@ LogToConsole("The new firmware package has been successfully downloaded.");
 
     > **注意**: プレースホルダーを実際のデバイス接続文字列に置き換え、接続文字列の周囲に "" を必ず含めることに注意してください。 
     > 
-    > 例: `"HostName=AZ-220-HUB-{YourID}.azure-devices.net;DeviceId=SimulatedSolutionThermostat;SharedAccessKey={}="`
+    > 例: `"HostName=AZ-220-HUB-{YourID}.azure-devices.net;DeviceId=sensor-th-0155;SharedAccessKey={}="`
 
 1. 「ターミナル」 ウインドウの内容を確認します。
 
@@ -493,7 +492,7 @@ LogToConsole("The new firmware package has been successfully downloaded.");
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. Azure Portal ダッシュボードで、**「AZ-220-HUB-{YOUR-ID}」**」 をクリックします。
+1. Azure Portal ダッシュボードで、**「iot-az220-training-{your-id}」**」 をクリックします。
 
     IoT Hub ブレードが表示されるようになりました。
  
@@ -501,15 +500,15 @@ LogToConsole("The new firmware package has been successfully downloaded.");
 
 1. **「IoT デバイスの構成」** ウィンドウで、**「デバイス構成の追加」** をクリックします。   
 
-1. **「デバイス ツイン構成の作成」** ブレードの **「名前」** で、**firmwareupdate** と入力します。   
+1. **「デバイス ツイン構成の作成」** ブレードの **「Name」** で、**firmwareupdate** と入力します。   
 
-    **「ラベル** の下ではなく、構成に必要な **「名前」** フィールドに `firmwareupdate` と入力していることを確認 します。    
+    **「ラベル」** の下ではなく、構成に必要な **「名前」** フィールドに `firmwareupdate` と入力していることを確認 します。    
 
-1. ブレードの最下部で、「**次へ:**」 をクリックします。**ツインズの設定 >**。
+1. ブレードの最下部で、「**Next: Twins Settings >**」 をクリックします。
 
-1. **「デバイス ツインの設定」** で、**「デバイス ツインプロパティ」** フィールドに **properties.desired.firmware** と入力します
+1. **「デバイス ツインの設定」** で、**「Device Twin Property」** フィールドに **properties.desired.firmware** と入力します
 
-1. **「デバイス ツイン プロパティのコンテンツ」** フィールドに、次のように入力します。 
+1. **「Device Twin Property Content」** フィールドに、次のように入力します。 
 
     ``` json
     {
@@ -519,22 +518,22 @@ LogToConsole("The new firmware package has been successfully downloaded.");
     }
     ```
 
-1. ブレードの最下部で、「**次へ:**」 をクリックします。**メトリック >**。
+1. ブレードの最下部で、「**Next: Metrics >**」 をクリックします。
 
     カスタム メトリックを使用して、ファームウェアの更新が有効であったかどうかを追跡します。 
 
-1. **「メトリック」** タブの **「メトリック名」** で **fwupdated** と入力します
+1. **「Metrics」** タブの **「METRIC NAME」** で **fwupdated** と入力します
 
-1. **「メトリック基準」** で、次の項目を入力します。 
+1. **「METRIC CRITERIA」** で、次の項目を入力します。 
 
     ``` SQL
     SELECT deviceId FROM devices
         WHERE properties.reported.firmware.currentFwVersion='1.0.1'
     ```
 
-1. ブレードの最下部で、「**次へ:**」 をクリックします。**ターゲット デバイス >**。
+1. ブレードの最下部で、「**Next: Target devices >**」 をクリックします。
 
-1. **「ターゲット デバイス」** タブの **「優先度」**で、**「優先度(高い値..)」** フィールドに **「10」** と入力します。       
+1. **「Target Devices」** タブの **「Priority」**で、 **「10」** と入力します。       
 
 1. **「ターゲット条件」** の **「ターゲット条件」** フィールドに、次のクエリを入力します。   
 
@@ -542,15 +541,15 @@ LogToConsole("The new firmware package has been successfully downloaded.");
     deviceId='<your device id>'
     ```
 
-    > **注意**: `'<your device id>'` をデバイスの作成に使用したデバイス ID に置き換えてください。例: `'SimulatedSolutionThermostat'`
+    > **注意**: `'<your device id>'` をデバイスの作成に使用したデバイス ID に置き換えてください。例: `'sensor-th-0155'`
 
-1. ブレードの最下部で、「**次へ:**」 をクリックします。**Review + create >**
+1. ブレードの最下部で、「**Next: Review + Create >**」 をクリックします。
 
-    **「Review + create」** タブが開くと、新しい構成の 「検証に成功しました」というメッセージが表示されます。  
+    **「Review + create」** タブが開くと、新しい構成の 「Validation passed.」というメッセージが表示されます。  
 
-1. **「Review + create」** タブで、「検証が成功しました」というメッセージが表示されたら、**「作成」** をクリックします。   
+1. **「Review + create」** タブで、「Validation passed.」というメッセージが表示されたら、**「Create」** をクリックします。   
 
-    「検証が成功しました」というメッセージが表示された場合は、設定を作成する前に、作業を確認する必要があります。
+    「Validation passed.」というメッセージが表示された場合は、設定を作成する前に、作業を確認する必要があります。
 
 1. 「**IoT デバイスの構成**」 ペインの 「**構成名**」 に、新しい **firmwareupdat** の構成が一覧表示されていることを確認します。       
 

@@ -321,6 +321,10 @@ Azure IoT Hub は Azure Event Grid と統合されるため、イベント通知
 
 1. Azure portal ダッシュボードに戻ります。
 
+1. Event Grid システム トピックを作成します。
+    * リソース: **iot-az220-training-{your-id}**
+    * 名前: **iothub-topic**
+
 1. リソース グループ タイルで、IoT ハブに移動するには、**「iot-az220-training-{your-id}」** をクリックします。 
 
 1. **「IoT ハブ」** ブレードの左側のナビゲーション メニューで、**「イベント」** をクリックします。   

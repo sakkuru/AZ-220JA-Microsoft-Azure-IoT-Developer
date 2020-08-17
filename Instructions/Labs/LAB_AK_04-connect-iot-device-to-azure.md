@@ -38,8 +38,8 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
 
 | リソースの種類:  | リソース名 |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
+| リソース グループ | rg-az220 |
+| IoT Hub | iot-az220-training-{your-id} |
 
 これらのリソースが利用できない場合は、演習 2 に進む前に、以下の指示に従って **lab04-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
@@ -109,8 +109,8 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
     ```bash
     #!/bin/bash
 
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-{YOUR-ID}"
+    RGName="rg-az220"
+    IoTHubName="iot-az220-training-{your-id}"
 
     Location="{YOUR-LOCATION}"
     ```

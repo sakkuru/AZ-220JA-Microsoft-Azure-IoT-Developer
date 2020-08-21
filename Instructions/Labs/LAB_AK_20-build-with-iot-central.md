@@ -283,7 +283,7 @@ IoT Central には、このシナリオを処理するために必要なあら�
     | 名前 | OptimalTemperature |
     | 機能タイプ | Property |
     | セマンティックの種類 | None |
-    | スキーマ | Property |
+    | スキーマ | Double |
     | 書き込み | On |
     | 単位 |  <sup>o</sup>C  |
 

@@ -38,8 +38,8 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
 
 | リソースの種類:  | リソース名 |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
+| リソース グループ | rg-az220 |
+| IoT Hub | iot-az220-training-{your-id} |
 
 これらのリソースが利用できない場合は、演習 2 に進む前に、以下の指示に従って **lab04-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
@@ -60,11 +60,11 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
 1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
 
     このコースのラボ 3 にあたる「開発環境のセットアップ」では、ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * すべてのファイル
-      * ラボ
-          * 04 - IoT デバイスを Azure に接続する
-            * セットアップ
+    
+    * Allfiles
+      * Labs
+          * 04-Connect an IoT Device to Azure
+            * Setup
 
     lab04-setup.azcli スクリプト ファイルは、ラボ 4 の設定フォルダー内にあります。
 
@@ -109,8 +109,8 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
     ```bash
     #!/bin/bash
 
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-{YOUR-ID}"
+    RGName="rg-az220"
+    IoTHubName="iot-az220-training-{your-id}"
 
     Location="{YOUR-LOCATION}"
     ```

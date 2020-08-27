@@ -41,8 +41,8 @@ Contoso は、新規注文に対応する出荷と梱包および要求の拡大
 
 | リソースの種類:  | リソース名 |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-{YOUR-ID} |
+| リソース グループ | rg-az220 |
+| IoT Hub | iot-az220-training-{your-id} |
 
 これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って **lab19-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
 
@@ -112,8 +112,8 @@ Contoso は、新規注文に対応する出荷と梱包および要求の拡大
     ```bash
     #!/bin/bash
 
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-{YOUR-ID}"
+    RGName="rg-az220"
+    IoTHubName="iot-az220-training-{your-id}"
 
     Location="{YOUR-LOCATION}"
     ```
@@ -165,9 +165,9 @@ Azure Security Center for IoT は、次のコンポーネントで構成され�
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. Azure ダッシュボードで、「**AZ-220-HUB-{YOUR-ID}**」 をクリックします。
+1. Azure ダッシュボードで、「**iot-az220-training-{your-id}**」 をクリックします。
 
-    ダッシュボードには、AZ-220-RG リソース グループ タイルの IoT Hub へのリンクが必要です。
+    ダッシュボードには、rg-az220 リソース グループ タイルの IoT Hub へのリンクが必要です。
 
 1. 左側のナビゲーション メニューにある 「**セキュリティ**」 の 「**概要**」 をクリックします。   
 
@@ -186,9 +186,9 @@ Azure Security Center for IoT が有効になっている場合は、既定の A
 
 1. 必要に応じて、IoT Hub の 「セキュリティの概要」 ウィンドウを開きます。
 
-1. ブレードの上部にある 「**設定**」 をクリックして、セキュリティ設定を表示します。 
+1. ブレードの上部にある 「**Settings**」 をクリックして、セキュリティ設定を表示します。 
 
-    「**設定**」 ブレードが開き、「**データ収集**」 ウィンドウが表示されます。 
+    「**Settings**」 ブレードが開き、「**Data Collection**」 ウィンドウが表示されます。 
 
 1. 少し時間をとって、表示された設定情報を確認してください。
 
@@ -196,7 +196,7 @@ Azure Security Center for IoT が有効になっている場合は、既定の A
 
 既定では、Azure Security Center for IoT ソリューションを有効にすると、Azure サブスクリプションのすべての IoT Hub が自動的にセキュリティで保護されます。
 
-### エクササイズ 3: 新しいデバイスの作成と登録
+### 演習 3: 新しいデバイスの作成と登録
 
 この演習では、仮想マシンをセットアップし、IoT デバイスのシミュレーションに使用します。このラボの後半では、このデバイスを使用してコンベア ベルトの振動を測定します。
 
@@ -214,13 +214,9 @@ Azure Security Center for IoT が有効になっている場合は、既定の A
 
 1. 「**仮想マシンの作成**」 ブレードの 「**サブスクリプション**」 で、このコースに使用するサブスクリプションが選択されていることを確認します。
 
-1. 「**リソース グループ**」 ドロップダウンで、「**新規作成**」 をクリックします
+1. 「**リソース グループ**」 ドロップダウンで、「**rg-az220vm**」 をクリックします
 
-1. コンテキスト メニューの 「**名前**」 で、**AZ-220-SECVM-RG** と入力し、「**OK**」 をクリックします。
-
-    > **注意**: ベスト プラクティスは、VM のリソース グループを作成することです。これにより、VM に対して追加/作成する追加リソースを追跡できます。このコースの簡単なユース ケースでは、クリーンアップの容易さが主な利点ですが、ラボの後半で、このリソース グループを使って、もう少し説明します。
-
-1. 「**仮想マシン名**」 テキスト ボックスに **vm-device01** と入力します。
+1. 「**仮想マシン名**」 テキスト ボックスに **vm-az220-training-edge0002-{your-id}** と入力します。
 
 1. 「**リージョン**」 ドロップダウンで、最寄りの Azure リージョン、つまり Azure IoT Hub がプロビジョニングされているリージョンを選択します。 
 
@@ -259,21 +255,21 @@ Azure Security Center for IoT が有効になっている場合は、既定の A
 
 1. Azure portal メニューで、**「ダッシュボード」** をクリックします。
 
-1. AZ-220-RG リソース グループのタイルで、**AZ-220-HUB-{YOUR-ID}** をクリックします。
+1. rg-az220 リソース グループのタイルで、**iot-az220-training-{your-id}** をクリックします。
 
     IoT Hub ブレードを開く方法は他にもたくさんありますので、ご希望のメソッドをどれでも使用してください。
 
 1. 左側のナビゲーション メニューで、「**エクスプローラ**」 の下の 「**IoT デバイス**」 をクリックします。   
 
-1. 「**IoT デバイス**」 ウィンドウの上部で、「**新規**」 をクリックします。
+1. 「**IoT デバイス**」 ウィンドウの上部で、「**新規作成**」 をクリックします。
 
-1. 「**デバイス ID**」 の下に「**vm-device01**」と入力します。
+1. 「**デバイス ID**」 の下に「**vm-az220-training-edge0002-{your-id}**」と入力します。
 
     はい、デバイス ID として VM に割り当てた名前を使用しています。
 
     **対称キー** を認証に使用するので、他の設定はデフォルトのままにします。 
 
-1. ブレードの上部にある 「**保存**」 をクリックします。
+1. 「**保存**」 をクリックします。
 
 ### 演習 4: セキュリティ モジュール ツインを作成する
 
@@ -292,15 +288,15 @@ Azure Security Center for IoT は、モジュール ツイン メカニズムを
 
     「IoT Hub」 ブレードから 「**IoT デバイス**」 ウィンドウを開くには、左側のナビゲーション メニューの 「**エクスプローラー**」 で 、「**IoT デバイス**」 をクリックします。
 
-1. 「**デバイス ID**」 の下にある 「**vm-device01**」 をクリックします。
+1. 「**デバイス ID**」 の下にある 「**vm-az220-training-edge0002-{your-id}**」 をクリックします。
 
-1. 「**vm-device01**」 ブレードで、ブレードの上部近くにある 「**モジュール ID の追加**」 をクリック します。
+1. 「**vm-az220-training-edge0002-{your-id}**」 ブレードで、ブレードの上部近くにある 「**モジュール ID の追加**」 をクリック します。
 
 1. 「**モジュール ID の 追加**」 ウィンドウの 「**モジュール ID 名**」 で、**azureiotsecurity**と入力します。
 
     認証に対称キーを使用するので、すべてのフィールドを既定値のままにしておくことができます。
 
-1. 画面の最下部で、「**保存**」 をクリックします。
+1. 「**保存**」 をクリックします。
 
     「**モジュール ID**」 に **azureiotsecurity** デバイスが一覧表示されます。接続状態は 「**切断済み**」 です。
 
@@ -308,7 +304,7 @@ Azure Security Center for IoT は、モジュール ツイン メカニズムを
 
 ![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-module-identity.png)
 
-1. 「**vm-device01**」 ブレードで、「**主キー**」 の右側にある 「**コピー**」 をクリックします。  
+1. 「**vm-az220-training-edge0002-{your-id}**」 ブレードで、「**主キー**」 の右側にある 「**コピー**」 をクリックします。  
 
     > **注意**: 接続文字列ではなく、デバイスの**主キー**を必ずコピーしてください。
 
@@ -318,7 +314,7 @@ Azure Security Center for IoT は、モジュール ツイン メカニズムを
 
 1. 左側のナビゲーション メニューで、「**概要**」をクリックします。 
 
-1. ブレードの上部近くにある 「Essentials」領域で、「**ホスト名**」の右側にある 「**クリップボードにコピー**」をクリックし、後で使用するために値を保存します。 
+1. ブレードの上部近くにある 「**ホスト名**」の右側にある 「**クリップボードにコピー**」をクリックし、後で使用するために値を保存します。 
 
     > **注意**: IoT Hub ホスト名は次のようになります。AZ-220-HUB-CAH102119.azure-devices.net
 
@@ -343,13 +339,13 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
 
 1. Azure portal メニューで、「**すべてのリソース**」をクリックします。
 
-    「**すべてのサービス**」ではなく 、「**すべてのリソース**」を必ず選択してください。
+    「**すべてのサービス**」ではなく 、「**すべてのリソース**」を選択してください。
 
-1. 「**すべてのリソース**」ブレードの 「**名前でフィルター**」テキストボックスに「**vm-device01**」と入力します。
+1. 「**すべてのリソース**」ブレードの 「**名前でフィルター**」テキストボックスに「**vm-az220-training-edge0002-{your-id}**」と入力します。
 
-1. 「**名前**」で **vm-device01** をクリックします。
+1. 「**名前**」で **vm-az220-training-edge0002-{your-id}** をクリックします。
 
-    新しく作成した仮想マシン (**vm-device01**) の 「概要」ウィンドウが開くはずです。
+    新しく作成した仮想マシン (**vm-az220-training-edge0002-{your-id}**) の 「概要」ウィンドウが開くはずです。
 
 1. ブレードの上部にある 「**接続**」をクリックし、「**SSH**」をクリックします。
 
@@ -380,7 +376,7 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
     接続すると、ターミナル コマンド プロンプトが変更され、Linux VM の名前が次のように表示されることに注意してください。
 
     ```cmd/sh
-    demouser@vm-device01:~$
+    demouser@vm-az220-training-edge0002-{your-id}:~$
     ```
 
     これにより、接続先の VM と現在のユーザーを追跡できます。
@@ -391,16 +387,16 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
 
 このラボでは、対称キーを認証として使用し、デバイス上の一時的なテキスト ドキュメントに格納する必要があります。
 
-1. **vm-device01** デバイスの**主キー**値が使用可能であることを確認します。
+1. **vm-az220-training-edge0002-{your-id}** デバイスの**主キー**値が使用可能であることを確認します。
 
     このラボでは、以前の主キー値を保存しておく必要があります。そうでない場合は、次の手順を実行します。
 
     1. 新しいブラウザー タブを開き、新しいタブで、Azure portal に移動します。
     1. 「Azure portal」メニューで、「**ダッシュボード**」をクリック し、IoT Hub を開きます。
     1. 左側のナビゲーション メニューの 「**エクスプローラー**」で、「**IoT デバイス**」をクリックします。
-    1. 「**デバイス ID**」の下にある 「**vm-device01**」をクリックします。
+    1. 「**デバイス ID**」の下にある 「**vm-az220-training-edge0002-{your-id}**」をクリックします。
     1. 詳細の一覧から**主キー**をコピーします。
-    1. Azure Cloud Shell ブラウザー タブを返します - **vm-device01** 仮想マシンに接続されている必要があります。
+    1. Azure Cloud Shell ブラウザー タブを返します - **vm-az220-training-edge0002-{your-id}** 仮想マシンに接続されている必要があります。
 
 1. Cloud Shell コマンド プロンプトで、次のコマンドを入力します。
 
@@ -408,7 +404,7 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
     echo "<primary_key>" > s.key
     ```
 
-    このコマンドは、**vm-device01** デバイスの**主キー**を使用してデバイス認証タイプ ファイルを作成します。
+    このコマンドは、**vm-az220-training-edge0002-{your-id}** デバイスの**主キー**を使用してデバイス認証タイプ ファイルを作成します。
 
     > 「!NOTE」 正しい主キーをファイルに追加したかどうかを確認するには、`nano s.key` コマンドを使用してファイルを開きます。デバイスの**主キー**がファイル内にあることを確認します。Nano エディターを終了するには、`Ctrl` キーと `X` キーを押し続けます。`Shift` キーと `Y` キーを押し続けて、ファイルを保存します。その後、「Enter」 キーを押します。
 
@@ -439,12 +435,12 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
     値を認証パラメーターに置き換える必要があります。
 
     ```bash
-    sudo ./InstallSecurityAgent.sh -i -aui Device -aum SymmetricKey -f <Insert file location of your s.key file> -hn <Insert your full IoT Hub host name> -di vm-device01
+    sudo ./InstallSecurityAgent.sh -i -aui Device -aum SymmetricKey -f <Insert file location of your s.key file> -hn <Insert your full IoT Hub host name> -di vm-az220-training-edge0002-{your-id}
     ```
 
     コマンドの例を次に示します。
 
-    `sudo ./InstallSecurityAgent.sh -i -aui Device -aum SymmetricKey -f ../s.key -hn AZ-220-HUB-AB20200213.azure-devices.net -di vm-device01`
+    `sudo ./InstallSecurityAgent.sh -i -aui Device -aum SymmetricKey -f ../s.key -hn AZ-220-HUB-AB20200213.azure-devices.net -di vm-az220-training-edge0002-{your-id}`
 
     > **注意**: 一覧表示されたホスト名ではなく IoT Hub のホスト名を必ず指定してください。 
     
@@ -489,15 +485,15 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
             └─1092 /var/ASCIoTAgent/ASCIoTAgent
     ```
 
-    具体的には、サービスが **読み込み済み: 読み込み済み**で、**アクティブ: アクティブ (実行中)** であることを確認する必要があります。
+    具体的には、サービスが **Loaded: loaded**で、**Active: active (running)** であることを確認する必要があります。
 
     > **注意**: Azure Security Center for IoT エージェントが実行されていないか、アクティブではない場合、[Linux 用の Azure Security Center for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/ja-jp/azure/asc-for-iot/how-to-deploy-linux-cs) ガイドの「トラブルシューティング」セクションを確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
 
-1. Azure portal で、IoT Hub のブレードに戻り、「**vm-device01**」 デバイス ブレードを開きます。
+1. Azure portal で、IoT Hub のブレードに戻り、「**vm-az220-training-edge0002-{your-id}**」 デバイス ブレードを開きます。
 
-    IoT Hub のブレードを開き、ナビゲーション メニューの 「**エクスプローラー**」 で、「**IoT デバイス**」、「**vm-device01**」 の順にクリックします。
+    IoT Hub のブレードを開き、ナビゲーション メニューの 「**エクスプローラー**」 で、「**IoT デバイス**」、「**vm-az220-training-edge0002-{your-id}**」 の順にクリックします。
 
-1. 「**モジュール ID**」 で、**azureiotsecurity** モジュールが**接続済み**状態になったことを確認します。
+1. 「**モジュール ID**」 で、**azureiotsecurity** モジュールが**Connected**状態になったことを確認します。
 
 ![接続済みの Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-device-connected-agent.png)
 
@@ -517,28 +513,28 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
 1. ブラウザーで Azure portal を開き、IoT Hub に移動します。
 
-1. 左側のナビゲーション メニューの 「**セキュリティ**」 で、「**リソース**」 をクリックします。
+1. 左側のナビゲーション メニューの 「**セキュリティ**」 で、「**Settings**」 をクリックし、「Monitored Resources」をクリックします。
 
     リソースの一覧には、IoT Hub、Azure Security Center for IoT のアクティブ化が以前に行われたときに作成されたワークスペース、および現在のサブスクリプションが既に含まれていることに注意してください。
 
-1. ウィンドウの上部にある 「**編集** をクリックします。
+1. ウィンドウの上部にある 「**Edit**」 をクリックします。
 
-    「**ソリューション管理**」 ウィンドウが開き、所有するリソース グループを選択して、追加の Azure リソースをセキュリティ ソリューションに接続できます。
+    「**Solution Management**」 ウィンドウが開き、所有するリソース グループを選択して、追加の Azure リソースをセキュリティ ソリューションに接続できます。
 
 1. 「**サブスクリプション**」 で、このコースに使用するサブスクリプションが選択されていることを確認します。
 
     > **注:**
     > 複数のサブスクリプションのリソースをセキュリティ ソリューションに追加できます。
 
-1. 「**リソース グループ**」 で、VM - **AZ-220-SECVM-RG** のリソース グループを選択します。
+1. 「**リソース グループ**」 で、VM - **rg-az220vm** のリソース グループを選択します。
 
     これで、2 つのリソース グループが選択されます。追加したリソース グループの追加リソースを反映するように、「リソース」 リストが更新されたことに注意してください。
 
-1. 「**ソリューション管理**」 ウィンドウの下部にある 「**適用**」 をクリックします。
+1. 「**Apply**」 をクリックします。
 
-    「**適用**」 ボタンが使用できない場合は、心配はいりません、リソースが既に追加されています。
+    「**Apply**」 ボタンが使用できない場合は、心配はいりません、リソースが既に追加されています。
 
-1. 「**ソリューション管理**」 ウィンドウを閉じます。
+1. 「**Solution Management**」 ウィンドウを閉じます。
 
 すべてのリソース関係を定義した後、Azure Security Center for IoT は Azure Security Center を活用して、これらのリソースに対するセキュリティに関する推奨事項とアラートを提供します。
 
@@ -583,39 +579,39 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
 1. Azure portalで、IoT Hub ブレードに移動します。
 
-1. 左側のナビゲーション メニューの 「**セキュリティ**」 で、「**カスタム警告**」 をクリック します。
+1. 左側のナビゲーション メニューの 「**セキュリティ**」 で、「**Settings**」、「Custom Alerts」 をクリック します。
 
-1. 時間を割いて、「**カスタム警告**」 ウィンドウを確認します。
+1. 時間を割いて、「**Custom Alerts**」 ウィンドウを確認します。
 
-    一見すると、このウィンドウは空のように見える場合がありますが、「**名前**」 の下に表示される項目は、実際には **既定の**セキュリティ グループであり、自動的に作成されます。
+    一見すると、このウィンドウは空のように見える場合がありますが、「**名前**」 の下に表示される項目は、実際には **default**セキュリティ グループであり、自動的に作成されます。
 
     セキュリティ グループを使用すると、デバイスの論理グループを定義し、そのセキュリティ状態を集中管理できます。これらのグループは、特定のハードウェアを持つデバイス、特定の場所にデプロイされたデバイス、または特定のニーズに適したその他のグループを表す場合があります。
 
-1. 既定のセキュリティ グループにカスタム警告を追加するには、「**既定**」 をクリックします。
+1. 既定のセキュリティ グループにカスタム警告を追加するには、「**default**」 をクリックします。
 
-    「**デバイス セキュリティ グループ**」 ブレードには、アクティブなすべてのカスタム警告が一覧表示されます。このブレードに初めてアクセスする場合は、空になります。
+    「**Device Security Group**」 ブレードには、アクティブなすべてのカスタム警告が一覧表示されます。このブレードに初めてアクセスする場合は、空になります。
 
-1. ブレードの上部にある 「**カスタム警告ルールの作成**」 をクリックします。 
+1. ブレードの上部にある 「**Create custom alert rule**」 をクリックします。 
 
-    「**カスタム警告ルールの作成**」 ウィンドウが開きます。「**デバイス セキュリティ グループ**」 フィールドに**既定の**グループが入力されることに注意してください。
+    「**Create custom alert rule**」 ウィンドウが開きます。「**Device Security Group**」 フィールドに**default**グループが入力されることに注意してください。
 
-1. 「**カスタム警告**」 ドロップダウンで、「**デバイスからクラウドへのメッセージ (MQTT プロトコル) の数が許可された範囲にない**」 をクリックします。
+1. 「**Custom Alerts**」 ドロップダウンで、「**Number of device to cloud messages (MQTT protocol) is not in allowed range**」 をクリックします。
 
     > **ヒント**:
     > 使用可能な多くのカスタム警告を確認します。ソリューションをセキュリティで保護するためにどのように使用できるかを検討してください。
 
     > **注意**:
-    > 「**説明**」 および 「**必須プロパティ**」 は、選択した 「**カスタム警告**」 に応じて変更されます。
+    > 「**Description**」 および 「**Required Properties**」 は、選択した 「**Custom Alerts**」 に応じて変更されます。
 
-1. 「**必須プロパティ**」 の 「**最小しきい値**」 フィールドに「**1**」と入力します。
+1. 「**Required Properties**」 の 「**Minimal Threshold**」 フィールドに「**1**」と入力します。
 
     これは、5 分間に少なくとも 1 つのメッセージが送信されるという期待を満たします。
 
-1. 「**最大しきい値**」 に「**5**」と入力 します。
+1. 「**Maximal Threshold**」 に「**5**」と入力 します。
 
     これは、5 分間に送信されるメッセージが 5 個を超えないという期待を満たします。
 
-1. 「**時間ウィンドウ サイズ**」 ドロップダウンで、**00:05:00** をクリックします。
+1. 「**Time Window Size**」 ドロップダウンで、**00:05:00** をクリックします。
 
     これは、確立された 5 分間を満たします。
 
@@ -626,9 +622,9 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
     > * 15 分
     > * 30 分
 
-1. 「**カスタム警告ルールの作成**」 ウィンドウの下部にある 「**OK**」 をクリックします。
+1. 「**OK**」 をクリックします。
 
-1. **既定の** (デバイス セキュリティ グループ) ブレードの上部にある 「**保存**」 をクリックします。
+1. 「**Save**」 をクリックします。
 
     新しい警告を保存せずに、次に IoT Hub を閉じると警告は削除されます。
 
@@ -648,21 +644,74 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
 1. 左側のナビゲーション メニューの 「**エクスプローラー**」 で、「**IoT デバイス**」 をクリックします。
 
-1. 「**IoT デバイス**」 ウィンドウの上部で、「**新規**」 をクリックします。
+1. 「**IoT デバイス**」 ウィンドウの上部で、「**新規作成**」 をクリックします。
 
-1. 「**デバイスの作成**」 ブレードの 「**デバイス ID**」 で、「**CheeseCave1-Sensor1**」と入力します。
+1. 「**デバイスの作成**」 ブレードの 「**デバイス ID**」 で、「**sensor-th-0070**」と入力します。
 
     **対称キー**を認証に使用するため、他の値は既定値のままにします。
 
 1. ブレードの上部にある 「**保存**」 をクリックします。
 
-1. 「**IoT デバイス**」 ウィンドウの 「**デバイス ID**」 で、「**CheeseCave1-Sensor1**」 をクリックします。
+1. 「**IoT デバイス**」 ウィンドウの 「**デバイス ID**」 で、「**sensor-th-0070**」 をクリックします。
 
-    **CheeseCave1-Sensor1** デバイスにアクセスするには、「**さらに読み込む**」 をクリックする必要があります。
+1. デバイスツインを開きます。
+
+1. 以下のJSONプロパティを追加します。
+
+```
+"tags": {
+    "SecurityGroup": "default"
+},
+```
+
+以下のようなJSONになります。
+
+```
+{
+    "deviceId": "sensor-th-0070",
+    "etag": "AAAAAAAAAAE=",
+    "deviceEtag": "Mjg2NzY5NzAw",
+    "status": "enabled",
+    "statusUpdateTime": "0001-01-01T00:00:00Z",
+    "connectionState": "Disconnected",
+    "lastActivityTime": "0001-01-01T00:00:00Z",
+    "cloudToDeviceMessageCount": 0,
+    "authenticationType": "sas",
+    "x509Thumbprint": {
+        "primaryThumbprint": null,
+        "secondaryThumbprint": null
+    },
+    "version": 2,
+    "tags": {
+        "SecurityGroup": "default"
+    },
+    "properties": {
+        "desired": {
+            "$metadata": {
+                "$lastUpdated": "2020-06-11T13:09:38.4712899Z"
+            },
+            "$version": 1
+        },
+        "reported": {
+            "$metadata": {
+                "$lastUpdated": "2020-06-11T13:09:38.4712899Z"
+            },
+            "$version": 1
+        }
+    },
+    "capabilities": {
+        "iotEdge": false
+    }
+}
+```
+
+1. 保存します。
+
+1. デバイスツインメニューを閉じます。
 
 1. 「**プライマリ接続文字列**」 の右側にある 「**コピー**」 をクリックし、値をテキスト ファイルに保存します。
 
-    これが CheeseCave1-Sensor1 デバイスの接続文字列であることに注意してください。デバイス アプリの接続文字列値が必要です。
+    これが sensor-th-0070 デバイスの接続文字列であることに注意してください。デバイス アプリの接続文字列値が必要です。
 
 #### タスク 2: コンソール アプリを作成する
 
@@ -670,143 +719,23 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
 1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
 
-1. 「**フォルダーを開く**」 ダイアログの上部にある 「**新規フォルダー**」 をクリックし、「**ThermostatDevice**」と入力して、「**Enter**」 キーを押 します。
+1. 「**フォルダーを開く**」 メニューで、Lab 19 の Starter フォルダに移動します。
 
-    ラボ 19 フォルダーの下、またはお好みの別の場所に ThermostatDevice フォルダ－を作成できます。
+1. 「CaveDevice」を選択します。
 
-1. 「**ThermostatDevice**」 をクリックし、「**フォルダーの選択**」 をクリック します。
+1. Program.csを開き、以下のコードを探します。
 
-1. 「**ファイル**」 メニューで、ファイルの自動保存が有効になっていることを確認するには、「**自動保存**」 をクリックします。
+```
+private readonly static string connectionString = "{Your connection string here}";
+```
 
-    複数のブロックのコードでコピーし、常に最新のファイルに対して操作していることを確認します。
+1. `<your device connection string>`をsensor-th-0070の接続文字列に置き換えます。
 
-1. 「**表示**」 メニューで、統合ターミナルを開くには、「**ターミナル**」 をクリックします。   
+1. 保存します。
 
-1. ターミナル コマンド プロンプトで、新しいコンソール アプリを作成するには、次のコマンドを入力します。
+1. 「**ターミナル**」 を開きます。   
 
-    ```bash
-    dotnet new console
-    ```
-
-#### タスク 3: アプリを IoT Hub に接続する
-
-1. ターミナル コマンド プロンプトで、必要な NuGet パッケージをインストールするには、次のコマンドを入力します。
-
-    ```bash
-    dotnet add package Microsoft.Azure.Devices.Client
-    ```
-
-1. エクスプローラー ウィンドウで、**Program.cs** をクリックします。
-
-1. コード エディターで、既存のコードをすべて削除します。
-
-1. コード エディターで、アプリで必要な `using` ステートメントを追加するには、次のコードを入力します。
-
-    ```csharp
-    using System;
-    using Microsoft.Azure.Devices.Client;
-    using Newtonsoft.Json;
-    using System.Text;
-    using System.Threading.Tasks;
-    ```
-
-1. `using` ステートメントの下に、アプリケーションの名前空間を作成するには、次のコードを入力します。
-
-    ```csharp
-    namespace ThermostatDevice
-    {
-        // ここにクラスを追加
-    }
-    ```
-
-1. 以下の `// ここにクラスを追加` コメントの空白のコード行で、**ThermostatDevice** クラスを作成するには、次のコードを入力します。
-
-    ```csharp
-    class ThermostatDevice
-    {
-        // ここに変数を追加
-    }
-    ```
-
-1. 以下の空白のコード行 `// ここに変数を追加` コメントで、デバイスの接続文字列の値を定義するには、次のコードを入力します。
-
-    ```csharp
-    private static DeviceClient s_deviceClient;
-    private readonly static string s_connectionString = "<DEVICE-CONNECTION-STRING>";
-
-    // ここに SendDeviceToCloudMessagesAsync メソッドを追加
-    ```
-
-    最初の行は、`DeviceClient` への参照を提供します
-    2 行目は、デバイス接続文字列の変数を提供します (先ほどコピーした)。 
-
-    > **ヒント**:
-    > `<DEVICE-CONNECTION-STRING>` を、先ほど Azure portal からコピーしたデバイス プライマリ接続文字列に置き換えます。
-
-1. i以下の空白のコード行 `// ここに SendDeviceToCloudMessagesAsync メソッドを追加` コメントで、デバイスを IoT Hub に対するクラウド メッセージを送信するには、次のコードを入力します。
-
-    ```csharp
-    private static async void SendDeviceToCloudMessagesAsync()
-    {
-        // 初期テレメトリ値
-        double minTemperature = 20;
-        double minHumidity = 60;
-        Random rand = new Random();
-
-        // ユーザーが Ctrl + C キーを押すまでループ
-        while (true)
-        {
-            double currentTemperature = minTemperature + rand.NextDouble() * 15;
-            double currentHumidity = minHumidity + rand.NextDouble() * 20;
-
-            // 匿名型を使用して JSON メッセージを作成する
-            var telemetryDataPoint = new
-            {
-                temperature = currentTemperature,
-                humidity = currentHumidity
-            };
-            var messageString = JsonConvert.SerializeObject(telemetryDataPoint);
-            var message = new Message(Encoding.ASCII.GetBytes(messageString));
-
-            // メッセージにカスタム アプリケーション プロパティを追加.
-            // IoT Hub は、メッセージ本文にアクセスしなくても、これらのプロパティをフィルター処理できます。
-            message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
-
-            // テレメトリ メッセージの送信
-            await s_deviceClient.SendEventAsync(message);
-            Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
-
-            // 次のメッセージを送信するまで 10 秒間待機する
-            await Task.Delay(10000);
-        }
-    }
-
-    // ここにメイン メソッドを追加
-    ```
-
-    上の `await Task.Delay(10000);` コードに注意してください。これにより、メッセージが 10 秒ごとに送信されるように時間の遅延が発生し、カスタム警告 アラートの "5 分間に 5 件以下のメッセージ" しきい値を超えます。
-
-    > **ヒント**:
-    > コード コメントを読んで、メソッドの動作を理解します。
-
-1. `//ここにメイン メソッドを追加` コメントの下の空白のコード行に、アプリのメイン メソッド (エントリ ポイント) を提供するには、次のコードを入力します。
-
-    ```csharp
-    private static void Main(string[] args)
-    {
-        Console.WriteLine("IoT Hub C# Simulated Thermostat Device.CTRL+C to exit.\n");
-
-        // MQTT プロトコルを使用して IIoT Hub に接続する
-        s_deviceClient = DeviceClient.CreateFromConnectionString(s_connectionString, TransportType.Mqtt);
-        SendDeviceToCloudMessagesAsync();
-        Console.ReadLine();
-    }
-    ```
-
-    > **注意**:
-    `DeviceClient` インスタンスが作成されると、**MQTT** プロトコルは `TransportType.Mqtt` で指定されます - これにより、作成されたカスタム警告で指定されたプロトコルを使用して、デバイスからクラウドへのメッセージが確実に送信されます。
-
-1. ターミナル コマンド プロンプトで、アプリケーションをビルドして実行するには、次のコマンドを入力します。
+1. ターミナル コマンド プロンプトで、以下のコマンドを実行します。
 
     ```bash
     dotnet run
@@ -827,7 +756,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
     このラボの残りの部分では、アプリを実行したままにして、複数のアラートを生成できます。
 
-### エクササイズ 9: Security Center の警告を確認する
+### 演習 9: Security Center の警告を確認する
 
 この時点で、コンソール アプリは、以前に作成したカスタム警告をトリガーするのに十分なテレメトリを送信しています。 
 
@@ -844,7 +773,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
 ![デバイス セキュリティ警告グラフ](media/LAB_AK_19-device-security-alert-chart.png)
 
-    「**Devices with the most alerts (アラートが最も多いデバイス)**」 タイルでも、 **CheeseCave1-Sensor1** デバイスのエントリが表示されるはずです。
+    「**Devices with the most alerts (アラートが最も多いデバイス)**」 タイルでも、 **sensor-th-0070** デバイスのエントリが表示されるはずです。
 
 ![Devices with the most alerts (アラートが最も多いデバイス) タイル](media/LAB_AK_19-devices-with-most-alerts-tile.png)
 
@@ -863,7 +792,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
 1. 最新の警告をクリックします。
 
-    詳細ウィンドウが開きます。「**全般情報**」 は、警告に関する概要情報を提供します。この下の**最後の 10 の影響を受けるデバイス**には、**CheeseCave1-Sensor1** デバイスが一覧表示されます。
+    詳細ウィンドウが開きます。「**全般情報**」 は、警告に関する概要情報を提供します。この下の**最後の 10 の影響を受けるデバイス**には、**sensor-th-0070** デバイスが一覧表示されます。
 
 ![カスタム警告の詳細ウィンドウ](media/LAB_AK_19-custom-alert-details-pane.png)
 

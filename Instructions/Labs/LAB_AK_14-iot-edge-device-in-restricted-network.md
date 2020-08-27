@@ -40,8 +40,8 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 
 | リソースの種類:  | リソース名 |
 | :-- | :-- |
-| リソース グループ | AZ-220-RG |
-| IoT Hub | AZ-220-HUB-_{YOUR-ID}_ |
+| リソース グループ | rg-az220 |
+| IoT Hub | iot-az220-training-{your-id} |
 | IoT デバイス | SimulatedThermostat |
 
 これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って **lab14-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
@@ -51,7 +51,7 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 >**注:** **SimulatedThermostat** デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
 >
 > ```bash
-> az iot hub device-identity show-connection-string --hub-name AZ-220-HUB-{YOUR-ID} --device-id SimulatedThermostat -o tsv
+> az iot hub device-identity show-connection-string --hub-name iot-az220-training-{your-id} --device-id SimulatedThermostat -o tsv
 > ```
 
 #### タスク 1: セットアップ スクリプトを実行する
@@ -118,8 +118,8 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
     ```bash
     #!/bin/bash
 
-    RGName="AZ-220-RG"
-    IoTHubName="AZ-220-HUB-{YOUR-ID}"
+    RGName="rg-az220"
+    IoTHubName="iot-az220-training-{your-id}"
 
     Location="{YOUR-LOCATION}"
     ```
@@ -152,7 +152,7 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 
     このスクリプトの実行には数分かかります。各ステップが完了すると、JSON 出力が表示されます。
 
-    このスクリプトは、まず **AZ-220-RG** という名前のリソース グループ と **AZ-220-ハブ-{YourID}** という名前の IoT ハブを作成します。  既に存在する場合は、対応するメッセージが表示されます。次にスクリプトは、 **SimulatedThermostat** の ID を持つデバイスを IoT ハブに追加し、デバイス接続文字列を表示します。
+    このスクリプトは、まず **rg-az220** という名前のリソース グループ と **AZ-220-ハブ-{YourID}** という名前の IoT ハブを作成します。  既に存在する場合は、対応するメッセージが表示されます。次にスクリプトは、 **SimulatedThermostat** の ID を持つデバイスを IoT ハブに追加し、デバイス接続文字列を表示します。
 
 1. スクリプトが完了すると、デバイスの接続文字列が表示されることに注意してください。
 
@@ -226,10 +226,10 @@ IoT Edge ゲートウェイ (親) と、他 IoT デバイス (子またはリー
 1. Azure IoT Hub 内に新しい **IoT Edge デバイス ID** を作成するには、次のコマンドを入力します。
 
     ```sh
-    az iot hub device-identity create --edge-enabled --hub-name AZ-220-HUB-{YOUR-ID} --auth-method shared_private_key --device-id IoTEdgeGateway
+    az iot hub device-identity create --edge-enabled --hub-name iot-az220-training-{your-id} --auth-method shared_private_key --device-id IoTEdgeGateway
     ```
 
-    > **注意**:  必ず **AZ-220-HUB-_{YOUR-ID}_** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
+    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
 
     `az iot hub device-identity create` コマンドには、次のパラメーターが含まれていることに注意してください。
 
@@ -278,10 +278,10 @@ IoT Edge ゲートウェイ (親) と、他 IoT デバイス (子またはリー
 1. IoT ハブから **IoTEdgeGateway** デバイスの**接続文字列**を取得するには、次のコマンドを入力します。
 
     ```cmd/sh
-    az iot hub device-identity show-connection-string --hub-name AZ-220-HUB-{YOUR-ID} --device-id IoTEdgeGateway -o tsv
+    az iot hub device-identity show-connection-string --hub-name iot-az220-training-{your-id} --device-id IoTEdgeGateway -o tsv
     ```
 
-    > **注意**:  必ず **AZ-220-HUB-_{YOUR-ID}_** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
+    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
 
     `az iot hub device-identity show-connection-string` コマンドは、いくつかのパラメーターを渡すことによって呼び出されます。
 
@@ -302,10 +302,10 @@ IoT Edge ゲートウェイ (親) と、他 IoT デバイス (子またはリー
 1. IoT Edge デバイスの子として IoT デバイスを作成して構成するには、次のコマンドを実行します。
 
     ```sh
-    az iot hub device-identity create -n AZ-220-HUB-{YOUR-ID} --device-id ChildDevice1 --pd IoTEdgeGateway
+    az iot hub device-identity create -n iot-az220-training-{your-id} --device-id ChildDevice1 --pd IoTEdgeGateway
     ```
 
-    > **注意**:  必ず **AZ-220-HUB-_{YOUR-ID}_** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
+    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
 
     このコマンドには、次のパラメーターが渡されます。
 
@@ -358,10 +358,10 @@ IoT Edge ゲートウェイ (親) と、他 IoT デバイス (子またはリー
 1. IoT ハブから **ChildDevice1** デバイスの**接続文字列**を取得するには、次のコマンドを入力します。
 
     ```cmd/sh
-    az iot hub device-identity show-connection-string --hub-name AZ-220-HUB-{YOUR-ID} --device-id ChildDevice1 -o tsv
+    az iot hub device-identity show-connection-string --hub-name iot-az220-training-{your-id} --device-id ChildDevice1 -o tsv
     ```
 
-    > **注意**:  必ず **AZ-220-HUB-_{YOUR-ID}_** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
+    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
 
 1. このラボで後述する参照用に接続文字列の値のコピーを保存します。
 
@@ -583,9 +583,9 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. リソース グループ タイルで、 **AZ-220-HUB-{YOUR-ID}** をクリックします。
+1. リソース グループ タイルで、 **iot-az220-training-{your-id}** をクリックします。
 
-1. **「AZ-220-HUB-{YOUR-ID}」** ブレードのナビゲーション メニュー 左側で、**「自動デバイス管理」** の下にある **「IoT Edge」** をクリックします。
+1. **「iot-az220-training-{your-id}」** ブレードのナビゲーション メニュー 左側で、**「自動デバイス管理」** の下にある **「IoT Edge」** をクリックします。
 
     このウィンドウでは、IoT ハブに接続されている IoT Edge デバイスを管理することができます。
 
@@ -885,7 +885,7 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 1. Cloud Shell コマンド プロンプトで、Azure IoT Hub によって受信されるイベントの監視を開始するには、次のコマンドを入力します。
 
     ```cmd/sh
-    az iot hub monitor-events --hub-name AZ-220-HUB-{YOUR-ID}
+    az iot hub monitor-events --hub-name iot-az220-training-{your-id}
     ```
 
     `{Your-ID}` プレースホルダーは必ず、Azure IoT Hub インスタンスの一意のサフィックスに置き換えてください。
@@ -983,7 +983,7 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 1. Cloud Shell コマンド プロンプトで、Azure IoT Hub によって受信されるイベントの監視を開始するには、次のコマンドを入力します。
 
     ```cmd/sh
-    az iot hub monitor-events --hub-name AZ-220-HUB-{YOUR-ID}
+    az iot hub monitor-events --hub-name iot-az220-training-{your-id}
     ```
 
     `{Your-ID}` プレースホルダーは必ず、Azure IoT Hub インスタンスの一意のサフィックスに置き換えてください。

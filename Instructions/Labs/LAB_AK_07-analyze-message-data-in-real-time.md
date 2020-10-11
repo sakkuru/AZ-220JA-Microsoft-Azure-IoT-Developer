@@ -174,366 +174,199 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
 * シミュレートされたデバイス接続とテレメトリ通信をテストする
 * テレメトリーがIoTハブに到達していることを確認する
 
-#### タスク 1: テレメトリを送信するアプリを作成する
+#### タスク1：シミュレートされたデバイスプロジェクトを開く
 
-1. Visual Studio Code を開き、C# 拡張機能がインストールされていることを確認します。
+1. Visual Studio Codeを開きます。
 
-    このコースのラボ 3 で開発環境を設定しますが、デバイス アプリの構築を開始する前にざっと確認しておく価値があります。 
+1. 上のファイルメニューをクリックし、 **Open...** をクリックします。
 
-    Visual Studio Code で C# を使用するには、[.NET Core](https://dotnet.microsoft.com/download) と [C# の拡張機能](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)の両方をインストールする必要があります。    上から 5 番目のボタンをクリックすると、左側のツール バーを使用して Visual Studio Code 拡張機能のウィンドウを開くことができます。
+1. 07-Device Message Routing フォルダに移動し、**Starter**フォルダ配下のVibrationDeviceを開きます。
 
-1. 「**ターミナル**」 メニューで、「**新しいターミナル**」 をクリックします。
+1. Visual Studio CodeのEXPLORERペインに次のファイルが表示されます。
 
-    コマンド プロンプトの一部として表示されたディレクトリ パスに注目してください。以前のラボ プロジェクトのフォルダー構造内で、このプロジェクトのビルドを開始したくありません。
-  
-1. ターミナル コマンド プロンプトで、"vibrationdevice" という名前のディレクトリを作成して現在のディレクトリをそのディレクトリに変更するには、次のコマンドを入力します。
+    * Program.cs
+    * VibrationDevice.csproj
+    > 注：必要なアセットをロードするように求められた場合は、今すぐロードできます。
 
-   ```bash
-   mkdir vibrationdevice
-   cd vibrationdevice
-   ```
+1. Program.csをクリックします。
 
-1. 新しい .NET コンソール アプリケーションを作成します。次のコマンドを入力してください。
+    ざっと見ると、**VibrationDevice**アプリケーションが前のラボで使用したものと非常に似ていることがわかります。このバージョンのアプリケーションは、対称鍵認証を使用し、テレメトリとロギングメッセージの両方をIoT Hubに送信し、より複雑なセンサー実装を備えています。
 
-    ```bash
-    dotnet new console
+1. 新しいターミナルを開きます。
+
+    コマンドプロンプトの一部として示されているディレクトリパスを調べて、正しい場所にいることを確認します。
+
+1. ターミナルコマンドプロンプトで、アプリケーションがエラーなしでビルドされることを確認するには、次のコマンドを入力します。
+
+    ```
+    dotnet build
     ```
 
-    このコマンドを実行すると、プロジェクト ファイルと共に、フォルダに **Program.cs** ファイルが作成されます。 
+    出力は次のようになります。
 
-1. デバイス アプリに必要なコード ライブラリをインストールするには、次のコマンドを入力します。
+    ```
+    ❯ dotnet build
+    Microsoft (R) Build Engine version 16.5.0+d4cbfca49 for .NET Core
+    Copyright (C) Microsoft Corporation. All rights reserved.
 
-    ```bash
-    dotnet add package Microsoft.Azure.Devices.Client
-    dotnet add package Newtonsoft.Json
+    Restore completed in 39.27 ms for D:\Az220-Code\AllFiles\Labs\07-Device Message Routing\Starter\VibrationDevice\VibrationDevice.csproj.
+    VibrationDevice -> D:\Az220-Code\AllFiles\Labs\07-Device Message Routing\Starter\VibrationDevice\bin\Debug\netcoreapp3.1\VibrationDevice.dll
+
+    Build succeeded.
+        0 Warning(s)
+        0 Error(s)
+
+    Time Elapsed 00:00:01.16
     ```
 
-    次のタスクでは、シミュレートされたデバイス アプリをビルドしてテストします。
+次のタスクでは、接続文字列を構成し、アプリケーションを確認します。
 
-#### タスク 2: テレメトリを送信するコードを追加する
+#### タスク2: 接続を構成してコードを確認する
 
-このタスクで構築するシミュレートされたデバイス アプリは、コンベア ベルトを監視している IoT デバイスをシミュレートします。アプリは、センサー信号をシミュレートして 2 秒ごとに振動センサー データを報告します。
+このタスクで構築するシミュレートされたデバイスアプリは、コンベヤーベルトを監視しているIoTデバイスをシミュレートします。アプリはセンサーの読み取り値をシミュレートし、2秒ごとに振動センサーデータを報告します。
 
-1. Visual Studio Code の 「**ファイル**」 メニューの 「**フォルダを開く**」 をクリックします。   
+1. Program.csファイルがVisualStudioCodeで開かれていることを確認してください。
 
-    ターミナル コマンド プロンプト内にリストされているフォルダ パスを使用して、プロジェクト フォルダを検索します。
-  
-1. 「フォルダを開く」 ダイアログで、ターミナル コマンド プロンプト内に表示されるディレクトリ パスに移動し、**vibrationdevice**、「**フォルダーの選択**」 の順にクリックします。
+1. Programクラスの上部近くで、deviceConnectionString変数の宣言を見つけます。
+    ```
+    private readonly static string deviceConnectionString = "<your device connection string>";
+    ```
+1. `<your device connection string>`以前に保存したデバイス接続文字列に置き換えます。
 
-    必要なアセットを読み込むよう求められたら、「**はい**」 をクリックします。
+    > 注：これは、このコードに加える必要がある唯一の変更です。
 
-    Visual Studio Code Explorer ペインが開くはずです。そうでない場合は、左側のツールバーを使用してエクスプローラーのウィンドウを開きます。ツール バーのボタンの上にマウス ポインタを置くと、ボタン名を表示できます。
+1. ファイルを保存します。
 
-1. エクスプローラー ウィンドウで、**Program.cs** をクリックします。
+1. プロジェクトの構造を確認してください。
 
-1. コード エディター ビューで、Program.cs ファイルの既定のコンテンツを削除します。
+    アプリケーションの構造は、以前にシミュレートしたデバイスプロジェクトの構造と似ていることに注意してください。
 
-    既定のコンテンツは、前のタスクで `dotnet new console` コマンドを実行したときに作成されました。
+    * Using ステートメント
+    * 名前空間の定義
+        * プログラムクラス - Azure IoT Hubへの接続とテレメトリの送信を担当
+        * ConveyorBeltSimulatorクラス - テレメトリを生成するだけでなく、このクラスは実行中のコンベヤーベルトもシミュレートします
+        * ConsoleHelper - コンソールへの異なる色のテキストの書き込みをカプセル化する新しいクラス
 
-1. シミュレートされたデバイスのコードを作成するには、空の Program.cs ファイルに次のコードを貼り付けます。
+1. Mainメソッドを確認してください。
 
-    ```csharp
-    // Copyright (c) Microsoft.All rights reserved.
-    // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
-    using System;
-    using Microsoft.Azure.Devices.Client;
-    using Newtonsoft.Json;
-    using System.Text;
-    using System.Threading.Tasks;
-
-    namespace vibration_device
+    ```
+    private static void Main(string[] args)
     {
-        class SimulatedDevice
+        ConsoleHelper.WriteColorMessage("Vibration sensor device app.\n", ConsoleColor.Yellow);
+
+        // Connect to the IoT hub using the MQTT protocol.
+        deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
+
+        SendDeviceToCloudMessagesAsync();
+        Console.ReadLine();
+    }
+    ```
+
+    deviceConnectionString変数を使用してDeviceClientのインスタンスを作成するのがいかに簡単であるかに注目してください。deviceClientオブジェクトはMainの外部（上記のコードのプログラムレベル）で宣言されているため、グローバルであり、IoTハブと通信するメソッド内で使用できます。
+
+1. SendDeviceToCloudMessagesAsyncメソッドを確認してください。
+
+    ```
+    private static async void SendDeviceToCloudMessagesAsync()
+    {
+        var conveyor = new ConveyorBeltSimulator(intervalInMilliseconds);
+
+        // Simulate the vibration telemetry of a conveyor belt.
+        while (true)
         {
-            // Telemetry globals.
-            private const int intervalInMilliseconds = 2000;                                 // wait 関数で必要な時間間隔。
-            private static readonly int intervalInSeconds = intervalInMilliseconds / 1000;   // 秒単位の時間間隔。
+            var vibration = conveyor.ReadVibration();
 
-            // コンベアベルト グローバル。
-            enum SpeedEnum
-            {
-                stopped,
-                slow,
-                fast
-            }
-            private static int packageCount = 0;                                        // コンベア ベルトから出るパッケージの数。
-            private static SpeedEnum beltSpeed = SpeedEnum.stopped;                     // コンベア ベルトをの初期状態。
-            private static readonly double slowPackagesPerSecond = 1;                   // 低速で完了したパッケージ / 秒あたり
-            private static readonly double fastPackagesPerSecond = 2;                   // Packages completed at fast speed/ per second
-            private static double beltStoppedSeconds = 0;                               // ベルトが停止した時刻。
-            private static double temperature = 60;                                     // 施設の周囲温度
-            private static double seconds = 0;                                          // タイムコンベア ベルトが動いてる時間。
+            await CreateTelemetryMessage(conveyor, vibration);
 
-            // 振動グローバル
-            private static double forcedSeconds = 0;                                    // 強制振動が始まってからの時間。
-            private static double increasingSeconds = 0; 				// 振動の増加が始まってからの時間
-            private static double naturalConstant;      				// 固有振動の強さを特定する定数
-            private static double forcedConstant = 0;      				// 強制振動の強さを特定する定数
-            private static double increasingConstant = 0;				// 増加する振動の強さを特定する定数
+            await CreateLoggingMessage(conveyor, vibration);
 
-            // IoT Hub グローバル変数
-            private static DeviceClient s_deviceClient;
-
-            // IoT ハブでデバイスを認証するためのデバイス接続文字列。
-            private readonly static string s_deviceConnectionString = "<your device connection string>";
-
-            private static void colorMessage(string text, ConsoleColor clr)
-            {
-                Console.ForegroundColor = clr;
-                Console.WriteLine(text);
-                Console.ResetColor();
-            }
-            private static void greenMessage(string text)
-            {
-                colorMessage(text, ConsoleColor.Green);
-            }
-
-            private static void redMessage(string text)
-            {
-                colorMessage(text, ConsoleColor.Red);
-            }
-
-            // シミュレーションされたテレメトリを送信する非同期メソッド。
-            private static async void SendDeviceToCloudMessagesAsync(Random rand)
-            {
-                // コンベアベルトの振動テレメトリをシミュレートする
-                ダブル振動;
-
-                while (true)
-                {
-                    // ベルト速度をランダムに調整する
-                    スイッチ (ベルトスピード)
-                    {
-                        case SpeedEnum.fast:
-                            if (rand.NextDouble() < 0.01)
-                            {
-                                beltSpeed = SpeedEnum.stopped;
-                            }
-                            if (rand.NextDouble() > 0.95)
-                            {
-                                beltSpeed = SpeedEnum.slow;
-                            }
-                            break;
-
-                        case SpeedEnum.slow:
-                            if (rand.NextDouble() < 0.01)
-                            {
-                                beltSpeed = SpeedEnum.stopped;
-                            }
-                            if (rand.NextDouble() > 0.95)
-                            {
-                                beltSpeed = SpeedEnum.fast;
-                            }
-                            break;
-
-                        case SpeedEnum.stopped:
-                            if (rand.NextDouble() > 0.75)
-                            {
-                                beltSpeed = SpeedEnum.slow;
-                            }
-                            break;
-                    }
-
-                    // 振動レベルを設定する
-                    if (beltSpeed == SpeedEnum.stopped)
-                    {
-                        // ベルトが停止すると、振動はすべて停止します。
-                        forcedConstant = 0;
-                        increasingConstant = 0;
-                        vibration = 0;
-
-                        // 警告を送信する必要がある場合に備えて、ベルトが停止した時間を記録する
-                        ベルト停止秒 += 間隔イン秒;
-                    }
-                    else
-                    {
-                        // コンベアベルトが動いています。
-                        beltStoppedSeconds = 0;
-
-                        // 不要な振動のランダムな開始を確認します。
-
-                        // 強制振動を確認します。
-                        if (forcedConstant == 0)
-                        {
-                            if (rand.NextDouble() < 0.1)
-                            {
-                                // 強制振動が開始します。
-                                forcedConstant = 1 + 6 * rand.NextDouble();             // 1 から 7 の間の数字です。
-                                if (beltSpeed == SpeedEnum.slow)
-                                    forcedConstant /= 2;                                // 速度が遅くなると振動がより少なくなります。
-                                forcedSeconds = 0;
-                                redMessage($"Forced vibration starting with severity: {Math.Round(forcedConstant, 2)}");
-                            }
-                        }
-                        else
-                        {
-                            if (rand.NextDouble() > 0.99)
-                            {
-                                forcedConstant = 0;
-                                greenMessage("Forced vibration stopped");
-                            }
-                            else
-                            {
-                                redMessage($"Forced vibration: {Math.Round (forcedConstant, 1)} は次の時点で開始される: {DateTime.Now.ToShortTimeString()}");
-                            }
-                        }
-
-                        // 振動の増加を確認します。
-                        if (increasingConstant == 0)
-                        {
-                            if (rand.NextDouble() < 0.05)
-                            {
-                                // 振動の増加が始まります。
-                                increasingConstant = 100 + 100 * rand.NextDouble();     // 100 から 200 の間の数字です。
-                                if (beltSpeed == SpeedEnum.slow)
-                                    increasingConstant *= 2;                            // 速度が遅くなると期間がより長くなります。
-                                increasingSeconds = 0;
-                                redMessage($"Increasing vibration starting with severity: {Math.Round(increasingConstant, 2)}");
-                            }
-                        }
-                        else
-                        {
-                            if (rand.NextDouble() > 0.99)
-                            {
-                                increasingConstant = 0;
-                                greenMessage("Increasing vibration stopped");
-                            }
-                            else
-                            {
-                                redMessage($"Increasing vibration: {Math.Round(increasingConstant, 1)} started at: {DateTime.Now.ToShortTimeString()}");
-                            }
-                        }
-
-                        // 固有振動から始まる振動を適用します。
-                        vibration = naturalConstant * Math.Sin(seconds);
-
-                        if (forcedConstant > 0)
-                        {
-                            // 強制振動を追加します。
-                            vibration += forcedConstant * Math.Sin(0.75 * forcedSeconds) * Math.Sin(10 * forcedSeconds);
-                            forcedSeconds += intervalInSeconds;
-                        }
-
-                        if (increasingConstant > 0)
-                        {
-                            // 振動の増加を追加します。
-                            vibration += (increasingSeconds / increasingConstant) * Math.Sin(increasingSeconds);
-                            increasingSeconds += intervalInSeconds;
-                        }
-                    }
-
-                    // コンベア ベルト アプリが起動してから、時間を増やします。
-                    seconds += intervalInSeconds;
-
-                    // 作業を終えたパッケージを数えます。
-                    switch (beltSpeed)
-                    {
-                        case SpeedEnum.fast:
-                            packageCount += (int)(fastPackagesPerSecond * intervalInSeconds);
-                            break;
-
-                        case SpeedEnum.slow:
-                            packageCount += (int)(slowPackagesPerSecond * intervalInSeconds);
-                            break;
-
-                        case SpeedEnum.stopped:
-                            // パッケージはありません!
-                            break;
-                    }
-
-                    // ランダムに周囲温度を変化させます。
-                    temperature += rand.NextDouble() - 0.5d;
-
-                    // 次のように 2 つのメッセージを作成します。
-                    // 1.振動テレメトリのみ、Azure Stream Analytics にルーティングされます。
-                    // 2.ログ情報が、Azure ストレージ アカウントにルーティングされます。
-
-                    // テレメトリの JSON メッセージを作成します。
-                    var telemetryDataPoint = new
-                    {
-                        vibration = Math.Round(vibration, 2),
-                    };
-                    var telemetryMessageString = JsonConvert.SerializeObject(telemetryDataPoint);
-                    var telemetryMessage = new Message(Encoding.ASCII.GetBytes(telemetryMessageString));
-
-                    // メッセージにカスタム アプリケーション プロパティを追加.これはメッセージをルーティングするために使用されます。
-                    テレメトリメッセージ.プロパティ.追加(「センサーID」、"VSTel")。
-
-                    // ベルトが5秒より長く停止した場合は、警告を送信します。
-                    telemetryMessage.Properties.Add("beltAlert", (beltStoppedSeconds > 5) ? "true" : "false");
-
-                    Console.WriteLine($"Telemetry data: {telemetryMessageString}");
-
-                    // テレメトリ メッセージを送信します。
-                    await s_deviceClient.SendEventAsync(telemetryMessage);
-                    greenMessage($"Telemetry sent {DateTime.Now.ToShortTimeString()}");
-
-                    // ログ記録 JSON メッセージを作成する
-                    var loggingDataPoint = new
-                    {
-                        vibration = Math.Round(vibration, 2),
-                        packages = packageCount,
-                        speed = beltSpeed.ToString(),
-                        temp = Math.Round(temperature, 2),
-                    };
-                    var loggingMessageString = JsonConvert.SerializeObject(loggingDataPoint);
-                    var loggingMessage = new Message(Encoding.ASCII.GetBytes(loggingMessageString));
-
-                    // メッセージにカスタム アプリケーション プロパティを追加.これはメッセージをルーティングするために使用されます。
-                    loggingMessage.Properties.Add("sensorID", "VSLog");
-
-                    // ベルトが 5 秒以上停止した場合に警告を送信します。
-                    loggingMessage.Properties.Add("beltAlert", (beltStoppedSeconds > 5) ? "true" : "false");
-
-                    Console.WriteLine($"Log data: {loggingMessageString}");
-
-                    // ログ メッセージを送信します。
-                    await s_deviceClient.SendEventAsync(loggingMessage);
-                    greenMessage("Log data sent\n");
-
-                    await Task.Delay(intervalInMilliseconds);
-                }
-            }
-
-            private static void Main(string[] args)
-            {
-                Random rand = new Random();
-                colorMessage("Vibration sensor device app.\n", ConsoleColor.Yellow);
-
-                // MQTT プロトコルを使用して IoT ハブに接続します。
-                s_deviceClient = DeviceClient.CreateFromConnectionString(s_deviceConnectionString, TransportType.Mqtt);
-
-                // 通常の振動レベルの定数として、2 から 4 の間の数値を作成します。
-                naturalConstant = 2 + 2 * rand.NextDouble();
-
-                SendDeviceToCloudMessagesAsync(rand);
-                Console.ReadLine();
-            }
+            await Task.Delay(intervalInMilliseconds);
         }
     }
     ```
 
-1. 少し時間をかけてコードについてレビューしてください。
+    まず、このメソッドが無限のプログラムループを確立するために使用されていることに注意してください。最初に振動を読み取り、次に定義された時間間隔でメッセージを送信します。
 
-    > **重要:** 少し時間をかけて、コード内のコメントを一読します。IoT メッセージについて学習するためのコードの中でも最も重要なセクションは、「2 つのメッセージを作成する:」というコメントから始まります。また、コンベア ベルトの振動レベルを定義するために使用される数学が (このラボの初めのシナリオの説明に記載されている)、どのようにコードの中に入り込んでいるかを確認することに興味が湧くかもしれません。
+    よく見ると、ConveyorBeltSimulatorクラスを使用して、conveyorという名前のConveyorBeltSimulatorインスタンスが作成されていることがわかります。conveyorオブジェクトは、最初にローカルvibration変数に配置される振動測定値をキャプチャするために使用され、次に、間隔の開始時にキャプチャされたvibration値とともに2つのメッセージ作成メソッドに渡されます。
 
-1. `<your device connection string>` (44 行目) を、前の演習中に保存されたデバイスの接続文字列に置き換えます。
+1. CreateTelemetryMessageメソッドを確認してください。
 
-    > **注意**: これは、このコードに対して行う必要がある唯一の変更です。
+    ```
+    private static async Task CreateTelemetryMessage(ConveyorBeltSimulator conveyor, double vibration)
+    {
+        var telemetryDataPoint = new
+        {
+            vibration = vibration,
+        };
+        var telemetryMessageString = JsonConvert.SerializeObject(telemetryDataPoint);
+        var telemetryMessage = new Message(Encoding.ASCII.GetBytes(telemetryMessageString));
 
-1. **Program.cs** ファイルを保存します。
+        // Add a custom application property to the message. This is used to route the message.
+        telemetryMessage.Properties.Add("sensorID", "VSTel");
 
-    > **注意**:  このコードは、ラボ 7 の `/Starter` フォルダーでも使用できます。Starter フォルダのコードを使用する場合は、忘れずに `<your device connection string>` を置き換えてください。
+        // Send an alert if the belt has been stopped for more than five seconds.
+        telemetryMessage.Properties.Add("beltAlert", (conveyor.BeltStoppedSeconds > 5) ? "true" : "false");
 
-#### タスク 3: テレメトリを送信するコードをテストする
+        Console.WriteLine($"Telemetry data: {telemetryMessageString}");
 
-1. ターミナルでアプリを実行するには、次のコマンドを入力します。
+        // Send the telemetry message.
+        await deviceClient.SendEventAsync(telemetryMessage);
+        ConsoleHelper.WriteGreenMessage($"Telemetry sent {DateTime.Now.ToShortTimeString()}");
+    }
+    ```
 
-    ```bash
+    以前のラボと同様に、このメソッドはJSONメッセージ文字列を作成し、Messageクラスを使用してメッセージを追加のプロパティとともに送信します。sensorIDプロパティに注意してください。これは、VSTel値をIoTハブで適切にルーティングするために使用されます。また、beltAlertプロパティにも注意してください。これは、コンベヤーベルトが5秒を超えて停止した場合にtrueに設定されます。
+
+    通常どおり、メッセージはデバイスクライアントのSendEventAsyncメソッドを介して送信されます。
+
+1. CreateLoggingMessageメソッドを確認してください。
+
+```
+private static async Task CreateLoggingMessage(ConveyorBeltSimulator conveyor, double vibration)
+{
+    // Create the logging JSON message.
+    var loggingDataPoint = new
+    {
+        vibration = Math.Round(vibration, 2),
+        packages = conveyor.PackageCount,
+        speed = conveyor.BeltSpeed.ToString(),
+        temp = Math.Round(conveyor.Temperature, 2),
+    };
+    var loggingMessageString = JsonConvert.SerializeObject(loggingDataPoint);
+    var loggingMessage = new Message(Encoding.ASCII.GetBytes(loggingMessageString));
+
+    // Add a custom application property to the message. This is used to route the message.
+    loggingMessage.Properties.Add("sensorID", "VSLog");
+
+    // Send an alert if the belt has been stopped for more than five seconds.
+    loggingMessage.Properties.Add("beltAlert", (conveyor.BeltStoppedSeconds > 5) ? "true" : "false");
+
+    Console.WriteLine($"Log data: {loggingMessageString}");
+
+    // Send the logging message.
+    await deviceClient.SendEventAsync(loggingMessage);
+    ConsoleHelper.WriteGreenMessage("Log data sent\n");
+}
+```
+
+このメソッドは、CreateTelemetryMessageメソッドと非常によく似ていることに注意してください。注意すべき重要な項目は次のとおりです。
+
+    * loggingDataPointは、テレメトリオブジェクトよりも多くの情報が含まれています。将来の障害診断アクティビティまたはより詳細な分析を支援するために、ロギングの目的で可能な限り多くの情報を含めるのが一般的です。
+    * ロギングメッセージにはsensorIDプロパティが含まれ、今回はVSLogに設定されています。繰り返しになりますが、上記のように、彼はIoTハブでVSLog値を適切にルーティングするために使用されます。
+
+1. 必要に応じて、ConveyorBeltSimulatorクラスとConsoleHelperクラスを確認してください。
+
+    このラボの価値を最大限に引き出すために、これらのクラスのいずれかがどのように機能するかを実際に理解する必要はありませんが、どちらも独自の方法で結果をサポートします。ConveyorBeltSimulatorのクラスには、振動データを生成する速度と関連する状態の数をモデル化する、コンベヤベルトの操作をシミュレートします。ConsoleHelperのクラスは、異なるデータと値を強調するために、コンソールに異なる色のテキストを書き込むために使用されます。
+
+#### タスク3: テレメトリを送信するためのコードをテストする
+
+1. ターミナルコマンドプロンプトで、アプリを実行するには、次のコマンドを入力します。
+
+    ```
     dotnet run
     ```
 
-   このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
+    このコマンドは、現在のフォルダーにあるProgram.csファイルを実行します。
 
 1. 次のようなコンソール出力が表示されます。
 
@@ -551,357 +384,384 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
     Log data sent
     ```
 
-    > **注意**:  ターミナルウィンドウでは、緑色のテキストは正常に機能していることを示し、赤色のテキストは問題が発生している場合に使用されます。エラー メッセージが表示された場合は、まずデバイスの接続文字列を確認します。
-
-1. しばらくの間テレメトリを見て、予想される範囲で振動していることを確認します。
+注：ターミナルウィンドウでは、緑色のテキストを使用して正常に動作していることを示し、赤色のテキストを使用して問題が発生していることを示します。エラーメッセージが表示された場合は、まずデバイスの接続文字列を確認してください。
 
 1. 次のタスクのために、このアプリを実行したままにします。
 
-    次のタスクに進めない場合は、ターミナルウィンドウで**Ctrl-C**を入力してアプリを停止できます。`dotnet run` コマンドを使用すれば、後で再起動できます。
+次のタスクに進まない場合は、ターミナルウィンドウでCtrl-Cを入力してアプリを停止できます。dotnet runコマンドを使用して、後で再開できます。
 
-#### タスク 4: IoT Hub がテレメトリを受信していることを確認する
+#### タスク4: IoTハブがテレメトリを受信して​​いることを確認する
+このタスクでは、Azureポータルを使用して、IoTハブがテレメトリを受信して​​いることを確認します。
 
-このタスクでは、Azure portal を使用して、IoT Hub がテレメトリを受信していることを確認します。
+1. Azureポータルを開きます。
 
-1. [Azure portal](https://portal.azure.com) を開きます。
+1. iot-az220-training-{your-id}を開きます。
 
-1. ダッシュボードの **rg-az220** リソース グループ タイルで、「**AZ-220-HUB-_{YourID}_**」 をクリックします。 
+1. [概要]ペインで、下にスクロールしてメトリックタイルを表示します。
 
-1. 「**概要**」 ウィンドウで、下にスクロールしてメトリック タイルを表示します。 
+1. 時間範囲を1時間に変更します。
 
-1. 「**最後のデータを表示**」 に隣接した時間の範囲を 1 時間に変更します。  
+    Device to cloud messagesタイルは、いくつかの現在のアクティビティをプロットします。アクティビティが表示されない場合は、しばらく待ちます。
 
-    「**デバイスからクラウドへのメッセージ**」 タイルでは、いくつかの現在のアクティビティがプロットされている必要があります。  アクティビティが表示されていない場合は、多少の待ち時間があるので、しばらくお待ちください。
+    デバイスがテレメトリを送り出し、ハブがそれを受信したら、次のステップはメッセージを正しいエンドポイントにルーティングすることです。
 
-    デバイスによりテレメトリが送信されると、ハブによりテレメトリが受信されるので、次の手順はメッセージを正しいエンドポイントにルーティングすることです。
+#### 演習3: Azure Blob Storageへのメッセージルートを作成する
 
-### 演習 3: Azure BLOB ストレージにメッセージ ルートを作成する
+IoTソリューションでは、データの種類に応じて、またはビジネス上の理由から、受信メッセージデータを複数のエンドポイントの場所に送信する必要があることがよくあります。Azure IoTハブは、メッセージルーティング機能を提供して、受信データをソリューションに必要な場所に転送できるようにします。
 
-振動監視システムのアーキテクチャでは、データをアーカイブする保管場所と、より迅速な分析用の場所となる 2 つの目的地にデータが送信される必要があります。Azure IoT は、*メッセージ ルーティング*を通じて、適切なサービスにデータを移動させる優れた方法を提供します。 
+私たちのシステムのアーキテクチャでは、データをアーカイブするための保存場所と、より迅速な分析のための場所の2つの宛先にデータを送信する必要があります。
 
-シナリオでは、2 つのルートを作成する必要があります。
+Contosoの振動監視シナリオでは、次の2つのメッセージルートを作成する必要があります。
 
-* 最初のルートは、データをアーカイブするためのストレージです
-* 2 番目のルートは、異常検出のためにイベント ハブになる
+    * 最初のルートは、データアーカイブ用のAzure Blobストレージの場所になります
+    * 2番目のルートは、リアルタイム分析のためのAzure Stream Analyticsジョブへのルートです。
 
-メッセージ ルートは一度に 1 つずつ構築およびテストするのが最善であるため、この演習ではストレージ ルートに焦点を当てます。このルートを「ログ」ルートと呼びます。これには、Azure リソースの作成のいくつかのレベルを掘り下げることが含まれます。このルートを構築するために必要なすべての機能は、Azure portal で使用できます。
+メッセージルートは一度に1つずつ作成してテストする必要があるため、この演習ではストレージルートに焦点を当てます。このルートは「ロギング」ルートと呼ばれ、Azureリソースの作成を数レベル深く掘り下げる必要があります。
 
-ストレージ ルートをシンプルに保ち、Azure BLOB Storage を使用します (ただし、Data Lake Storage も利用できます)。メッセージ ルーティングの重要な機能は、受信データのフィルター処理です。SQL で書かれたフィルターは、特定の条件が満たされた場合にのみ、ルートを下に出力します。
+メッセージルーティングの重要な機能の1つは、エンドポイントにルーティングする前に着信データをフィルタリングする機能です。SQLクエリとして記述されたフィルタは、特定の条件が満たされた場合にのみ、ルートを介して出力を送信します。
 
-データをフィルターする最も簡単な方法の 1 つは、メッセージ プロパティで、そのため、次の2行をコードに追加しました。
+データをフィルタリングする最も簡単な方法の1つは、メッセージのプロパティを評価することです。前の演習でデバイスメッセージにメッセージプロパティを追加したことを思い出してください。追加したコードは次のようになりました。
 
-```csharp
+```
 ...
 telemetryMessage.Properties.Add("sensorID", "VSTel");
 ...
 loggingMessage.Properties.Add("sensorID", "VSLog");
 ```
 
-メッセージルートに組み込まれた SQL クエリは、`sensorID` 値をテストできます。
+これsensorIDで、ルートの基準として使用するSQLクエリをメッセージルート内に埋め込むことができます。この場合、割り当てられた値sensorIDがVSLog（振動センサーログ）の場合、メッセージはストレージアーカイブを対象としています。
 
-この演習では、ログ記録ルートを作成してテストします。
+この演習では、ロギングルートを作成してテストします。
 
-#### タスク 1: ログ メッセージを Azure ストレージにルーティングする
+#### タスク1: メッセージルーティングエンドポイントを定義する
 
-1. [Azure portal](https://portal.azure.com/) で、IoT ハブの 「**概要**」 ウィンドウが開いていることを確認します、
+1. あなたのIoTハブがブラウザで開いていることを確認してください。
 
-1. 左側のメニューの 「**メッセージング**」 の下で、「**メッセージ ルーティング**」 をクリックします。   
+1. 左側のメニューの[メッセージ]で、[メッセージルーティング]をクリックします。
 
-1. 「**メッセージ ルーティング**」 ウィンドウで、「**ルート**」 タブが選択されていることを確認します。   
+1. [メッセージルーティング]ペインで、[ルート]タブが選択されていることを確認します。
 
-1. 最初のルートを追加するには、「**追加**」 をクリックします。
+1. 新しいルートを追加するために、[+追加]をクリックします。
 
-    「**ルートの追加**」 ブレードが表示されます。 
+    [ルートの追加]ブレードが表示されます。
 
-1. 「**ルートの追加**」 ブレードの 「**名前**」 に `vibrationLoggingRoute` と入力します。   
+1. [ルートブレードの追加]の[名前]で、vibrationLoggingRouteと入力します
 
-1. 「**エンドポイント**」 の右側の 「**エンドポイントの追加**」 をクリックし、ドロップダウン リストで 「**ストレージ**」 をクリックします。     
+1. [+エンドポイントの追加]をクリックし、ドロップダウンリストでストレージをクリックします。
 
-    「**ストレージ エンドポイントの追加**」 ブレードが表示されます。 
+    [ストレージエンドポイントの追加]ブレードが表示されます。
 
-1. 「**エンドポイント名**」 に `vibrationLogEndpoint` と入力します。 
+1. [ストレージエンドポイントの追加]の[エンドポイント名]に、vibrationLogEndpointと入力します
 
-1. ストレージを作成してコンテナーを選択するには、「**コンテナーの選択**」 をクリックします。 
+1. サブスクリプションに関連付けられているストレージアカウントのリストを表示するには、[コンテナを選択します]をクリックします。
 
-    Azure サブスクリプションに既に存在するストレージ アカウントの一覧が表示されます。この時点で既存のストレージ アカウントとコンテナーを選択できますが、このラボでは新しいストレージ アカウントとコンテナーを作成します。
+    Azureサブスクリプションに既に存在するストレージアカウントのリストが一覧表示されます。この時点で、既存のストレージアカウントとコンテナを選択できますが、このラボでは新しいものを作成します。
 
-1. 新しいストレージ アカウントを作成するには、「**ストレージ アカウント**」 をクリックします。 
+1. ストレージアカウントの作成を開始するには、[+ストレージアカウント]をクリックします。
 
-    「**ストレージの作成**」 ウィンドウが表示されます。 
+    [ストレージアカウントの作成]ブレードが表示されます。
 
-1. 「**ストレージの作成**」 ウィンドウの 「**名前**」 に、「**vibrationstore**」と入力すると、イニシャルと今日の日付「**vibrationstorecah191211**」でアペンドされます。
+1. [ストレージアカウントの作成]ブレードの[名前]で、vibrationstore{your-id}と入力します
 
-    > **注意**:  このフィールドには、小文字と数字のみを含めることができ、3 ~ 24 文字で、一意である必要があります。
+    例：vibrationstorecah191211
 
-1. 「**アカウントの種類**」 の一覧で、**StorageV2 (汎用 V2)** を選択します。
+    > 注：このフィールドには小文字と数字のみを含めることができ、3〜24文字で、一意である必要があります。
 
-1. 「**パフォーマンス**」 で 「**標準**」 が選択されていることを確認します。   
+1. アカウントの種類ドロップダウンで、StorageV2（汎用V2）を選択します。
 
-    これにより、全体的なパフォーマンスを犠牲にして、コストを抑えることができます。
+1. [パフォーマンス]で、[Standard]が選択されていることを確認します。
 
-1. 「**レプリケーション**」 で、「**ローカル冗長ストレージ (LRS)**」 が選択されていることを確認します。
+    これにより、全体的なパフォーマンスを犠牲にしてコストを抑えることができます。
 
-    これにより、ディザスター リカバリーのリスク軽減を犠牲にして、コストを抑えることができます。運用環境では、ソリューションにはより堅牢なレプリケーション戦略が必要になる場合があります。
+1. [レプリケーション]で、ローカル冗長ストレージ（LRS）が選択されていることを確認します。
 
-1. 「**場所**」 で、このコースの演習で使用している地域を選択します。
+    これにより、ディザスタリカバリのリスク軽減を犠牲にしてコストを抑えることができます。本番環境では、ソリューションでより堅牢なレプリケーション戦略が必要になる場合があります。
 
-1. ストレージ アカウントを作成するには、「**OK**」 をクリックします。 
+1. 場所は、あなたがこのコースではラボのために使用しているという地域を選択します。
 
-1. 要求が検証され、ストレージ アカウントのデプロイが完了するまで待ちます。
+1. ストレージアカウントエンドポイントを作成するには、[ OK ]をクリックします。
 
-    検証と作成には 1 分から 2 分かかることがあります。
+1. リクエストが検証され、ストレージアカウントの展開が完了するまで待ちます。
 
-    完了すると、「**ストレージ アカウントの作成**」 ウィンドウが閉じ、「**ストレージ アカウント**」 ブレードが表示されます。作成したストレージ アカウントを表示するように、「ストレージ アカウント」 ブレードが更新されている必要があります。
+    検証と作成には1〜2分かかる場合があります。
 
-1. 「**vibrationstore**」を検索し、作成したストレージ アカウントを選択します。 
+    完了すると、[ストレージアカウントの作成]ブレードが閉じ、[ストレージアカウント]ブレードが表示されます。ストレージアカウントブレードは、作成されたばかりのストレージアカウントを表示するように自動更新されている必要があります。
 
-   「**コンテナー**」 ブレードが表示されます。これは新しいストレージ アカウントであるため、一覧表示するコンテナーはありません。
+#### タスク2: ストレージアカウントコンテナを定義する
 
-1. コンテナーを作成するには、「**コンテナー**」 をクリックします。 
+1. vibrationstore{your-id}をクリックします。
 
-    「**新しいコンテナー**」 ポップアップが表示されます。 
+    コンテナのブレードが表示されます。これは新しいストレージアカウントであるため、コンテナはリストされていません。
 
-1. 「**新しいコンテナー**」 ポップアップで、「**名前**」 に 「**vibrationcontainer**」 と入力します
+1. コンテナを作成するには、[+コンテナ]をクリックします。
 
-   この場合も、小文字と数字のみが受け入れられます。
+    [新しいコンテナ]ダイアログが表示されます。
 
-1. 「**パブリック アクセス レベル**」 で 「**プライベート (匿名アクセスなし)**」 が選択されていることを確認します。   
+1. 名前に、vibrationcontainerと入力します。
 
-1. コンテナーを作成するには 、「**OK**」  をクリックします。 
+    繰り返しになりますが、小文字と数字のみが受け入れられます。
 
-    しばらくすると、コンテナーの **リース状態** に 「**利用可能**」 と表示されます。
+1. [パブリックアクセスレベル]で、[プライベート（匿名アクセスなし）]が選択されていることを確認します。
 
-1. ソリューションのコンテナーを選択するには、「**vibrationcontainer**」 をクリックし、「**選択**」 をクリックします。   
+1. コンテナを作成するには、[作成]をクリックします。
 
-    「**ストレージ エンドポイントの追加**」 ウィンドウに戻ります。  **Azure Storage コンテナー**が、作成したストレージ アカウントとコンテナーの URL に設定されていることに注意してください。
+    しばらくすると、コンテナのリース状態が更新され、「Available」と表示されます。
 
-1. 「**バッチの頻度**」 ウィンドウと **「チャンク サイズ」 ウィンドウ** は既定値の **100**のままにします。
+1. ソリューションにこのコンテナーを選択するには、vibrationcontainerをクリックしてから、選択をクリックします。
 
-1. 「**エンコード**」 で、2 つのオプションがあり、**AVRO** が選択されていることに注意してください。   
+    [ストレージエンドポイントの追加]ブレードに戻る必要があります。Azure Storageコンテナーが、作成したストレージアカウントとコンテナーのURLに設定されていることに注意してください。
 
-    > **注意**:  既定では、IoT Hub は Avro 形式でコンテンツを書き込み、メッセージ本文プロパティとメッセージ プロパティの両方があります。Avro 形式は、他のエンドポイントには使用されません。Avro 形式はデータとメッセージの保存に適していますが、データのクエリに使用するのは難しいことです。これに対して、JSON 形式または CSV 形式の方が、データのクエリがはるかに簡単です。IoT ハブでは、データの JSON と AVRO での Blob Storage へのデータの書き込みがサポートされるようになりました。
+1. [バッチ頻度]ウィンドウフィールドと[チャンクサイズウィンドウ]フィールドは、デフォルト値の100に設定したままにします。
 
-1. 「**ファイル名の形式**」 フィールドで指定した値を調べます。
+1. [エンコーディング]で、2つのオプションがあり、AVROが選択されていることに注意してください。
 
-    「**ファイル名の形式**」 フィールドは、ストレージ内のファイルにデータを書き込むために使用するパターンを指定します。  ファイルが作成されると、さまざまなトークンが値に置き換えられます。
+    > 注：デフォルトでは、IoT Hubは、メッセージ本文プロパティとメッセージプロパティの両方を持つAvro形式でコンテンツを書き込みます。Avro形式は、他のエンドポイントには使用されません。Avro形式はデータとメッセージの保存には最適ですが、データのクエリに使用するのは困難です。比較すると、JSONまたはCSV形式はデータのクエリにはるかに簡単です。IoT Hubは、AVROだけでなくJSONでのBlobストレージへのデータの書き込みをサポートするようになりました。
 
-1. ペインの下部で、エンドポイントを作成するには、「**作成**」 をクリックします。 
+1. [ファイル名の形式]フィールドで指定された値を確認してください。
 
-    検証と作成には少し時間がかかります。完了したら、「**ルートの追加**」 ブレードに戻ります。
+    [ファイル名の形式]フィールドは、ストレージ内のファイルにデータを書き込むために使用されるパターンを指定します。ファイルが作成されると、さまざまなトークンが値に置き換えられます。
 
-1. 「**ルートの追加**」 ブレードの 「**データソース**」 で、「**デバイス テレメトリ メッセージ**」 が選択されていることを確認します。     
+1. ブレードの下部にあるストレージエンドポイントを作成するには、[作成]をクリックします。
 
-1. **「ルートを有効にする」** で、**「有効」** が選択されていることを確認します。
+    検証とその後の作成には少し時間がかかります。完了すると、[ルートの追加]ブレードに戻るはずです。
 
-1. 「**ルーティング クエリ**」 の下で、次のクエリに **true** を置き換えます。 
+#### タスク3: ルーティングクエリを定義する
 
-    ```sql
-    sensorID = "VSLog"
+1. [ルートの追加]の[データソース]で、[デバイステレメトリのメッセージ]が選択されていることを確認します。
+
+1. [ルートの有効化]で、[有効化]が選択されていることを確認します。
+
+1. [ルーティングクエリ]で、trueを次のクエリに置き換えます。
+
+    ```
+    sensorID = 'VSLog'
     ```
 
-    これにより、メッセージは `sensorID = "VSLog"` の場合にのみこのルートに従います。
+    このクエリにより、sensorIDアプリケーションプロパティがに設定されているメッセージのみVSLogがストレージエンドポイントにルーティングされるようになります。
 
-1. このルートを保存するには、「**保存**」 をクリックします。 
+1. このルートを保存するには、[保存]をクリックします。
 
-    成功メッセージを待ちます。完了すると、ルートが 「**メッセージ ルーティング**」 ブレードに表示されます。
+    成功メッセージを待ちます。完了すると、ルートがメッセージルーティングペインに表示されます。
 
-1. Azure portal ダッシュボードに戻ります。
+1. Azureポータルダッシュボードに戻ります。
 
-次の手順では、ログ記録ルートが機能していることを確認します。
+#### タスク4: データアーカイブを確認する
+1. Visual Studio Codeで作成したデバイスアプリがまだ実行されていることを確認します。
 
-### 演習 4: ログ ルート Azure Stream Analytics ジョブ
+    そうでない場合は、を使用してVisual Studio Codeターミナルで実行しdotnet runます。
 
-ログ記録ルートが期待どおりに動作していることを確認するために、ログ 記録メッセージを Blob Storage にルーティングする Stream Analytics ジョブを作成し、Azure Portal の Storage Explorer を使用して検証できます。
+1. リソースタイルで、ストレージアカウントブレードを開くには、vibrationstore{your-id}をクリックします。
+
+    リソースタイルにストレージアカウントが表示されない場合は、リソースグループタイルの上部にある[更新]ボタンをクリックし、上記の手順に従ってストレージアカウントを開きます。
+
+1. vibrationstore{your-id}ブレードの左側のメニューで、[ストレージエクスプローラー] （プレビュー）をクリックします。
+
+    ストレージエクスプローラーを使用して、データがストレージアカウントに追加されていることを確認できます。
+
+    > 注：ストレージエクスプローラーは現在プレビューモードであるため、正確な操作モードが変更される場合があります。
+
+1. ストレージエクスプローラー（プレビュー）ペイン、BLOBコンテナを広げ、vibrationcontainerをクリックします。
+
+    データを表示するには、フォルダの階層を下に移動する必要があります。最初のフォルダーは、IoTハブにちなんで名付けられます。
+
+1. [iot-az220-training-{your-id}]をダブルクリックし、ダブルクリックして下の階層に移動します。
+
+    IoTハブフォルダーの下に、パーティションのフォルダーが表示され、次に年、月、日の数値が表示されます。最後のフォルダーは、UTC時間でリストされた時間を表します。Hourフォルダーには、ログメッセージデータを含む多数のブロックブロブが含まれます。
+
+1. タイムスタンプが最も古いデータのBlock Blobをダブルクリックします。
+
+    URLリンクが新しいブラウザタブで開きます。データは読みやすい形式ではありませんが、バイブレーションメッセージとして認識できるはずです。
+
+1. データを含むブラウザータブを閉じてから、Azureポータルダッシュボードに戻ります。
+
+#### 演習4: Azureストリーム分析ジョブのログ記録
+この演習では、ログメッセージをBlobストレージに出力するStreamAnalyticsジョブを作成します。次に、Azureポータルのストレージエクスプローラーを使用して、保存されているデータを表示します。
 
 これにより、ルートに次の設定が含まれていることを確認できます。
 
-* **名前** - vibrationLoggingRoute
-* **データ ソース** - DeviceMessages
-* **ルーティング クエリ** - sensorID = "VSLog"
-* **エンドポイント** - vibrationLogEndpoint
-* **有効化** -  true
+* 名前-vibrationLoggingRoute
+* データソース-DeviceMessages
+* ルーティングクエリ-sensorID = 'VSLog'
+* エンドポイント- vibrationLogEndpoint
+* 有効-真
 
-> **注意**: このラボでは、奇妙に思えるかもしれませんが、データをストレージにルーティングし、Azure Stream Analytics を使用してデータをストレージにも送信しています。作成シナリオでは、両方のパスを長期的には使用しません。代わりに、ここで作成している 2 番目のパスが存在しない可能性があります。ここでは、ラボ環境でルーティングが期待どおりに機能していることを検証し、Azure Stream Analytics の簡単な実装を示す方法として使用しています。
+> 注：このラボでデータをストレージにルーティングし、Azure StreamAnalyticsを介してデータをストレージに送信するのは奇妙に思えるかもしれません。実稼働シナリオでは、両方のパスが長期的に存在することはありません。代わりに、ここで作成している2番目のパスが存在しない可能性があります。ここでは、ラボ環境で、ルーティングが期待どおりに機能していることを検証し、Azure StreamAnalyticsの簡単な実装を示す方法として使用します。
 
-#### タスク 1: Streaming Analytics ジョブを作成する
+#### タスク1: StreamAnalyticsジョブを作成する
 
-1. Azure portal メニューで、「**リソースの作成**」 をクリックします。
+1. Azureポータルメニューで、[+リソースの作成]をクリックします。
 
-1. 「**新規**」 ブレードの 「**マーケットプレースの検索**」 ボックスに 「**Stream Analytics ジョブ**」 と入力し、「**Stream Analytics ジョブ**」 をクリックします。       
+1. [新規]ブレードの[Marketplaceを検索]テキストボックスに「stream analytics」と入力し、[Stream Analytics job]をクリックします。
 
-1. 「**Stream Analytics ジョブ**」 ブレードで、「**作成**」 をクリックします。
+1. 作成をクリックします。
 
-    「**新しい Stream Analytics ジョブ**」 ウィンドウが表示されます。 
+    新しいストリーム解析ジョブペインが表示されます。
 
-1. 「**新しい Stream Analytics ジョブ**」 ウィンドウの 「**名前**」 の下に `vibrationJob` と入力します。
+1. [新しいStream Analytics ジョブ]の[ジョブ名]で、vibrationJobと入力します。
 
-1. 「**サブスクリプション**」 で、ラボで使用しているサブスクリプションを選択します。
+1. [サブスクリプション]で、ラボで使用しているサブスクリプションを選択します。
 
-1. 「**リソース グループ**」 で 「**rg-az220**」 を選択します。   
+1. リソース・グループではrg-az220を選択します。
 
-1. 「**場所**」 で、すべてのラボ作業に使用するリージョンを選択します。 
+1. 場所は、あなたがこのラボで使用している地域を選択します。
 
-1. 「**ホスティング環境**」 で 「**クラウド**」 を選択します。   
+1. [ホスティング環境]で、[クラウド]が選択されていることを確認します。
 
-    エッジ ホスティングについては、コースの後半で説明します。
+    Edgeホスティングについては、コースの後半で説明します。
 
-1. 「**ストリーミング ユニット**」 で、数値を **3** から **1** に減ら します。     
+1. [ストリーミングユニット]で、数を3から1に減らします。
 
-    このラボでは 3 ユニットは必要ありません。これによりコストが削減されます。
+    このラボは3ユニットを必要とせず、これによりコストが削減されます。
 
-1. Stream Analytics ジョブを作成するには、**作成**をクリックします。
+1. Stream Analyticsジョブを作成するには、[作成]をクリックします。
 
-1. 「**デプロイの成功**」 メッセージを待ってから、新しいリソースを開きます。 
+1. 展開が成功したというメッセージを待ってから、新しいリソースを開きます。
 
-    > **ヒント:** 新しいリソースに移動するメッセージが見つからない場合、またはいつでもリソースを見つける必要がある場合は、「**ホーム/すべてのリソース**」を選択します。リソースの一覧に表示するため、リソース名を入力します。
+    > ヒント：新しいリソースに移動するためのメッセージを見逃した場合、またはいつでもリソースを見つける必要がある場合は、[ホーム] / [すべてのリソース]を選択します。リソースのリストに表示されるのに十分なリソース名を入力します。
 
-1. お手数ですが、新しい Stream Analytics ジョブを調べてください。
+1. 少し時間を取って、新しいStreamAnalyticsジョブを調べてください。
 
-    空のジョブがあり、入力または出力が表示されておらず、スケルトン クエリが存在することに注意してください。次に、これらのエントリを作成します。
+    入力または出力が表示されていない空のジョブと、スケルトンクエリがあることに注意してください。次のステップは、これらのエントリを入力することです。
 
-1. 入力を作成するには、左側のナビゲーションの 「**ジョブ トポロジ**」 で 「**入力**」 をクリックします。   
+1. [ジョブトポロジ]の下の左側のメニューで、[入力]をクリックします。
 
-    「**入力**」 ウィンドウが表示されます。 
+    [入力]ペインが表示されます。
 
-1. 「**入力**」 ウィンドウで、「**ストリーム入力の追加**」 をクリックし、ドロップダウン リストから 「**IoT Hub**」 を選択します。
+1. +ストリーム入力の追加をクリックし、IoT Hubを選択します。
 
-    「**新しい入力**」 ウィンドウが表示されます。 
+    IoT Hub-新規入力ペインが表示されます。
 
-1. 「**新しい入力**」 ウィンドウの 「**入力エイリアス**」 に `vibrationInput` と入力します。
+1. 入力エイリアスにvibrationInputと入力します。
 
-1. 「**サブスクリプションから IoT Hub を選択**」 が選択されていることを確認します。
+1. [サブスクリプションから IoT Hub を選択する]が選択されていることを確認します。
 
-1. 「**サブスクリプション**」 で、以前に IoT Hub の作成に使用したサブスクリプションが選択されていることを確認します。
+1. [サブスクリプション]で、以前にIoTハブを作成するために使用したサブスクリプションが選択されていることを確認します。
 
-1. 「**IoTHub**」 で、コース ラボの最初に作成した IoT Hub **AZ-220-HUB-_{YourID}_** を選択します。
+1. [IoTハブ]で、iot-az220-training-{your-id} IoTハブが選択されていることを確認します。
 
-1. 「**エンドポイント**」 で 、「**メッセージング**」 が選択されていることを確認します。
+1. [エンドポイント]で、[メッセージング]が選択されていることを確認します。
 
-1. 「**共有アクセス ポリシー名**」 で **iothubowner** が選択されていることを確認します。   
+1. [共有アクセスポリシー名]で、iothubownerが選択されていることを確認します。
 
-    > **注意**:  **共有アクセス ポリシー キー**は読み取り専用で実装されます。 
+1. [コンシューマー]グループで、[$Default]が選択されていることを確認します。
 
-1. 「**コンシューマー グループ**」 で **$Default** が選択されていることを確認します。
+1. [イベントシリアル化形式]で、JSONが選択されていることを確認します。
 
-1. **「イベントのシリアル化形式」** で **「JSON」** が選択されていることを確認します。
+1. [エンコード]で、UTF-8が選択されていることを確認します。
 
-1. **「エンコード」** で、**「UTF-8」** が選択されていることを確認します。
+    一部のフィールドを表示するには、下にスクロールする必要がある場合があります。
 
-    フィールドの一部を表示させるために、下にスクロールする必要がある場合があります。
+1. [イベント圧縮タイプ]で、[なし]が選択されていることを確認します。
 
-1. 「**イベントの圧縮タイプ**」 で 「**なし**」 が選択されていることを確認します。   
+1. 新しい入力を保存するには、[保存]をクリックして、入力が作成されるのを待ちます。
 
-1. 新しい入力を保存するには、**「保存」** をクリックし、入力が作成されるまで待ちます。
+    入力リストは、新しい入力を表示するように更新する必要があります。
 
-    **入力**リストが更新されて、新しい入力が表示されるはずです。
+1. 出力を作成するには、左側のメニューの[ジョブトポロジ]で、[出力]をクリックします。
 
-1. 出力を作成するには、左側のナビゲーションの 「**ジョブ トポロジ**」 の下で、「**出力**」 をクリックします。   
+    [出力]ペインが表示されます。
 
-    **「出力」** ウィンドウが表示されます。
+1. [+追加]をクリックし、BLOBストレージ/ADLS Gen2を選択します。。
 
-1. 「**出力**」 ウィンドウで 「**追加**」 をクリックし、ドロップダウン リストから 「**BLOB ストレージ/Data Lake Storage Gen2**」 を選択します。     
+1. 出力エイリアスにvibrationOutputを入力します。
 
-    「**新規出力**」 ウィンドウが表示されます。 
+1. [サブスクリプションからストレージを選択]が選択されていることを確認します。
 
-1. 「**新しい出力**」 ウィンドウの 「**出力エイリアス**」 の下に、`vibrationOutput` と入力します。   
+1. このラボで使用しているサブスクリプションを選択します。
 
-1. 「**サブスクリプションからストレージを選択**」 が選択されていることを確認します。 
+1. ストレージアカウントでvibrationstore{your-id}を選択します。
 
-1. 「**サブスクリプション**」 で、このラボで使用しているサブスクリプションを選択します。
+    注：ストレージアカウントキーは自動的に入力され、読み取り専用になります。
 
-1. 「**ストレージ アカウント**」 で、以前に作成したストレージ アカウント  (**vibrationstore** とイニシャルと日付) を選択します。   
+1. [コンテナ]で、[既存のものを使用]が選択されていること、およびドロップダウンリストから[vibrationcontainer]が選択されていることを確認します。
 
-    > **注意**:  **ストレージ アカウント キー**は自動的に設定され、読み取り専用になります。 
+1. パスパターンは空のままにします。
 
-1. 「**コンテナー**」 で、「**既存の使用**」 が選択され、ドロップダウン リストから 「**vibrationcontainer**」 が選択されていることを確認します。     
+1. 日付形式と時刻の形式をデフォルトのままにします。
 
-1. **パス パターン**は空白のままにします。 
+1. [イベントシリアル化形式]で、JSONが選択されていることを確認します。
 
-1. 「**日付の形式**」 と 「**時刻の形式**」 は既定値のままにします。   
+1. [エンコード]で、UTF-8が選択されていることを確認します。
 
-1. **「イベントのシリアル化形式」** で **「JSON」** が選択されていることを確認します。
+1. [フォーマット]で、[改行区切り]が選択されていることを確認します。
 
-1. **「エンコード」** で、**「UTF-8」** が選択されていることを確認します。
+    > 注：この設定では、各レコードが各行にJSONオブジェクトとして保存され、全体として、無効なJSONレコードであるファイルになります。もう1つのオプションである配列は、ドキュメント全体がJSON配列としてフォーマットされ、各レコードが配列内のアイテムであることを保証します。これにより、ファイル全体を有効なJSONとして解析できます。
 
-1. 「**形式**」 で、「**線区切り**」 が選択されていることを確認します。   
+1. 最小行数を空白のままにします。
 
-    > **注意**:  この設定では、各レコードを各行に JSON オブジェクトとして格納し、全体として取得すると、ファイルが無効な JSON レコードになります。もう 1 つのオプション 「**配列**」 は、各レコードが配列内の項目である JSON 配列として文書全体がフォーマットされることを保証します。  これにより、ファイル全体を有効な JSON として解析できます。
+1. [最大時間]で、[時間]と[分]を空白のままにします。
 
-1. **最小行は**空白のままにします。
+1. 認証モードで接続文字列が選択されていることを確認します。
 
-1. 「**最大時間**」 で、「**時間** と **分**」 を空白のままにします。
+1. 出力を作成するには、[保存]をクリックして、出力が作成されるのを待ちます。
 
-1. 「**認証モード**」 で 「**接続文字列**」 が選択されていることを確認します。
+    出力リストは、新しい出力で更新されます。
 
-1. 出力を作成するには、「**保存**」 をクリックし、出力が作成されるのを待ちます。 
+1. クエリを編集するには、左側のメニューの[ジョブトポロジ]で、[クエリ]をクリックします。
 
-    **出力**リストが新しい出力で更新されます。
+1. クエリエディタペインで、既存のクエリを以下のクエリに置き換えます。
+```
+SELECT
+    *
+INTO
+    vibrationOutput
+FROM
+    vibrationInput
+```
 
-1. クエリを編集するには、左側のナビゲーションの 「**ジョブ トポロジ**」 で 「**クエリ**」 をクリック します。
+1. [クエリの保存]をクリックします。
 
-1. クエリ編集ウィンドウで、既存のクエリを以下のクエリに置き換えます。
+1. 左側のメニューで、[概要]をクリックします。
 
-    ```sql
-    SELECT
-        *
-    INTO
-        vibrationOutput
-    FROM
-        vibrationInput
-    ```
+#### タスク2: ログルートをテストする
+さて、楽しい部分です。デバイスアプリがポンプアウトしているテレメトリは、ルートに沿ってストレージコンテナに送られますか？
 
-1. 編集ペインの真上にある 「**クエリの保存**」 をクリックします。 
+1. Visual Studio Codeで作成したデバイスアプリがまだ実行されていることを確認します。
 
-1. 左側のナビゲーションで、「**概要**」 をクリックします。
+    そうでない場合は、を使用してVisual Studio Codeターミナルでdotnet runを実行します。
 
-#### タスク 2: ログ ルートをテストする
+1. 概要メニューで[開始]をクリックします。
 
-さて次は、楽しい部分になります。デバイス アプリによって送り出されるテレメトリは、ルートに沿ってストレージ コンテナーの中に入り込みますか。
+1. [ジョブの開始]ペインで、[ジョブ出力の開始時刻]を[現在]に設定したままにして、[開始]をクリックします。
 
-1. Visual Studio Code で作成したデバイス アプリが、依然として実行されていることを確認します。 
+    ジョブが開始されるまでに少し時間がかかる場合があります。
 
-    そうでない場合は、`dotnet run` を使用して Visual Studio Code ターミナルで実行します。
+1. Azureポータルメニューで、[ダッシュボード]をクリックします。
 
-1. Stream Analytics ジョブの 「**概要**」 ウィンドウで、「**開始**」 をクリックします。   
+1. リソースタイルで、vibrationstore{your-id}をクリックします。
 
-1. 「**ジョブの開始**」 ウィンドウで、「**ジョブ出力の開始時刻**」 を 「**現在**」 のままにし、「**開始**」 をクリック します。       
+    ストレージアカウントが表示されていない場合は、リソースグループタイルの上部にある[更新]ボタンを使用します。
 
-    ジョブが開始するまでに、すこし時間がかかります。
+1. ストレージアカウントの[概要]ペインで、[監視]セクションが表示されるまで下にスクロールします。
 
-1. Azure portal メニューで、**「ダッシュボード」** をクリックします。
+1. [監視]で、時間範囲を1時間に変更します。
 
-1. リソース グループ タイルで、 **vibrationstore** (およびイニシャルと日付) ストレージ アカウントを選択します。
+    チャートにアクティビティが表示されます。
 
-    ストレージ アカウントが表示されない場合は、 リソース グループ タイルの上部にある 「**更新**」 ボタンを使用します。
+1. 左側のメニューで、[Storage Explorer (preview)]をクリックします。
 
-1. ストレージ アカウントの 「**概要**」 ウィンドウで、「**監視**」 セクションが表示されるまで下にスクロールします。
+    Storage Explorerを使用して、すべてのデータがストレージアカウントに到達していることをさらに確認できます。
 
-1. 「**監視**」 で、「**最後のデータを表示**」 の横にある時間の範囲を **1 時間** に変更します。
+    > 注：ストレージエクスプローラーは現在プレビューモードであるため、正確な操作モードが変更される場合があります。
 
-    グラフにアクティビティが表示されます。
+1. Storage Explorer (preview)のBLOBコンテナー配下のvibrationcontainerをクリックします。
 
-1. 左側のナビゲーション メニューで、「**ストレージ エクスプローラー (プレビュー)**」 をクリックします。
+    データを表示するには、フォルダの階層を下に移動する必要があります。最初のフォルダーはIoTHubにちなんで名付けられ、次はパーティション、次に年、月、日、最後に時間になります。
 
-    ストレージ エクスプローラーを使用して、すべてのデータがストレージ アカウントに到達していることを再確認できます。 
+1. 右側のペインの[名前]で、IoTハブのフォルダーをダブルクリックし、最新の時間フォルダーを開くまで、ダブルクリックして階層に移動します。
 
-    > **注意**:  ストレージ エクスプローラーは現在プレビュー モードであるため、操作の正確なモードが変更される可能性があります。
+    時間フォルダー内に、生成された分にちなんで名付けられたファイルが表示されます。これにより、データが意図したとおりに保存場所に到達していることが確認されます。
 
-1. **Storage Explorer (プレビュー)** の 「**BLOB コンテナー**」 の下で、「**振動コンテナ**」 をクリックします。     
+1. ダッシュボードに戻ります。
 
-    データを表示するには、フォルダの階層を下に移動する必要があります。最初のフォルダには IoT Hub の名前が付けられ、その次はパーティション、それから年、月、日、そして最後の時間になります。 
+1. リソースタイルで、vibrationJobをクリックします。
 
-1. 右側のウィンドウの 「**名前**」 の下で、IoT Hub のフォルダーをダブルクリックし、次に、最新の時間フォルダーを開くまで、ダブルクリックを使用して階層まで移動します。
+1. vibrationJobのブレードで停止をクリックします。
 
-    時間フォルダ内には、生成された分をとって名前につけてあるファイルが表示されます。
+    デバイスアプリからハブ、ルート、ストレージコンテナまでのアクティビティを追跡しました。大きな進歩です！データの視覚化をざっと見てみると、次のモジュールでこのシナリオのストリーム分析を続行します。
 
-1. Azure Streaming Analytics ジョブを停止するには、ポータル ダッシュボードに戻り、「**vibrationJob**」 を選択します。 
+1. Visual Studio Codeウィンドウに切り替えます。
 
-1. 「**Stream Analytics ジョブ**」 ページで、「**停止**」、「**はい**」 の順にクリックします。     
+1. ターミナルコマンドプロンプトで、デバイスシミュレーターアプリを終了するには、CTRL-Cを押します。
 
-    デバイス アプリから、ルートに沿って、ハブ、ストレージ コンテナーへとアクティビティをトレースしました。大きな進歩です! データの視覚化をすばやく確認する場合は、次のモジュールでこのシナリオのストリーム分析を続行します。
-
-1. 「Visual Studio Code」 ウィンドウに切り替えます。
-
-1. ターミナル コマンド プロンプトで、デバイス シミュレータ アプリを終了するには、**Ctrl-C** キーを押します。
-
-> **重要**: このコースのデータ視覚化モジュールを完了するまで、これらのリソースを削除しないでください。
+    重要：このコースのデータ視覚化モジュールを完了するまで、これらのリソースを削除しないでください。

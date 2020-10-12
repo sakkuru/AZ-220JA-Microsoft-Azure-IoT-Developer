@@ -151,7 +151,7 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
 
 この演習では、AzureポータルでIoT Hubを開き、新しいIoTデバイスをデバイスレジストリに追加してから、IoT Hubがデバイス用に作成した接続文字列のコピーを取得します（後からデバイスコードで使用します）。
 
-#### タスク 1: サブスクリプションの管理
+#### タスク 1: デバイスの作成
 
 1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
@@ -230,7 +230,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 この演習では、Visual Studio CodeとAzureIoT Device SDKを使用してシミュレートされたデバイスアプリケーションを作成します。前の演習で作成したデバイスIDと共有アクセスキー（プライマリ接続文字列）を使用して、デバイスをAzure IoT Hubに接続します。次に、セキュリティで保護されたデバイスの接続と通信をテストして、IoT Hubがデバイスからシミュレートされた温度と湿度の値を期待どおりに受信していることを確認します。
 
-    > 注：シミュレートされたデバイスコードはC#プログラミング言語を使用して記述しますが、別のプログラミング言語に慣れている場合や、プログラミングに慣れていない場合でも、手順は簡単に実行できます。重要なことは、IoT Device SDKがコードでどのように実装されているかを認識することです（これも詳細に説明されています）。
+> 注：シミュレートされたデバイスコードはC#プログラミング言語を使用して記述しますが、他のプログラミング言語に慣れている場合や、プログラミングに慣れていない場合でも、手順は簡単に実行できます。重要なことは、IoT Device SDKがコードでどのように実装されているかを認識することです。
 
 #### タスク 1: 最初のプロジェクトを作成する
 
@@ -288,7 +288,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 #### タスク2：アプリケーションを探索する
 
-アプリケーションは現在2つのファイルで構成されています。
+アプリケーションは現在2つのファイルを含んでいます。
 
 * CaveDevice.csproj
 * Program.cs
@@ -312,14 +312,13 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
         </PropertyGroup>
 
         <ItemGroup>
-            <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.*" />
-            <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+            <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.31.2" />
         </ItemGroup>
 
     </Project>
     ```
 
-    > 注：ファイル内のパッケージのバージョン番号は、上記の番号と異なる場合があります。問題ありません。
+    > 注：ファイル内のパッケージのバージョン番号は、上記の番号と異なる場合がありますが、問題あはりません。
 
     プロジェクトファイル（.csproj）は、作業中のプロジェクトのタイプを指定するXMLドキュメントです。この場合、プロジェクトはSdkスタイルのプロジェクトです。
 
@@ -366,11 +365,11 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
     > 注: 開発者は通常、特に大規模なプロジェクトでは、クラスを独自のソースファイル（ソースファイルごとに1つのクラス）に分割します。ただし、このコースのラボでは、ファイルごとに複数のクラスを含めることになります。これは、ラボの手順を簡素化するのに役立ち、ベストプラクティスを意味するものではありません。
 
-1. Visual Studio Code の**View**メニューで、**Terminal**をクリックします。
+1. Visual Studio Code の**表示**メニューで、**ターミナル**をクリックします。
 
     これにより、Visual Studio Codeウィンドウの下部に統合ターミナルが開きます。ターミナルウィンドウを使用して、コンソールアプリケーションをコンパイルして実行します。
 
-1. **Terminal**ペインで、現在のディレクトリパスがCaveDeviceフォルダに設定されていることを確認します。
+1. **ターミナル**ペインで、現在のディレクトリパスがCaveDeviceフォルダに設定されていることを確認します。
 
     ターミナルコマンドプロンプトには、現在のディレクトリパスが含まれています。入力したコマンドは現在の場所で実行されるため、CaveDeviceフォルダー内にいることを確認してください。
 
@@ -380,9 +379,9 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
     dotnet run
     ```
 
-1. **Hello World！**が表示されます。
+1. **Hello World！** が表示されます。
 
-    しばらくすると、**Hello World!**が表示されます。`dotnet run`と入力したコマンドのすぐ下の行に表示されます。
+    しばらくすると、 **Hello World!** が`dotnet run`と入力したコマンドのすぐ下の行に表示されます。
 
     シミュレートされたデバイスアプリケーションで同じ`Console.WriteLine`アプローチを使用して情報をローカルに表示します。これにより、IoT Hubに送信されている情報を確認し、デバイスによって完了されているプロセスを追跡できます。
 
@@ -392,37 +391,37 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 このタスクでは、Visual Studio Codeを使用して、Azure IoT DeviceSDKを利用してIoTHubリソースに接続するコードを入力します。
 
-*1.  Program.csを開きます。
+1.  Program.csを開きます。
 
 1. 既存のコードをすべて選択してから削除します。
 
 1. コードエディタで、シミュレートされたデバイスアプリケーションの基本構造を作成するには、次のコードを入力します。
 
-```csharp
-// INSERT using statements below here
+    ```csharp
+    // INSERT using statements below here
 
-namespace CaveDevice
-{
-    class Program
+    namespace CaveDevice
     {
-        // INSERT variables below here
+        class Program
+        {
+            // INSERT variables below here
 
-        // INSERT Main method below here
+            // INSERT Main method below here
 
-        // INSERT SendDeviceToCloudMessagesAsync method below here
+            // INSERT SendDeviceToCloudMessagesAsync method below here
 
-        // INSERT CreateMessageString method below here
+            // INSERT CreateMessageString method below here
+
+        }
+
+        // INSERT EnvironmentSensor class below here
 
     }
-
-    // INSERT EnvironmentSensor class below here
-
-}
-```
+    ```
 
     > 注：ご覧のとおり、名前空間とクラスは保持されていますが、他の項目はプレースホルダーコメントです。次の手順では、特定のコメントの下のファイルにコードを挿入します。
 
-1. `// INSERT using statements below here`コメントを見つけます。
+1. `// INSERT using statements below here` コメントがある場所に移動します。
 
 1. アプリケーションコードが使用する名前空間を指定するために、次のコードを入力します。
 
@@ -434,11 +433,11 @@ namespace CaveDevice
     using Newtonsoft.Json;
     ```
 
-    > ヒント: コードを挿入するとき、コードレイアウトは理想的ではない場合があります。コードエディターペインを右クリックし、[ドキュメントの書式設定]をクリックすると、Visual Studio Codeでドキュメントを書式設定できます。タスクペインを開いて（F1キーを押す）、[Format Document]と入力して、Enterキーを押すと、同じ結果を得ることができます。また、Windowsでは、このタスクのショートカットは**SHIFT + ALT + F**です。
+    > ヒント: コードを挿入するとき、コードレイアウトは理想的ではない場合があります。コードエディターペインを右クリックし、[ドキュメントのフォーマット]をクリックすると、Visual Studio Codeでドキュメントを書式設定できます。タスクペインを開いて（F1キーを押す）、[Format Document]と入力して、Enterキーを押すと、同じ結果を得ることができます。また、Windowsでは、このタスクのショートカットは**SHIFT + ALT + F**です。
 
-1. `// INSERT variables below here`コメントを見つけます。
+1. `// INSERT variables below here` コメントがある場所に移動します。
 
-1. プログラムが使用している変数を指定するには、次のコードを入力します。
+1. プログラムが使用している変数を指定するために、次のコードを入力します。
 
     ```csharp
     // Contains methods that a device can use to send messages to and receive from an IoT Hub.
@@ -453,9 +452,9 @@ namespace CaveDevice
 
 1. 入力したコード（およびコードコメント）を確認してください。
 
-**deviceClient**の変数は、**DeviceClient**のインスタンスの格納するために使用されます。このクラスは、AzureののIoT Device SDKから来て、デバイスがメッセージを送信し、IoT Hubから受信するために使用できるメソッドが含まれています。
+    **deviceClient**の変数は、**DeviceClient**のインスタンスの格納するために使用されます。このクラスは、AzureののIoT Device SDKから来て、デバイスがメッセージを送信し、IoT Hubから受信するために使用できるメソッドが含まれています。
 
-**ConnectionString**変数は、我々が以前に作成したデバイスの接続文字列が含まれています。この値は、**DeviceClient**がIoT Hubに接続するために使用します。
+    **ConnectionString**変数は、我々が以前に作成したデバイスの接続文字列が含まれています。この値は、**DeviceClient**がIoT Hubに接続するために使用します。
 
     重要: このコース全体を通して、このラボと他のラボで、接続文字列、パスワード、およびその他の構成情報がアプリケーションにハードコードされている例を確認できます。これはラボを簡素化するためだけに行われるものであり、推奨される方法ではありません。
 
@@ -463,7 +462,7 @@ namespace CaveDevice
 
 1. 入力したコードで、IoT Hubからコピーしたプライマリ接続文字列を使用して**connectionString**の値を更新します。
 
-1. 更新されると、**connectionString***は次のようになります。
+    更新されると、**connectionString***は次のようになります。
 
     ```
     private readonly static string connectionString = "HostName=iot-az220-training-dm200420.azure-devices.net;DeviceId=sensor-th-0001;SharedAccessKey=hfavUmFgoCPA9feWjyfTx23SUHr+dqG9X193ctdEd90=";
@@ -471,7 +470,7 @@ namespace CaveDevice
 
 1. `// INSERT Main method below here`コメントを見つけます。
 
-1. シミュレートされたデバイスアプリケーションの**Main**メソッドを作成するには、次のコードを入力します。
+1. シミュレートされたデバイスアプリケーションの**Main**メソッドを作成するために、次のコードを入力します。
 
     ```csharp
     private static void Main(string[] args)
@@ -502,47 +501,47 @@ namespace CaveDevice
 
     最後に、アプリケーションはユーザー入力を待ちます。
 
-    > 情報：**DeviceClient**クラスは[ここ](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.client.deviceclient?view=azure-dotnet)に記載されています。
+    > 情報: **DeviceClient**クラスは[ここ](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.client.deviceclient?view=azure-dotnet)に記載されています。
 
-    > 情報：**CreateFromConnectionString**メソッドは[ここ](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.client.deviceclient.createfromconnectionstring?view=azure-dotnet#Microsoft_Azure_Devices_Client_DeviceClient_CreateFromConnectionString_System_String_Microsoft_Azure_Devices_Client_TransportType_)に記載されています。
+    > 情報: **CreateFromConnectionString**メソッドは[ここ](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.client.deviceclient.createfromconnectionstring?view=azure-dotnet#Microsoft_Azure_Devices_Client_DeviceClient_CreateFromConnectionString_System_String_Microsoft_Azure_Devices_Client_TransportType_)に記載されています。
 
-    > 情報：サポートされているトランスポートプロトコルは、[ここ](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-protocols)に記載されています。
+    > 情報: サポートされているトランスポートプロトコルは、[ここ](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-protocols)に記載されています。
 
-1. `// INSERT - SendDeviceToCloudMessagesAsync below here`コメントを見つけます。
+1. `// INSERT - SendDeviceToCloudMessagesAsync below here` コメントを見つけます。
 
 1. SendDeviceToCloudMessagesAsyncメソッドを作成するには、次のコードを入力します。
 
-```csharp
-private static async void SendDeviceToCloudMessagesAsync()
-{
-    // Create an instance of our sensor
-    var sensor = new EnvironmentSensor();
-
-    while (true)
+    ```csharp
+    private static async void SendDeviceToCloudMessagesAsync()
     {
-        // read data from the sensor
-        var currentTemperature = sensor.ReadTemperature();
-        var currentHumidity = sensor.ReadHumidity();
+        // Create an instance of our sensor
+        var sensor = new EnvironmentSensor();
 
-        var messageString = CreateMessageString(currentTemperature, currentHumidity);
+        while (true)
+        {
+            // read data from the sensor
+            var currentTemperature = sensor.ReadTemperature();
+            var currentHumidity = sensor.ReadHumidity();
 
-        // create a byte array from the message string using ASCII encoding
-        var message = new Message(Encoding.ASCII.GetBytes(messageString));
+            var messageString = CreateMessageString(currentTemperature, currentHumidity);
 
-        // Add a custom application property to the message.
-        // An IoT hub can filter on these properties without access to the message body.
-        message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
+            // create a byte array from the message string using ASCII encoding
+            var message = new Message(Encoding.ASCII.GetBytes(messageString));
 
-        // Send the telemetry message
-        await deviceClient.SendEventAsync(message);
-        Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
+            // Add a custom application property to the message.
+            // An IoT hub can filter on these properties without access to the message body.
+            message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
 
-        await Task.Delay(1000);
+            // Send the telemetry message
+            await deviceClient.SendEventAsync(message);
+            Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
+
+            await Task.Delay(1000);
+        }
     }
-}
-```
+    ```
 
-    **SendDeviceToCloudMessagesAsync**メソッドの宣言に`async`キーワードが含まれていることに注意してください。これは、メソッドに`await`キーワードを使用する非同期コードが含まれていることを指定し、コールバックを処理するようコンパイラーに指示します。
+    **SendDeviceToCloudMessagesAsync** メソッドの宣言に`async`キーワードが含まれていることに注意してください。これは、メソッドに`await`キーワードを使用する非同期コードが含まれていることを指定し、コールバックを処理するようコンパイラーに指示します。
 
 1. 入力したコード（およびコードコメント）を確認してください。
 
@@ -554,7 +553,7 @@ private static async void SendDeviceToCloudMessagesAsync()
     * しばらく待つか、イベントが発生するなどを待ちます。
     * ループを繰り返す
     
-    次の説明では、メソッドコードについて詳しく説明します。
+    次にメソッドコードについて詳しく説明します。
 
     * コードで最初に行うことは、**EnvironmentSensor**クラスのインスタンスを作成することです。これはループの外側で行われ、ループ内のセンサーデータのシミュレーションをサポートするために使用されます。間もなく**EnvironmentSensor**クラスを追加します。
 
@@ -576,7 +575,7 @@ private static async void SendDeviceToCloudMessagesAsync()
 
 1. `// INSERT CreateMessageString method below here`コメントを見つけます。
 
-**CreateMessageString**のセンサーの測定値からJSON文字列を作成するため、次のコードを入力します。
+1. **CreateMessageString**のセンサーの測定値からJSON文字列を作成するため、次のコードを入力します。
 
     ```csharp
     private static string CreateMessageString(double temperature, double humidity)
@@ -593,11 +592,11 @@ private static async void SendDeviceToCloudMessagesAsync()
     }
     ```
 
-    このメソッドは、温度と湿度のプロパティを持つ匿名オブジェクトを作成し、それを**telemetryDataPoint**に割り当てます。
+    このメソッドは、温度と湿度のプロパティを持つ匿名オブジェクトを作成し、それを **telemetryDataPoint** に割り当てます。
 
-    **telemetryDataPoint**は、その後**JsonConvert**クラス経由でJSON文字列に変換されます。JSON文字列値が返され、メッセージのペイロードとして使用されます。
+    **telemetryDataPoint** は、その後 **JsonConvert** クラス経由でJSON文字列に変換されます。JSON文字列値が返され、メッセージのペイロードとして使用されます。
 
-1. `// INSERT EnvironmentSensor class below here`コメントを見つけます。
+1. `// INSERT EnvironmentSensor class below here` コメントを見つけます。
 
 1. **EnvironmentSensor**クラスを作成するには、次のコードを入力します。
 
@@ -638,7 +637,7 @@ private static async void SendDeviceToCloudMessagesAsync()
 
 1. ファイルメニューの、保存を選択します。
 
-1. 完成したアプリケーションを確認するのに少し時間を取ります。
+1. 完成したアプリケーションを確認するのに少し時間を取ってください。
 
     完成したアプリケーションは、単純なシミュレートされたデバイスを表しています。デバイスをIoT Hubに接続し、デバイスからクラウドへのメッセージを送信する方法を示します。
 
@@ -686,7 +685,7 @@ private static async void SendDeviceToCloudMessagesAsync()
 
     > 注：今のところ、シミュレートされたデバイスアプリは実行したままにしておきます。次のタスクは、IoTハブがテレメトリメッセージを受信して​​いることを確認することです。
 
-#### タスク3: Azure IoT Hubに送信されたテレメトリストリームを確認する
+#### タスク5: Azure IoT Hubに送信されたテレメトリストリームを確認する
 
 このタスクでは、Azure CLIを使用して、シミュレートされたデバイスによって送信されたテレメトリがAzure IoTHubによって受信されていることを確認します。
 

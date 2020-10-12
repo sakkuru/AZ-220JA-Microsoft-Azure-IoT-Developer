@@ -178,7 +178,7 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
 
 1. Visual Studio Codeを開きます。
 
-1. 上のファイルメニューをクリックし、 **Open...** をクリックします。
+1. 上のファイルメニューをクリックし、 **開く...** をクリックします。
 
 1. 07-Device Message Routing フォルダに移動し、**Starter**フォルダ配下のVibrationDeviceを開きます。
 
@@ -231,7 +231,7 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
     ```
     private readonly static string deviceConnectionString = "<your device connection string>";
     ```
-1. `<your device connection string>`以前に保存したデバイス接続文字列に置き換えます。
+1. `<your device connection string>`を、以前に保存したデバイス接続文字列に置き換えます。
 
     > 注：これは、このコードに加える必要がある唯一の変更です。
 
@@ -243,13 +243,13 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
 
     * Using ステートメント
     * 名前空間の定義
-        * プログラムクラス - Azure IoT Hubへの接続とテレメトリの送信を担当
+        * Programクラス - Azure IoT Hubへの接続とテレメトリの送信を担当
         * ConveyorBeltSimulatorクラス - テレメトリを生成するだけでなく、このクラスは実行中のコンベヤーベルトもシミュレートします
         * ConsoleHelper - コンソールへの異なる色のテキストの書き込みをカプセル化する新しいクラス
 
 1. Mainメソッドを確認してください。
 
-    ```
+    ```csharp
     private static void Main(string[] args)
     {
         ConsoleHelper.WriteColorMessage("Vibration sensor device app.\n", ConsoleColor.Yellow);
@@ -266,7 +266,7 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
 
 1. SendDeviceToCloudMessagesAsyncメソッドを確認してください。
 
-    ```
+    ```csharp
     private static async void SendDeviceToCloudMessagesAsync()
     {
         var conveyor = new ConveyorBeltSimulator(intervalInMilliseconds);
@@ -291,7 +291,7 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
 
 1. CreateTelemetryMessageメソッドを確認してください。
 
-    ```
+    ```csharp
     private static async Task CreateTelemetryMessage(ConveyorBeltSimulator conveyor, double vibration)
     {
         var telemetryDataPoint = new
@@ -321,35 +321,35 @@ Contosoのコンベヤーベルトシステムの監視を自動化し、予測�
 
 1. CreateLoggingMessageメソッドを確認してください。
 
-```
-private static async Task CreateLoggingMessage(ConveyorBeltSimulator conveyor, double vibration)
-{
-    // Create the logging JSON message.
-    var loggingDataPoint = new
+    ```csharp
+    private static async Task CreateLoggingMessage(ConveyorBeltSimulator conveyor, double vibration)
     {
-        vibration = Math.Round(vibration, 2),
-        packages = conveyor.PackageCount,
-        speed = conveyor.BeltSpeed.ToString(),
-        temp = Math.Round(conveyor.Temperature, 2),
-    };
-    var loggingMessageString = JsonConvert.SerializeObject(loggingDataPoint);
-    var loggingMessage = new Message(Encoding.ASCII.GetBytes(loggingMessageString));
+        // Create the logging JSON message.
+        var loggingDataPoint = new
+        {
+            vibration = Math.Round(vibration, 2),
+            packages = conveyor.PackageCount,
+            speed = conveyor.BeltSpeed.ToString(),
+            temp = Math.Round(conveyor.Temperature, 2),
+        };
+        var loggingMessageString = JsonConvert.SerializeObject(loggingDataPoint);
+        var loggingMessage = new Message(Encoding.ASCII.GetBytes(loggingMessageString));
 
-    // Add a custom application property to the message. This is used to route the message.
-    loggingMessage.Properties.Add("sensorID", "VSLog");
+        // Add a custom application property to the message. This is used to route the message.
+        loggingMessage.Properties.Add("sensorID", "VSLog");
 
-    // Send an alert if the belt has been stopped for more than five seconds.
-    loggingMessage.Properties.Add("beltAlert", (conveyor.BeltStoppedSeconds > 5) ? "true" : "false");
+        // Send an alert if the belt has been stopped for more than five seconds.
+        loggingMessage.Properties.Add("beltAlert", (conveyor.BeltStoppedSeconds > 5) ? "true" : "false");
 
-    Console.WriteLine($"Log data: {loggingMessageString}");
+        Console.WriteLine($"Log data: {loggingMessageString}");
 
-    // Send the logging message.
-    await deviceClient.SendEventAsync(loggingMessage);
-    ConsoleHelper.WriteGreenMessage("Log data sent\n");
-}
-```
+        // Send the logging message.
+        await deviceClient.SendEventAsync(loggingMessage);
+        ConsoleHelper.WriteGreenMessage("Log data sent\n");
+    }
+    ```
 
-このメソッドは、CreateTelemetryMessageメソッドと非常によく似ていることに注意してください。注意すべき重要な項目は次のとおりです。
+    このメソッドは、CreateTelemetryMessageメソッドと非常によく似ていることに注意してください。注意すべき重要な項目は次のとおりです。
 
     * loggingDataPointは、テレメトリオブジェクトよりも多くの情報が含まれています。将来の障害診断アクティビティまたはより詳細な分析を支援するために、ロギングの目的で可能な限り多くの情報を含めるのが一般的です。
     * ロギングメッセージにはsensorIDプロパティが含まれ、今回はVSLogに設定されています。繰り返しになりますが、上記のように、彼はIoTハブでVSLog値を適切にルーティングするために使用されます。
@@ -362,7 +362,7 @@ private static async Task CreateLoggingMessage(ConveyorBeltSimulator conveyor, d
 
 1. ターミナルコマンドプロンプトで、アプリを実行するには、次のコマンドを入力します。
 
-    ```
+    ```bash
     dotnet run
     ```
 
@@ -422,7 +422,7 @@ Contosoの振動監視シナリオでは、次の2つのメッセージルート
 
 データをフィルタリングする最も簡単な方法の1つは、メッセージのプロパティを評価することです。前の演習でデバイスメッセージにメッセージプロパティを追加したことを思い出してください。追加したコードは次のようになりました。
 
-```
+```csharp
 ...
 telemetryMessage.Properties.Add("sensorID", "VSTel");
 ...
@@ -579,13 +579,13 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
 これにより、ルートに次の設定が含まれていることを確認できます。
 
-* 名前-vibrationLoggingRoute
-* データソース-DeviceMessages
-* ルーティングクエリ-sensorID = 'VSLog'
-* エンドポイント- vibrationLogEndpoint
-* 有効-真
+* 名前 - vibrationLoggingRoute
+* データソース - DeviceMessages
+* ルーティングクエリ - sensorID = 'VSLog'
+* エンドポイント - vibrationLogEndpoint
+* 有効 - true
 
-> 注：このラボでデータをストレージにルーティングし、Azure StreamAnalyticsを介してデータをストレージに送信するのは奇妙に思えるかもしれません。実稼働シナリオでは、両方のパスが長期的に存在することはありません。代わりに、ここで作成している2番目のパスが存在しない可能性があります。ここでは、ラボ環境で、ルーティングが期待どおりに機能していることを検証し、Azure StreamAnalyticsの簡単な実装を示す方法として使用します。
+> 注：このラボではデータをストレージにルーティングし、さらにAzure Stream Analyticsを介してデータをストレージに送信するのは奇妙に思えるかもしれません。実稼働シナリオでは、両方のパスが長期的に存在することはありません。代わりに、ここで作成している2番目のパスが存在しない可能性があります。ここでは、ラボ環境で、ルーティングが期待どおりに機能していることを検証し、Azure Stream Analyticsの簡単な実装を示す方法として使用します。
 
 #### タスク1: StreamAnalyticsジョブを作成する
 
@@ -601,7 +601,7 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
 1. [サブスクリプション]で、ラボで使用しているサブスクリプションを選択します。
 
-1. リソース・グループではrg-az220を選択します。
+1. リソースグループではrg-az220を選択します。
 
 1. 場所は、あなたがこのラボで使用している地域を選択します。
 
@@ -627,7 +627,7 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
     [入力]ペインが表示されます。
 
-1. +ストリーム入力の追加をクリックし、IoT Hubを選択します。
+1. [+ストリーム入力の追加]をクリックし、IoT Hubを選択します。
 
     IoT Hub-新規入力ペインが表示されます。
 
@@ -661,7 +661,7 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
     [出力]ペインが表示されます。
 
-1. [+追加]をクリックし、BLOBストレージ/ADLS Gen2を選択します。。
+1. [+追加]をクリックし、BLOBストレージ/ADLS Gen2を選択します。
 
 1. 出力エイリアスにvibrationOutputを入力します。
 
@@ -700,14 +700,14 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 1. クエリを編集するには、左側のメニューの[ジョブトポロジ]で、[クエリ]をクリックします。
 
 1. クエリエディタペインで、既存のクエリを以下のクエリに置き換えます。
-```
-SELECT
-    *
-INTO
-    vibrationOutput
-FROM
-    vibrationInput
-```
+    ```
+    SELECT
+        *
+    INTO
+        vibrationOutput
+    FROM
+        vibrationInput
+    ```
 
 1. [クエリの保存]をクリックします。
 

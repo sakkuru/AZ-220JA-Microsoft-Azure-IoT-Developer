@@ -210,7 +210,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
 
-1. Azure portal のツール バーで、Azure Cloud Shell を開き、「**Cloud Shell**」 をクリックします。 
+1. Azure portal のツール バーで、「**Cloud Shell**」 をクリックします。 
 
     左側のナビゲーション メニューではなく、Azure portal のツール バー上にある Cloud Shell ボタンには、コマンド プロンプトと似たようなアイコンがあります。
 
@@ -224,7 +224,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
     az iot hub device-identity create --hub-name iot-az220-training-{your-id} --device-id sensor-th-0067 --edge-enabled
     ```
 
-    このコースの開始時に作成した `{your-id}` のプレースホルダーを、YOU-ID 値に必ず置き換えてください。
+    `{your-id}` のプレースホルダーを置き換えてください。
 
     > **注意**: Azure portal で IoT Hub を使用して、この IoT Edge デバイスを作成することもできます。「**IoT Hub**」 -> 「**IoT Edge**」 -> 「**IoT Edge デバイスの追加**」
 
@@ -268,16 +268,16 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
     az iot hub device-identity show-connection-string --device-id sensor-th-0067 --hub-name iot-az220-training-{your-id}
     ```
 
-    このコースの開始時に作成した `{your-id}` のプレースホルダーを、YOU-ID 値に必ず置き換えてください。
+    `{your-id}` のプレースホルダーを置き換えてください。
 
 1. コマンドの JSON 出力から `connectionString` の値をコピーし、後で参照するために保存します。
 
     この接続文字列は、IoT Edge デバイスを構成して IoT ハブに接続するために使用されます。
 
     ```json
-        {
-          "connectionString": "HostName={IoTHubName}.azure-devices.net;DeviceId=sensor-th-0067;SharedAccessKey=jftBfeefPsXgrd87UcotVKJ88kBl5Zjk1oWmMwwxlME="
-        }
+    {
+        "connectionString": "HostName={IoTHubName}.azure-devices.net;DeviceId=sensor-th-0067;SharedAccessKey=jftBfeefPsXgrd87UcotVKJ88kBl5Zjk1oWmMwwxlME="
+    }
     ```
 
     > **注意**:  IoT Edge デバイス接続文字列は、**IoT Hub** -> **IoT Edge** -> **Edge デバイス** -> **接続文字列 (主キー)** に移動することで、Azure portal 内からもアクセスできます。
@@ -362,7 +362,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. リソース グループ タイルで IoT ハブを開くには 「**iot-az220-training-{your-id}**」 をクリックします。
 
-1. 「**IoT ハブ**」 ブレードの左側にある 「**デバイスの自動管理**」 で、「**IoT Edge**」 をクリックします。     
+1. 「**IoT ハブ**」 ブレードの左側にある 「**IoT Edge**」 をクリックします。     
 
 1. IoT Edge デバイスの一覧で、「**sensor-th-0067**」 をクリックします。 
 
@@ -380,11 +380,11 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
     カスタム モジュールの名前を「tempsensor」と命名します
 
-1. 「**Image URL**」 の下に**asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor** と入力します。  
+1. 「**Image URL**」 に**asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor** と入力します。  
 
     > **注意**: このイメージは、このテスト シナリオをサポートするために製品グループによって提供される Docker Hub で公開されたイメージです。
 
-1. 選択したタブを変更するには、「**Module Twin Settings**」 をクリックします。 
+1. 「**Module Twin Settings**」 をクリックします。 
 
 1. モジュール ツインに必要なプロパティを指定するには、次の JSON を入力します。
 
@@ -490,9 +490,9 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
     それでも値が報告されない場合は、しばらく待ってからブレードを再度更新します。
  
-1. Cloud Shell セッションを開きます (まだ開いていない場合)。
+1. Cloud Shell セッションを開きます。
 
-    `vm-az220-training-edge0001-{your-id}` 仮想マシンすでに接続されていない場合は、 以前と同様に **SSH** を使用して接続します。
+    `vm-az220-training-edge0001-{your-id}` 仮想マシンに接続されていない場合は、 以前と同様に **SSH** を使用して接続します。
 
 1. Cloud Shell コマンド プロンプトで、IoT Edge デバイス上で現在実行されているモジュールを一覧表示するには、次のコマンドを入力します。
 
@@ -814,9 +814,9 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     iotedge logs tempsensor
     ```
 
-1. 出力を確認するには、少し時間がかかります。
+1. 出力を確認します。
 
-    **tempsensor** によって送信される温度テレメトリを監視している間、`machine.temperature` の平均が `25`を超えると、Stream Analytics ジョブによって**リセット**コマンドが送信されることに注意してください。    これは、Stream Analytics ジョブ クエリで構成されたアクションです。
+    **tempsensor** によって送信される温度テレメトリを監視している間、`machine.temperature` の平均が `25`を超えると、Stream Analytics ジョブによって**リセット**コマンドが送信されることに注意してください。これは、Stream Analytics ジョブ クエリで構成されたアクションです。
 
     このイベントの出力は、以下のようなものになります。
 

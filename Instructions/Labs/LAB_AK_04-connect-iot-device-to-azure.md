@@ -1,7 +1,7 @@
 ﻿---
 lab:
     title: 'ラボ 04: IoT デバイスを Azure に接続する'
-    module: 'モジュール 2：デバイスとデバイス通信'
+    module: 'モジュール 2: デバイスとデバイス通信'
 ---
 
 # IoT デバイスを Azure に接続する
@@ -215,7 +215,7 @@ Contoso は温度と湿度を監視するために、IoT デバイスを使用�
 
     コピーボタンは右端にあります。
 
-    > 注：ラボの後半でプライマリ接続文字列値を使用する必要があるため、アクセス可能な場所に保存することをお勧めします（おそらく、値をNotePadなどのテキストエディターに貼り付けます）。
+    > 注: ラボの後半でプライマリ接続文字列値を使用する必要があるため、アクセス可能な場所に保存することをお勧めします（おそらく、値をNotePadなどのテキストエディターに貼り付けます）。
 
     接続文字列は次の形式になります。
 
@@ -230,7 +230,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 この演習では、Visual Studio CodeとAzureIoT Device SDKを使用してシミュレートされたデバイスアプリケーションを作成します。前の演習で作成したデバイスIDと共有アクセスキー（プライマリ接続文字列）を使用して、デバイスをAzure IoT Hubに接続します。次に、セキュリティで保護されたデバイスの接続と通信をテストして、IoT Hubがデバイスからシミュレートされた温度と湿度の値を期待どおりに受信していることを確認します。
 
-> 注：シミュレートされたデバイスコードはC#プログラミング言語を使用して記述しますが、他のプログラミング言語に慣れている場合や、プログラミングに慣れていない場合でも、手順は簡単に実行できます。重要なことは、IoT Device SDKがコードでどのように実装されているかを認識することです。
+> 注: シミュレートされたデバイスコードはC#プログラミング言語を使用して記述しますが、他のプログラミング言語に慣れている場合や、プログラミングに慣れていない場合でも、手順は簡単に実行できます。重要なことは、IoT Device SDKがコードでどのように実装されているかを認識することです。
 
 #### タスク 1: 最初のプロジェクトを作成する
 
@@ -262,7 +262,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
     dotnet add package Microsoft.Azure.Devices.Client
     ```
 
-    > 注：Microsoft.Azure.Devices.Clientパッケージには、Azure IoT Device SDK for .NETが含まれており、依存関係としてNewtonsoft.Jsonパッケージが含まれています。Newtonsoft.Jsonのパッケージには、そのJSONの作成と操作を支援するAPIが含まれています。
+    > 注: Microsoft.Azure.Devices.Clientパッケージには、Azure IoT Device SDK for .NETが含まれており、依存関係としてNewtonsoft.Jsonパッケージが含まれています。Newtonsoft.Jsonのパッケージには、そのJSONの作成と操作を支援するAPIが含まれています。
 
     次のタスクでは、シミュレートされたデバイスアプリをビルドしてテストします。
 
@@ -286,7 +286,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
     * Program.cs
     > 注:「Required assets to build and debug are missing from CaveDevice. Add them?」というメッセージが表示された場合、[はい]をクリックして続行できます。
 
-#### タスク2：アプリケーションを探索する
+#### タスク2: アプリケーションを探索する
 
 アプリケーションは現在2つのファイルを含んでいます。
 
@@ -318,7 +318,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
     </Project>
     ```
 
-    > 注：ファイル内のパッケージのバージョン番号は、上記の番号と異なる場合がありますが、問題あはりません。
+    > 注: ファイル内のパッケージのバージョン番号は、上記の番号と異なる場合がありますが、問題あはりません。
 
     プロジェクトファイル（.csproj）は、作業中のプロジェクトのタイプを指定するXMLドキュメントです。この場合、プロジェクトはSdkスタイルのプロジェクトです。
 
@@ -328,7 +328,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
     ItemGroupは、アプリケーションに必要な任意の外部ライブラリを指定します。これらの参照はNuGetパッケージ用であり、各パッケージ参照はパッケージ名とバージョンを指定します。`dotnet add package`コマンドはプロジェクトファイルにこれらの参照を追加し、`dotnet restore`コマンドは、依存関係のすべてがダウンロードされたことを確実にしました。
 
-    > 情報：NuGetの詳細については、[こちら](https://docs.microsoft.com/en-us/nuget/what-is-nuget)をご覧ください。
+    > 情報: NuGetの詳細については、[こちら](https://docs.microsoft.com/en-us/nuget/what-is-nuget)をご覧ください。
 
 1. 続いてProgram.csを開きます。
 
@@ -387,7 +387,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
     このHello Worldアプリはいくつかの基本的な概念を示していますが、明らかにシミュレートされたデバイスではありません。次のタスクでは、このコードをシミュレートされたデバイスのコードに置き換えます。
 
-#### タスク3：シミュレートされたデバイスコードを実装する
+#### タスク3: シミュレートされたデバイスコードを実装する
 
 このタスクでは、Visual Studio Codeを使用して、Azure IoT DeviceSDKを利用してIoTHubリソースに接続するコードを入力します。
 
@@ -419,13 +419,13 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
     }
     ```
 
-    > 注：ご覧のとおり、名前空間とクラスは保持されていますが、他の項目はプレースホルダーコメントです。次の手順では、特定のコメントの下のファイルにコードを挿入します。
+    > 注: ご覧のとおり、名前空間とクラスは保持されていますが、他の項目はプレースホルダーコメントです。次の手順では、特定のコメントの下のファイルにコードを挿入します。
 
 1. `// INSERT using statements below here` コメントがある場所に移動します。
 
 1. アプリケーションコードが使用する名前空間を指定するために、次のコードを入力します。
 
-    ```
+    ```csharp
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -437,7 +437,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 1. `// INSERT variables below here` コメントがある場所に移動します。
 
-1. プログラムが使用している変数を指定するために、次のコードを入力します。
+1. プログラムが使用している変数を指定するため、次のコードを入力します。
 
     ```csharp
     // Contains methods that a device can use to send messages to and receive from an IoT Hub.
@@ -509,7 +509,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 1. `// INSERT - SendDeviceToCloudMessagesAsync below here` コメントを見つけます。
 
-1. SendDeviceToCloudMessagesAsyncメソッドを作成するには、次のコードを入力します。
+1. SendDeviceToCloudMessagesAsyncメソッドを作成するため、次のコードを入力します。
 
     ```csharp
     private static async void SendDeviceToCloudMessagesAsync()
@@ -569,9 +569,9 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
     * 最後に、ローカルコンソールウィンドウにメッセージ文字列を書き込んで、テレメトリがIoT Hubに送信されたことを示し、1000ミリ秒（1秒）待ってからループを繰り返します。
 
-    > 情報：`async`、`await`やC#での非同期プログラミングの詳細については[こちら](https://docs.microsoft.com/en-us/dotnet/csharp/async)をご覧ください。
+    > 情報: `async`、`await`やC#での非同期プログラミングの詳細については[こちら](https://docs.microsoft.com/en-us/dotnet/csharp/async)をご覧ください。
 
-    > 情報：**Message**クラスのドキュメントは[こちら](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.client.message?view=azure-dotnet)
+    > 情報: **Message**クラスのドキュメントは[こちら](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.devices.client.message?view=azure-dotnet)
 
 1. `// INSERT CreateMessageString method below here`コメントを見つけます。
 
@@ -651,13 +651,13 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 1. ターミナルビューのコマンドプロンプトで、次のコマンドを入力します。
 
-    ```
+    ```bash
     dotnet run
     ```
 
     このコマンドは、シミュレートされたデバイスアプリケーションをビルドして実行します。端末の場所が**CaveDevice.cs**ファイルのあるディレクトリに設定されていることを確認してください。
 
-    > 注：コマンドが`Malformed Token`エラーメッセージまたはその他のエラーメッセージを出力する場合は、プライマリ接続文字列の値が**connectionString**変数の値として正しく構成されていることを確認してください。
+    > 注: コマンドが`Malformed Token`エラーメッセージまたはその他のエラーメッセージを出力する場合は、プライマリ接続文字列の値が**connectionString**変数の値として正しく構成されていることを確認してください。
 
     追加のエラーメッセージが表示された場合は、このラボのFinalフォルダーで参照できる完成したソリューションコードを参照することで、コードが正しく作成されたことを確認できます。この最終フォルダーは、ラボ3で開発環境をセットアップするときにダウンロードしたラボリソースファイルに含まれています。フォルダーパスは次のとおりです。
 
@@ -672,7 +672,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
     出力は次のようになります。
 
-    ```
+    ```bash
     10/25/2019 6:10:12 PM > Sending message: {"temperature":27.714212817472504,"humidity":63.88147743599558}
     10/25/2019 6:10:13 PM > Sending message: {"temperature":20.017463779085066,"humidity":64.53511070671263}
     10/25/2019 6:10:14 PM > Sending message: {"temperature":20.723927165718717,"humidity":74.07808918230147}
@@ -683,7 +683,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
     10/25/2019 6:10:19 PM > Sending message: {"temperature":25.77350195766124,"humidity":67.27347029711747}
     ```
 
-    > 注：今のところ、シミュレートされたデバイスアプリは実行したままにしておきます。次のタスクは、IoTハブがテレメトリメッセージを受信して​​いることを確認することです。
+    > 注: 今のところ、シミュレートされたデバイスアプリは実行したままにしておきます。次のタスクは、IoTハブがテレメトリメッセージを受信して​​いることを確認することです。
 
 #### タスク5: Azure IoT Hubに送信されたテレメトリストリームを確認する
 
@@ -693,7 +693,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
 1. Azure Cloud Shellで、IoTハブによって受信されているイベントメッセージを監視するには、次のコマンドを入力します。
 
-    ```
+    ```bash
     az iot hub monitor-events --hub-name {IoTHubName} --device-id sensor-th-0001
     ```
 
@@ -711,7 +711,7 @@ Azure IoT Device SDKを使用すると、デバイスクライアントを使用
 
     次のようなメッセージが表示されます。
 
-    ```
+    ```bash
     Starting event monitor, filtering on device: sensor-th-0001, use ctrl-c to stop...
     {
         "event": {

@@ -85,7 +85,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
     ```bash
     mkdir lab5
-    mv lab05-setup.azcli lab4
+    mv lab05-setup.azcli lab5/
     cd lab5
     ```
 

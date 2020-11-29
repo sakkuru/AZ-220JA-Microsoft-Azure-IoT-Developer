@@ -181,7 +181,7 @@ Azure Time Series Insights (TSI) は、IoT ソリューションのデータを�
 
 1. 「**リソース グループ**」 ドロップダウンで、「**rg-az220-RG**」 をクリックします。
 
-1. 「**場所**」 のドロップダウンで、リソース グループで使用する Azure リージョンを選択します。
+1. 「**場所**」 のドロップダウンで、最も近い Azure リージョンを選択します。
 
 1. 「**層**」 フィールドで、「**S1**」 が選択され、「**キャパシティ**」  が **1** に設定されていることを確認します。
 
@@ -241,30 +241,27 @@ Azure Time Series Insights (TSI) は、IoT ソリューションのデータを�
 
 1. **Visual Studio Code** を開きます。
 
-1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
-
-1. 「**フォルダーを開く**」 ダイアログで、ラボ 10 の 「*スターター*」 フォルダーに移動します。 
+1. ContainerSimulationフォルダを開きます。
 
     _ラボ 3: 開発環境のセットアップ_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
     * Allfiles
-      * Labs
-          * 10-Explore and analyze time stamped data with Time Series Insights
-            * Starter
+        * Labs
+            * 10-Explore and analyze time stamped data with Time Series Insights
+                * Starter
+                    * ContainerSimulation
 
-1. 「**フォルダーを開く**」 ダイアログで、「**ContainerSimulation**」 をクリックしてから、「**フォルダーの選択**」 をクリックします。     
-
-    メッセージが表示されたら、C# 拡張機能を読み込み、復元を実行します。
+1. メッセージが表示されたら、C# 拡張機能を読み込み、復元を実行します。
  
 1. 「Explorer」 ペインで、「**Program.cs**」 をクリックして 「Program.cs」 ファイルを開きます。
 
 1. 接続文字列の割り当てに使用する変数を見つけます。
 
-```csharp
+    ```csharp
     private readonly static string connectionString_Truck = "{Your Truck device connection string here}";
     private readonly static string connectionString_Airplane = "{Your Airplane device connection string here}";
     private readonly static string connectionString_Container = "{Your Container device connection string here}";
-```
+    ```
 
 1. 変数の割り当てを、ラボで前に保存した接続文字列で更新します。 
 
@@ -278,9 +275,9 @@ Azure Time Series Insights (TSI) は、IoT ソリューションのデータを�
 
 1. コマンド プロンプトで、**ContainerSimulation** アプリをビルドして実行するには 、次のコマンドを入力します。 
 
-```cmd/sh
+    ```cmd/sh
     dotnet run
-```
+    ```
 
 1. 「ターミナル」 ペインに表示されるメッセージに注意してください。
 

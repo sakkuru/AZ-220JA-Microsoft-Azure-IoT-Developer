@@ -88,6 +88,6 @@ createDevice $DeviceID3
 echo ""
 printf "${GREEN}Device Connection Strings for the application:${NC}\n"
 echo ----------------------------------------------------
-az iot hub device-identity connection-string show --hub-name $IoTHubName --device-id sensor-thl-truck0001 -o tsv
-az iot hub device-identity connection-string show --hub-name $IoTHubName --device-id sensor-thl-airplane0001 -o tsv
-az iot hub device-identity connection-string show --hub-name $IoTHubName --device-id sensor-thl-container0001 -o tsv
+az iot hub device-identity show-connection-string --hub-name $IoTHubName --device-id sensor-thl-truck0001 -o tsv
+az iot hub device-identity show-connection-string --hub-name $IoTHubName --device-id sensor-thl-airplane0001 -o tsv
+az iot hub device-identity show-connection-string --hub-name $IoTHubName --device-id sensor-thl-container0001 -o tsv

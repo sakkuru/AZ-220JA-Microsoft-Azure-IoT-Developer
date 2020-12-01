@@ -195,9 +195,9 @@ IoT ハブの作成には、いくつかの方法を使用できます。たと�
 
     前述のように、選択した価格レベルによって 1 日あたりにハブが 1 つの単位で処理できるメッセージの数が設定されます。高い価格レベルに移行せずにハブで処理できるメッセージの数を増やすには、単位数を増やします。たとえば、IoT ハブで 800,000 メッセージのイングレスをサポートする場合は *2 つの*S1 階層単位を選択します。  Microsoft が作成した IoT コースでは、1 つの単位のみを使用します。
 
-1. **Azure Security Center **で、「**オフ**」が選択されていることを確認します。   
+1. **Defender for IoT**で、「**オフ**」が選択されていることを確認します。   
 
-    Azure Security Center は、セキュリティ管理を統一し、ハイブリッド クラウド ワークロードと Azure IoT ソリューション全体でエンド ツー エンドの脅威検出と分析を可能にします。Azure Security Center については、後のラボで説明しますので、ここでは無効にします。現在、Azure portal を使用して、サブスクリプション レベルで Azure Security Center を有効にできます。Standard 階層は、最初の 30 日間は無料です。30 日を超える使用は[ここ](https://azure.microsoft.com/ja-jp/pricing/details/security-center/)で説明する価格スキームに従って自動的に課金されます。
+    Defender for IoT は、セキュリティ管理を統一し、ハイブリッド クラウド ワークロードと Azure IoT ソリューション全体でエンド ツー エンドの脅威検出と分析を可能にします。Defender for IoT については、後のラボで説明しますので、ここでは無効にします。現在、Azure portal を使用して、サブスクリプション レベルで Defender for IoT を有効にできます。Standard 階層は、最初の 30 日間は無料です。30 日を超える使用は[ここ](https://azure.microsoft.com/ja-jp/pricing/details/security-center/)で説明する価格スキームに従って自動的に課金されます。
 
 1. 「_詳細設定_」で、**Device-to-cloud パーティション**が **4** に設定されていることを確認します。
 

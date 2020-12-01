@@ -75,7 +75,7 @@ else
     reportStatus $? "$output"
 fi
 
-DeviceConnectionString=$( az iot hub device-identity connection-string show --hub-name $IoTHubName --device-id $DeviceID -o tsv )
+DeviceConnectionString=$( az iot hub device-identity show-connection-string --hub-name $IoTHubName --device-id $DeviceID -o tsv )
 
 # retrieve the Connection String for the IoT Device
 echo ""

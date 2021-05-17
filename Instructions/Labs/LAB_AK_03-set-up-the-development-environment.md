@@ -218,10 +218,46 @@ Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリ�
 1. コマンド プロンプトで、IoT 用の Azure CLI 拡張機能をインストールするには、次のコマンドを入力します。
 
     ```bash
-    az extension add --name azure-cli-iot-ext
+    az extension add --name azure-iot
+    ```
+    
+1. コマンドプロンプトで、Time Series InsightsのAzure CLIエクステンションをインストールするために、次のコマンドを入力します。
+
+    ```bash
+    az extension add --name timeseriesinsights
+    ```
+    
+#### タスク 3: Azure CLI エクステンションのインストール - クラウド環境
+
+ラボの多くは、Azure Cloud Shellを介したAzure CLI IoTエクステンションの使用を必要とします。以下の手順では、エクステンションがインストールされ、最新バージョンが実行されていることを確認します。
+
+1. ブラウザを使用して、[Azure Cloud Shell](https://shell.azure.com/)を開き、このコースで使用しているAzureサブスクリプションでログインします。
+
+1. Cloud Shell用のストレージの設定に関するプロンプトが表示されたら、デフォルトを受け入れます。
+
+1. クラウドシェルが **Bash** を使用していることを確認します。
+
+    Azure Cloud Shell ページの左上隅にあるドロップダウンを使用して環境を選択します。選択されたドロップダウンの値が**Bash**であることを確認します。
+
+1. コマンドプロンプトで、IoT用のAzure CLIエクステンションをインストールするために、以下のコマンドを入力します。
+
+    ```bash
+    az extension add --name azure-iot
     ```
 
-#### タスク 3: 開発環境の設定を確認する
+    **注**。拡張機能がすでにインストールされている場合は、次のコマンドを入力することで、最新バージョンを実行していることを確認できます。
+
+    ```bash
+    az extension update --name azure-iot
+    ```
+
+1. コマンドプロンプトで、Time Series Insights用のAzure CLIエクステンションをインストールするには、次のコマンドを入力します。
+
+    ```bash
+    az extension add --name timeseriesinsights
+    ```
+
+#### タスク4：開発環境セットアップの確認
 
 開発環境が正常に設定されたことを確認する必要があります。これが完了すると、IoT ソリューションの構築を開始する準備が整います。
 
@@ -237,8 +273,10 @@ Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリ�
 
     ```cmd/sh
     azure-cli                           2.20.0
+    
     core                                2.20.0
     telemetry                           1.0.6
+    
     Extensions:
     azure-iot                           0.10.9
     ```
@@ -304,13 +342,13 @@ Azure PowerShell は、PowerShell コマンド ラインから直接 Azure リ�
 1. 既定では、PowerShell ギャラリーは PowerShellGet の信頼されたリポジトリとして構成されていません。PowerShell ギャラリーを初めて使用すると、次のプロンプトが表示されます。
 
     ```output
-    信頼されていないリポジトリ
+    Untrusted repository
 
-    信頼されていないリポジトリからモジュールをインストールしようとしています。このリポジトリを信頼している場合は、
-    Set-PSRepository コマンドレットを実行して、InstallationPolicy の値を変更してください。
+    You are installing the modules from an untrusted repository. If you trust this repository, change
+    its InstallationPolicy value by running the Set-PSRepository cmdlet.
 
-    「PSCallery」からモジュールをインストールしますか。
-    「Y」 はい 「A」 すべてにはい 「N」 いいえ 「L」 すべてにいいえ 「S」 中断する 「?」ヘルプ (既定は "N"):
+    Are you sure you want to install the modules from 'PSGallery'?
+    [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"):
     ```
 
 1. インストールを続行するには、「**はい**」 または 「**すべてにはい**」 と答えます。
@@ -322,3 +360,80 @@ Azure PowerShell は、PowerShell コマンド ラインから直接 Azure リ�
 > ```powershell
 > Update-Module -Name Az
 > ```
+
+### 演習3 - リソースプロバイダの登録
+
+このコースでは様々な種類のリソースが作成されますが、その中には現在のサブスクリプションで使用するために登録されていないものもあります。最初の使用時に自動的に登録されるリソースもありますが、使用する前に登録しなければならないリソースもあり、そうしないとエラーが報告されます。
+
+#### タスク1 - Azure CLIを使用したリソースプロバイダの登録
+
+Azure CLIは、リソースプロバイダの管理に役立つ多くのコマンドを提供しています。このタスクでは、このコースに必要なリソース・プロバイダーが登録されていることを確認します。
+
+1. ブラウザを使用して、[Azure Cloud Shell](https://shell.azure.com/)を開き、このコースで使用しているAzureサブスクリプションでログインします。
+
+1. リソースプロバイダの現在の状態の一覧を表示するには、以下のコマンドを入力します。
+
+    ```powershell
+    az provider list -o table
+    ```
+
+    これにより、以下のようなリソースの*長い*リストが表示されます。
+
+    ```powershell
+    Namespace                                RegistrationPolicy    RegistrationState
+    ---------------------------------------  --------------------  -------------------
+    Microsoft.OperationalInsights            RegistrationRequired  Registered
+    microsoft.insights                       RegistrationRequired  NotRegistered
+    Microsoft.DataLakeStore                  RegistrationRequired  Registered
+    Microsoft.DataLakeAnalytics              RegistrationRequired  Registered
+    Microsoft.Web                            RegistrationRequired  Registered
+    Microsoft.ContainerRegistry              RegistrationRequired  Registered
+    Microsoft.ResourceHealth                 RegistrationRequired  Registered
+    Microsoft.BotService                     RegistrationRequired  Registered
+    Microsoft.Search                         RegistrationRequired  Registered
+    Microsoft.EventGrid                      RegistrationRequired  Registered
+    Microsoft.SignalRService                 RegistrationRequired  Registered
+    Microsoft.VSOnline                       RegistrationRequired  Registered
+    Microsoft.Sql                            RegistrationRequired  Registered
+    Microsoft.ContainerService               RegistrationRequired  Registered
+    Microsoft.ManagedIdentity                RegistrationRequired  Registered
+    ...
+    ```
+
+1. 文字列**Event**を含む名前空間のリストを返すために、以下のコマンドを実行します。
+
+    ```powershell
+    az provider list -o table --query "[?contains(namespace, 'Event')]"
+    ```
+
+    結果は以下のようになります。
+
+    ```powershell
+    Namespace            RegistrationState    RegistrationPolicy
+    -------------------  -------------------  --------------------
+    Microsoft.EventGrid  NotRegistered        RegistrationRequired
+    Microsoft.EventHub   Registered           RegistrationRequired
+    ```
+
+1. 本コースに必要なリソースを登録するために、以下のコマンドを実行します。
+
+    ```powershell
+    az provider register --namespace "Microsoft.EventGrid" --accept-terms
+    az provider register --namespace "Microsoft.EventHub" --accept-terms
+    az provider register --namespace "Microsoft.Insights" --accept-terms
+    az provider register --namespace "Microsoft.TimeSeriesInsights" --accept-terms
+    ```
+
+    > **NOTE**: 注意: **-accept-terms**がプレビュー版であるという警告が表示されるかもしれませんが、これは無視して構いません。
+
+    > **NOTE**: 注意**: **microsoft.insights** は小文字で表示されていますが、登録/登録解除のコマンドは大文字/小文字を区別しません。
+
+1. リソースの更新状況を確認するには、以下のコマンドを実行してください。
+
+    ```powershell
+    az provider list -o table --query "[?(contains(namespace, 'insight') || contains(namespace, 'Event') || contains(namespace, 'TimeSeriesInsights'))]"
+    ```
+
+    > **NOTE**: 注意**: register/unregisterコマンドは大文字と小文字を区別しませんが、クエリ言語はそうではありませんので、**insight**は小文字にしてください。
+
+    これで、リソースの登録が完了しました。

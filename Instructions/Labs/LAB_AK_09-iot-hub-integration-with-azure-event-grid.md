@@ -101,7 +101,7 @@ Contoso 社の経営陣は、Azure IoT サービスを使用して作成した�
 
     サンプル例として、このコースの最初に作成した一意の ID 、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソースにとって意味のある場所に `{YOUR-LOCATION}` を設定する必要があります。
 
-```bash
+    ```bash
     #!/bin/bash
 
     YourID="{YOUR-ID}"
@@ -109,7 +109,7 @@ Contoso 社の経営陣は、Azure IoT サービスを使用して作成した�
     IoTHubName="AZ-220-HUB-$YourID"
 
     Location="{YOUR-LOCATION}"
-```
+    ```
 
     > **注意**: `場所` 変数は、保存先の短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
     >
@@ -135,11 +135,26 @@ Contoso 社の経営陣は、Azure IoT サービスを使用して作成した�
 
 1. **rg-az220** という名前のリソース グループおよび **AZ-220-HUB-{YourID}** という名前の IoT ハブを作成するには、次のコマンドを入力します。   
 
-```bash
+    ```bash
     ./lab09-setup.azcli
-```
+    ```
 
     これは、実行するのに数分かかります。各ステップが完了すると、JSON 出力が表示されます。
+    
+    >**Note**: このラボを成功させるには、**microsoft.eventgrid**リソースプロバイダを登録する必要があるかもしれません。以下のコマンドを実行して確認してください。
+    ```bash
+    az provider show --namespace microsoft.eventgrid -o tsv
+    ```
+   > その結果、**Registered**と表示された場合は、何もする必要はありません。NotRegistered**の場合、以下のコマンドを実行して**microsoft.eventgrid**プロバイダを登録します。
+    
+    ```bash
+    az provider register --namespace microsoft.eventgrid
+    ```
+    > この作業には15分以上かかる場合があります。次のようなメッセージが表示されるはずです。
+    
+    ```bash
+    Registering is still on-going. You can monitor using 'az provider show -n microsoft.eventgrid'
+    ```
 
 ### 演習 2: メールを送信する HTTP Web Hook ロジック アプリを作成する
 

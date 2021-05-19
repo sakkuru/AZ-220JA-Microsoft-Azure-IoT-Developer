@@ -589,10 +589,10 @@ IoT Edgeのセキュリティデーモンは、IoT Edgeデバイスのセキュ�
                                 "createOptions": ""
                             },
                             "type": "docker",
-                            "version": "1.0",
                             "status": "running",
-                            "restartPolicy": "always"
-                        },
+                            "restartPolicy": "always",
+                            "version": "1.0"
+                       },
     ```
 
     JSON の下部には、Edge Hub に必要なプロパティを含む **$edgeHub** セクションがあります。  このセクションには、モジュール間および IoT Hub へのイベントのルーティングのルーティング構成も含まれています。
@@ -603,7 +603,7 @@ IoT Edgeのセキュリティデーモンは、IoT Edgeデバイスのセキュ�
                 "routes": {
                   "route": "FROM /messages/* INTO $upstream"
                 },
-                "schemaVersion": "1.0",
+                "schemaVersion": "1.1",
                 "storeAndForwardConfiguration": {
                     "timeToLiveSecs": 7200
                 }
@@ -657,11 +657,12 @@ IoT Edgeのセキュリティデーモンは、IoT Edgeデバイスのセキュ�
 
 1. コマンドの出力は、次のようなものになります。 
 
-    ```cmd/sh
+
+    ```bash
     demouser@vm-az220-training-edge0001-{your-id}:~$ iotedge list
     NAME             STATUS           DESCRIPTION      CONFIG
-    edgeHub          running          Up a minute      mcr.microsoft.com/azureiotedge-hub:1.0
-    edgeAgent        running          Up 26 minutes    mcr.microsoft.com/azureiotedge-agent:1.0
+    edgeHub          running          Up a minute      mcr.microsoft.com/azureiotedge-hub:1.1
+    edgeAgent        running          Up 26 minutes    mcr.microsoft.com/azureiotedge-agent:1.1
     tempsensor       running          Up 34 seconds    asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor
     ```
 
@@ -675,7 +676,7 @@ IoT Edgeのセキュリティデーモンは、IoT Edgeデバイスのセキュ�
 
     コマンドの出力は、次のようなものになります。
 
-    ```cmd/sh
+    ```bash
     demouser@vm-az220-training-edge0001-{your-id}:~$ iotedge logs tempsensor
     11/14/2019 18:05:02 - Send Json Event : {"machine":{"temperature":41.199999999999925,"pressure":1.0182182583425192},"ambient":{"temperature":21.460937846433808,"humidity":25},"timeCreated":"2019-11-14T18:05:02.8765526Z"}
     11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.599999999999923,"pressure":1.0185790159334602},"ambient":{"temperature":20.51992724976499,"humidity":26},"timeCreated":"2019-11-14T18:05:03.3789786Z"}
@@ -799,7 +800,7 @@ IoT Edgeのセキュリティデーモンは、IoT Edgeデバイスのセキュ�
 1. 「**クエリ**」 ペインで、既定のクエリを次に置き換えます。
 
     ```sql
-    SELECT  
+    SELECT
         'reset' AS command
     INTO
         alert
@@ -866,7 +867,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 1. 「**Update IoT Edge Module**」 ペインで、**Image URI** が「標準の Azure Stream Analytics」イメージを指していることに注意してください。 
 
     ```text
-    mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.6
+    mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.8
     ```
 
     これは、IoT Edge デバイスに展開されるすべての ASA ジョブに使用されるイメージと同じです。
@@ -916,7 +917,6 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
         "status": "running",
         "restartPolicy": "always"
     },
-    ```
 
 1. 以前に構成されたルートの JSON 構成と、JSON デプロイ定義で構成されている方法を確認します。
 
@@ -952,10 +952,10 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
     新しい Stream Analytics モジュールが IoT Edge デバイスにデプロイされるには、1 分かかる場合があります。それが表示されると、このコマンドの出力リストに表示されます。
 
-    ```cmd/sh
+    ```bash
     demouser@vm-az220-training-edge0001-{your-id}:~$ iotedge list
     NAME               STATUS           DESCRIPTION      CONFIG
-    AZ-220-ASA-CP1119  running          Up a minute      mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.5
+    asa-az220-training-CP1119  running          Up a minute      mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.5
     edgeAgent          running          Up 6 hours       mcr.microsoft.com/azureiotedge-agent:1.0
     edgeHub            running          Up 4 hours       mcr.microsoft.com/azureiotedge-hub:1.0
     tempsensor         running          Up 4 hours       asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor
@@ -975,7 +975,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
     このイベントの出力は、以下のようなものになります。
 
-    ```cmd/sh
+    ```bash
     11/14/2019 22:26:44 - Send Json Event : {"machine":{"temperature":231.599999999999959,"pressure":1.0095600761599359},"ambient":{"temperature":21.430643635304012,"humidity":24},"timeCreated":"2019-11-14T22:26:44.7904425Z"}
     11/14/2019 22:26:45 - Send Json Event : {"machine":{"temperature":531.999999999999957,"pressure":1.0099208337508767},"ambient":{"temperature":20.569532965342297,"humidity":25},"timeCreated":"2019-11-14T22:26:45.2901801Z"}
     Received message

@@ -216,8 +216,6 @@ Azure Container Registry は、コンテナーをデプロイするためのプ�
 
     グローバルに一意な名前を付けるには、「**acraz220training{your-id}**」と入力します。
 
-    例: **AZ220ACRCAH191204**
-
     Azure Container Registry の名前は、IP 接続デバイスからアクセスでき、パブリックにアクセス可能なリソースであるため、グローバルに一意である必要があります。
 
     新しい Azure Container Registry に一意の名前を指定する場合は、次の点を考慮してください。

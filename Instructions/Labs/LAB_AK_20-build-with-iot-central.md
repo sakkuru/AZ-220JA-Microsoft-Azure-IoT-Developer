@@ -293,7 +293,6 @@ RefrigeratedTruckのシナリオでは、積み荷を顧客に届けるコマン
     | 表示名 | Go to customer |
     | 名前 | GoToCustomer |
     | 機能タイプ | Command |
-    | コマンド | Synchronous |
 
 1. 「**コマンド**」 で、「**要求**」 をクリックします。
 
@@ -316,7 +315,6 @@ RefrigeratedTruckのシナリオでは、積み荷を顧客に届けるコマン
     | 表示名 | Recall |
     | 名前 | Recall |
     | 機能タイプ | Command |
-    | コマンド | Synchronous |
 
     このコマンドには追加のパラメーターがないため、「**要求**」 をオフのままにします。
 

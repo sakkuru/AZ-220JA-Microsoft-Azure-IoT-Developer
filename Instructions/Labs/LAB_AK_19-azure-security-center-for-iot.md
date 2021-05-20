@@ -1,10 +1,10 @@
-﻿---
+---
 lab:
-    title: 'ラボ 19: IoT デバイスが Azure Security Center for IoT に改ざんされているかどうか検出'
+    title: 'ラボ 19: IoT デバイスが Azure Defender for IoT に改ざんされているかどうか検出'
     module: 'モジュール 10: Azure Security Center と IoT セキュリティ'
 ---
 
-# Azure Security Center for IoTでのデバイス改ざんの検出
+# Azure Defender for IoTでのデバイス改ざんの検出
 
 ## ラボシナリオ
 
@@ -66,7 +66,7 @@ Contoso は、新規注文に対応する出荷と梱包および要求の拡大
 
     * すべてのファイル
       * ラボ
-          * 19 - IoT デバイスが Azure Security Center for IoT で改ざんされているかどうかを検出する
+          * 19 - IoT デバイスが Azure Defender for IoT で改ざんされているかどうかを検出する
             * セットアップ
 
     lab19-setup.azcli スクリプト ファイルは、ラボ 19 のセットアップ フォルダにあります。
@@ -146,20 +146,20 @@ Contoso は、新規注文に対応する出荷と梱包および要求の拡大
 
     これは、実行するのに数分かかります。各ステップが完了すると、JSON 出力が表示されます。
 
-### 演習 2: Azure Security Center for IoT Hub を有効にする
+### 演習 2: Azure Defender for IoT Hub を有効にする
 
-Azure Security Center for IoT を使用すると、セキュリティ管理を統一したり、ハイブリッド クラウド ワークロードと Azure IoT ソリューション全体でエンド ツー エンドの脅威の検出および分析を行ったりできます。
+Azure Defender for IoT を使用すると、セキュリティ管理を統一したり、ハイブリッド クラウド ワークロードと Azure IoT ソリューション全体でエンド ツー エンドの脅威の検出および分析を行ったりできます。
 
-Azure Security Center for IoT は、次のコンポーネントで構成されます。
+Azure Defender for IoT は、次のコンポーネントで構成されます。
 
 * IoT Hub の統合
 * デバイス エージェント (省略可能)
 * セキュリティ メッセージ SDK の送信
 * 分析パイプライン
 
-#### タスク 1: Azure Security Center for IoT を有効にする
+#### タスク 1: Azure Defender for IoT を有効にする
 
-このタスクでは、IoT Hub 用の **Azure Security Center for IoT** を有効にします。 
+このタスクでは、IoT Hub 用の **Azure Defender for IoT** を有効にします。 
 
 1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
 
@@ -167,20 +167,18 @@ Azure Security Center for IoT は、次のコンポーネントで構成され�
 
 1. Azure ダッシュボードで、「**iot-az220-training-{your-id}**」 をクリックします。
 
-    ダッシュボードには、rg-az220 リソース グループ タイルの IoT Hub へのリンクが必要です。
-
 1. 左側のナビゲーション メニューにある 「**セキュリティ**」 の 「**概要**」 をクリックします。   
 
-    Azure Security Center for IoT Hub は、セキュリティ ウィンドウが初めて開くとオンボードされます。 
+    Azure Defender for IoT Hub は、セキュリティ ウィンドウが初めて開くとオンボードされます。 
     
-    * 「**IoT ソリューションをセキュリティで保護する**」 をクリックするよう求められる場合があります。
-    * しばらくすると、「**この IoT Hub のオンボーディングを成功しました。有効にするには更新してください**」というメッセージが表示される場合があります。
+    * 「**Secure your IoT solution**」 をクリックするよう求められる場合があります。
+    * しばらくすると、「**Onboarding succeeded for this IoT hub, please refresh for changes to take effect**」というメッセージが表示される場合があります。
 
 1. 時間をとって 「セキュリティの概要」 ウィンドウのコンテンツを確認します。
 
 #### タスク 2: Log Analytics の作成
 
-Azure Security Center for IoT が有効になっている場合は、既定の Azure Log Analytics ワークスペースが作成されて、IoT デバイス、IoT Edge、IoT Hub の未処理のセキュリティ イベント、アラート、推奨事項が保存されます。
+Azure Defender for IoT が有効になっている場合は、既定の Azure Log Analytics ワークスペースが作成されて、IoT デバイス、IoT Edge、IoT Hub の未処理のセキュリティ イベント、アラート、推奨事項が保存されます。
 
 このタスクでは、Log Analytics のワークスペース構成をさらっと確認します。
 
@@ -194,7 +192,54 @@ Azure Security Center for IoT が有効になっている場合は、既定の A
 
     Log Analytics ワークスペースに定義されている**ワークスペース構成**に注目してください。
 
-既定では、Azure Security Center for IoT ソリューションを有効にすると、Azure サブスクリプションのすべての IoT Hub が自動的にセキュリティで保護されます。
+既定では、Azure Defender for IoT ソリューションを有効にすると、Azure サブスクリプションのすべての IoT Hub が自動的にセキュリティで保護されます。
+
+#### タスク2：Log Analyticsの作成
+
+Azure Defender for IoTをオンにすると、IoTデバイス、IoT Edge、IoT Hubの生のセキュリティイベント、アラート、推奨事項を保存するために、Azure Log Analyticsのワークスペースを作成する必要があります。
+
+このタスクでは、Log Analyticsのワークスペース構成を簡単に見ていきます。
+
+1. 左のナビゲーションエリアで、**セキュリティ**の下にある**設定**をクリックします。
+
+    設定ページが表示され、設定可能な4つの領域が一覧表示されます。
+
+    * Data Collection
+    * Recommendations Configuration
+    * Monitored Resources
+    * Custom Alerts
+
+1. デフォルトの **Data Collection** の設定を確認するには、**Data Collection**をクリックします。
+
+1. ワークスペース構成セクションの **Choose the Log Analytics workspace you wish to connect to:** の下で、トグルボタンを **On** に設定します。
+
+1. Subscriptionドロップダウンで、このラボで使用するサブスクリプションが選択されていることを確認します。
+
+1. Workspaceドロップダウンで、**Create New Workspace** をクリックします。
+
+1. Log Analytics Workspaceペインで、**Log Analytics Workspace** の下に **log-az220-training-{your-id}** と入力します。
+
+1. サブスクリプションの下で、このコースで使用しているサブスクリプションが選択されていることを確認します。
+
+1. リソースグループのドロップダウンで、**rg-az220**をクリックします。
+
+1. Locationドロップダウンで、最も近いAzure Region、またはAzure IoT Hubがプロビジョニングされているリージョンを選択します。
+
+1. Pricing tierで、**従量課金制**が選択されていることを確認します。
+
+1. ワークスペースを作成するには、**OK**をクリックします。
+
+    しばらくすると、ワークスペースが作成され、ペインが閉じます。
+
+1. 「Settings | Data Collection」ページに戻り、「Workspace」ドロップダウンで「**log-az220-training-{your-id}**」を選択します。
+
+1. **Access to raw security data**がチェックされていることを確認します。
+
+1. **In-depth security recommendations and custom alert** がチェックされていることを確認する。
+
+1. **IP data collection** にチェックが入っていること
+
+1. データコレクションの設定を保存するには、**Save**をクリックし、ページを閉じるには、ページの右上にある**Close**ボタンをクリックします。
 
 ### 演習 3: 新しいデバイスの作成と登録
 
@@ -273,9 +318,9 @@ Azure Security Center for IoT が有効になっている場合は、既定の A
 
 ### 演習 4: セキュリティ モジュール ツインを作成する
 
-Azure Security Center for IoT では、既存の IoT デバイス管理プラットフォームとの完全な統合が提供されるため、デバイスのセキュリティ状態を管理したり、既存のデバイス制御機能を使用したりできます。
+Azure Defender for IoT では、既存の IoT デバイス管理プラットフォームとの完全な統合が提供されるため、デバイスのセキュリティ状態を管理したり、既存のデバイス制御機能を使用したりできます。
 
-Azure Security Center for IoT は、モジュール ツイン メカニズムを使用し、各デバイスに対して azureiotsecurity という名前のセキュリティ モジュール ツインを保持します。セキュリティ モジュール ツインは、各デバイスのデバイス セキュリティに関連するすべての情報を保持します。Azure Security Center for IoT の機能を最大限に活用するには、新しい IoT Edge デバイスに対して、これらのセキュリティ モジュール ツインを作成、構成、および使用する必要があります。
+Azure Defender for IoT は、モジュール ツイン メカニズムを使用し、各デバイスに対して azureiotsecurity という名前のセキュリティ モジュール ツインを保持します。セキュリティ モジュール ツインは、各デバイスのデバイス セキュリティに関連するすべての情報を保持します。Azure Defender for IoT の機能を最大限に活用するには、新しい IoT Edge デバイスに対して、これらのセキュリティ モジュール ツインを作成、構成、および使用する必要があります。
 
 セキュリティ モジュール ツイン (**azureiotsecurity**) は、次のいずれかの方法を使用して作成できます。
 
@@ -318,16 +363,16 @@ Azure Security Center for IoT は、モジュール ツイン メカニズムを
 
     > **注意**: IoT Hub ホスト名は次のようになります。AZ-220-HUB-CAH102119.azure-devices.net
 
-### 演習 5: Azure Security Center for IoT C# セキュリティ エージェントのデプロイ
+### 演習 5: Azure Defender for IoT C# セキュリティ エージェントのデプロイ
 
-Azure Security Center for IoT では、IoT Hub を介してセキュリティ データのログをとり、処理、集計、送信を行うセキュリティ エージェント向けの参照アーキテクチャを提供します。C および C# ベースのエージェントがあります。C エージェントは、より制限されたまたは最小限のデバイス リソースを持つデバイスに推奨されます。
+Azure Defender for IoT では、IoT Hub を介してセキュリティ データのログをとり、処理、集計、送信を行うセキュリティ エージェント向けの参照アーキテクチャを提供します。C および C# ベースのエージェントがあります。C エージェントは、より制限されたまたは最小限のデバイス リソースを持つデバイスに推奨されます。
 
 セキュリティ エージェントは、次の機能をサポートします。
 
-* 基になるオペレーティング システム (Linux、Windows) から未加工のセキュリティ イベントを収集します。使用可能なセキュリティ データ コレクターの詳細については、「Azure Security Center for IoT エージェントの構成」を参照してください。
+* 基になるオペレーティング システム (Linux、Windows) から未加工のセキュリティ イベントを収集します。使用可能なセキュリティ データ コレクターの詳細については、「Azure Defender for IoT エージェントの構成」を参照してください。
 * 未加工のセキュリティ イベントを IoT Hub 経由で送信されるメッセージに集約します。
 * 既存のデバイス ID または専用のモジュール ID で認証します。詳細については、「セキュリティ エージェントの認証方法」を参照してください。
-* **azureiotsecurity** モジュール ツインを使って、リモートで構成します。詳細については、「Azure Security Center for IoT エージェントの構成」をご覧ください。
+* **azureiotsecurity** モジュール ツインを使って、リモートで構成します。詳細については、「Azure Defender for IoT エージェントの構成」をご覧ください。
 
 この演習では、シミュレーションされたデバイス (Linux VM) にデプロイする C# のセキュリティ エージェントを追加します。 
 
@@ -440,7 +485,7 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
 
     コマンドの例を次に示します。
 
-    `sudo ./InstallSecurityAgent.sh -i -aui Device -aum SymmetricKey -f ../s.key -hn AZ-220-HUB-AB20200213.azure-devices.net -di vm-az220-training-edge0002-{your-id}`
+    `sudo ./InstallSecurityAgent.sh -i -aui Device -aum SymmetricKey -f ../s.key -hn iot-az220-training-ab200213.azure-devices.net -di vm-az220-training-edge0002-{your-id}`
 
     > **注意**: 一覧表示されたホスト名ではなく IoT Hub のホスト名を必ず指定してください。 
     
@@ -465,9 +510,9 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
  
 1. Cloud Shell コマンド プロンプトで、仮想マシンに再接続するには、以前使用した SSH コマンドを入力します。
 
-    Azure Security Center for IoT エージェントがアクティブになり実行されます。
+    Azure Defender for IoT エージェントがアクティブになり実行されます。
 
-1. Cloud Shell コマンド プロンプトで、Azure Security Center for IoT エージェントのデプロイ状態を確認するには、次のコマンドを入力します。 
+1. Cloud Shell コマンド プロンプトで、Azure Defender for IoT エージェントのデプロイ状態を確認するには、次のコマンドを入力します。 
 
     ```cmd/sh
     systemctl status ASCIoTAgent.service
@@ -487,7 +532,7 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
 
     具体的には、サービスが **Loaded: loaded**で、**Active: active (running)** であることを確認する必要があります。
 
-    > **注意**: Azure Security Center for IoT エージェントが実行されていないか、アクティブではない場合、[Linux 用の Azure Security Center for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/ja-jp/azure/asc-for-iot/how-to-deploy-linux-cs) ガイドの「トラブルシューティング」セクションを確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
+    > **注意**: Azure Defender for IoT エージェントが実行されていないか、アクティブではない場合、[Linux 用の Azure Defender for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/ja-jp/azure/asc-for-iot/how-to-deploy-linux-cs) ガイドの「トラブルシューティング」セクションを確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
 
 1. Azure portal で、IoT Hub のブレードに戻り、「**vm-az220-training-edge0002-{your-id}**」 デバイス ブレードを開きます。
 
@@ -497,54 +542,63 @@ Azure Security Center for IoT では、IoT Hub を介してセキュリティ �
 
 ![接続済みの Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-device-connected-agent.png)
 
-これで、Azure Security Center for IoT デバイス エージェントがデバイスにインストールされ、エージェントはデバイスから生のセキュリティ イベントを収集、集計、分析できるようになりました。
+これで、Azure Defender for IoT デバイス エージェントがデバイスにインストールされ、エージェントはデバイスから生のセキュリティ イベントを収集、集計、分析できるようになりました。
 
 ### 演習 6: ソリューション管理の構成
 
-Azure Security Center for IoT は、Azure ベースの IoT ソリューションに包括的なエンド ツー エンド のセキュリティを提供します。
+Azure Defender for IoT は、Azure ベースの IoT ソリューションに包括的なエンド ツー エンド のセキュリティを提供します。
 
-Azure Security Center for IoT を使用すると、IoT ソリューション全体を 1 つのダッシュボードで監視し、すべての IoT デバイス、IoT プラットフォーム、および Azure のバックエンド リソースを表示できます。
+Azure Defender for IoT を使用すると、IoT ソリューション全体を 1 つのダッシュボードで監視し、すべての IoT デバイス、IoT プラットフォーム、および Azure のバックエンド リソースを表示できます。
 
-IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に接続され、IoT ソリューションに関連する他の Azure サービスを自動的に識別します。
+IoT Hub で有効にすると、Azure Defender for IoT は、IoT Hub に接続され、IoT ソリューションに関連する他の Azure サービスを自動的に識別します。
 
 自動リレーションシップ検出に加えて、IoT ソリューションの一部としてタグ付けする他の Azure リソース グループを選択することもできます。選択すると、サブスクリプション全体、リソース グループ、または単一のリソースを追加できます。
 
-#### タスク 1:  IoT Hub を開く
+#### タスク1: IoTハブを開く
 
-1. ブラウザーで Azure portal を開き、IoT Hub に移動します。
+1. ブラウザでAzureポータルを開き、IoT Hubにナビゲートします。
 
-1. 左側のナビゲーション メニューの 「**セキュリティ**」 で、「**Settings**」 をクリックし、「Monitored Resources」をクリックします。
+1. 左側のメニューの**Security**の下にある**設定**をクリックします。
 
-    リソースの一覧には、IoT Hub、Azure Security Center for IoT のアクティブ化が以前に行われたときに作成されたワークスペース、および現在のサブスクリプションが既に含まれていることに注意してください。
+    設定ページ」には、以下の項目が表示されます。
 
-1. ウィンドウの上部にある 「**Edit**」 をクリックします。
+    * Data Collection
+    * Recommendations Configuration
+    * Monitored Resources
+    * Custom Alerts
 
-    「**Solution Management**」 ウィンドウが開き、所有するリソース グループを選択して、追加の Azure リソースをセキュリティ ソリューションに接続できます。
+1. リソースのリストを表示するには、**Monitored Resources** をクリックします。
 
-1. 「**サブスクリプション**」 で、このコースに使用するサブスクリプションが選択されていることを確認します。
+    リソースのリストには、IoT Hub、以前Azure Defender for IoTをアクティブにしたときに作成されたワークスペース、および現在のサブスクリプションがすでに含まれていることに注意してください。
 
-    > **注:**
-    > 複数のサブスクリプションのリソースをセキュリティ ソリューションに追加できます。
+1. ペインの上部にある「**Edit**」をクリックします。
 
-1. 「**リソース グループ**」 で、VM - **rg-az220vm** のリソース グループを選択します。
+    ソリューション管理**]ペインが開き、所有するリソースグループを選択することで、追加のAzureリソースをセキュリティソリューションに接続することができます。
 
-    これで、2 つのリソース グループが選択されます。追加したリソース グループの追加リソースを反映するように、「リソース」 リストが更新されたことに注意してください。
+1. 1. **Subscriptions**で、このコースで使用するサブスクリプションが選択されていることを確認します。
 
-1. 「**Apply**」 をクリックします。
+    > **Note:**
+    > 複数のサブスクリプションからリソースをセキュリティソリューションに追加することができます。
 
-    「**Apply**」 ボタンが使用できない場合は、心配はいりません、リソースが既に追加されています。
+1. 1. **Resource groups** ドロップダウンで、**rg-az220vm**をクリックします。
 
-1. 「**Solution Management**」 ウィンドウを閉じます。
+    2つのリソースグループが選択されているはずです。リソース］リストが更新され、先ほど追加したリソースグループの追加リソースが反映されていることに注意してください。
 
-すべてのリソース関係を定義した後、Azure Security Center for IoT は Azure Security Center を活用して、これらのリソースに対するセキュリティに関する推奨事項とアラートを提供します。
+1. Solution Management画面の下部にある[Apply]をクリックします。
 
-#### タスク 2: Azure Security Center for IoT の動作を表示する
+    もし**Apply**ボタンがない場合でも、リソースはすでに追加されていますのでご安心ください。
 
-これで、デバイスにセキュリティ エージェントがインストールされ、ソリューションが構成されました。Azure Security Center for IoT のさまざまなビューを確認することをお勧めします。
+1. 1. **Solution Management** ペインを閉じます。
+
+すべてのリソースの関係を定義した後、Azure Defender for IoTはAzure Defenderを活用して、これらのリソースに対するセキュリティ勧告やアラートを提供します。
+
+#### タスク 2: Azure Defender for IoT の動作を表示する
+
+これで、デバイスにセキュリティ エージェントがインストールされ、ソリューションが構成されました。Azure Defender for IoT のさまざまなビューを確認することをお勧めします。
 
 1. 左側のナビゲーション メニューの 「**セキュリティ**」 で、「**概要**」 をクリックします。 
 
-    デバイス、ハブ、およびその他のリソースの正常性の概要が 2 つのグラフに表示されます。Azure Security Center for IoT を有効にしたときに有効になった、組み込みのリアルタイム監視、推奨事項、およびアラートを確認できます。
+    デバイス、ハブ、およびその他のリソースの正常性の概要が 2 つのグラフに表示されます。Azure Defender for IoT を有効にしたときに有効になった、組み込みのリアルタイム監視、推奨事項、およびアラートを確認できます。
 
 ![Azure IoT セキュリティ モジュールのスクリーンショット](media/LAB_AK_19-security-dashboard.png)
 
@@ -567,7 +621,7 @@ IoT Hub で有効にすると、Azure Security Center for IoT は、IoT Hub に�
 
 ご存知のとおり、IoT デバイスは、すぐに使用できるアルゴリズムよりも優れています。
 
-予想されるデバイスの動作を完全に理解しているお客様の場合、Azure Security Center for IoT を使用して、この理解をデバイスの動作ポリシーに組み込み、予期される通常の動作からの逸脱について警告します。
+予想されるデバイスの動作を完全に理解しているお客様の場合、Azure Defender for IoT を使用して、この理解をデバイスの動作ポリシーに組み込み、予期される通常の動作からの逸脱について警告します。
 
 #### タスク 1 - 警告をカスタマイズする
 

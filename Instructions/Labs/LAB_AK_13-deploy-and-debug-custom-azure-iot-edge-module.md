@@ -408,7 +408,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. Visual Studio Code の 「**表示**」 メニューで、「**コマンド パレット**」 をクリックします。
 
-1. コマンド パレットに、「**Azure IoT Edge**」と入力し、「**Azure IoT Edge: Set Default**」を選択します。
+1. コマンド パレットに、「**Azure IoT Edge**」と入力し、「**Azure IoT Edge: Set Default Target Platform for Edge Solution**」を選択します。
 
 1. ターゲット プラットフォームを選択するには、 **amd64** をクリックします。 
 
@@ -416,7 +416,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     > **注意**:  **Ubuntu Linux VM で IoT エッジ**を使用しているため、`amd64` オプションが適切な選択です。  Windows VM の場合は `windows-amd64` を使用し、ARM CPU アーキテクチャで実行されるモジュールの場合は `arm32v7` オプションを選択します。
 
-#### タスクあ3: モジュールコードのレビュー
+#### タスク3: モジュールコードのレビュー
 
 1. 「**Explorer**」 ペインで、`/modules/ObjectCountingModule` ディレクトリを展開するには、「**modules**」 をクリックします。   
 

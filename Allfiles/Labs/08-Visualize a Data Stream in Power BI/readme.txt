@@ -1,2 +1,2 @@
-﻿セットアップ - このラボの Azure 環境を構成するために使用するスクリプト
-スターター - このラボを完了するために受講者が使用するプロジェクト ファイルのコード
+Setup - script used to configure the Azure environment for this lab
+Starter - code project files used by students to complete this lab

@@ -568,7 +568,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 
     メッセージ ルートの `FROM /*` 部分は、すべての device-to-cloud メッセージ、または任意のモジュールまたはリーフ デバイスからのツイン変更通知と一致します。次に、`INTO $upstream` は、これらのメッセージを Azure IoT Hub に送信するルートを示します。
 
-    > **注**:  Azure IoT Edge 内のメッセージ ルーティングの構成に関する詳細については、[[IoT Edge にモジュールをデプロイしてルートを確立する方法の詳細](https://docs.microsoft.com/azure/iot-edge/module-composition#declare-routes#declare-routes)]に関するドキュメント記事を参照してください。
+    > **注**:  Azure IoT Edge 内のメッセージ ルーティングの構成に関する詳細については、[IoT Edge にモジュールをデプロイしてルートを確立する方法の詳細](https://docs.microsoft.com/azure/iot-edge/module-composition#declare-routes#declare-routes)]に関するドキュメント記事を参照してください。
 
 1. ブレードの最下部で、**レビュー + 作成**をクリックします。
 

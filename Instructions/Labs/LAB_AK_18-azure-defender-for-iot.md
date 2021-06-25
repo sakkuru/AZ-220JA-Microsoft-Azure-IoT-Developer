@@ -1,6 +1,6 @@
 ﻿---
 lab:
-    title: 'ラボ 18: Azure Defender for IoT で IoT デバイスが改ざんされているかどうかを検出する'
+    title: 'ラボ 18: Azure Defender for IoT でデバイス改ざんされているかどうかを検出する'
     module: 'モジュール 10: Azure Defender for IoT のセキュリティ'
 ---
 
@@ -58,7 +58,7 @@ Contoso は、新しい IoT デバイスを備えた新しいアセンブリ ラ
 
 1. Cloud Shell が **Bash** を使用していることを確認します。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。
 
 1. Cloud Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
 
@@ -417,7 +417,7 @@ Azure Defender for IoT には、IoT Hub を介してセキュリティ データ
 
     Cloud Shell 内で **Bash** 環境が選択されていることを確認します。
 
-1. Cloud Shell コマンド プロンプトで、上で作成した `ssh` コマンドを入力し、**Enter ** キーを押します。
+1. Cloud Shell コマンド プロンプトで、上で作成した `ssh` コマンドを入力し、**Enter** キーを押します。
 
 1. 「**接続を続行しますか?**」というメッセージが表示されたら、「**yes**」と入力して **Enter** キーを押します。
 
@@ -539,9 +539,9 @@ Azure Defender for IoT には、IoT Hub を介してセキュリティ データ
             └─1092 /var/ASCIoTAgent/ASCIoTAgent
     ```
 
-    具体的には、サービスが **読み込み済み: 読み込み済み**で、**アクティブ: アクティブ (実行中)**であることを確認する必要があります。
+    具体的には、サービスが **読み込み済み: 読み込み済み**で、**アクティブ: アクティブ (実行中)** であることを確認する必要があります。
 
-    > **注**: Azure Defender for IoT エージェントが実行されていないか、アクティブではない場合、「[Linux 用の Defender for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/en-us/azure/defender-for-iot/how-to-deploy-linux-css)」を確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
+    > **注**: Azure Defender for IoT エージェントが実行されていないか、アクティブではない場合、「[Linux 用の Defender for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/ja-jp/azure/defender-for-iot/how-to-deploy-linux-css)」を確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
 
 1. Azure portal で、IoT Hub のブレードに戻り、「**vm-az220-training-edge0002-{your-id}**」 デバイス ブレードを開きます。
 

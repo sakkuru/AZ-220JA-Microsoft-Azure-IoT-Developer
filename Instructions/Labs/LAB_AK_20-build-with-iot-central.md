@@ -1,6 +1,6 @@
 ﻿---
 lab:
-    title: 'ラボ 20: IoT Central で構築'
+    title: 'ラボ 20: 最初の Azure IoT Central アプリを作成する'
     module: 'モジュール 12: IoT Central で構築'
 ---
 

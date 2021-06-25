@@ -69,7 +69,7 @@ ADT を最大限に活用する方法をよりよく理解するために、既�
 
 1. Cloud Shell が **Bash** を使用していることを確認します。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。
 
 1. Cloud Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
 
@@ -2081,7 +2081,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     > **ヒント:** **Microsoft.Extensions.Logging** 機能の詳細については、次のリソースを確認してください。
     > * [.NET へのログイン](https://docs.microsoft.com/dotnet/core/extensions/logging?tabs=command-line)
     > * [Microsoft.Extensions.Logging 名前空間](https://docs.microsoft.com/dotnet/api/microsoft.extensions.logging?view=dotnet-plat-ext-5.0&viewFallbackFrom=netcore-3.1)
-    > * [ILogger インターフェイス](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-5.0&viewFallbackFrom=netcore-3.1)
+    > * [ILogger インターフェイス](https://docs.microsoft.com/ja-jp/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-5.0&viewFallbackFrom=netcore-3.1)
 
 1. **ADT_SERVICE_URL** 環境変数が定義されていることを確認するには、`// 以下に環境変数チェックを挿入します` コメントを見付け、その下に次のコードを挿入します。
 
@@ -2391,7 +2391,7 @@ REST API を介した OAuth スタイルの認証を使用するなど、認証�
     > * **任意の組織ディレクトリ (任意の Azure AD ディレクトリ - マルチ テナント) および個人用の Microsoft アカウント (Skype、Xbox など) のアカウント** - 職場や学校、または個人用の Microsoft アカウントを持つすべてのユーザーは、アプリケーションまたは API を使用できます。これには、Office 365 を使用する学校と企業、および Xbox や Skype などのサービスへのサインインに使用されている個人用アカウントが含まれます。このオプションを使用して、最も幅広い Microsoft ID をターゲットにし、マルチ テナンシーを有効にします。
     > * **個人用の Microsoft アカウントのみ** - Xbox や Skype などのサービスへのサインインに使用される個人用アカウント。このオプションを使用して、最も幅広い Microsoft ID を対象にします。
 
-1. 「**リダイレクト URI**」 で、ドロップダウン値を 「**パブリッククライアント/ネイティブ (モバイルおよびデスクトップ)**」 に変更し、「**http://localhost**」と入力します。
+1. 「**リダイレクト URI**」 で、ドロップダウン値を 「**パブリッククライアント/ネイティブ (モバイルおよびデスクトップ)**」 に変更し、**http://localhost** と入力します。
 
 1. 登録を作成するには、「**登録**」 をクリックします。
 

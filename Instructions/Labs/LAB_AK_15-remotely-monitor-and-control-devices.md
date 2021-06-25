@@ -1,6 +1,6 @@
 ﻿---
 lab:
-    title: 'ラボ 15: Azure IoT Hub を使用してリモートによるデバイスの監視および制御'
+    title: 'ラボ 15: Azure IoT Hub を使用してデバイスをリモートで監視および制御する'
     module: 'モジュール 8: デバイス管理'
 ---
 
@@ -75,7 +75,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 **lab15-setup.azcli** スクリプトは、**Bash** シェル環境で実行するために記述されています。Azure Cloud Shell でこれを実行するのが、最も簡単な方法です。
 
-> ** 注:** **sensor-th-0055** デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
+> **注:** **sensor-th-0055** デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
 >
 > ```bash
 > az iot hub device-identity connection-string show --hub-name iot-az220-training-{your-id} --device-id sensor-th-0055 -o tsv
@@ -462,7 +462,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     このコードは、オペレーター アプリの構造の概要を示しています。
 
-1. `// 以下のステートメントを使用して INSERT を実行します` コメントを見つけます。
+1. `// INSERT using statements below here` コメントを見つけます。
 
 1. アプリケーション コードが使用する名前空間を指定するには、次のコードを入力します。
 
@@ -482,7 +482,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     > **ヒント**: コードを挿入する場合、コード レイアウトが理想的でない場合があります。コード エディター ペインを右クリックし、**「ドキュメントのフォーマット」** をクリックすると、Visual Studio Code でドキュメントをフォーマットできます。**「タスク」** ペインを開いて (**F1** を押す)、**「ドキュメントのフォーマット」** と入力してから **Enter** キーを押すと、同じ結果を得ることができます。また、Windows では、このタスクのショートカットは **SHIFT+ALT+F** です。
 
-1. `// ここに変数を挿入します` コメントを見つけます。
+1. `// INSERT variables below here` コメントを見つけます。
 
 1. プログラムが使用している変数を指定するには、次のコードを入力します。
 
@@ -552,7 +552,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 1. **\<your event hub endpoint\>**、**\<your event hub path\>**、および **\<your event hub SaS key\>** を、このラボで前に保存した値に置き換えます。
 
-1. `// 以下に Main メソッドを挿入します` コメントを見つけます。
+1. `// INSERT Main method below here` コメントを見つけます。
 
 1. **Main** メソッドを実装するには、次のコードを入力します。
 
@@ -602,7 +602,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     デバイスから IoT Hub に送信されるメッセージは任意のパーティションで処理される可能性があるため、アプリは各パーティションからメッセージを取得する必要があります。コードの次のセクションでは、非同期タスクのリストを作成します。各タスクは特定のパーティションからメッセージを受信します。最後の行は、すべてのタスクが完了するのを待ちます。各タスクは無限ループになるため、この行はアプリケーションが終了するのを防ぎます。
 
-1. `// 以下に ReceiveMessagesFromDeviceAsync メソッドを挿入します` コメントを見つけます。
+1. `INSERT ReceiveMessagesFromDeviceAsync method below here` コメントを見つけます。
 
 1. **ReceiveMessagesFromDeviceAsync** メソッドを実装するには、次のコードを入力します。
 
@@ -714,7 +714,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
 1. **Program.cs** がコード エディターで開かれていることを確認します。
 
-1. `// 以下に ダイレクト メソッド コードを挿入します` コメントを見つけます。
+1. `INSERT register direct method code below here` コメントを見つけます。
 
 1. ダイレクト メソッドを登録するには、次のコードを入力します。
 
@@ -725,7 +725,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
     **SetFanState** ダイレクト メソッド ハンドラーもこのコードによって設定されていることに注意してください。ご覧のとおり、deviceClient の **SetMethodHandlerAsync** メソッドは、リモート メソッド名 `"SetFanState"`を、呼び出す実際のローカル メソッド、およびユーザー コンテキスト オブジェクト (この場合は null) とともに引数として受け取ります。
 
-1. `// 以下に SetFanState メソッドを挿入します` コメントを見つけます。
+1. `INSERT SetFanState method below here` コメントを見つけます。
 
 1. **SetFanState** メソッドを実装するには、次のコードを入力します。
 
@@ -806,7 +806,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
 1. **Program.cs** がコード エディターで開かれていることを確認します。
 
-1. `// 以下にサービス クライアント変数を挿入します` コメントを見つけます。
+1. `INSERT service client variable below here` コメントを見つけます。
 
 1. サービス クライアント インスタンスを保持するグローバル変数を追加するには、次のコードを入力します。
 
@@ -814,7 +814,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
     private static ServiceClient serviceClient;
     ```
 
-1. `// 以下にサービス クライアント インスタンスの作成を挿入します` コメントを見つけます。
+1. `INSERT create service client instance below here` コメントを見つけます。
 
 1. サービス クライアント インスタンスを作成して、ダイレクト メソッドを呼び出すコードを追加するには、次のコードを入力します。
 
@@ -824,7 +824,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
     InvokeMethod().GetAwaiter().GetResult();
     ```
 
-1. `// 以下に InvokeMethod メソッドを挿入します` コメントを見つけます。
+1. `INSERT InvokeMethod method below here` コメントを見つけます。
 
 1. ダイレクト メソッドを呼び出すコードを追加するには、次のコードを入力します。
 
@@ -917,7 +917,7 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
 
 1. **Program.cs** が開いていることを確認します。
 
-1. `// 以下にレジストリ マネージャー変数を挿入します` コメントを見つけます。
+1. `INSERT registry manager variable below here` コメントを見つけます。
 
 1. レジストリ マネージャー変数を挿入するには、次のコードを入力します。
 
@@ -925,7 +925,7 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
     private static RegistryManager registryManager;
     ```
 
-1. `// 以下に希望のレジスタ プロパティ変更ハンドラ コードを挿入します` コメントを見つけます。
+1. `INSERT register desired property changed handler code below here` コメントを見つけます。
 
 1. レジストリ マネージャー インスタンスを作成し、ツイン プロパティを設定する機能を追加するには、次のコードを入力します。
 
@@ -935,7 +935,7 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
     SetTwinProperties().Wait();
     ```
 
-1. `// 以下にデバイス ツイン セクションを挿入します` コメントを見つけます。
+1. `INSERT Device twins section below here` コメントを見つけます。
 
 1. デバイス ツインの必要なプロパティを更新する機能を追加するには、次のコードを入力します。
 
@@ -981,7 +981,7 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
 
 1. **Program.cs** ファイルが 「コード エディター」 ウィンドウで開かれていることを確認します。
 
-1. `// 以下に希望のレジスタ プロパティ変更ハンドラ コードを挿入します` コメントを見つけます。
+1. `INSERT register desired property changed handler code below here` コメントを見つけます。
 
 1. 必要なプロパティ変更ハンドラーを登録するために、次のコードを追加します。
 
@@ -994,7 +994,7 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
     deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).Wait();
     ```
 
-1. `// 以下に OnDesiredPropertyChanged メソッドを挿入します` コメントを見つけます。
+1. `INSERT OnDesiredPropertyChanged method below here` コメントを見つけます。
 
 1. デバイス ツイン プロパティの変更に応答するコードを追加するには、次のコードを入力します。
 

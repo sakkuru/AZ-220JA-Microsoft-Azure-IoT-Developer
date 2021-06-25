@@ -52,7 +52,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. Cloud Shell が **Bash** を使用していることを確認します。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。
 
 1. Cloud Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
 
@@ -229,7 +229,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. コマンドで作成された出力をレビューします。
 
-    出力には、IoT Edge デバイス用に作成された**デバイス ID** に関する情報が含まれています。たとえば、自動生成されたキーを使用した 'symmetricKey' 認証が既定として設定されており、'iotEdge' 機能が、指定された '--edge-enabled' パラメーターで示されるとおり 'true' に設定されてることを確認できます。
+    出力には、IoT Edge デバイス用に作成された**デバイス ID** に関する情報が含まれています。たとえば、自動生成されたキーを使用した `symmetricKey` 認証が既定として設定されており、`iotEdge` 機能が、指定された `--edge-enabled` パラメーターで示されるとおり 'true' に設定されてることを確認できます。
 
     ```json
     {
@@ -307,7 +307,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. 「**接続**」 ウィンドウの 「**4. 次のコマンドの例を実行して VM に接続する**」 で、サンプル コマンドをコピーします。
 
-    これは、VM の IP アドレスと管理者ユーザー名を含む仮想マシンに接続するために、使用できるサンプル SSH コマンドです。コマンドは、'ssh username@52.170.205.79' のように形式化される必要があります。
+    これは、VM の IP アドレスと管理者ユーザー名を含む仮想マシンに接続するために、使用できるサンプル SSH コマンドです。コマンドは、`ssh username@52.170.205.79` のように形式化される必要があります。
 
     > **注**: サンプル コマンドが `-i <private key path>` を含む場合は、テキスト エディターを使用してコマンドのその部分を削除し、更新されたコマンドをクリップボードにコピーします。
 
@@ -606,7 +606,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
         },
     ```
 
-    JSON の下位のセクションには **tempsensor** モジュールのセクションがあり、その中の 'properties.desired' セクションには、Edge モジュールの構成に必要なプロパティが含まれています。
+    JSON の下位のセクションには **tempsensor** モジュールのセクションがあり、その中の `properties.desired` セクションには、Edge モジュールの構成に必要なプロパティが含まれています。
 
     ```json
                 },
@@ -660,7 +660,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     tempsensor       running          Up 34 seconds    asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor
     ```
 
-    'tempsensor' が動作中のモジュールの 1 つとしてリストされていることに注意してください。
+    `tempsensor` が動作中のモジュールの 1 つとしてリストされていることに注意してください。
 
 1. モジュール ログを表示するには、次のコマンドを入力します。
 
@@ -677,7 +677,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.999999999999922,"pressure":1.0189397735244012},"ambient":{"temperature":20.715225311096397,"humidity":26},"timeCreated":"2019-11-14T18:5:03.8811372Z"}
     ```
 
-    'iotedge logs' コマンドを使用して、任意の Edge モジュールのモジュール ログを表示できます。
+    `iotedge logs` コマンドを使用して、任意の Edge モジュールのモジュール ログを表示できます。
 
 1. シミュレートされた温度センサー モジュールは、500 メッセージを送信した後に停止します。次のコマンドを実行して再開できます。
 
@@ -721,7 +721,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 
 1. ブレードの最下部で、**レビュー + 作成**をクリックします。
 
-1. 「**検証が成功しました**」のメッセージが表示されるまで待ってから、「**作成 **」 をクリックします。
+1. 「**検証が成功しました**」のメッセージが表示されるまで待ってから、「**作成**」 をクリックします。
 
     デプロイが完了するまでに少し時間がかかる場合があります。作成している間に Stream Analytics のリソースの作成を継続できます。
 
@@ -807,9 +807,9 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     HAVING Avg(machine.temperature) > 25
     ```
 
-    このクエリは、'temperature' 入力に入るイベントを調べ、15 秒間隔のタンブリング ウィンドウでグループ化して、そのグループ内の平均温度値が 25 よりも大きいかどうかをチェックします。平均が 25 より大きい場合、'command' プロパティが 'reset' の値に設定されたイベントを `alert` 出力に送信します。
+    このクエリは、`temperature` 入力に入るイベントを調べ、15 秒間隔のタンブリング ウィンドウでグループ化して、そのグループ内の平均温度値が 25 よりも大きいかどうかをチェックします。平均が 25 より大きい場合、`command` プロパティが `reset` の値に設定されたイベントを `alert` 出力に送信します。
 
-    'TumblingWindow' 関数の詳細については、次のリンクを参照してください: [https://docs.microsoft.com/ja-jp/stream-analytics-query/tumbling-window-azure-stream-analytics](https://docs.microsoft.com/ja-jp/stream-analytics-query/tumbling-window-azure-stream-analytics)
+    `TumblingWindow` 関数の詳細については、次のリンクを参照してください: [https://docs.microsoft.com/ja-jp/stream-analytics-query/tumbling-window-azure-stream-analytics](https://docs.microsoft.com/ja-jp/stream-analytics-query/tumbling-window-azure-stream-analytics)
 
 1. クエリ エディターの上部にある 「**クエリの保存**」 をクリックします。
 
@@ -869,7 +869,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
     これは、IoT Edge デバイスに展開されるすべての ASA ジョブに使用されるイメージと同じです。
 
-    > **注**:  構成された**イメージ URI** の最後にあるバージョン番号には、Stream Analytics モジュールを作成したときの最新バージョンが反映されます。このユニットを書いている時点では、バージョンは '1.0.8' でした。
+    > **注**:  構成された**イメージ URI** の最後にあるバージョン番号には、Stream Analytics モジュールを作成したときの最新バージョンが反映されます。このユニットを書いている時点では、バージョンは `1.0.8` でした。
 
 1. すべての値を既定値のままにして、「**IoT Edge カスタム モジュール**」 ペインを閉じます。
 
@@ -893,9 +893,9 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
     定義されるルートは次のとおりです。
 
-    * **telemetryToCloud** ルートは、'tempsensor' モジュール出力から Azure IoT Hub にすべてのメッセージを送信します。
-    * **alertsToReset** ルートは、Stream Analytics モジュール出力から **tempsensor ** モジュールの入力に、すべての警告メッセージを送信します。
-    * **telemetryToAsa** ルートは、'tempsensor' モジュール出力から Stream Analytics モジュール入力にすべてのメッセージを送信します。
+    * **telemetryToCloud** ルートは、`tempsensor` モジュール出力から Azure IoT Hub にすべてのメッセージを送信します。
+    * **alertsToReset** ルートは、Stream Analytics モジュール出力から **tempsensor** モジュールの入力に、すべての警告メッセージを送信します。
+    * **telemetryToAsa** ルートは、`tempsensor` モジュール出力から Stream Analytics モジュール入力にすべてのメッセージを送信します。
 
 1. **「デバイスのモジュールを設定: sensor-th-0067**」 ブレードの下部にある、「**「Review + create**」 をクリックします。
 
@@ -940,7 +940,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
 1. **SSH** 経由で **IoT Edge デバイス**に接続している **Cloud Shell** セッションに戻ります。
 
-    閉じているか、タイムアウトしている場合は、再接続します。'SSH' コマンドを実行し、前と同じログインを行います。
+    閉じているか、タイムアウトしている場合は、再接続します。`SSH` コマンドを実行し、前と同じログインを行います。
 
 1. コマンド プロンプトで、デバイスにデプロイされたモジュールの一覧を表示するには、次のコマンドを入力します。
 
@@ -961,7 +961,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
     > **注**:  Stream Analytics モジュールがリストに表示されない場合は、1〜2 分待ってから、もう一度やり直してください。IoT Edge デバイスでモジュールのデプロイが更新されるには、1 分かかることがあります。
 
-1. コマンド プロンプトで、'tempsensor' モジュールによって Edge デバイスから送信されるテレメトリを監視するには、次のコマンドを入力します。
+1. コマンド プロンプトで、`tempsensor` モジュールによって Edge デバイスから送信されるテレメトリを監視するには、次のコマンドを入力します。
 
     ```bash
     iotedge logs tempsensor
@@ -969,7 +969,7 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 
 1. 出力を確認するには、少し時間がかかります。
 
-    **tempsensor** によって送信される温度テレメトリを監視している間、`machine.temperature` の平均が 「25」を超えると、Stream Analytics ジョブによって**リセット**コマンドが送信されることに注意してください。これは、Stream Analytics ジョブ クエリで構成されたアクションです。
+    **tempsensor** によって送信される温度テレメトリを監視している間、`machine.temperature` の平均が `25`を超えると、Stream Analytics ジョブによって**リセット**コマンドが送信されることに注意してください。これは、Stream Analytics ジョブ クエリで構成されたアクションです。
 
     このイベントの出力は、以下のようなものになります。
 

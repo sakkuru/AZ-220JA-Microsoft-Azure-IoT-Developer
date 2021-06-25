@@ -63,7 +63,7 @@ lab:
 
 1. Cloud Shell が **Bash** を使用していることを確認します。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash **であることを確認します。
+    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。
 
 1. Cloud Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
 
@@ -179,7 +179,7 @@ lab:
 
     Pip のインストールに問題がある場合は、公式の Pip [インストール手順](https://pip.pypa.io/en/stable/installing/)を参照してください。
 
-    > **注**: Windows では、Python や Pip がインストールされる場合がありますが、"PATH" ではインストールされません。Python がインストールされているのに利用できない場合は、インストラクターに確認してください。
+    > **注**: Windows では、Python や Pip がインストールされる場合がありますが、`PATH` ではインストールされません。Python がインストールされているのに利用できない場合は、インストラクターに確認してください。
 
 1. Azure IoT EdgeHub 開発ツールをインストールするには、次のコマンドを入力します。
 
@@ -187,7 +187,7 @@ lab:
     pip install iotedgehubdev --user
     ```
 
-    > **注**:  たとえば Ubuntu や macOS にプリインストールされている Python 2.7 など、開発環境に複数のバージョンの Python がインストールされている場合、正しい "pip" または "pip3" を使用して "iotedgehubdev" をインストールしていることを確認してください。
+    > **注**:  たとえば Ubuntu や macOS にプリインストールされている Python 2.7 など、開発環境に複数のバージョンの Python がインストールされている場合、正しい `pip` または `pip3` を使用して `iotedgehubdev` をインストールしていることを確認してください。
 
     Azure IoT EdgeHub 開発ツールの詳細については、こちらをご覧ください。[Azure IoT EdgeHub 開発ツール](https://pypi.org/project/iotedgehubdev/)
 
@@ -231,7 +231,7 @@ Azure Container Registry は、コンテナーをデプロイするためのプ�
 
     * Azure Container Registry が作成されると、レジストリ名を変更することはできません。名前を変更する必要がある場合は、新しいコンテナー レジストリを作成し、コンテナー イメージを再デプロイし、古いコンテナー レジストリを削除する必要があります。
 
-    > **注**:  入力した名前が一意であることを Azure が確認します。入力した名前が一意でない場合、Azure は警告として名前フィールドの最後にアスタリスクを表示します。グローバルに一意な名前を作成するために、必要に応じて上記の名前に '01' または '02' をアペンドできます。
+    > **注**:  入力した名前が一意であることを Azure が確認します。入力した名前が一意でない場合、Azure は警告として名前フィールドの最後にアスタリスクを表示します。グローバルに一意な名前を作成するために、必要に応じて上記の名前に `01` または `02` をアペンドできます。
 
 1. 「**場所**」 ドロップダウンで、リソース グループに使用された Azure リージョンと同じリージョンを選択します。
 
@@ -281,7 +281,7 @@ Azure Container Registry は、コンテナーをデプロイするためのプ�
     docker login az220acrcah191204.azurecr.io
     ```
 
-    このコマンドは、Docker ツールセットで将来使用するために、ローカル Docker クライアント構成ファイル ('$HOME/.docker/config.json') またはオペレーティング システムの安全な資格情報ストレージ メカニズム (Docker の構成に応じて) に資格情報を記録します。
+    このコマンドは、Docker ツールセットで将来使用するために、ローカル Docker クライアント構成ファイル (`$HOME/.docker/config.json`) またはオペレーティング システムの安全な資格情報ストレージ メカニズム (Docker の構成に応じて) に資格情報を記録します。
 
 Azure Container Registry を作成し、これに対してローカル マシンを認証したので、レジストリに格納するカスタム IoT Edge モジュール コンテナーを作成できます。
 
@@ -305,7 +305,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. モジュール テンプレートを選択するように求めるメッセージが表示されたら、「**C# モジュール**」 をクリックします。
 
-    これにより、ソリューションに追加されたカスタム IoT Edge モジュールの開発言語として 'C#' が定義されます。
+    これにより、ソリューションに追加されたカスタム IoT Edge モジュールの開発言語として `C#` が定義されます。
 
 1. カスタム IoT Edge モジュールの名前を入力するように求められたら、 「**ObjectCountingModule**」と入力します。
 
@@ -313,7 +313,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. モジュールの Docker イメージ リポジトリの名前を求めるメッセージが表示されたら、プレースホルダーの値を次のように更新します。
 
-    デフォルトの 'localhost:5000/objectcountingmodule' リポジトリの場所の 'localhost:5000' の部分を Azure Container Registry サーバーの名前に置き換えます - `acraz220training {your-id}.azurecr.io` と同様です
+    デフォルトの `localhost:5000/objectcountingmodule` リポジトリの場所の `localhost:5000` の部分を Azure Container Registry サーバーの名前に置き換えます - `acraz220training {your-id}.azurecr.io` と同様です
 
     これは、IoT Edge モジュールの docker イメージが公開される Docker リポジトリになります。
 
@@ -346,7 +346,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     新しい IoT Edge ソリューションの一部として作成されたファイルとディレクトリに注目してください。
 
-1. 「**Explorer**」 ペインで、'.env' ファイルを開くには、「**env**」 をクリックします。
+1. 「**Explorer**」 ペインで、`.env` ファイルを開くには、「**.env**」 をクリックします。
 
     .env ファイルは、IoT Edge ソリューションのルート ディレクトリにあります。ここには、Docker レジストリにアクセスするためのユーザー名とパスワードが設定されています。
 
@@ -365,40 +365,40 @@ Azure Container Registry を作成し、これに対してローカル マシン
     * `<registry-username>`: Docker レジストリへのアクセスに使用するユーザー名。
     * `<registry-password>`: Docker レジストリへのアクセスに使用するパスワード。
 
-    作成した '.env' ファイルの中で、構成値に `<registry-name>` が追加されていることを確認します。追加された値は、IoT Edge ソリューションを作成する時に指定した Docker レジストリの名前と一致する必要があります。
+    作成した `.env` ファイルの中で、構成値に `<registry-name>` が追加されていることを確認します。追加された値は、IoT Edge ソリューションを作成する時に指定した Docker レジストリの名前と一致する必要があります。
 
     > **注**: ここで認証情報を提供しているのに、なぜ前に `docker login` を実行したのか疑問に思うかもしれません。  このラボを作成した時点では、Visual Studio Code ツールは、これらの認証情報を使用して自動的に `docker login` のステップを実行しません。デプロイ テンプレートの一部として、後でエッジ エージェントに認証情報を提供するためだけに使用されます。
 
-1. '.env' ファイルの中にあるプレースホルダーの値を、前に保存したユーザー名とパスワードの値に置き換えます。
+1. `.env` ファイルの中にあるプレースホルダーの値を、前に保存したユーザー名とパスワードの値に置き換えます。
 
-    '<registry-username>' のプレースホルダーを、以前に作成した Azure Container Registry の **レジストリ名** (_aka Username_) に置き換えます。
+    `<registry-username>` のプレースホルダーを、以前に作成した Azure Container Registry の **レジストリ名** (_aka Username_) に置き換えます。
     `<registry-password>` プレースホルダーを Azure Container Registry の**パスワード**に置き換えます。
 
     > **注**:  Azure Container Registry の 「**ユーザー名**」 と 「**パスワード**」 の値は、Azure portal 内の 「**Azure Container Registry**」 サービスの 「**アクセス キー**」 ウィンドウにアクセスすることで確認できます (以前に記録していない場合)。
 
 1. 更新された **env** ファイルを保存します。
 
-1. 「**Explorer**」 ペインで、'deployment.template.json' ファイルを開くには、「**deployment.template.json**」 をクリックします。
+1. 「**Explorer**」 ペインで、`deployment.template.json` ファイルを開くには、「**deployment.template.json**」 をクリックします。
 
-    'deployment.template.json' ファイルは、ルート IoT Edge ソリューション ディレクトリにあります。このファイルは、IoT Edge ソリューションの_配置マニフェスト _です。配置マニフェストは、インストールするモジュールと構成方法を IoT Edge デバイス (またはデバイスのグループ) に通知します。配置マニフェストには、各モジュール ツインの_目的のプロパティ_が含まれます。IoT Edge デバイスは、各モジュールの_報告されたプロパティ_をレポートします。
+    `deployment.template.json` ファイルは、ルート IoT Edge ソリューション ディレクトリにあります。このファイルは、IoT Edge ソリューションの_配置マニフェスト _です。配置マニフェストは、インストールするモジュールと構成方法を IoT Edge デバイス (またはデバイスのグループ) に通知します。配置マニフェストには、各モジュール ツインの_目的のプロパティ_が含まれます。IoT Edge デバイスは、各モジュールの_報告されたプロパティ_をレポートします。
 
     すべての配置マニフェストには `$edgeAgent` と `$edgeHub` の 2 つのモジュールが必要です。これらのモジュールは、IoT Edge デバイスと、その上で実行されているモジュールを管理する IoT Edge ランタイムの一部です。
 
-1. 'deployment.template.json' 配置マニフェスト ファイルをスクロールし、'$edgeAgent' 要素の 'properties.desired' セクション内で次の点に注意してください。
+1. `deployment.template.json` 配置マニフェスト ファイルをスクロールし、`$edgeAgent` 要素の `properties.desired` セクション内で次の点に注意してください。
 
-    * 'systemModules' - これは、IoT Edge ランタイムの一部である `$edgeAgent` および `$edgeHub` システム モジュールに使用する Docker イメージを定義します。
+    * `systemModules` - これは、IoT Edge ランタイムの一部である `$edgeAgent` および `$edgeHub` システム モジュールに使用する Docker イメージを定義します。
 
     * `modules` - これは、IoT Edge デバイス (またはデバイスのグループ) 上で展開および実行されるさまざまなモジュールを定義します。
 
-1. '$edgeAgent' の 'modules' セクション内には、次の 2 つのモジュールが定義されていることに注意してください。
+1. `$edgeAgent` の `modules` セクション内には、次の 2 つのモジュールが定義されていることに注意してください。
 
     * `ObjectCountingModule`: これは、この新しい IoT Edge ソリューションの一部として作成されるカスタム IoT Edge モジュールです。
 
     * `SimulatedTemperatureSensor`: これは、IoT Edge デバイスにデプロイするシミュレートされた温度センサー モジュールを定義します。
 
-1. 配置マニフェストの '$edgeHub' セクションに注目してください。
+1. 配置マニフェストの `$edgeHub` セクションに注目してください。
 
-    このセクションでは、IoT Edge モジュール間でメッセージを通信するためのメッセージ ルートを含む、目的のプロパティを ("properties.desired" 要素を介して) 定義し、最後に Azure IoT Hub サービスにメッセージを送信します。
+    このセクションでは、IoT Edge モジュール間でメッセージを通信するためのメッセージ ルートを含む、目的のプロパティを (`properties.desired` 要素を介して) 定義し、最後に Azure IoT Hub サービスにメッセージを送信します。
 
     ```json
         "$edgeHub": {
@@ -425,7 +425,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     このターゲット プラットフォームは、IoT Edge デバイスのハードウェア プラットフォーム アーキテクチャに設定する必要があります。
 
-    > **注**: **Ubuntu Linux VM で IoT エッジ**を使用しているため、'amd64' オプションが適切な選択です。Windows VM の場合は 'windows-amd64' を使用し、ARM CPU アーキテクチャで実行されるモジュールの場合は 'arm32v7' オプションを選択します。
+    > **注**: **Ubuntu Linux VM で IoT エッジ**を使用しているため、`amd64` オプションが適切な選択です。Windows VM の場合は `windows-amd64` を使用し、ARM CPU アーキテクチャで実行されるモジュールの場合は `arm32v7` オプションを選択します。
 
 #### タスク 3: モジュール コードを確認する
 
@@ -439,13 +439,13 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. Program.cs ファイルで、 `static async Task Init()` メソッドを見つけてコードを確認するのに 1 分かかります。
 
-    このメソッドは、モジュールに送信されるメッセージを処理するための 'ModuleClient' を初期化し、メッセージを受信するコールバックを設定します。このメソッドのコード内のコード コメントを読み、コードの各セクションの動作を確認します。
+    このメソッドは、モジュールに送信されるメッセージを処理するための `ModuleClient` を初期化し、メッセージを受信するコールバックを設定します。このメソッドのコード内のコード コメントを読み、コードの各セクションの動作を確認します。
 
-1. '静的非同期タスク <MessageResponse> PipeMessage (` メソッド、コードを確認するのに少し時間がかかります。
+1. `static async Task<MessageResponse> PipeMessage(` メソッド、コードを確認するのに少し時間がかかります。
 
     このメソッドは、モジュールが EdgeHub からメッセージを送信するたびに呼び出されます。このメソッド内のソース コードの現在の状態は、このモジュールに送信されたメッセージを受け取り、変更せずにモジュール出力にパイプ出力します。このメソッド内のコードを読み、その動作を確認します。
 
-    また、'PipeMessage' メソッド内で、次のコード行とその処理に注意してください。
+    また、`PipeMessage` メソッド内で、次のコード行とその処理に注意してください。
 
     メソッド内の次のコード行は、モジュールに送信されるメッセージの数をカウントするカウンターをインクリメントします。
 
@@ -507,7 +507,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. IoT Edge ソリューションを含む **「Visual Studio Code」** インスタンスに切り替えます。
 
-1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「シミュレータで IoT Edge ソリューションを構築および実行」 ** をクリックします。
+1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「シミュレータで IoT Edge ソリューションを構築および実行」** をクリックします。
 
     このファイルは、デバッグ配置マニフェスト ファイルです。これは IoT Edge ソリューションのルート ディレクトリにあります。
 
@@ -519,9 +519,9 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. **IoT Edge デバイスの選択**を求めるメッセージが表示されたら、「**SimulatedDevice**」 をクリックします。
 
-    > **注**: 右下隅に**不正な**エラーが発生した場合は、Azure IoT Hub を実行します。コマンド パレットから IoT Hub 接続文字列コマンドを設定して、シミュレータ接続文字列を再構成し、Azure IoT Edge を実行します。コマンドパレットから IoT Edge シミュレータを設定し、もう一度デバイスを選択してみてください。
+    > **注**: 右下隅に**不正な**エラーが発生した場合は`Azure IoT Hub: Set IoT Hub Connection String` 接続文字列コマンドを設定して、シミュレータ接続文字列を再構成し、`Azure IoT Edge: Setup IoT Edge Simulator` シミュレータを設定し、もう一度デバイスを選択してみてください。
 
-    > **注**: ローカル コンピューター (Visual Studio Code **ターミナル** ウィンドウ) で、特に Linux または macOS で管理者パスワードの入力を求められる場合があります。プロンプトでパスワードを入力し、「**Enter**」 キーを押します。パスワードが要求される理由は、'iotedgehubdev' のセットアップ コマンドが、昇格された特権を必要とするため 'sudo' を使用して実行されているためです。
+    > **注**: ローカル コンピューター (Visual Studio Code **ターミナル** ウィンドウ) で、特に Linux または macOS で管理者パスワードの入力を求められる場合があります。プロンプトでパスワードを入力し、「**Enter**」 キーを押します。パスワードが要求される理由は、`iotedgehubdev` のセットアップ コマンドが、昇格された特権を必要とするため `sudo` を使用して実行されているためです。
 
     IoT Edge シミュレーターが正常にセットアップされると、 **IoT Edge シミュレーターは正常に設定されました** というメッセージが Visual Studio Code ターミナルに表示されます。
 
@@ -529,11 +529,11 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 #### タスク 3: モジュールをビルドして実行する
 
-1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「シミュレータで IoT Edge ソリューションを構築および実行」 ** をクリックします。
+1. **「Explorer」** ウィンドウで、**「deployment.debug.template.json」** を右クリックし、 **「シミュレータで IoT Edge ソリューションを構築および実行」** をクリックします。
 
-    > **注**: Windows を使用していて、「ターミナル」 で `open //./pipe/docker_engine というメッセージが表示される場合は次のようにします。指定されたファイルが見つからない場合、Docker が起動していないか、または正常に実行されていない可能性があります。  Docker の再起動やコンピューターの完全な再起動が必要になる場合があります。
+    > **注**: Windows を使用していて、「ターミナル」 で `open //./pipe/docker_engine: The system cannot find the file specified.`指定されたファイルが見つからない場合、Docker が起動していないか、または正常に実行されていない可能性があります。  Docker の再起動やコンピューターの完全な再起動が必要になる場合があります。
 
-    > **注**: `イメージオペレーティングシステム "linux" はこのプラットフォームでは使用できません` というメッセージが表示された場合は、Linux コンテナーをサポートするようにDockerの設定を変更してください。  (必要に応じて、インストラクターに相談してください。)
+    > **注**: `image operating system "linux" cannot be used on this platform` というメッセージが表示された場合は、Linux コンテナーをサポートするようにDockerの設定を変更してください。  (必要に応じて、インストラクターに相談してください。)
 
     > **注**: ビルドは、マシン上の Docker イメージとインターネット接続の速度によっては、時間がかかる場合があります。  ビルドには、Docker イメージが存在しない場合はダウンロードし、必要に応じてコンテナインスタンスを更新する機能が含まれます。
 
@@ -552,7 +552,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
     ObjectCountingModule           | Received message sent
     ```
 
-    **ObjectCountingModule** からの出力には、"Received message:#" というテキストが含まれていることに注意してください。ここで "#" は、作成したカスタム **ObjectCountingModule** IoT Edge Module が受信したメッセージの総数です。
+    **ObjectCountingModule** からの出力には、`Received message:#` というテキストが含まれていることに注意してください。ここで `#` は、作成したカスタム **ObjectCountingModule** IoT Edge Module が受信したメッセージの総数です。
 
 1. IoT Edge Simulator を実行したまま、Azure portal を開き、Cloud Shell を開きます。
 
@@ -587,7 +587,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. Cloud Shell の出力と Visual Studio Code ターミナルの出力を比較します。
 
-    IoT Edge デバイスで実行されている IoT Edge モジュールが 2 つあり、メッセージを生成していますが、Azure IoT Hub に送信される各メッセージのコピーは 1 つだけであることに注意してください。IoT Edge デバイスには、"シミュレートされた温度センサー" からのメッセージが `ObjectCountingModule` にパイプされ、Azure IoT Hub にメッセージが送信されるメッセージ パイプラインが定義されています。
+    IoT Edge デバイスで実行されている IoT Edge モジュールが 2 つあり、メッセージを生成していますが、Azure IoT Hub に送信される各メッセージのコピーは 1 つだけであることに注意してください。IoT Edge デバイスには、`SimulatedTemperatureSensor` からのメッセージが `ObjectCountingModule` にパイプされ、Azure IoT Hub にメッセージが送信されるメッセージ パイプラインが定義されています。
 
 1. Azure IoT Hub イベントの監視を停止するには、Azure Cloud Shell 内で **「Ctrl + C」** キーを押します。
 
@@ -625,7 +625,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. 実行を再開するには、「**続行**」 をクリックします。
 
-    **F5 キー **を押して再開することもできます。
+    **F5 キー**を押して再開することもできます。
 
 1. ブレークポイントにヒットするたびに実行が停止します。
 
@@ -643,15 +643,15 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. EdgeSolution プロジェクトを含む、Visual Studio Code ウィンドウを開きます。
 
-1. 「**Explorer**」 ビューで、 ".env" ファイルを開くには、「**env**」 をクリックします。
+1. 「**Explorer**」 ビューで、 `.env` ファイルを開くには、「**.env**」 をクリックします。
 
-    ".env" ファイルは IoT Edge ソリューションのルート ディレクトリにあります。
+    `.env` ファイルは IoT Edge ソリューションのルート ディレクトリにあります。
 
 1. Azure Container Registry の認証情報が設定されていることを確認します。
 
-    正しく設定すると、"CONTAINER_REGISTRY_USERNAME_ <acr-name>" キーの値は Azure Container Registry サービス名に設定され、"CONTAINER_REGISTRY_PASSWORD_ <acr-name>" キーの値は Azure Container Registry サービス用の**パスワード**に設定されます。キーの "<acr-name>" プレースホルダーは、IoT Edge ソリューションが作成されると、自動的に ACR サービス名 (すべて小文字) に設定されます。
+    正しく設定すると、`CONTAINER_REGISTRY_USERNAME_<acr-name>` キーの値は Azure Container Registry サービス名に設定され、`CONTAINER_REGISTRY_PASSWORD_<acr-name>` キーの値は Azure Container Registry サービス用の**パスワード**に設定されます。キーの `<acr-name>` プレースホルダーは、IoT Edge ソリューションが作成されると、自動的に ACR サービス名 (すべて小文字) に設定されます。
 
-    結果の ".env" ファイルの内容は、次のようになります。
+    結果の `.env` ファイルの内容は、次のようになります。
 
     ```text
     CONTAINER_REGISTRY_USERNAME_acraz220trainingcah191204=acraz220trainingcah191204
@@ -660,7 +660,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. 「**Explorer**」 ビューで、「**deployment.template.json**」 を右クリックし、「**IoT Edge ソリューションのビルドとプッシュ**」 をクリックします。
 
-    「IoT Edge ソリューションのビルドとプッシュ」 操作の状態は、Visual Studio Code の 「**ターミナル**」 ウィンドウに表示されます。プロセスが完了すると、カスタムの "ObjectCountingModule" IoT Edge モジュールがビルドされ、IoT Edge モジュールの Docker イメージが Azure Container Registry サービスに発行されます。
+    「IoT Edge ソリューションのビルドとプッシュ」 操作の状態は、Visual Studio Code の 「**ターミナル**」 ウィンドウに表示されます。プロセスが完了すると、カスタムの `ObjectCountingModule` IoT Edge モジュールがビルドされ、IoT Edge モジュールの Docker イメージが Azure Container Registry サービスに発行されます。
 
 1. Azure portal ウィンドウに切り替えます。
 
@@ -676,7 +676,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
     これは、カスタムの IoT Edge モジュール `ObjectCountingModule` を Visual Studio Code から公開したときに作成されたものです。
 
-    > **注**: リポジトリが存在しない場合は、プッシュ アクションの結果をレビューして、ACR の参照でポート番号 `:5000` への参照が残っていないか確認します。 この確認は 「**編集**」、「**ファイル内の検索**」 で行えます。  また、'.env' ファイルの認証情報を確認して、ラボの前の手順で `docker login` ステップを実行したことも確認します。
+    > **注**: リポジトリが存在しない場合は、プッシュ アクションの結果をレビューして、ACR の参照でポート番号 `:5000` への参照が残っていないか確認します。 この確認は 「**編集**」、「**ファイル内の検索**」 で行えます。  また、`.env` ファイルの認証情報を確認して、ラボの前の手順で `docker login` ステップを実行したことも確認します。
 
 1. 「**リポジトリ**」 で、「**objectcountingmodule**」 をクリックします。
 
@@ -708,7 +708,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. Azure IoT Hub リソースに移動します。
 
-    カスタムの 'objectcountingmodule' IoT Edge モジュールが Azure Container Registry (ACR) に公開されている場合、次の手順は、IoT Hub 内に新しい IoT Edge デバイスを作成し、新しいカスタム IoT Edge モジュールを実行するように構成することです。
+    カスタムの `objectcountingmodule` IoT Edge モジュールが Azure Container Registry (ACR) に公開されている場合、次の手順は、IoT Hub 内に新しい IoT Edge デバイスを作成し、新しいカスタム IoT Edge モジュールを実行するように構成することです。
 
 1. 「**iot-az220-training-{your-id}**」 ブレードの 「**「自動デバイス管理**」 の左側のナビゲーション メニューで、「**IoT Edge**」 をクリックします。
 
@@ -729,7 +729,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 1. 「**デバイスのモジュールを設定: objectcountingdevice**」 ブレードの 「**コンテナー レジストリ設定**」 で、次の値を入力します。
 
     * **名前**: Azure Container Registry の **レジストリ名**を入力します (例: `acraz220trainingcah191204`)。
-    * アドレス: Azure Container Registry サービスの**ログイン サーバー** (または DNS 名) を入力します (例: `acraz220trainingcah191204.azurecr.io`)
+    * アドレス**: Azure Container Registry サービスの**ログイン サーバー** (または DNS 名) を入力します (例: `acraz220trainingcah191204.azurecr.io`)
     * **ユーザー名**: Azure Container Registry サービスの**ユーザー名**を入力します。
     * **パスワード**: Azure Container Registry サービスの**パスワード**を入力します。
 
@@ -779,15 +779,15 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. **AllMessagesToObjectCountingModule** ルートに割り当てられた値をレビューします。
 
-    このルートは、**ソース** の値 '/*' を指定しています。これによって、すべての device-to-cloud メッセージ、または任意のモジュールやリーフ デバイスからのツイン変更通知にこのルートが適用されます。
+    このルートは、**ソース** の値 `/*` を指定しています。これによって、すべての device-to-cloud メッセージ、または任意のモジュールやリーフ デバイスからのツイン変更通知にこのルートが適用されます。
 
     このルートは、**宛先** の値 `BrokeredEndpoint("/modules/objectcountingmodule/inputs/input1")` を指定しています。これによって、このルートのソースからのすべてのメッセージが `objectcountingmodule` IoT Edge モジュールの入力に送信されます。
 
 1. **ObjectCountingModuleToIoTHub** ルートに割り当てられた値をレビューします。
 
-    このルートで、"/messages/modules/objectcountingmodule/outputs/*" の**ソース**の値を指定します。これにより、"objectcountingmodule" IoT Edge モジュールから出力されるすべてのメッセージにルートが適用されます。
+    このルートで、`/messages/modules/objectcountingmodule/outputs/*` の**ソース**の値を指定します。これにより、`objectcountingmodule` IoT Edge モジュールから出力されるすべてのメッセージにルートが適用されます。
 
-    このルートで、 "$ upstream" の**送信先**の値を指定します。これにより、このルートのソースから Microsoft Azure 内の Azure IoT Hub サービスにすべてのメッセージが送信されます。
+    このルートで、 `$ upstream` の**送信先**の値を指定します。これにより、このルートのソースから Microsoft Azure 内の Azure IoT Hub サービスにすべてのメッセージが送信されます。
 
     > **注**:  Azure IoT Hub と IoT Edge モジュールを使用したメッセージ ルーティングの構成の詳細については、次のリンクを参照してください。
     > * [IoT Edge にモジュールをデプロイしてルートを確立する方法について説明します。](https://docs.microsoft.com/ja-jp/azure/iot-edge/module-composition)
@@ -797,4 +797,4 @@ Azure Container Registry を作成し、これに対してローカル マシン
 
 1. デバイスの配置マニフェストを確認し、「**作成**」 をクリックします。
 
-これで、"objectcountingmodule" カスタム IoT Edge モジュールの開発が完了しました。これで、IoT Edge デバイスが登録され、指定されたモジュールとルートが構成された後、前のラボで示したように、関連付けられた IoT Edge デバイスが Azure IoT Hub に接続されると、'objectcountingmodule' をデプロイする準備が完了します。
+これで、`objectcountingmodule` カスタム IoT Edge モジュールの開発が完了しました。これで、IoT Edge デバイスが登録され、指定されたモジュールとルートが構成された後、前のラボで示したように、関連付けられた IoT Edge デバイスが Azure IoT Hub に接続されると、`objectcountingmodule` をデプロイする準備が完了します。

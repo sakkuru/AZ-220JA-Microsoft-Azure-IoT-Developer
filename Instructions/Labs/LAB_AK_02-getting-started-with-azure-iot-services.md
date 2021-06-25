@@ -1,6 +1,6 @@
 ﻿---
 lab:
-    title: 'ラボ 02: Azure IoT Services の使用を開始'
+    title: 'ラボ 02: Azure IoT Services の開始'
     module: 'モジュール 1: IoT と Azure IoT Services サービスの概要'
 ---
 
@@ -47,7 +47,7 @@ Contoso の IoT ソリューションの開発に使用する Azure と Azure Io
     dm200911
     ```
 
-    ラボの説明では、一意の ID を入力する必要がある場合は常に、推奨されるリソース名の一部として `{your-id}` が表示されます。提案されたリソース名の `{your-id}` 部分はプレースホルダーです。プレースホルダー文字列全体 ('{}' を含む) を一意の値に置き換えます。
+    ラボの説明では、一意の ID を入力する必要がある場合は常に、推奨されるリソース名の一部として `{your-id}` が表示されます。提案されたリソース名の `{your-id}` 部分はプレースホルダーです。プレースホルダー文字列全体 (`{}` を含む) を一意の値に置き換えます。
 
 1. 一意の ID をメモし、**コース全体で同じ値を使用してください**。
 
@@ -95,7 +95,7 @@ Contoso の IoT ソリューションの開発に使用する Azure と Azure Io
     private string _iotHubName = $"iot-az220-training-{_yourId}";
     ```
 
-    上記のコードで、一意の ID の値が `cah191216` の場合、`private string _yourId = "{your-id}"` を含む行を ``private string _yourId = "cah191216"` に更新する必要があります。
+    上記のコードで、一意の ID の値が `cah191216` の場合、`private string _yourId = "{your-id}";` を含む行を ``private string _yourId = "cah191216";` に更新する必要があります。
 
     > **注**: 最終的なコード行の `_yourId` 値は変更しないことに注意してください。繰り返しになりますが、`{your-id}` でない場合は、置き換えないでください。
 
@@ -347,7 +347,7 @@ IoT Hub Device Provisioning Service のインスタンスを作成するため�
 
 #### タスク 1: Azure portal を使用してリソースを作成する (デバイス プロビジョニング サービス)
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して [>portal.azure.com](https://portal.azure.com) にログインします。
+1. 必要に応じて、Azure アカウントの認証情報を使用して [portal.azure.com](https://portal.azure.com) にログインします。
 
     複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントを使用してログインしていることを確認してください。
 
@@ -355,7 +355,7 @@ IoT Hub Device Provisioning Service のインスタンスを作成するため�
 
     前に見たように、**新しい**ブレードは、Azure Marketplace でサービスを検索する機能を提供します。
 
-1. 「検索」 テキスト ボックスに、「**デバイス プロビジョニング サービス」**と入力し、Enter キーを押します。
+1. 「検索」 テキスト ボックスに、「**デバイス プロビジョニング サービス**」と入力し、Enter キーを押します。
 
 1. 「**Marketplace**」 のブレードで、「**IoT Hub デバイス プロビジョニング サービス**」 の検索結果をクリックします。
 

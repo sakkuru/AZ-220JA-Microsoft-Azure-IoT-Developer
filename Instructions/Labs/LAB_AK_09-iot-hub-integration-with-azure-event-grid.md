@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 09: IoT Hub と Event Grid を統合する'
     module: 'モジュール 5: インサイトとビジネス インテグレーション'

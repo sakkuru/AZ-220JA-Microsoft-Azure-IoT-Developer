@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 18: Azure Defender for IoT でデバイス改ざんされているかどうかを検出する'
     module: 'モジュール 10: Azure Defender for IoT のセキュリティ'

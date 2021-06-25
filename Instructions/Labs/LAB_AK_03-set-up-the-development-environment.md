@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 03: 開発環境を設定する'
     module: 'モジュール 2: デバイスとデバイス通信'
@@ -70,11 +70,11 @@ Contoso の開発者であるあなたは、Azure IoT ソリューションの�
 
     詳細については、以下のリソースを参照することができます。
 
-    * [.NET Core に関するドキュメント](https://aka.ms/dotnet-docs)
+    * [.NET Core に関するドキュメント](https://aka.ms/dotnet-docs-jpn)
     * [.NET Core の依存関係と要件](https://docs.microsoft.com/ja-jp/dotnet/core/install/dependencies?tabs=netcore31&pivots=os-windows)
-    * [SDK ドキュメント](https://aka.ms/dotnet-sdk-docs)
+    * [SDK ドキュメント](https://aka.ms/dotnet-sdk-docs-jpn)
     * [リリース ノート](https://aka.ms/netcore3releasenotes)
-    * [チュートリアル](https://aka.ms/dotnet-tutorials)
+    * [チュートリアル](https://aka.ms/dotnet-tutorials-jpn)
 
 #### タスク 2: Visual Studio Code をインストールする
 
@@ -276,7 +276,7 @@ Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリ�
     core                                2.20.0
     telemetry                           1.0.6
 
-    拡張機能:
+    Extensions:
     azure-iot                           0.10.9
     ```
 
@@ -304,7 +304,7 @@ Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリ�
 
 Microsoft は、ラボ リソース ファイルへのアクセスを提供する GitHub リポジトリを作成しました。これらのファイルを開発環境でローカルに保有することが、一部の場合では必要であり、その他の多くの場合では便利です。このタスクでは、開発環境内でリポジトリの内容をダウンロードして抽出します。
 
-1. Web ブラウザーで、次の場所に移動します。[https://github.com/MicrosoftLearning/AZ-220-Microsoft-Azure-IoT-Developer](https://github.com/MicrosoftLearning/AZ-220-Microsoft-Azure-IoT-Developer)
+1. Web ブラウザーで、次の場所に移動します。[https://github.com/MicrosoftLearning/AZ-220JA-Microsoft-Azure-IoT-Developer/](https://github.com/MicrosoftLearning/AZ-220JA-Microsoft-Azure-IoT-Developer/)
 
 1. ページの右側で、**「複製またはダウンロード」** をクリックし、**「ZIP のダウンロード」** をクリックします。
 
@@ -349,13 +349,13 @@ Azure PowerShell は、PowerShell コマンド ラインから Azure リソー�
 1. 既定では、PowerShell ギャラリーは、PowerShellGet 用の信頼できるリポジトリとしては構成されません。PSGallery の初回使用時には、次のプロンプトが表示されます。
 
     ```output
-    信頼されていないリポジトリ
+    Untrusted repository
 
-    信頼されていないリポジトリからモジュールをインストールしようとしています。このリポジトリを信頼している場合は、
-    Set-PSRepository コマンドレットを実行して、InstallationPolicy の値を変更してください。
+    You are installing the modules from an untrusted repository. If you trust this repository, change
+    its InstallationPolicy value by running the Set-PSRepository cmdlet.
 
-    「PSCallery」からモジュールをインストールしますか。
-    「Y」 はい 「A」 すべてにはい 「N」 いいえ 「L」 すべてにいいえ 「S」 中断する 「?」ヘルプ (既定は "N"):
+    Are you sure you want to install the modules from 'PSGallery'?
+    [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"):
     ```
 
 1. インストールを続行するには、「**はい**」 または 「**すべてにはい**」 と答えます。

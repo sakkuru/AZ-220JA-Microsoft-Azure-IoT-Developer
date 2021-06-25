@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 12: IoT Edge ゲートウェイを設定する'
     module: 'モジュール 6: Azure IoT Edge のデプロイプロセス'
@@ -687,7 +687,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 
     ```yaml
     # 接続文字列を使用した手動プロビジョニング構成
-    プロビジョニング:
+    provisioning:
       source: "manual"
       device_connection_string: "<ADD DEVICE CONNECTION STRING HERE>"
       dynamic_reprovisioning: false
@@ -726,17 +726,17 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     これにより、いくつかのチェックが実行され、結果が表示されます。このラボでは、**構成チェック**の警告/エラーを無視してください。**接続チェック**は成功し、次のようになります。
 
     ```bash
-    接続チェック
+    Connectivity checks
     -------------------
-    √ ホストは IoT Hub AMQP ポートに接続して TLS ハンドシェイクを実行できます - OK
-    √ ホストは IoT Hub HTTPS/WebSockets ポートに接続して TLS ハンドシェイクを実行できます - OK
-    √ ホストは IoT Hub MQTT ポートに接続して TLS ハンドシェイクを実行できます - OK
-    √ 既定のネットワーク上のコンテナーは、IoT Hub AMQP ポートに接続できます - OK
-    √ 既定のネットワーク上のコンテナーは、IoT Hub HTTPS/WebSockets ポートに接続できます - OK
-    √ 既定のネットワーク上のコンテナーは、IoT Hub MQTT ポートに接続できます - OK
-    √ IoT Edge モジュール ネットワーク上のコンテナーは IoT Hub AMQP ポートに接続できます - OK
-    √ IoT Edge モジュール ネットワーク上のコンテナーは IoT Hub HTTPS/WebSockets ポートに接続できます - OK
-    √ IoT Edge モジュール ネットワーク上のコンテナーは IoT Hub MQTT ポートに接続できます - OK
+    √ host can connect to and perform TLS handshake with IoT Hub AMQP port - OK
+    √ host can connect to and perform TLS handshake with IoT Hub HTTPS / WebSockets port - OK
+    √ host can connect to and perform TLS handshake with IoT Hub MQTT port - OK
+    √ container on the default network can connect to IoT Hub AMQP port - OK
+    √ container on the default network can connect to IoT Hub HTTPS / WebSockets port - OK
+    √ container on the default network can connect to IoT Hub MQTT port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub AMQP port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub HTTPS / WebSockets port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub MQTT port - OK
     ```
 
     接続が失敗した場合は、**config.yaml** の接続文字列値を再確認してください。
@@ -749,7 +749,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     iotedge リスト
     ```
 
-    しばらくすると、このコマンドにより 'edgeAgent' モジュールと 'edgeHub' モジュールが実行されていることが示されます。出力は、以下のようなものになります。
+    しばらくすると、このコマンドにより `edgeAgent` モジュールと `edgeHub` モジュールが実行されていることが示されます。出力は、以下のようなものになります。
 
     ```text
     root@vm-az220-training-gw0001-{your-id}:~# iotedge list
@@ -874,7 +874,7 @@ Azure IoT Edge でサポートされている IoT 通信プロトコルのポー
 1. Cloud Shell コマンド プロンプトで、IoT Edge ゲートウェイ仮想マシンのルート CA X.509 証明書をダウンロードするには、次のコマンドを入力します。
 
     ```bash
-    lab12/certs/azure-iot-test-only.root.ca.cert.pem をダウンロード
+    download lab12/certs/azure-iot-test-only.root.ca.cert.pem
     ```
 
     Azure IoT Edge ゲートウェイは、以前 、ゲートウェイに接続しているダウンストリーム デバイスを使用して通信を暗号化する際に、このルート CA X.509 証明書を使用する **etc/iotedge/config.yaml** ファイル内で構成されていました。この X.509 証明書は、ゲートウェイとの通信を暗号化するために使用できるよう、ダウンストリーム デバイスにコピーされる必要があります。
@@ -1004,25 +1004,25 @@ Azure IoT Edge でサポートされている IoT 通信プロトコルのポー
     az iot hub monitor-events -n iot-az220-training-{your-id}
     ```
 
-    '-n' パラメーターの `{your-id}` プレースホルダーを Azure IoT Hub の名前に置き換えてください。
+    `-n` パラメーターの `{your-id}` プレースホルダーを Azure IoT Hub の名前に置き換えてください。
 
-    'az iot hub monitor-events' コマンドを使用すると、デバイス テレメトリと Azure IoT Hub に送信されるメッセージを監視できます。これにより、シミュレートされたデバイスから IoT Edge ゲートウェイに送信されるイベントが Azure IoT Hub によって受信されていることを確認します。
+    `az iot hub monitor-events` コマンドを使用すると、デバイス テレメトリと Azure IoT Hub に送信されるメッセージを監視できます。これにより、シミュレートされたデバイスから IoT Edge ゲートウェイに送信されるイベントが Azure IoT Hub によって受信されていることを確認します。
 
-1. すべてが正常に動作すると、'az iot hub monitor-events' コマンドの出力は次のようになります。
+1. すべてが正常に動作すると、`az iot hub monitor-events` コマンドの出力は次のようになります。
 
     ```text
     chris@Azure:~$ az iot hub monitor-events -n iot-az220-training-1119
-    イベント モニターを開始し、ctrl-c を使用して停止します。
+    Starting event monitor, use ctrl-c to stop...
     {
         "event": {
             "origin": "sensor-th-0072",
-            "payload": "{\"温度\":30.931512529929872,\"湿度\":78.70672198883571}"
+            "payload": "{\"temperature\":30.931512529929872,\"humidity\":78.70672198883571}"
         }
     }
     {
         "event": {
             "origin": "sensor-th-0072",
-            "payload": "{\"温度\":30.699204018199445,\"湿度\":78.04910910224966}"
+            "payload": "{\"temperature\":30.699204018199445,\"humidity\":78.04910910224966}"
         }
     }
     ```

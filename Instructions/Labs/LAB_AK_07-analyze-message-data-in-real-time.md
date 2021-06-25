@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 07: デバイス メッセージ ルーティング'
     module: 'モジュール 4: メッセージ処理と分析'
@@ -393,17 +393,17 @@ Contoso のコンベア ベルト システムの監視を自動化し、予知�
 1. 次のようなコンソール出力が表示されます。
 
     ```text
-    振動センサーデバイスアプリ
+    Vibration sensor device app.
 
-    テレメトリ データ: {"振動" : 0.0}
-    10:29 AM テレメトリ送信
-    ログデータ: {"振動" :0.0, "パッケージ": 0, "速度": "停止", "温度": 60.22}
-    ログデータ送信
+    Telemetry data: {"vibration":0.0}
+    Telemetry sent 10:29 AM
+    Log data: {"vibration":0.0,"packages":0,"speed":"stopped","temp":60.22}
+    Log data sent
 
-    テレメトリ データ: {"振動" : 0.0}
-    10:29 AM テレメトリ送信
-    ログデータ: {"振動" :0.0, "パッケージ": 0, "速度": "停止", "温度": 59.78}
-    ログデータ送信
+    Telemetry data: {"vibration":0.0}
+    Telemetry sent 10:29 AM
+    Log data: {"vibration":0.0,"packages":0,"speed":"stopped","temp":59.78}
+    Log data sent
     ```
 
     > **注**:  ターミナルウィンドウでは、緑色のテキストは正常に機能していることを示し、赤色のテキストは問題が発生している場合に使用されます。エラー メッセージが表示された場合は、まずデバイスの接続文字列を確認します。

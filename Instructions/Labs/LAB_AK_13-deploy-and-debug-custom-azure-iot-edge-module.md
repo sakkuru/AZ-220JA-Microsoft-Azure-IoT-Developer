@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 13: VS コードを使用して Azure IoT Edge でカスタム モジュールを開発、デプロイ、デバッグする'
     module: 'モジュール 7: Azure IoT Edge モジュール'
@@ -458,7 +458,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
     ```csharp
     byte[] messageBytes = message.GetBytes();
     string messageString = Encoding.UTF8.GetString(messageBytes);
-    Console.WriteLine($"Received message: {counterValue}, Body: {messageString}");
+    Console.WriteLine($"Received message: {counterValue}, Body: [{messageString}]");
     ```
 
 サンプル カスタム モジュールを作成して構成しました。次に、IoT Edge シミュレータでデバッグします。
@@ -544,11 +544,11 @@ Azure Container Registry を作成し、これに対してローカル マシン
     **IoT Edge シミュレーター**が実行されると、構築したモジュールがターミナル ウィンドウに報告されるメッセージ出力の送信を開始することに注意してください。
 
     ```text
-    SimulatedTemperatureSensor    |         12/09/2019 15:05:08> メッセージの送信: 4、ボディ: [{"machine":{"temperature":23.023276334173641,"pressure":1.2304998355387693},"ambient":{"temperature":20.56235126408858,"humidity":24},"timeCreated":"2019-12-09T15:05:08.4596891Z"}]
-    ObjectCountingModule           | 受信したメッセージ: 4、ボディ: [{"machine":{"temperature":23.023276334173641,"pressure":1.2304998355387693},"ambient":{"temperature":20.56235126408858,"humidity":24},"timeCreated":"2019-12-09T15:05:08.4596891Z"}]
+    SimulatedTemperatureSensor    |         12/09/2019 15:05:08> Sending message: 4, Body: [{"machine":{"temperature":23.023276334173641,"pressure":1.2304998355387693},"ambient":{"temperature":20.56235126408858,"humidity":24},"timeCreated":"2019-12-09T15:05:08.4596891Z"}]
+    ObjectCountingModule           | Received message: 4, Body: [{"machine":{"temperature":23.023276334173641,"pressure":1.2304998355387693},"ambient":{"temperature":20.56235126408858,"humidity":24},"timeCreated":"2019-12-09T15:05:08.4596891Z"}]
     ObjectCountingModule           | Received message sent
-    SimulatedTemperatureSensor    |         12/09/2019 15:05:13> メッセージの送信: 5、ボディ: [{"machine":{"temperature":23.925331861560853,"pressure":1.3332656551145274},"ambient":{"temperature":20.69443827876562,"humidity":24},"timeCreated":"2019-12-09T15:5:13.4856557Z"}]
-    ObjectCountingModule           | 受信したメッセージ: 5、ボディ: [{"machine":{"temperature":23.925331861560853,"pressure":1.3332656551145274},"ambient":{"temperature":20.69443827876562,"humidity":24},"timeCreated":"2019-12-09T15:5:13.4856557Z"}]
+    SimulatedTemperatureSensor    |         12/09/2019 15:05:13> Sending message: 5, Body: [{"machine":{"temperature":23.925331861560853,"pressure":1.3332656551145274},"ambient":{"temperature":20.69443827876562,"humidity":24},"timeCreated":"2019-12-09T15:05:13.4856557Z"}]
+    ObjectCountingModule           | Received message: 5, Body: [{"machine":{"temperature":23.925331861560853,"pressure":1.3332656551145274},"ambient":{"temperature":20.69443827876562,"humidity":24},"timeCreated":"2019-12-09T15:05:13.4856557Z"}]
     ObjectCountingModule           | Received message sent
     ```
 

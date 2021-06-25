@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 11: Azure IoT Edge の概要'
     module: 'モジュール 6: Azure IoT Edge のデプロイプロセス'
@@ -257,7 +257,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
         "lastActivityTime": "0001-01-01T00:00:00",
         "status": "enabled",
         "statusReason": null,
-        "statusUpdatedTime": "0001-01-01T00:0:00"
+        "statusUpdatedTime": "0001-01-01T00:00:00"
     }
     ```
 
@@ -448,7 +448,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 
     ```yaml
     # 接続文字列を使用した手動プロビジョニング構成
-    プロビジョニング:
+    provisioning:
       source: "manual"
       device_connection_string: "<ADD DEVICE CONNECTION STRING HERE>"
       dynamic_reprovisioning: false
@@ -487,17 +487,17 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     これにより、いくつかのチェックが実行され、結果が表示されます。このラボでは、**構成チェック**の警告/エラーを無視してください。**接続チェック**は成功し、次のようになります。
 
     ```bash
-    接続チェック
+    Connectivity checks
     -------------------
-    √ ホストは IoT Hub AMQP ポートに接続して TLS ハンドシェイクを実行できます - OK
-    √ ホストは IoT Hub HTTPS/WebSockets ポートに接続して TLS ハンドシェイクを実行できます - OK
-    √ ホストは IoT Hub MQTT ポートに接続して TLS ハンドシェイクを実行できます - OK
-    √ 既定のネットワーク上のコンテナーは、IoT Hub AMQP ポートに接続できます - OK
-    √ 既定のネットワーク上のコンテナーは、IoT Hub HTTPS/WebSockets ポートに接続できます - OK
-    √ 既定のネットワーク上のコンテナーは、IoT Hub MQTT ポートに接続できます - OK
-    √ IoT Edge モジュール ネットワーク上のコンテナーは IoT Hub AMQP ポートに接続できます - OK
-    √ IoT Edge モジュール ネットワーク上のコンテナーは IoT Hub HTTPS/WebSockets ポートに接続できます - OK
-    √ IoT Edge モジュール ネットワーク上のコンテナーは IoT Hub MQTT ポートに接続できます - OK
+    √ host can connect to and perform TLS handshake with IoT Hub AMQP port - OK
+    √ host can connect to and perform TLS handshake with IoT Hub HTTPS / WebSockets port - OK
+    √ host can connect to and perform TLS handshake with IoT Hub MQTT port - OK
+    √ container on the default network can connect to IoT Hub AMQP port - OK
+    √ container on the default network can connect to IoT Hub HTTPS / WebSockets port - OK
+    √ container on the default network can connect to IoT Hub MQTT port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub AMQP port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub HTTPS / WebSockets port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub MQTT port - OK
     ```
 
     接続が失敗した場合は、**config.yaml** の接続文字列値を再確認してください。
@@ -585,7 +585,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
                             },
                             "type": "docker",
                             "status": "running",
-                            "restartPolicy": "常に"、
+                            "restartPolicy": "always",
                             "version": "1.0"
                        },
     ```
@@ -647,7 +647,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 1. Cloud Shell コマンド プロンプトで、IoT Edge デバイス上で現在実行されているモジュールを一覧表示するには、次のコマンドを入力します。
 
     ```bash
-    iotedge リスト
+    iotedge list
     ```
 
 1. コマンドの出力は、次のようなものになります。
@@ -673,8 +673,8 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     ```bash
     demouser@vm-az220-training-edge0001-{your-id}:~$ iotedge logs tempsensor
     11/14/2019 18:05:02 - Send Json Event : {"machine":{"temperature":41.199999999999925,"pressure":1.0182182583425192},"ambient":{"temperature":21.460937846433808,"humidity":25},"timeCreated":"2019-11-14T18:05:02.8765526Z"}
-    11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.599999999999923,"pressure":1.0185790159334602},"ambient":{"temperature":20.51992724976499,"humidity":26},"timeCreated":"2019-11-14T18:5:03.3789786Z"}
-    11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.999999999999922,"pressure":1.0189397735244012},"ambient":{"temperature":20.715225311096397,"humidity":26},"timeCreated":"2019-11-14T18:5:03.8811372Z"}
+    11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.599999999999923,"pressure":1.0185790159334602},"ambient":{"temperature":20.51992724976499,"humidity":26},"timeCreated":"2019-11-14T18:05:03.3789786Z"}
+    11/14/2019 18:05:03 - Send Json Event : {"machine":{"temperature":41.999999999999922,"pressure":1.0189397735244012},"ambient":{"temperature":20.715225311096397,"humidity":26},"timeCreated":"2019-11-14T18:05:03.8811372Z"}
     ```
 
     `iotedge logs` コマンドを使用して、任意の Edge モジュールのモジュール ログを表示できます。
@@ -954,9 +954,9 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     demouser@vm-az220-training-edge0001-{your-id}:~$ iotedge list
     NAME               STATUS           DESCRIPTION      CONFIG
     asa-az220-training-CP1119  running          Up a minute      mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.5
-    edgeAgent          動作中          動作時間 6 時間       mcr.microsoft.com/azureiotedge-agent:1.0
-    edgeHub            動作中          動作時間 4 時間       mcr.microsoft.com/azureiotedge-hub:1.0
-    tempsensor         動作中          動作時間 4 時間       asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor
+    edgeAgent          running          Up 6 hours       mcr.microsoft.com/azureiotedge-agent:1.0
+    edgeHub            running          Up 4 hours       mcr.microsoft.com/azureiotedge-hub:1.0
+    tempsensor         running          Up 4 hours       asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor
     ```
 
     > **注**:  Stream Analytics モジュールがリストに表示されない場合は、1〜2 分待ってから、もう一度やり直してください。IoT Edge デバイスでモジュールのデプロイが更新されるには、1 分かかることがあります。
@@ -974,11 +974,11 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
     このイベントの出力は、以下のようなものになります。
 
     ```bash
-    11/14/2019 22:26:44 - JSON イベントの送信 : {"machine":{"temperature":231.599999999999959,"pressure":1.0095600761599359},"ambient":{"temperature":21.430643635304012,"humidity":24},"timeCreated":"2019-11-14T22:26:44.7904425Z"}
-    11/14/2019 22:26:45 - JSON イベントの送信 : {"machine":{"temperature":531.999999999999957,"pressure":1.0099208337508767},"ambient":{"temperature":20.569532965342297,"humidity":25},"timeCreated":"2019-11-14T22:26:45.2901801Z"}
-    受信したメッセージ
-    受信したメッセージ本文: [{"command":"reset"}]
-    受信したメッセージ メタデータ: {"MessageId":null,"To":null,"ExpiryTimeUtc":"0001-01-01T00:00:00","CorrelationId":null,"SequenceNumber":0,"LockToken":"e0e778b5-60ff-4e5d-93a4-ba5295b995941","EnqueuedTimeUtc":"0001-01-01T00:00:00","DeliveryCount":0,"UserId":null,"MessageSchema":null,"CreationTimeUtc":"0001-01-01T00:00:00","ContentType":"application/json","InputName":"control","ConnectionDeviceId":"sensor-th-0067","ConnectionModuleId":"asa-az220-training-CP1119","ContentEncoding":"utf-8","Properties":{},"BodyStream":{"CanRead":true,"CanSeek":false,"CanWrite":false,"CanTimeout":false}}
-    温度センサーをリセット中
-    11/14/2019 22:26:45 - JSON イベントの送信 : {"machine":{"temperature":320.4,"pressure":0.99945886361358849},"ambient":{"temperature":20.940019742324957,"humidity":26},"timeCreated":"2019-11-14T22:26:45.7931201Z"}
+    11/14/2019 22:26:44 - Send Json Event : {"machine":{"temperature":231.599999999999959,"pressure":1.0095600761599359},"ambient":{"temperature":21.430643635304012,"humidity":24},"timeCreated":"2019-11-14T22:26:44.7904425Z"}
+    11/14/2019 22:26:45 - Send Json Event : {"machine":{"temperature":531.999999999999957,"pressure":1.0099208337508767},"ambient":{"temperature":20.569532965342297,"humidity":25},"timeCreated":"2019-11-14T22:26:45.2901801Z"}
+    Received message
+    Received message Body: [{"command":"reset"}]
+    Received message MetaData: {"MessageId":null,"To":null,"ExpiryTimeUtc":"0001-01-01T00:00:00","CorrelationId":null,"SequenceNumber":0,"LockToken":"e0e778b5-60ff-4e5d-93a4-ba5295b995941","EnqueuedTimeUtc":"0001-01-01T00:00:00","DeliveryCount":0,"UserId":null,"MessageSchema":null,"CreationTimeUtc":"0001-01-01T00:00:00","ContentType":"application/json","InputName":"control","ConnectionDeviceId":"sensor-th-0067","ConnectionModuleId":"asa-az220-training-CP1119","ContentEncoding":"utf-8","Properties":{},"BodyStream":{"CanRead":true,"CanSeek":false,"CanWrite":false,"CanTimeout":false}}
+    Resetting temperature sensor..
+    11/14/2019 22:26:45 - Send Json Event : {"machine":{"temperature":320.4,"pressure":0.99945886361358849},"ambient":{"temperature":20.940019742324957,"humidity":26},"timeCreated":"2019-11-14T22:26:45.7931201Z"}
     ```

@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 02: Azure IoT Services の開始'
     module: 'モジュール 1: IoT と Azure IoT Services サービスの概要'
@@ -189,7 +189,7 @@ IoT Hub の作成には、いくつかの方法を使用できます。たとえ
 
 1. 「**リージョン**」 の右側にあるドロップダウン リストを開き、リソースグループに選択したのと同じリージョンを選択します。
 
-    > **注**: 今後のラボの 1 つは、Event Grid を使用します。この将来のラボをサポートするには、Event Grid をサポートするリージョンを選択する必要があります。Event Grid をサポートするリージョンの現在のリストについては、次のリンクを参照してください。「リージョン別利用可能な製品」(https://azure.microsoft.com/ja-jp/global-infrastructure/services/?products=event-grid&regions=all)
+    > **注**: 今後のラボの 1 つは、Event Grid を使用します。この将来のラボをサポートするには、Event Grid をサポートするリージョンを選択する必要があります。Event Grid をサポートするリージョンの現在のリストについては、次のリンクを参照してください。[リージョン別利用可能な製品](https://azure.microsoft.com/ja-jp/global-infrastructure/services/?products=event-grid&regions=all)
 
     以前、見たように、Azure は世界各地における一連のデータセンターでサポートされています。Azure で何かを作成する場合は、これらのデータセンターの場所のいずれかにデプロイします。
 

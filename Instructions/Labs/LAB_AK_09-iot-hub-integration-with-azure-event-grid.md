@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 09: IoT Hub と Event Grid を統合する'
     module: 'モジュール 5: インサイトとビジネス インテグレーション'
@@ -150,7 +150,7 @@ Contoso 社の経営陣は、Azure IoT サービスを使用して作成した�
     > これが完了するまで 15 分以上かかる場合があります。次のメッセージが表示されます。
     
     ```bash
-    登録はまだ進行中です。'az provider show -nmicrosoft.eventgrid' を使用して監視できます 
+    Registering is still on-going. You can monitor using 'az provider show -n microsoft.eventgrid'
     ```
 
 ### 演習 2: メールを送信する HTTP Web Hook ロジック アプリを作成する
@@ -217,7 +217,7 @@ Azure Logic Apps は、企業全体または組織全体でアプリ、データ
 
     ```json
     [{
-      "id": "56afc886-767b-4b8d-d59e-0da7877166b2",
+      "id": "56afc886-767b-d359-d59e-0da7877166b2",
       "topic": "/SUBSCRIPTIONS/<subscription ID>/RESOURCEGROUPS/<resource group name>/PROVIDERS/MICROSOFT.DEVICES/IOTHUBS/<hub name>",
       "subject": "devices/LogicAppTestDevice",
       "eventType": "Microsoft.Devices.DeviceCreated",
@@ -288,13 +288,13 @@ Azure Logic Apps は、企業全体または組織全体でアプリ、データ
 1. **「本文**」 フィールドに、次のメッセージの内容を入力します。
 
     ```text
-    これは、次のことを通知する自動化されたメールです。
+    This is an automated email to inform you that:
 
-    {eventType} が {eventTime} で発生しました
+    {eventType} occurred at {eventTime}
 
     IoT Hub: {hubName}
-    デバイス ID: {deviceID}
-    接続状態: {connectionState}
+    Device ID: {deviceID}
+    Connection state: {connectionState}
     ```
 
 1. 入力したメッセージ本文を確認します。

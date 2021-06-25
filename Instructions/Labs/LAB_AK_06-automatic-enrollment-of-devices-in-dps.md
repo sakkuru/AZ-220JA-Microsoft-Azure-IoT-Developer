@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 06: DPS を使用して IoT デバイスを安全かつ大規模に自動プロビジョニングする'
     module: 'モジュール 3: 大規模なデバイス プロビジョニング'
@@ -186,7 +186,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
     ヘルパー スクリプトとサポート ファイルは、Azure IoT Device SDK のコンポーネントである Github でホストされている **Azure/azure-iot-sdk-c** オープン ソース プロジェクトからダウンロードされています。**certGen.sh** ヘルパー スクリプトを使用すると、OpenSSL 構成の詳細 (このコースの範囲外) を深く掘り下げることなく、CA 証明書がどのように使用されているかを確認できます。
 
-    このヘルパー スクリプトの使用方法、および Bash の代わりに PowerShell を使用する方法については、次のリンクを参照 [してくださいhttps://github.com/Azure/azure-iot-sdk-c/blob/master/tools/CACertificates/CACertificateOverview.md](https://github.com/Azure/azure-iot-sdk-c/blob/master/tools/CACertificates/CACertificateOverview.md)
+    このヘルパー スクリプトの使用方法、および Bash の代わりに PowerShell を使用する方法については、次のリンクを参照 してください [https://github.com/Azure/azure-iot-sdk-c/blob/master/tools/CACertificates/CACertificateOverview.md](https://github.com/Azure/azure-iot-sdk-c/blob/master/tools/CACertificates/CACertificateOverview.md)
 
     > **警告**: このヘルパー スクリプトで作成された証明書は、プロダクションで **使用しないでください**。これらのパスワードには、ハードコードされたパスワード ("*1234*") が含まれ、30 日後に期限切れになり、最も重要なのは、CA 証明書を理解しやすくするためのデモ用にのみ提供されています。CA 証明書に対して製品を構築する場合は、証明書の作成と有効期間の管理に会社のセキュリティのベスト プラクティスを使用する必要があります。
 
@@ -627,7 +627,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
     次に、このメソッドはインポートされた証明書 (この場合は 1 つだけである必要があります) を繰り返し処理し、証明書に秘密キーがあることを確認します。インポートされた証明書がこの基準に一致しない場合、例外がスローされます。一致しない場合、メソッドはインポートされた証明書を返します。
 
-1. // INSERT ProvisionDevice method below here` コメントを見つけます。
+1. `// INSERT ProvisionDevice method below here` コメントを見つけます。
 
 1. ProvisionDevice メソッドを実装するには、次のコードを入力します。
 
@@ -673,7 +673,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
     イベント ハンドラーを設定するための **SetDesiredPropertyUpdateCallbackAsync** メソッドが整ったので、呼び出す **OnDesiredPropertyChanged** メソッドを作成する必要があります。
 
-1. // INSERT OnDesiredPropertyChanged method below here` コメントを見つけます。
+1. `// INSERT OnDesiredPropertyChanged method below here` コメントを見つけます。
 
 1. イベントハンドラーのセットアップを完了するには、次のコードを入力します。
 
@@ -711,7 +711,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
     デバイスは、Azure IoT Hub からデバイス ツインの必要なプロパティに対する更新を受け取ることができるようになったので、デバイスの起動時に初期セットアップを構成するようにコード化する必要があります。これを行うには、デバイスは、Azure IoT Hub から現在のデバイス ツインの必要なプロパティを読み込み、それに応じてそれ自体を構成する必要があります。
 
-1. **Main** メソッドで、// INSERT Load Device Twin Properties below here` コメントを見つけます。
+1. **Main** メソッドで、`// INSERT Load Device Twin Properties below here` コメントを見つけます。
 
 1. デバイス ツインの必要なプロパティを読み取り、デバイスの起動時に一致するようにデバイスを構成するには、次のコードを入力します。
 

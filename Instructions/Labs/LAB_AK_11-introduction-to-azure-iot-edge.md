@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 11: Azure IoT Edge の概要'
     module: 'モジュール 6: Azure IoT Edge のデプロイプロセス'

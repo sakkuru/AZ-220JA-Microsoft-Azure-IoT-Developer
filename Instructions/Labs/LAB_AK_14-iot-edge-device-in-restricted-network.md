@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 14: 制限されたネットワークとオフラインで IoT Edge デバイスを実行する'
     module: 'モジュール 7: Azure IoT Edge モジュール'

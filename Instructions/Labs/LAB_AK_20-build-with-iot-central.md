@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 20: IoT Central で構築'
     module: 'モジュール 12: IoT Central で構築'

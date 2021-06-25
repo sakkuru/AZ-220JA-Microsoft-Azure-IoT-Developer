@@ -1,8 +1,8 @@
-﻿Setup - このラボの Azure 環境を構成するために使用するスクリプト
+Setup - script used to configure the Azure environment for this lab
 
-注: このラボには、Azure 環境の構成に使用される lab17-setup.azdi スクリプトに加えて、ラボで使用される 2 つの追加スクリプト ファイルが含まれています。
+Note: In addition to the lab17-setup.azdi script that is used to configure the Azure environment, this lab includes 2 additional script files that are used during the lab:
 
 * gen-dev-certs.sh
 * install-tools.sh 
 
-Starter - このラボを完了するために受講者が使用するプロジェクト ファイルのコード
+Starter - code project files used by students to complete this lab

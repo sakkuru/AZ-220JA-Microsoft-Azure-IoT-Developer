@@ -515,7 +515,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
     certs       index.txt  index.txt.attr.old  newcerts       private              serial.old
     ```
 
-    ファイルが '**vm-az220-training-gw0001-{your-id}** 仮想マシンから Cloud Shell ストレージにコピーされたら、必要に応じて、任意の IoT Edge デバイス証明書とキー ファイルをローカル コンピューターに簡単にダウンロードできるようになります。`download <filename>` コマンドを使用して、ファイルを Cloud Shell からダウンロードできます。ラボの後半でこれを行います。
+    ファイルが **vm-az220-training-gw0001-{your-id}** 仮想マシンから Cloud Shell ストレージにコピーされたら、必要に応じて、任意の IoT Edge デバイス証明書とキー ファイルをローカル コンピューターに簡単にダウンロードできるようになります。`download <filename>` コマンドを使用して、ファイルを Cloud Shell からダウンロードできます。ラボの後半でこれを行います。
 
 ### 演習 4: Azure portal を使用して IoT Hub に IoT Edge デバイス ID を作成する
 
@@ -925,7 +925,7 @@ Azure IoT Edge でサポートされている IoT 通信プロトコルのポー
 
 1. 下にスクロールして **Main** メソッドを表示し、少し時間をかけてコードをレビューします。
 
-    このメソッドには、構成された接続文字列を使用して **DeviceClient** をインスタンス化するコードが含まれ、Azure IoT Edge ゲートウェイとの通信に使用するトランスポート プロトコルとして 'MQTT' が指定されています。
+    このメソッドには、構成された接続文字列を使用して **DeviceClient** をインスタンス化するコードが含まれ、Azure IoT Edge ゲートウェイとの通信に使用するトランスポート プロトコルとして `MQTT` が指定されています。
 
     ```csharp
     deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Mqtt);

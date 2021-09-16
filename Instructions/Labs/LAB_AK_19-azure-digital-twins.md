@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 19: Azure Digital Twins (ADT) を開発する'
     module: 'モジュール 11: Azure Digital Twins を使用した開発'
@@ -127,7 +127,7 @@ ADT を最大限に活用する方法をよりよく理解するために、既�
     ```bash
     #!/bin/bash
 
-    # これらの値を変更してください!
+    # Change these values!
     YourID="{your-id}"
     Location="{your-location}"
     ```
@@ -1978,7 +1978,7 @@ Azure Digital Twins とその API にアクセスするには、適切なアク�
    * **.NET ランタイム**を選択するように求められたら、**NET Core3** を選択します。
    * **プロジェクトの最初の関数の温度を選択する**: 「**テンプレートフィルターの変更**」 を選択します。
    * **テンプレート フィルターを選択する**: 「**すべて**」 を選択します。
-   * **プロジェクトの最初の関数の温度を選択する**: 「**EventGridTrigger**」 を選択します。
+   * **プロジェクトの最初の関数の温度を選択する**: 「**Azure Event Grid トリガー**」 を選択します。
    * **関数名を指定する**： 「**HubToAdtFunction**」と入力します。
    * **名前空間を指定する**: 「**Contoso.AdtFunctions**」と入力します。
    * **ストレージ アカウントの選択を求められたら**、「**今すぐスキップ**」 をクリックします。
@@ -2032,9 +2032,9 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     {
         public static class HubToAdtFunction
         {
-            // 以下にメンバー変数を挿入します
+            // INSERT member variables below here
 
-            // 以下に Run メソッドを挿入します
+            // INSERT Run method below here
         }
     }
     ```
@@ -2042,7 +2042,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
 1. 関数のメンバー変数を追加するには、`// 以下にメンバー変数を挿入します` コメントを見つけます。その下に次のコードを挿入します。
 
     ```csharp
-    //Digital Twins の URL は、Azure Functions のアプリケーション設定に保存されます。
+    //Your Digital Twins URL is stored in an application setting in Azure Functions.
     private static readonly string adtInstanceUrl = Environment.GetEnvironmentVariable("ADT_SERVICE_URL");
     private static readonly HttpClient httpClient = new HttpClient();
     ```
@@ -2055,11 +2055,11 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     [FunctionName("HubToAdtFunction")]
     public async static void Run([EventGridTrigger] EventGridEvent eventGridEvent, ILogger log)
     {
-        // 以下にログ ステートメントを挿入します
+        // INSERT log statement below here
 
-        // 以下に環境変数チェックを挿入します
+        // INSERT environment variable check below here
 
-        // 以下に try/catch ブロックを挿入します
+        // INSERT try/catch block below here
     }
     ```
 
@@ -2100,9 +2100,9 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     ```csharp
     try
     {
-        // 以下に認証コードを挿入します
+        // INSERT authentication code below here
 
-        // 以下にイベント プロセス コードを挿入します
+        // INSERT event processing code below here
     }
     catch (Exception e)
     {
@@ -2127,7 +2127,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     ```csharp
     if (eventGridEvent != null && eventGridEvent.Data != null)
     {
-        // IoT Hub JSON の deviceId と温度を読み取ります
+        // Read deviceId and temperature for IoT Hub JSON.
         JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
         string deviceId = (string)deviceMessage["systemProperties"]["iothub-connection-device-id"];
         var fanAlert = (bool)deviceMessage["properties"]["fanAlert"]; // cast directly to a bool
@@ -2141,7 +2141,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
         JObject body = (JObject)JsonConvert.DeserializeObject(bodyJson);
         log.LogInformation($"Device:{deviceId} Temperature is:{body["temperature"]}");
         log.LogInformation($"Device:{deviceId} Humidity is:{body["humidity"]}");
-        // 以下に ADT 更新コードを挿入します
+        // INSERT ADT update code below here
     }
     ```
 
@@ -2179,7 +2179,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
 1. ADT ツインを更新するコードを追加するには、`// 以下に ADT 更新コードを挿入します` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
-    // ツインを更新します
+    //Update twin
     var patch = new Azure.JsonPatchDocument();
     patch.AppendReplace<bool>("/fanAlert", fanAlert); // already a bool
     patch.AppendReplace<bool>("/temperatureAlert", temperatureAlert.Value<bool>()); // convert the JToken value to bool
@@ -2187,7 +2187,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
 
     await client.UpdateDigitalTwinAsync(deviceId, patch);
 
-    // テレメトリを公開します
+    // publish telemetry
     await client.PublishTelemetryAsync(deviceId, null, bodyJson);
     ```
 
@@ -2439,7 +2439,7 @@ REST API を使用するには、HTTP ヘッダーでシークレット (また�
 
 1. 「**クライアント シークレットの追加**」 ポップアップの 「**説明**」 に、「**AZ220ADT ラボのシークレット**」と入力します
 
-1. 「**有効期限**」 で、「**1 年**」 を選択します。
+1. 「**有効期限**」 で、「**12 か月**」 を選択します。
 
     > **ヒント**: シークレットの有効期限を **「しない」** に設定すると便利な場合がありますが、組織ではセキュリティ ポリシーの一部としてトークンの有効期限が必要になることがよくあります。
 
@@ -2573,7 +2573,7 @@ REST API を使用するには、HTTP ヘッダーでシークレット (また�
 
     > **注**: **{twin_id}** トークンを **cave_2** に置き換え、**{adt-hostname}** トークンを Azure Digital Twin インスタンスのホスト名に置き換えます。次の Azure CLI コマンドは、現在のサブスクリプション内のすべての ADT インスタンスのホスト名を一覧表示します。`az dt list --query "[].hostName"`。
 
-1. 「URL」 で、「**クエリ パラメーター**」 タブを選択し、次のように入力します。
+1. UR Lの下で、「**パラメーター**」 タブを選択し、次のように入力します。
 
     | キー         | 値      |
     | ：---------- | :--------- |
@@ -2849,7 +2849,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
 
    * **関数のテンプレートを選択する**: 「**テンプレートフィルターの変更**」 を選択します。
    * **テンプレート フィルターを選択する**: 「**すべて**」 を選択します。
-   * **関数のテンプレートを選択する**: 「**EventGridTrigger**」 を選択します。
+   * **関数のテンプレートを選択する**: 「**Azure Event Grid トリガー**」 を選択します。
    * **関数名を指定する**： 「**UpdateTwinFunction**」と入力します。
    * **名前空間を指定する**: 「**Contoso.AdtFunctions**」と入力します。
    * **ストレージ アカウントの選択を求められたら**、「**今すぐスキップ**」 をクリックします。
@@ -2880,7 +2880,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
     ```csharp
     public static class UpdateTwinFunction
     {
-        //Digital Twins の URL は、Azure Functions のアプリケーション設定に保存されます。
+        //Your Digital Twins URL is stored in an application setting in Azure Functions.
         private static readonly string adtInstanceUrl = Environment.GetEnvironmentVariable("ADT_SERVICE_URL");
         private static readonly HttpClient httpClient = new HttpClient();
 
@@ -2903,12 +2903,12 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
 
             try
             {
-                // 以下に認証コードを挿入します
+                // INSERT authentication code below here
                 ManagedIdentityCredential cred = new ManagedIdentityCredential("https://digitaltwins.azure.net");
                 DigitalTwinsClient client = new DigitalTwinsClient(new Uri(adtInstanceUrl), cred, new DigitalTwinsClientOptions { Transport = new HttpClientTransport(httpClient) });
                 log.LogInformation($"Azure digital twins service client connection created.");
 
-                // 以下にイベント プロセス コードを挿入します
+                // INSERT event processing code below here
             }
             catch (Exception e)
             {
@@ -2932,7 +2932,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
 
         if (message["data"]["modelId"] != null && (string)message["data"]["modelId"] == "dtmi:com:contoso:digital_factory:cheese_factory:cheese_cave_device;1")
         {
-            // 以下にデバイスの親モデル (チーズ セラー) を挿入します
+            // INSERT Find the device parent model (the Cheese Cave)
 
         }
         else
@@ -2998,7 +2998,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
     }
     else
     {
-        // 以下に親の更新を挿入します
+        // INSERT Update the parent
     }
     ```
 
@@ -3020,7 +3020,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
 1. 親のCheeseCaveを更新するには、`// 以下に親の更新を挿入します` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
-    // 各操作で値が変更されたプロパティを読み取ります
+    // Read properties which values have been changed in each operation
     var patch = new Azure.JsonPatchDocument();
     foreach (var operation in message["data"]["patch"])
     {
@@ -3580,17 +3580,17 @@ Event Hub に接続するには、適切な権限を持つポリシーの接続�
             {
                 try
                 {
-                    // 以下にテレメトリの確認を挿入します
+                    // INSERT check telemetry below here
                 }
                 catch (Exception e)
                 {
-                    // 残りのバッチを処理し続ける必要があります - この例外をキャプチャして続行します。
-                    // また、後で再度処理できるように、処理に失敗したメッセージの詳細をキャプチャすることを検討してください。
+                    // We need to keep processing the rest of the batch - capture this exception and continue.
+                    // Also, consider capturing details of the message that failed processing so it can be processed again later.
                     exceptions.Add(e);
                 }
             }
 
-            // バッチの処理が完了すると、処理に失敗したバッチ内のメッセージのいずれかが例外をスローして、失敗の記録が存在するようにします。
+            // Once processing of the batch is complete, if any messages in the batch failed processing throw an exception so that there is a record of the failure.
 
             if (exceptions.Count > 1)
                 throw new AggregateException(exceptions);
@@ -3616,7 +3616,7 @@ Event Hub に接続するには、適切な権限を持つポリシーの接続�
     if ((string)eventData.Properties["cloudEvents:type"] == "microsoft.iot.telemetry" &&
         (string)eventData.Properties["cloudEvents:dataschema"] == "dtmi:com:contoso:digital_factory:cheese_factory:cheese_cave_device;1")
     {
-        // 以下に TSI イベントの作成を挿入します
+        // INSERT TSI Event creation below here
     }
     else
     {
@@ -3633,7 +3633,7 @@ Event Hub に接続するには、適切な権限を持つポリシーの接続�
 1. イベントを処理して TSI メッセージを作成するコードを追加するには、`// 以下に TSI イベントの作成を挿入します` コメントを見つけ、その下に次のコードを挿入します。
 
     ```csharp
-    // イベントはチーズ セラー デバイス テレメトリです
+    // The event is Cheese Cave Device Telemetry
     string messageBody = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
     JObject message = (JObject)JsonConvert.DeserializeObject(messageBody);
 

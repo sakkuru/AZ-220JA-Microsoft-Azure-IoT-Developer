@@ -116,7 +116,7 @@ Contoso は、新しい IoT デバイスを備えた新しいアセンブリ ラ
     ```bash
     #!/bin/bash
 
-    # これらの値を変更してください!
+    # Change these values!
     YourID="{your-id}"
     Location="{your-location}"
     ```
@@ -245,7 +245,7 @@ Azure Defender for IoT を有効にすると、IoT デバイス、IoT Edge、IoT
 
 1. 検索結果の 「**サービス**」 で 「**仮想マシン**」 をクリックします。
 
-1. 「**仮想マシン**」 ページで、「**+ 追加**」 をクリックして 「**仮想マシン**」 を選択します。
+1. 「**仮想マシン**」 ページで、「**+ 作成**」 をクリックして 「**仮想マシン**」 を選択します。
 
 1. 「**仮想マシンの作成**」 ブレードの 「**サブスクリプション**」 ドロップダウンで、このコースに使用するサブスクリプションが選択されていることを確認します。
 
@@ -541,7 +541,7 @@ Azure Defender for IoT には、IoT Hub を介してセキュリティ データ
 
     具体的には、サービスが **読み込み済み: 読み込み済み**で、**アクティブ: アクティブ (実行中)** であることを確認する必要があります。
 
-    > **注**: Azure Defender for IoT エージェントが実行されていないか、アクティブではない場合、「[Linux 用の Defender for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/ja-jp/azure/defender-for-iot/how-to-deploy-linux-css)」を確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
+    > **注**: Azure Defender for IoT エージェントが実行されていないか、アクティブではない場合、「[Linux 用の Defender for IoT の C# ベースのセキュリティ エージェントをデプロイする](https://docs.microsoft.com/ja-jp/azure/defender-for-iot/device-builders/how-to-deploy-linux-cs)」を確認してください。サービスを**アクティブ: アクティブ化中**のままにすることがある一般的な問題は、正しくないキー値であるか、完全な IoT Hub ホスト名を指定していないことです。
 
 1. Azure portal で、IoT Hub のブレードに戻り、「**vm-az220-training-edge0002-{your-id}**」 デバイス ブレードを開きます。
 

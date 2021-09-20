@@ -125,7 +125,7 @@ Contoso の経営陣は、DPS を使用した自動デバイス登録の実装�
     ```bash
     #!/bin/bash
 
-    # これらの値を変更してください!
+    # Change these values!
     YourID="{your-id}"
     Location="{your-location}"
     ```
@@ -276,7 +276,7 @@ Contoso のコンベア ベルト システムの監視を自動化し、予知�
     {
         ConsoleHelper.WriteColorMessage("Vibration sensor device app.\n", ConsoleColor.Yellow);
 
-        // MQTT プロトコルを使用して IoT Hub に接続します。
+        // Connect to the IoT hub using the MQTT protocol.
         deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
 
         SendDeviceToCloudMessagesAsync();
@@ -293,7 +293,7 @@ Contoso のコンベア ベルト システムの監視を自動化し、予知�
     {
         var conveyor = new ConveyorBeltSimulator(intervalInMilliseconds);
 
-        // コンベアベルトの振動テレメトリをシミュレートする
+        // Simulate the vibration telemetry of a conveyor belt.
         while (true)
         {
             var vibration = conveyor.ReadVibration();
@@ -323,15 +323,15 @@ Contoso のコンベア ベルト システムの監視を自動化し、予知�
         var telemetryMessageString = JsonConvert.SerializeObject(telemetryDataPoint);
         var telemetryMessage = new Message(Encoding.ASCII.GetBytes(telemetryMessageString));
 
-        // メッセージにカスタム アプリケーション プロパティを追加.これはメッセージをルーティングするために使用されます。
+        // Add a custom application property to the message. This is used to route the message.
         telemetryMessage.Properties.Add("sensorID", "VSTel");
 
-        // ベルトが5秒より長く停止した場合は、警告を送信します。
+        // Send an alert if the belt has been stopped for more than five seconds.
         telemetryMessage.Properties.Add("beltAlert", (conveyor.BeltStoppedSeconds > 5) ? "true" : "false");
 
         Console.WriteLine($"Telemetry data: {telemetryMessageString}");
 
-        // テレメトリ メッセージを送信します。
+        // Send the telemetry message.
         await deviceClient.SendEventAsync(telemetryMessage);
         ConsoleHelper.WriteGreenMessage($"Telemetry sent {DateTime.Now.ToShortTimeString()}");
     }
@@ -346,7 +346,7 @@ Contoso のコンベア ベルト システムの監視を自動化し、予知�
     ```csharp
     private static async Task CreateLoggingMessage(ConveyorBeltSimulator conveyor, double vibration)
     {
-        // ログ記録 JSON メッセージを作成する
+        // Create the logging JSON message.
         var loggingDataPoint = new
         {
             vibration = Math.Round(vibration, 2),
@@ -357,15 +357,15 @@ Contoso のコンベア ベルト システムの監視を自動化し、予知�
         var loggingMessageString = JsonConvert.SerializeObject(loggingDataPoint);
         var loggingMessage = new Message(Encoding.ASCII.GetBytes(loggingMessageString));
 
-        // メッセージにカスタム アプリケーション プロパティを追加.これはメッセージをルーティングするために使用されます。
+        // Add a custom application property to the message. This is used to route the message.
         loggingMessage.Properties.Add("sensorID", "VSLog");
 
-        // ベルトが5秒より長く停止した場合は、警告を送信します。
+        // Send an alert if the belt has been stopped for more than five seconds.
         loggingMessage.Properties.Add("beltAlert", (conveyor.BeltStoppedSeconds > 5) ? "true" : "false");
 
         Console.WriteLine($"Log data: {loggingMessageString}");
 
-        // ログ メッセージを送信します。
+        // Send the logging message.
         await deviceClient.SendEventAsync(loggingMessage);
         ConsoleHelper.WriteGreenMessage("Log data sent\n");
     }
@@ -664,13 +664,13 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
 1. **IoT Hub** で、**iot-az220-training- {your-id}** IoT Hub が選択されていることを確認します。
 
-1. 「**エンドポイント**」 で、「**メッセージング**」 が選択されていることを確認します。
+1. 「**コンシューマー グループ**」 で **$Default** が選択されていることを確認します。
 
 1. 「**共有アクセス ポリシー名**」 で **iothubowner** が選択されていることを確認します。
 
     > **注**:  **共有アクセス ポリシー キー**は読み取り専用で実装されます。
 
-1. 「**コンシューマー グループ**」 で **$Default** が選択されていることを確認します。
+1. 「**エンドポイント**」 で、「**メッセージング**」 が選択されていることを確認します。
 
 1. **「イベントのシリアル化形式」** で **「JSON」** が選択されていることを確認します。
 
@@ -688,21 +688,23 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
     **「出力」** ペインが表示されます。
 
-1. 「**出力**」 ペインで 「**+ 追加**」 をクリックし、「**Blob Storage/Data Lake Storage Gen2**」 をクリックします。
+1. 「**出力**」 ペインで、**「+ 追加」**をクリックし、**「Blob storage/ADLS Gen2」** をクリックします。
 
-    「**Blob Storage/Data Lake Storage Gen2 - 新しい出力**」 ペインが表示されます。
+    「**Blob Storage/ADLS Gen2 - 新しい出力**」 ペインが表示されます。
 
-1. 「**Blob Storage/Data Lake Storage Gen2 - 新しい出力**」 ペインの 「**出力得エイリアス**」 で、`vibrationOutput` と入力します。
+1. 「**Blob Storage/ADLS Gen2 Gen2 - 新しい出力**」 ペインの 「**出力得エイリアス**」 で、`vibrationOutput` と入力します。
 
-1. 「**サブスクリプションからストレージを選択**」 が選択されていることを確認します。
+1. 「**サブスクリプションから Blob Storage/ADLS Gen2 を選択**」 が選択されていることを確認します。
 
 1. 「**サブスクリプション**」 で、このラボで使用しているサブスクリプションを選択します。
 
 1. **「ストレージ アカウント」** で **「vibrationstore{your-id}」** をクリックします。
 
-    > **注**:  **ストレージ アカウント キー**は自動的に設定され、読み取り専用になります。
-
 1. 「**コンテナー**」 で、「**既存の使用**」 が選択され、ドロップダウン リストから 「**vibrationcontainer**」 が選択されていることを確認します。
+
+1. 「**認証モード**」 で 「**接続文字列**」 が選択されていることを確認します。
+
+    > **注**:  **ストレージ アカウント キー**は自動的に設定され、読み取り専用になります。
 
 1. **パス パターン**は空白のままにします。
 
@@ -710,17 +712,15 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
 1. **「イベントのシリアル化形式」** で **「JSON」** が選択されていることを確認します。
 
-1. **「エンコード」** で、**「UTF-8」** が選択されていることを確認します。
-
 1. 「**形式**」 で、「**線区切り**」 が選択されていることを確認します。
+
+1. **「エンコード」** で、**「UTF-8」** が選択されていることを確認します。
 
     > **注**:  この設定では、各レコードを各行に JSON オブジェクトとして格納し、全体として取得すると、ファイルが無効な JSON レコードになります。もう 1 つのオプション 「**配列**」 は、各レコードが配列内の項目である JSON 配列として文書全体がフォーマットされることを保証します。これにより、ファイル全体を有効な JSON として解析できます。
 
 1. **最小行は**空白のままにします。
 
-1. 「**最大時間**」 で、「**時間** と **分**」 を空白のままにします。
-
-1. 「**認証モード**」 で 「**接続文字列**」 が選択されていることを確認します。
+1. 「**最大時間**」 で、「**時間**」 と 「**分**」 を空白のままにします。
 
 1. 出力を作成するには、「**保存**」 をクリックし、出力が作成されるのを待ちます。
 

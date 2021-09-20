@@ -116,7 +116,7 @@ lab:
     ```bash
     #!/bin/bash
 
-    # これらの値を変更してください!
+    # Change these values!
     YourID="{your-id}"
     Location="{your-location}"
     ```
@@ -163,7 +163,7 @@ lab:
 
 1. 検索結果の 「**サービス**」 で 「**仮想マシン**」 をクリックします。
 
-1. 「**仮想マシン**」 ページで、「**+ 追加**」 をクリックして 「**仮想マシン**」 を選択します。
+1. 「**仮想マシン**」 ページで、「**+ 作成**」 をクリックして 「**仮想マシン**」 を選択します。
 
 1. 「**仮想マシンの作成**」 ブレードの 「**サブスクリプション**」 ドロップダウンで、このコースに使用するサブスクリプションが選択されていることを確認します。
 
@@ -319,7 +319,7 @@ lab:
     **certGen.sh** ヘルパー スクリプトは、**create_root_and_intermediate** パラメーターを使用して、ルート CA 証明書と 1 つの中間証明書を生成します。スクリプトは、複数の証明書とキー ファイルを作成します。このラボの後半では、次のルート CA 証明書ファイルを使用します。
 
     ```text
-    # ルート CA 証明書
+    # Root CA certificate
     ~/lab12/certs/azure-iot-test-only.root.ca.cert.pem
     ```
 
@@ -336,9 +336,9 @@ lab:
     このスクリプトによっていくつかの証明書とキー ファイルが作成されました。後で参照される次のファイルをメモします。
 
     ```text
-    # デバイス CA 証明書
+    # Device CA certificate
     ~/lab12/certs/iot-edge-device-ca-MyEdgeDeviceCA-full-chain.cert.pem
-    # デバイス CA 秘密キー
+    # Device CA private key
     ~/lab12/private/iot-edge-device-ca-MyEdgeDeviceCA.key.pem
     ```
 
@@ -458,7 +458,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 1. **証明書**コードの行を更新するには、先頭の '# ' (ポンド記号とスペース) 文字を削除し、以下に示すように証明書のパスを入力します。
 
     ```yaml
-    証明書:
+    certificates:
       device_ca_cert: "/home/<username>/lab12/certs/iot-edge-device-ca-MyEdgeDeviceCA-full-chain.cert.pem"
       device_ca_pk: "/home/<username>/lab12/private/iot-edge-device-ca-MyEdgeDeviceCA.key.pem"
       trusted_ca_certs: "/home/<username>/lab12/certs/azure-iot-test-only.root.ca.cert.pem"
@@ -686,7 +686,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 1. ファイルのthe **接続文字列を使用して手動プロビジョニング構成**を検索し、接続文字列セクションを使用して手動プロビジョニング構成のコメントを解除します。先頭の **'# '** (ポンド記号とスペース) 文字を削除除してコメントを解除していない場合は、`<ADD DEVICE CONNECTION STRING HERE>` を以前に IoT Edge デバイス用にコピーした接続文字列に置き換えます。
 
     ```yaml
-    # 接続文字列を使用した手動プロビジョニング構成
+    # Manual provisioning configuration using a connection string
     provisioning:
       source: "manual"
       device_connection_string: "<ADD DEVICE CONNECTION STRING HERE>"
@@ -746,7 +746,7 @@ IoT Edge セキュリティ デーモンによって、IoT Edge デバイス上�
 1. IoT Edge デバイスで現在実行されているすべての **IoT Edge モジュール**を一覧表示するには、次のコマンドを入力します。
 
     ```sh
-    iotedge リスト
+    iotedge list
     ```
 
     しばらくすると、このコマンドにより `edgeAgent` モジュールと `edgeHub` モジュールが実行されていることが示されます。出力は、以下のようなものになります。
@@ -887,7 +887,7 @@ Azure IoT Edge でサポートされている IoT 通信プロトコルのポー
 
 1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
 
-1. 「**フォルダーを開く**」 ダイアログで、ラボ 12 のスターター フォルダーに移動し、**DownstreamDevice** をクリックして、「**フォルダーの選択**」 をクリック します。
+1. 「**フォルダーを開く**」 ダイアログで、ラボ 12 の**スターター** フォルダーに移動し、**DownstreamDevice** をクリックして、「**フォルダーの選択**」 をクリック します。
 
     Program.cs ファイルと一緒に 「エクスプローラー」 ペインに一覧表示されている azure-iot-test-only.root.ca.cert.pem ファイルが表示されます。
 

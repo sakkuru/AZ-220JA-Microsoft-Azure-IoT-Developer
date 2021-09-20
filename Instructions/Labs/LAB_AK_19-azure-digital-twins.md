@@ -2039,7 +2039,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     }
     ```
 
-1. 関数のメンバー変数を追加するには、`// 以下にメンバー変数を挿入します` コメントを見つけます。その下に次のコードを挿入します。
+1. 関数のメンバー変数を追加するには、`// INSERT member variables below here` コメントを見つけます。その下に次のコードを挿入します。
 
     ```csharp
     //Your Digital Twins URL is stored in an application setting in Azure Functions.
@@ -2049,7 +2049,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
 
     **adtInstanceUrl** 変数には、演習の前半で定義した **ADT_SERVICE_URL** 環境変数の値が割り当てられていることに注意してください。このコードは、**HttpClient** の単一の静的インスタンスを使用するベスト プラクティスにも準拠しています。
 
-1. **Run** メソッド宣言を追加するには、 `// 以下に Run メソッドを挿入します` コメントを見つけて、その下に次のコードを挿入します。
+1. **Run** メソッド宣言を追加するには、 `// INSERT Run method below here` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
     [FunctionName("HubToAdtFunction")]
@@ -2070,7 +2070,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     > **ヒント**: Azure Functions の Azure Event Grid トリガーの詳細については、以下のリソースを確認してください。
     > * [Azure Functions の Azure Event Grid トリガー](https://docs.microsoft.com/azure/azure-functions/functions-bindings-event-grid-trigger?tabs=csharp%2Cbash)
 
-1. Azure Functions の Event Grid イベント データに関する情報データをログに記録するには、`// 以下にログ ステートメントを挿入します`コメントを見つけ、その下に次のコードを挿入します。
+1. Azure Functions の Event Grid イベント データに関する情報データをログに記録するには、`// INSERT log statement below here`コメントを見つけ、その下に次のコードを挿入します。
 
     ```csharp
     log.LogInformation(eventGridEvent.Data.ToString());
@@ -2083,7 +2083,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     > * [Microsoft.Extensions.Logging 名前空間](https://docs.microsoft.com/dotnet/api/microsoft.extensions.logging?view=dotnet-plat-ext-5.0&viewFallbackFrom=netcore-3.1)
     > * [ILogger インターフェイス](https://docs.microsoft.com/ja-jp/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-5.0&viewFallbackFrom=netcore-3.1)
 
-1. **ADT_SERVICE_URL** 環境変数が定義されていることを確認するには、`// 以下に環境変数チェックを挿入します` コメントを見付け、その下に次のコードを挿入します。
+1. **ADT_SERVICE_URL** 環境変数が定義されていることを確認するには、`// INSERT environment variable check below here` コメントを見付け、その下に次のコードを挿入します。
 
     ```csharp
     if (adtInstanceUrl == null)
@@ -2095,7 +2095,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
 
     このコードは、**adtInstanceUrl** 環境変数が設定されているかどうかを確認します。設定されていない場合は、エラーがログに記録され、関数が終了します。これは、関数が正しく構成されていないという事実をキャプチャするためのロギングの価値を示しています。
 
-1. 例外がログに記録されるようにするには、`// 以下に try/catch ブロックを挿入します` を見つけて、その下に次のコードを挿入します。
+1. 例外がログに記録されるようにするには、`// INSERT try/catch block below here` を見つけて、その下に次のコードを挿入します。
 
     ```csharp
     try
@@ -2112,7 +2112,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
 
     例外メッセージがログに記録されていることに注意してください。
 
-1. 関数アプリ プリンシパルを使用して ADT を認証し、クライアント インスタンスを作成するには、`// 以下に認証コードを挿入します` コメントを見つけ、その下に次のコードを挿入します。
+1. 関数アプリ プリンシパルを使用して ADT を認証し、クライアント インスタンスを作成するには、`// INSERT authentication code below here` コメントを見つけ、その下に次のコードを挿入します。
 
     ```csharp
     ManagedIdentityCredential cred = new ManagedIdentityCredential("https://digitaltwins.azure.net");
@@ -2122,7 +2122,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
 
     **ManagedIdentityCredential** クラスの使用に注意してください。このクラスは、以前にデプロイ環境に割り当てられたマネージ ID を使用して認証を試みます。資格情報が返されると、**DigitalTwinsClient** のインスタンスを構築するために使用されます。クライアントには、モデル、コンポーネント、プロパティ、リレーションシップなどのデジタル ツイン情報を取得および更新するためのメソッドが含まれています。
 
-1. イベントグリッドイベントの処理を開始するには、`// 以下にイベント プロセス コードを挿入します` コメントを見つけて、その下に次のコードを挿入します。
+1. イベントグリッドイベントの処理を開始するには、`// INSERT event processing code below here` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
     if (eventGridEvent != null && eventGridEvent.Data != null)
@@ -2176,7 +2176,7 @@ Azure 関数は、さまざまな NuGe tパッケージを利用して、ADT お
     > **ヒント**: イベント スキーマの詳細については、次のリソースを確認してください。
     > * [イベント スキーマ](https://docs.microsoft.com/azure/azure-functions/functions-bindings-event-grid-trigger?tabs=csharp%2Cbash#event-schema)
 
-1. ADT ツインを更新するコードを追加するには、`// 以下に ADT 更新コードを挿入します` コメントを見つけて、その下に次のコードを挿入します。
+1. ADT ツインを更新するコードを追加するには、`// INSERT ADT update code below here` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
     //Update twin
@@ -2518,7 +2518,7 @@ REST API を使用するには、HTTP ヘッダーでシークレット (また�
 1. UR Lの下で、「**ヘッダー**」 タブを選択し、次のように入力します。
 
     | キー          | 値                             |
-    | :----------- | ：---------------------- ---------- |
+    | :----------- | :-------------------------------- |
     | Content-Type | application/x-www-form-urlencoded |
 
 1. 送信するデータを入力するには、「**本文**」 タブを選択します。
@@ -2526,7 +2526,7 @@ REST API を使用するには、HTTP ヘッダーでシークレット (また�
 1. キー/値のペアへのデータ入力を構成するには、**x-www-form-urlencoded** タブを選択し、次のように入力します。
 
     | キー           | 値                                   |
-    | :------------ | ：--------- ----------------------------- |
+    | :------------ | :-------------------------------------- |
     | client_id     | {application-id}                        |
     | scope         | https://digitaltwins.azure.net/.default |
     | client_secret | {secret}                                |
@@ -2576,13 +2576,13 @@ REST API を使用するには、HTTP ヘッダーでシークレット (また�
 1. UR Lの下で、「**パラメーター**」 タブを選択し、次のように入力します。
 
     | キー         | 値      |
-    | ：---------- | :--------- |
+    | :---------- | :--------- |
     | api-version | 2020/10/31 |
 
 1. UR Lの下で、「**ヘッダー**」 タブを選択し、次のように入力します。
 
     | キー           | 値              |
-    | :------------ | ：----------------- |
+    | :------------ | :----------------- |
     | Content-Type  | application/json   |
     | 認可 | Bearer {aad_token} |
 
@@ -2651,13 +2651,13 @@ REST API を使用するには、HTTP ヘッダーでシークレット (また�
 1. 「URL」 で、「**クエリ パラメーター**」 タブを選択し、次のように入力します。
 
     | キー         | 値      |
-    | ：---------- | :--------- |
+    | :---------- | :--------- |
     | api-version | 2020/10/31 |
 
 1. UR Lの下で、「**ヘッダー**」 タブを選択し、次のように入力します。
 
     | キー           | 値              |
-    | :------------ | ：----------------- |
+    | :------------ | :----------------- |
     | Content-Type  | application/json   |
     | 認可 | Bearer {aad_token} |
 
@@ -2920,7 +2920,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
 
     このコードは、前に作成した **HubToAdtFunction** で使用されているコードと実質的に同じです。**mappedProperties** 配列は、親チーズ セラーの一致するプロパティに読み取られて適用されるチーズ セラー デバイス プロパティのリストです。
 
-1. イベントグリッドイベントの処理を開始するには、`// 以下にイベント プロセス コードを挿入します` コメントを見つけて、その下に次のコードを挿入します。
+1. イベントグリッドイベントの処理を開始するには、`// INSERT event processing code below here` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
     if (eventGridEvent != null && eventGridEvent.Data != null)
@@ -2977,7 +2977,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
 
     > **注**: 他のモデルからのイベントが予想されるため、これはエラーとしてではなく、情報として記録されます。多くの異なるモデルからの更新を処理するように関数が拡張され、それぞれが異なるアクションをもたらすシナリオが存在します。
 
-1. ソース見つけるには、`// 以下にデバイスの親モデル (チーズ セラー) を挿入します` コメントを見つけ、その下に次のコードを挿入します。
+1. ソース見つけるには、`// INSERT Find the device parent model (the Cheese Cave)` コメントを見つけ、その下に次のコードを挿入します。
 
     ```csharp
     AsyncPageable<IncomingRelationship> rels = client.GetIncomingRelationshipsAsync(twinId);
@@ -3017,7 +3017,7 @@ Azure Digital Twins がエンドポイントを介してイベントを送信す
 
     リレーションシップが見つからない場合はエラーがログに記録されます。それ以外の場合は、メッセージが処理されて親が更新されます。
 
-1. 親のCheeseCaveを更新するには、`// 以下に親の更新を挿入します` コメントを見つけて、その下に次のコードを挿入します。
+1. 親のCheeseCaveを更新するには、`// INSERT Update the parent` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
     // Read properties which values have been changed in each operation
@@ -3610,7 +3610,7 @@ Event Hub に接続するには、適切な権限を持つポリシーの接続�
 
     この関数はイベントのバッチを処理しているため、エラーを処理する方法は、例外を保持するコレクションを作成することです。次に、関数はバッチ内の各イベントを反復処理し、例外をキャッチしてコレクションに追加します。関数の最後に、複数の例外がある場合、コレクションで **AggregaeException** が作成され、単一の例外が生成されると、単一の例外がスローされます。
 
-1. イベントにチーズ セラー デバイス テレメトリが含まれているかどうかを確認するコードを追加するには、`// 以下にテレメトリの確認を挿入します` コメントを見つけて、その下に次のコードを挿入します。
+1. イベントにチーズ セラー デバイス テレメトリが含まれているかどうかを確認するコードを追加するには、`// INSERT check telemetry below here` コメントを見つけて、その下に次のコードを挿入します。
 
     ```csharp
     if ((string)eventData.Properties["cloudEvents:type"] == "microsoft.iot.telemetry" &&
@@ -3630,7 +3630,7 @@ Event Hub に接続するには、適切な権限を持つポリシーの接続�
     > **ヒント**: `await Task.Yield();` の使用方法の詳細については、次のリソースを確認してください。
     > * [Task.Yield メソッド](https://docs.microsoft.com/dotnet/api/system.threading.tasks.task.yield?view=net-5.0)
 
-1. イベントを処理して TSI メッセージを作成するコードを追加するには、`// 以下に TSI イベントの作成を挿入します` コメントを見つけ、その下に次のコードを挿入します。
+1. イベントを処理して TSI メッセージを作成するコードを追加するには、`// INSERT TSI Event creation below here` コメントを見つけ、その下に次のコードを挿入します。
 
     ```csharp
     // The event is Cheese Cave Device Telemetry

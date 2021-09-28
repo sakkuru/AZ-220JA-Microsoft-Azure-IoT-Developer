@@ -483,7 +483,7 @@ Azure IoT Device SDK を使用すると、デバイス クライアントを使�
     private readonly static string connectionString = "HostName=iot-az220-training-dm200420.azure-devices.net;DeviceId=sensor-th-0001;SharedAccessKey=hfavUmFgoCPA9feWjyfTx23SUHr+dqG9X193ctdEd90=";
     ```
 
-1. `// INSERT Main method below here` コメントを見つけます。
+1. `// 以下に Main メソッドを挿入します` コメントを見つけます。
 
 1. シミュレートされたデバイス アプリケーションの **Main** メソッドを作成するには、次のコードを入力します。
 
@@ -522,7 +522,7 @@ Azure IoT Device SDK を使用すると、デバイス クライアントを使�
     >
     > **情報**: サポートされているトランスポート プロトコルは、[ここ](https://docs.microsoft.com/ja-jp/azure/iot-hub/iot-hub-devguide-protocols)に記載されています。
 
-1. `// INSERT - SendDeviceToCloudMessagesAsync below here` コメントを見つけます。
+1. `// 以下に SendDeviceToCloudMessagesAsync メソッドを挿入します` コメントを見つけます。
 
 1. **SendDeviceToCloudMessagesAsyncメソッド** を作成するには、次のコードを入力します。
 
@@ -588,7 +588,7 @@ Azure IoT Device SDK を使用すると、デバイス クライアントを使�
 
     > **情報**: **Message** クラスは[ここ](https://docs.microsoft.com/ja-jp/dotnet/api/microsoft.azure.devices.client.message?view=azure-dotnet)に記載されています。
 
-1. `// INSERT CreateMessageString method below here` コメントを見つけます。
+1. `// 以下に CreateMessageString メソッド挿入します` コメントを見つけます。
 
 1. センサーの読み取り値から JSON 文字列を作成する **CreateMessageString** メソッドを作成するには、次のコードを入力します。
 
@@ -611,7 +611,7 @@ Azure IoT Device SDK を使用すると、デバイス クライアントを使�
 
     次に、**telemetryDataPoint** の値は、前に追加した **Newtonsoft.Json** パッケージの一部である **JsonConvert** クラスを介して JSON 文字列に変換されます。次に、JSON 文字列値が返され、メッセージのペイロードとして使用されます。
 
-1. `// INSERT EnvironmentSensor class below here` コメントを見つけます。
+1. `// 以下に EnvironmentSensor クラスを挿入します` コメントを見つけます。
 
 1. **EnvironmentSensor** クラスを作成するには、次のコードを入力します。
 
@@ -670,7 +670,7 @@ Azure IoT Device SDK を使用すると、デバイス クライアントを使�
     dotnet run
     ```
 
-    このコマンドは、シミュレートされたデバイス アプリケーションをビルドして実行します。ターミナルの場所が `CaveDevice.cs` ファイルを持つディレクトリに設定されていることを確認します。
+    このコマンドは、シミュレートされたデバイス アプリケーションをビルドして実行します。ターミナルの場所が `CaveDevice.csproj` ファイルを持つディレクトリに設定されていることを確認します。
 
     > **注**:  コマンドが `Malformed Token` などのエラー メッセージを出力する場合は、**プライマリ接続文字列**値が `connectionString` 変数の値として正しく構成されていることを確認します。
 

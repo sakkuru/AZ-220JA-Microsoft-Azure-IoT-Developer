@@ -215,14 +215,14 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 1. **「ファイル」** メニューで、**「フォルダを開く」** を選択します。
 
-1. 「フォルダーを開く」 ダイアログで、ラボ 15 のスターター フォルダーに移動します。
+1. 「フォルダーを開く」 ダイアログで、ラボ 15 の Starter フォルダーに移動します。
 
     _ラボ 3: 開発環境の設定_: ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
     * すべてのファイル
         * ラボ
-            * 15-Azure IoT Hub を使用してリモートによるデバイスを監視および制御する
-                * スターター
+            * 15-Remotely monitor and control devices with Azure IoT Hub
+                * Starter
                     * cheesecavedevice
                     * CheeseCaveOperator
 
@@ -364,7 +364,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 1. **「ファイル」** メニューで、**「フォルダを開く」** を選択します。
 
-1. 「**フォルダーを開く**」 ダイアログで、ラボ 15 のスターター フォルダーに移動します。
+1. 「**フォルダーを開く**」 ダイアログで、ラボ 15 の Starter フォルダーに移動します。
 
 1. 「**CheeseCaveOperator**」 をクリックし、「**フォルダーの選択**」 をクリックします。
 
@@ -428,15 +428,15 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
     {
         class Program
         {
-            // ここに変数を挿入します
+            // INSERT variables below here
 
-            // 以下に Main メソッドを挿入します
+            // INSERT Main method below here
 
-            // 以下に ReceiveMessagesFromDeviceAsync メソッドを挿入します
+            // INSERT ReceiveMessagesFromDeviceAsync method below here
 
-            // 以下に InvokeMethod メソッドを挿入します
+            // INSERT InvokeMethod method below here
 
-            // 以下にデバイス ツイン セクションを挿入します
+            // INSERT Device twins section below here
         }
 
         internal static class ConsoleHelper
@@ -487,21 +487,21 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 1. プログラムが使用している変数を指定するには、次のコードを入力します。
 
     ```csharp
-    // グローバル変数。
-    // イベント ハブ互換エンドポイント。
+    // Global variables.
+    // The Event Hub-compatible endpoint.
     private readonly static string eventHubsCompatibleEndpoint = "<your event hub endpoint>";
 
-    // イベント ハブと互換性のある名前。
+    // The Event Hub-compatible name.
     private readonly static string eventHubsCompatiblePath = "<your event hub path>";
     private readonly static string iotHubSasKey = "<your event hub SaS key>";
     private readonly static string iotHubSasKeyName = "service";
     private static EventHubClient eventHubClient;
 
-    // 以下にサービス クライアント変数を挿入します
+    // INSERT service client variable below here
 
-    // 以下にレジストリ マネージャー変数を挿入します
+    // INSERT registry manager variable below here
 
-    // IoT Hub の接続文字列。
+    // Connection string for your IoT Hub.
     private readonly static string serviceConnectionString = "<your service connection string>";
 
     private readonly static string deviceId = "sensor-th-0055";
@@ -509,9 +509,9 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 1. 入力したコード (およびコード コメント) を確認してください。
 
-    **eventHubsCompatibleEndpoint** 変数は、イベント ハブと互換性のある IoT Hub 組み込みサービス向けエンド ポイント (メッセージ/イベント) の URI を格納するために使用されます
+    **eventHubsCompatibleEndpoint** 変数は、イベント ハブと互換性のある IoT Hub 組み込みサービス向けエンド ポイント (messages/events) の URI を格納するために使用されます
 
-    **eventHubsCompatiblePath** 変数には、Even tHub エンティティへのパスが含まれます。
+    **eventHubsCompatiblePath** 変数には、Event Hub エンティティへのパスが含まれます。
 
     **iotHubSasKey** 変数には、名前空間またはエンティティに対応する共有アクセス ポリシー ルールのキー名が含まれます。
 

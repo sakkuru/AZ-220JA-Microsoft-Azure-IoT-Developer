@@ -1,4 +1,4 @@
----
+﻿---
 lab:
     title: 'ラボ 05: DPS でのデバイスの個別登録'
     module: 'モジュール 3: 大規模なデバイス プロビジョニング'
@@ -42,110 +42,50 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 | IoT Hub | iot-az220-training-{your-id} |
 | デバイス プロビジョニング サービス | dps-az220-training-{your-id} |
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の指示に従って **lab05-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+これらのリソースが使用可能であることを確認するには、次のタスクを実行します。
 
-**lab05-setup.azcli** スクリプトは、**Bash** シェル環境で実行するために記述されています。Azure Cloud Shell でこれを実行するのが、最も簡単な方法です。
+1. 「**Azure にデプロイする**」を選択します。
 
-1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
+    [Azure にデプロイする](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fbicep%2FAllfiles%2FARM%2Flab05.json)
 
-    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
+1. メッセージが表示されたら、**Azure portal** にログインします。
 
-1. Cloud Shell が **Bash** を使用していることを確認します。
+    「**カスタム デプロイ**」ページが表示されます。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。
+1. 「**サブスクリプション**」ドロップダウンの「**プロジェクトの詳細**」で、このコースで使用する予定の Azure サブスクリプションが選択されていることを確認します。
 
-1. Cloud Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
+1. 「**リソース グループ**」ドロップダウンで、「**rg-az220**」を選択します。
 
-1. ドロップダウンで、「**アップロード**」 をクリックします。
+    > **注**: **rg-az220** が表示されていない場合:
+    >
+    > 1. 「**リソース グループ**」ドロップダウンで、「**新規作成**」をクリックします。
+    > 1. 「**名前**」に、「**rg-az220**」と入力します。
+    > 1. 「**OK**」をクリックします。
 
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
+1. 「**インスタンスの詳細**」の「**リージョン**」ドロップダウンで、最も近いリージョンを選択します。
 
-    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
+    > **注**: **rg-az220** グループがすでに存在する場合、「**リージョン**」フィールドはリソース グループが使用するリージョンに設定され、読み取り専用になります。
 
-    * すべてのファイル
-      * ラボ
-          * 05 - DPS におけるデバイスの個別登録
-            * 設定
+1. 「**ユーザーの ID**」フィールドに、演習 1 で作成した一意の ID を入力します。
 
-    lab05-setup.azcli スクリプト ファイルは、ラボ 5 の設定フォルダー内にあります。
+1. 「**コース ID**」フィールドに、「**az220**」と入力します。
 
-1. **lab05-setup.azcli** ファイルを選択し、「**開く**」 をクリックします。
+1. テンプレートを検証するには、「**確認と作成**」をクリックします。
 
-    ファイルのアップロードが完了すると、通知が表示されます。
+1. 検証に成功したら、「**作成**」をクリックします。
 
-1. 正しいファイルがアップロードされたことを確認するには、次のコマンドを入力します。
+    デプロイが開始されます。
 
-    ```bash
-    ls
-    ```
+1. デプロイが完了したら、左側のナビゲーション領域で、テンプレートからの出力値を確認するために「**出力**」をクリックします。
 
-    `ls` コマンドを使用して、現在のディレクトリの内容を表示します。一覧にある lab05-setup.azcli ファイルを確認できるはずです。
+    後で使用するために、出力をメモしておきます:
 
-1. セットアップ スクリプトを含むこのラボのディレクトリを作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
+    * connectionString
+    * dpsScopeId
 
-    ```bash
-    mkdir lab5
-    mv lab05-setup.azcli lab5
-    cd lab5
-    ```
+これでリソースが作成されました。
 
-    これらのコマンドは、このラボのディレクトリを作成し、**lab05-setup.azcli** ファイルをそのディレクトリに移動させ、新しいディレクトリを現在の作業ディレクトリにするための変更を行います。
-
-1. **lab05-setup.azcli** スクリプトに実行権限があることを確認するには、次のコマンドを入力します。
-
-    ```bash
-    chmod +x lab05-setup.azcli
-    ```
-
-1. Cloud Shell ツールバーで、lab05-setup.azcli ファイルへのアクセスを有効にするには、「**エディタを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。
-
-1. 「**ファイル**」 の一覧で、lab5 フォルダーを展開してスクリプト ファイルを開き 、**lab5**、「**lab05-setup.azcli**」 の順にクリックします。
-
-    エディタは **lab05-setup.azcli** ファイルの内容を表示します。
-
-1. エディターで、`{your-id}` と `{your-location}` 変数の値を更新します。
-
-    サンプル例として、このコースの最初に作成した一意の id 、つまり **cah191211** に `{your-id}` を設定し、リソースにとって意味のある場所に `{your-location}` を設定する必要があります。
-
-    ```bash
-    #!/bin/bash
-
-    # これらの値を変更してください!
-    YourID="{your-id}"
-    Location="{your-location}"
-    ```
-
-    > **注**:  `{your-location}` 変数は、すべてのリソースをデプロイするリージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
-
-    ```bash
-    az account list-locations -o Table
-
-    DisplayName           Latitude    Longitude    Name
-    --------------------  ----------  -----------  ------------------
-    East Asia             22.267      114.188      eastasia
-    Southeast Asia        1.283       103.833      southeastasia
-    Central US            41.5908     -93.6208     centralus
-    East US               37.3719     -79.8164     eastus
-    East US 2             36.6681     -78.3889     eastus2
-    ```
-
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディターを閉じるには、**...** をクリックし、「**エディターを閉じる**」 をクリックします。
-
-    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。
-
-    > **注**:  **CTRL+S**を使っていつでも保存でき、 **CTRL+Q**を押してエディターを閉じます。
-
-1. このラボに必要なリソースを作成するには、次のコマンドを入力します。
-
-    ```bash
-    ./lab05-setup.azcli
-    ```
-
-    これは、実行するのに数分かかります。各ステップが完了すると、出力が表示されます。
-
-    スクリプトが完了したら、ラボを続行することができます。
-
-### 演習 2: DPS での新しい個別登録 (対称キー) の作成
+### 演習 2: DPS での新しい個別登録 (対称キー) を作成する
 
 この演習では、_対称キー構成証明_を使用して、デバイス プロビジョニング サービス (DPS) 内のデバイスに対して新しい個別登録を作成します。また、登録内でデバイスの初期状態を構成します。登録を保存した後、戻って、登録が保存されたときに作成される自動生成された認証キーを取得します。
 
@@ -283,12 +223,12 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
             * スターター
 
 1. 「**フォルダーを開く**」 ダイアログで、「**ContainerDevice**」 をクリックしてから、「**フォルダーの選択**」 をクリックします。
- 
+
     ContainerDevice フォルダーは、ラボ 5 のスターター フォルダーのサブフォルダーです。Program.cs ファイルと ContainerDevice.csproj ファイルが含まれています。
 
     > **注**: Visual Studio Code で必要なアセットを読み込むように求められた場合は、**「はい」** をクリックしてアセットを読み込むことができます。
- 
-1. **「表示」**メニューで、**「ターミナル」** をクリック します。
+
+1. 「**表示**」メニューで、「**ターミナル**」をクリックします。
 
     選択したターミナル シェルが Windows コマンド プロンプトであることを確認します。
 
@@ -298,13 +238,13 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     dotnet restore
     ```
 
-1. 「Visual Studio Code **エクスプローラー**」 ペインで、「**Program.cs**」 をクリックします。
+1. Visual Studio Code の「**エクスプローラー**」ペインで、「**Program.cs**」をクリックします。
 
 1. コード エディターで、Program クラスの上部近くにある **dpsIdScope** 変数を見つけます。
 
 1. デバイス プロビジョニング サービスからコピーした ID スコープを使用して、dpsIdScope に割り当てられた値を更新します。
 
-    > **注**: ID スコープの値が使用できない場合は、DPS サービスの 「概要」 ブレード (Azure portal) で確認できます。
+    > **注**: ID スコープの値が使用できない場合は、DPS サービスの「概要」ブレード (Azure portal) で確認できます。
 
 1. **registrationId** 変数を見つけ、**sensor-thl-1000** を使用して割り当てられた値を更新します
 
@@ -314,191 +254,13 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
     > **注**: これらのキー値が利用できない場合は、次のように Azure portal からコピーできます。
     >
-    > 「**登録の管理**」 ブレードを開き、「**個別の登録**」 をクリックし、「**sensor-thl-1000**」 をクリックします。値をコピーし、上記の手順に示すように貼り付けます。
-
-#### タスク 2: プロビジョニング コードを追加する
-
-このタスクでは、DPS を介してデバイスをプロビジョニングし、IoT Hub への接続に使用できる DeviceClient インスタンスを作成するコードを実装します。
-
-1. 時間を割いて **Program.cs** ファイルのコードをスキャンします。 
-
-    **ContainerDevice** アプリケーションの全体的なレイアウトは、ラボ 4 で作成した **CaveDevice** アプリケーションと同様です。両方のアプリケーションに次のものが含まれていることに注意してください。
-
-    * ステートメントの使用
-    * 名前空間の定義
-      * プログラム クラス - Azure IoT への接続とテレメトリの送信を担当
-      * EnvironmentSensor クラス - センサー データの生成を担当
-
-1. コード エディターで、`// INSERT Main method below here` コメントを見つけます。
-
-1. シミュレートされたデバイス アプリケーションの **Main** メソッドを作成するには、次のコードを入力します。
-
-    ```csharp
-    public static async Task Main(string[] args)
-    {
-
-        using (var security = new SecurityProviderSymmetricKey(registrationId,
-                                                                individualEnrollmentPrimaryKey,
-                                                                individualEnrollmentSecondaryKey))
-        using (var transport = new ProvisioningTransportHandlerAmqp(TransportFallbackType.TcpOnly))
-        {
-            ProvisioningDeviceClient provClient =
-                ProvisioningDeviceClient.Create(GlobalDeviceEndpoint, dpsIdScope, security, transport);
-
-            using (deviceClient = await ProvisionDevice(provClient, security))
-            {
-                await deviceClient.OpenAsync().ConfigureAwait(false);
-
-                // 以下にセットアップ OnDesiredPropertyChanged イベント処理を挿入します
-
-                // 以下にデバイス ツイン プロパティの読み込みを挿入します
-
-                // デバイス テレメトリの読み取りと送信を開始します
-                Console.WriteLine("Start reading and sending device telemetry...");
-                await SendDeviceToCloudMessagesAsync(deviceClient);
-
-                await deviceClient.CloseAsync().ConfigureAwait(false);
-            }
-        }
-    }
-    ```
-
-    このアプリケーションの Main メソッドは、前のラボで作成した CaveDevice アプリケーションの Main メソッドと同様の目的を果たしますが、少し複雑です。CaveDevice アプリでは、デバイス接続文字列を使用して IoT Hub に直接接続しました。今回は、最初にデバイスをプロビジョニングし (または、後続の接続のために、デバイスがまだプロビジョニングされていることを確認し)、次に適切な IoT Hub 接続の詳細を取得する必要があります。
-
-    DPS に接続するには、**dpsScopeId** と **GlobalDeviceEndpoint** (変数で定義) が必要なだけでなく、以下も指定する必要があります。
-
-    * **security** - 登録の認証に使用される方法。以前に対称キーを使用するように個々の登録を構成したため、**SecurityProviderSymmetricKey** が論理的な選択です。ご想像のとおり、X.509 と TPM もサポートするプロバイダーのバリエーションがあります。
-
-    * **transport** - プロビジョニングされたデバイスによって使用されるトランスポート プロトコル。この例では、AMQPハンドラーが選択されています (**ProvisioningTransportHandlerAmqp**)。もちろん、HTTP ハンドラーと MQTT ハンドラーも利用できます。
-
-    **security** 変数と **transport** 変数が入力されたら、**ProvisioningDeviceClient** のインスタンスを作成します。このインスタンスを使用してデバイスを登録し、**ProvisionDevice** メソッドで **DeviceClient** を作成します。これは、まもなく追加します。
-
-    **Main** メソッドの残りの部分では、**CaveDevice** -  で行ったのとは少し異なる方法でデバイスクライアントを使用します。今回は、デバイス接続を明示的に開いて、アプリがデバイス ツインを使用できるようにします (これについては次の演習で詳しく説明します)。次に、**SendDeviceToCloudMessagesAsync** メソッドを呼び出して、テレメトリの送信を開始します。
-
-    **SendDeviceToCloudMessagesAsync** メソッドは、**CaveDevice** アプリケーションで作成したものと非常によく似ています。これは、**EnvironmentSensor** クラスのインスタンスを作成し (これも圧力と位置のデータを返します)、メッセージを作成して送信します。メソッド ループ内の固定遅延の代わりに、**telemetryDelay** 変数: `await Task.Delay(telemetryDelay * 1000);` を使用して遅延が計算されることに注意してください。時間が許せば、自分自身を詳しく調べて、これを以前のラボで使用したクラスと比較してください。
-
-    最後に、**Main** メソッドに戻り、デバイス クライアントを閉じます。
-
-    > **情報**: [ここ](https://docs.microsoft.com/ja-jp/dotnet/api/microsoft.azure.devices.provisioning.client.provisioningdeviceclient?view=azure-dotnet) - から **ProvisioningDeviceClient** のドキュメントを見つけることができ、そこから他の関連クラスに簡単に移動できます。
-
-1. `// INSERT ProvisionDevice method below here` コメントを見つけます。
-
-1. **ProvisionDevice** メソッドを作成するには、次のコードを入力します。
-
-    ```csharp
-    private static async Task<DeviceClient> ProvisionDevice(ProvisioningDeviceClient provisioningDeviceClient, SecurityProviderSymmetricKey security)
-    {
-        var result = await provisioningDeviceClient.RegisterAsync().ConfigureAwait(false);
-        Console.WriteLine($"ProvisioningClient AssignedHub: {result.AssignedHub}; DeviceID: {result.DeviceId}");
-        if (result.Status != ProvisioningRegistrationStatusType.Assigned)
-        {
-            throw new Exception($"DeviceRegistrationResult.Status is NOT 'Assigned'");
-        }
-
-        var auth = new DeviceAuthenticationWithRegistrySymmetricKey(
-            result.DeviceId,
-            security.GetPrimaryKey());
-
-        return DeviceClient.Create(result.AssignedHub, auth, TransportType.Amqp);
-    }
-    ```
-
-    ご覧のとおり、このメソッドは、前に作成したプロビジョニング デバイス クライアントとセキュリティ インスタンスを受け取ります。`provisioningDeviceClient.RegisterAsync()` が呼び出され、**DeviceRegistrationResult** インスタンスが返されます。この結果には、**DeviceId**、**AssignedHub**、**Status** などの多くのプロパティが含まれています。
-
-    > **情報**: **DeviceRegistrationResult** プロパティの詳細については、[こちら](https://docs.microsoft.com/ja-jp/dotnet/api/microsoft.azure.devices.provisioning.client.deviceregistrationresult?view=azure-dotnet)をご覧ください。
-
-    次に、メソッドはプロビジョニングス テータスが設定されていることを確認し、デバイスが*割り当て*  - られていない場合は例外をスローします。ここで考えられる他の結果には、*未割り当て*、*割り当て中*、*失敗*、*無効*などがあります。
-
-    * **Program.ProvisionDevice** メソッドには、DPS を介してデバイスを登録するためのロジックが含まれています。
-    * **Program.SendDeviceToCloudMessagesAsync** メソッドは、テレメトリをデバイスからクラウドへのメッセージとして Azure IoT Hub に送信します。
-    * **EnvironmentSensor** クラスには、温度、湿度、圧力、緯度、経度用の、シミュレートされたセンサーの読み取り値を生成するためのロジックが含まれています。 
-
-1. **SendDeviceToCloudMessagesAsync** メソッドを見つけます。
-
-1. **SendDeviceToCloudMessagesAsync** メソッドの下部にある `Task.Delay()` の呼び出しに着目してください。
-
-    `Task.Delay()` は、次のテレメトリ メッセージを作成して送信する前に、一定期間 `while` ループを "一時停止" するために使用されます。**telemetryDelay** 変数は、次のテレメトリ メッセージを送信するまでの待機時間を定義するために使用されます。Contoso では、遅延時間を構成可能にする必要があります。  
-
-1. **Program** クラスの先頭近くにある **telemetryDelay** 変数宣言を見つけます。
-
-    遅延の既定値が **1** 秒に設定されていることに注意してください。次の手順では、デバイス ツイン値を使用して遅延時間を制御するコードを統合します。
-
-#### タスク 3: デバイス ツインのプロパティを統合する
-
-デバイスで (Azure IoT Hub から) デバイス ツインのプロパティを使用するには、デバイス ツインのプロパティにアクセスして適用するコードを作成する必要があります。この場合、シミュレートされたデバイス コードを更新して、telemetryDelay デバイスのツインの必要なプロパティを読み取り、その値をコード内の対応する **telemetryDelay** 変数に割り当てます。また、デバイスのツイン レポート プロパティ (IoT Hub によって維持されている) を更新して、デバイスに現在実装されている遅延時間を記録する必要があります。
-
-1. Visual Studio Code エディターで、**Main** メソッドを見つけます。
-
-    デバイス ツイン プロパティの統合を開始するには、デバイス ツイン プロパティが更新されたときに、シミュレートされたデバイスに通知を有効にするコードが必要です。
-
-    これを実現するには、`DeviceClient.SetDesiredPropertyUpdateCallbackAsync` メソッドを使用し、`OnDesiredPropertyChanged` メソッドを作成することによってイベント ハンドラーを設定します。
-
-1.  `// INSERT Setup OnDesiredPropertyChanged Event Handling below here` コメントを見つけます。
-
-1. OnDesiredPropertyChanged イベントの DeviceClient を設定するには、次のコードを入力します。
-
-    ```csharp
-    await deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).ConfigureAwait(false);
-    ```
-
-    **SetDesiredPropertyUpdateCallbackAsync** メソッドは、デバイス ツインの必要なプロパティ変更を受け取るために **DesiredPropertyUpdateCallback** イベント ハンドラーを設定するために使用されます。このコードは、デバイス ツイン プロパティの変更イベントを受信したときに **OnDesiredPropertyChanged** という名前のメソッドを呼び出す **deviceClient** を構成します。
-
-    イベント ハンドラーを設定するための **SetDesiredPropertyUpdateCallbackAsync** メソッドが整ったので、呼び出す **OnDesiredPropertyChanged** メソッドを作成する必要があります。
-
-1. `// INSERT OnDesiredPropertyChanged method below here` コメントを見つけます。
-
-1. **OnDesiredPropertyChanged** メソッドを作成するには、次のコードを入力します。
-
-    ```csharp
-    private static async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
-    {
-        Console.WriteLine("Desired Twin Property Changed:");
-        Console.WriteLine($"{desiredProperties.ToJson()}");
-
-        // 必要なツイン プロパティを読み取る
-        if (desiredProperties.Contains("telemetryDelay"))
-        {
-            string desiredTelemetryDelay = desiredProperties["telemetryDelay"];
-            if (desiredTelemetryDelay != null)
-            {
-                telemetryDelay = int.Parse(desiredTelemetryDelay);
-            }
-            // 必要な telemetryDelay が null または未指定の場合は、変更しないでください
-        }
-
-        // ツイン プロパティをレポートする
-        var reportedProperties = new TwinCollection();
-        reportedProperties["telemetryDelay"] = telemetryDelay.ToString();
-        await deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-        Console.WriteLine("Reported Twin Properties:");
-        Console.WriteLine($"{reportedProperties.ToJson()}");
-    }
-    ```
-
-    **OnDesiredPropertyChanged** イベント ハンドラーが **TwinCollection** 型の **desiredProperties** パラメーターを受け入れることに注意してください。
-
-    **desiredProperties** パラメーターの値に **telemetryDelay** (デバイス ツインの必要なプロパティ) が含まれている場合、コードはデバイス ツイン プロパティの値を **telemetryDelay** 変数に割り当てます。**SendDeviceToCloudMessagesAsync** メソッドには、IoT Hub に送信されるメッセージ間の遅延時間を設定するために **telemetryDelay** 変数を使用する **Task.Delay** 呼び出しが含まれていることを思い出すかもしれません。
-
-    次のコード ブロックは、デバイスの現在の状態を Azure IoT Hub に報告するために使用されることに注意してください。このコードは、**DeviceClient.UpdateReportedPropertiesAsync** メソッドを呼び出し、デバイス プロパティの現在の状態を含む **TwinCollection** を渡します。これは、デバイス ツインの必要なプロパティ変更イベントを受信し、それに応じて構成を更新したことを IoT Hub に報告する方法です。これは、目的のプロパティのエコーではなく、プロパティに設定されている内容を報告することに注意してください。デバイスから送信された報告されたプロパティが、デバイスが受信した望ましい状態と異なる場合、IoT Hub はデバイスの状態を反映する正確なデバイス ツインを維持します。
-
-    デバイスは、Azure IoT Hub からデバイス ツインの必要なプロパティに対する更新を受け取ることができるようになったので、デバイスの起動時に初期セットアップを構成するようにコード化する必要があります。これを行うには、デバイスは、Azure IoT Hub から現在のデバイス ツインの必要なプロパティを読み込み、それに応じてそれ自体を構成する必要があります。
-
-1. **Main** メソッドで、`// INSERT Load Device Twin Properties below here` コメントを見つけます。
-
-1. デバイス ツインの必要なプロパティを読み取り、デバイスの起動時に一致するようにデバイスを構成するには、次のコードを入力します。
-
-    ```csharp
-    var twin = await deviceClient.GetTwinAsync().ConfigureAwait(false);
-    await OnDesiredPropertyChanged(twin.Properties.Desired, null);
-    ```
-
-    このコードは、シミュレートされたデバイスのデバイス ツインを取得する `DeviceTwin.GetTwinAsync` メソッドを呼び出します。次に、`Properties.Desired` プロパティ オブジェクトにアクセスして、デバイスの現在の必要な状態を取得し、それをシミュレートされたデバイスの **telemetryDelay** 変数を構成する **OnDesiredPropertyChanged** メソッドに渡します。
-
-    このコードでは、_OnDesiredPropertyChanged_ イベントを処理するために既に作成されている **OnDesiredPropertyChanged** メソッドを再利用しています。これにより、デバイス ツインの目的の状態プロパティを読み取り、起動時にデバイスを 1 か所で構成するコードを保持できます。結果のコードは、より簡単で保守が容易になります。
+    > 「**登録の管理**」ブレードを開き、「**個別の登録**」をクリックし、「**sensor-thl-1000**」をクリックします。値をコピーし、上記の手順に示すように貼り付けます。
 
 1. 「Visual Studio Code **ファイル**」 メニューの 「**保存**」 をクリックします。
 
     次に、シミュレートされたデバイスは、Azure IoT Hub のデバイス ツイン プロパティを使用して、テレメトリ メッセージ間の遅延を設定します。
+
+    > **注**: ソース コードには多くのコメントが記述されており、DPS 経由でのアプリケーションの接続方法を詳しく知ることができます。
 
 ### 演習 4: シミュレートされたデバイスのテスト
 
@@ -539,9 +301,9 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
     ```text
     11/6/2019 6:38:55 PM > Sending message: {"temperature":25.59094770373355,"humidity":71.17629229611545,"pressure":1019.9274696347665,"latitude":39.82133964767944,"longitude":-98.18181981142438}
-    11/6/2019 6:38:55 PM > Sending message: {"temperature":24.68789062681044,"humidity":71.52098010830628,"pressure":1022.6521258267584,"latitude":40.05846882452387,"longitude":-98.08765031156229}
-    11/6/2019 6:38:55 PM > Sending message: {"temperature":28.087463226675737,"humidity":74.76071353757787,"pressure":1017.614206096327,"latitude":40.269273772972454,"longitude":-98.28354453319591}
-    11/6/2019 6:38:55 PM > Sending message: {"temperature":23.575667940813894,"humidity":77.66409506912534,"pressure":1017.0118147748344,"latitude":40.21020096551372,"longitude":-98.48636739129239}
+    11/6/2019 6:38:57 PM > Sending message: {"temperature":24.68789062681044,"humidity":71.52098010830628,"pressure":1022.6521258267584,"latitude":40.05846882452387,"longitude":-98.08765031156229}
+    11/6/2019 6:38:59 PM > Sending message: {"temperature":28.087463226675737,"humidity":74.76071353757787,"pressure":1017.614206096327,"latitude":40.269273772972454,"longitude":-98.28354453319591}
+    11/6/2019 6:39:01 PM > Sending message: {"temperature":23.575667940813894,"humidity":77.66409506912534,"pressure":1017.0118147748344,"latitude":40.21020096551372,"longitude":-98.48636739129239}
     ```
 
     テレメトリの読み取り値のタイムスタンプの違いに注目してください。テレメトリ メッセージ間の遅延は、ソース コードでの規定値 `1` 秒ではなく、デバイス ツインを介して構成されるように `2` 秒となる必要があります。
@@ -610,7 +372,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
     Reported Twin Properties:
     {"telemetryDelay":"5"}
     4/21/2020 1:20:16 PM > Sending message: {"temperature":34.417625961088405,"humidity":74.12403526442313,"pressure":1023.7792049974805,"latitude":40.172799921919186,"longitude":-98.28591913777421}
-    4/21/2020 1:20:16 PM > Sending message: {"temperature":20.963297521678403,"humidity":68.36916032636965,"pressure":1023.7596862048422,"latitude":39.83252821949164,"longitude":-98.31669969393461}
+    4/21/2020 1:20:22 PM > Sending message: {"temperature":20.963297521678403,"humidity":68.36916032636965,"pressure":1023.7596862048422,"latitude":39.83252821949164,"longitude":-98.31669969393461}
     ```
 
 1. Azure Cloud Shell で Azure CLI コマンドを実行しているブラウザー ページに切り替えます。
@@ -639,7 +401,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
 
 Contoso のシナリオでは、輸送コンテナーが最終目的地に到着すると、IoT デバイスがコンテナーから削除され、Contoso の場所に戻されます。Contoso は、デバイスをテストしてインベントリに配置する前に、デバイスのプロビジョニングを解除する必要があります。将来的には、デバイスは同じ IoT Hub または異なる地域の IoT Hub にプロビジョニングされる可能性があります。デバイスの完全なプロビジョニング解除は、IoT ソリューションにおける IoT デバイスのライフサイクルの重要なステップです。
 
-この演習では、デバイス プロビジョニング サービス (DPS) と Azure IoT Hub の両方からデバイスのプロビジョニングを解除ために必要なタスクを実行します。Azure IoT ソリューションから IoT デバイスを完全にプロビジョニングを解除するには、これらの両方のサービスから削除する必要があります。 
+この演習では、デバイス プロビジョニング サービス (DPS) と Azure IoT Hub の両方からデバイスのプロビジョニングを解除ために必要なタスクを実行します。Azure IoT ソリューションから IoT デバイスを完全にプロビジョニングを解除するには、これらの両方のサービスから削除する必要があります。
 
 #### タスク 1: DPS からデバイスの登録を解除する
 

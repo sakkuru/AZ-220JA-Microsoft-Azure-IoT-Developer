@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 02: Azure IoT Services の開始'
     module: 'モジュール 1: IoT と Azure IoT Services サービスの概要'

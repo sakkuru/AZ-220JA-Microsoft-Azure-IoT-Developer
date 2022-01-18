@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 19: Azure Digital Twins (ADT) を開発する'
     module: 'モジュール 11: Azure Digital Twins を使用した開発'

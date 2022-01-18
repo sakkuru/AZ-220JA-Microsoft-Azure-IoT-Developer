@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 13: VS コードを使用して Azure IoT Edge でカスタム モジュールを開発、デプロイ、デバッグする'
     module: 'モジュール 7: Azure IoT Edge モジュール'

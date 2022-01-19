@@ -38,106 +38,48 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 | IoT Hub | iot-az220-training-{your-id} |
 | デバイス プロビジョニング サービス | dps-az220-training-{your-id} |
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の指示に従って **lab06-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+これらのリソースが使用可能であることを確認するには、次のタスクを実行します。
 
-**lab06-setup.azcli** スクリプトは、**Bash** シェル環境で実行するために記述されています。Azure Cloud Shell でこれを実行するのが、最も簡単な方法です。
+1. 「**Azure にデプロイする**」を選択します。
 
-1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
+    [Azure にデプロイする](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fbicep%2FAllfiles%2FARM%2Flab06.json)
 
-    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
+1. メッセージが表示されたら、**Azure portal** にログインします。
 
-1. Cloud Shell が **Bash** を使用していることを確認します。
+    「**カスタム デプロイ**」ページが表示されます。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。
+1. 「**サブスクリプション**」ドロップダウンの「**プロジェクトの詳細**」で、このコースで使用する予定の Azure サブスクリプションが選択されていることを確認します。
 
-1. Cloud Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
+1. 「**リソース グループ**」ドロップダウンで、「**rg-az220**」を選択します。
 
-1. ドロップダウンで、「**アップロード**」 をクリックします。
+    > **注**: **rg-az220** が表示されていない場合:
+    >
+    > 1. 「**リソース グループ**」ドロップダウンで、「**新規作成**」をクリックします。
+    > 1. 「**名前**」に、「**rg-az220**」と入力します。
+    > 1. 「**OK**」をクリックします。
 
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
+1. 「**インスタンスの詳細**」の「**リージョン**」ドロップダウンで、最も近いリージョンを選択します。
 
-    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
+    > **注**: **rg-az220** グループがすでに存在する場合、「**リージョン**」フィールドはリソース グループが使用するリージョンに設定され、読み取り専用になります。
 
-    * すべてのファイル
-      * ラボ
-          * 06 - DPS でのデバイスの自動登録
-            * 設定
+1. 「**ユーザーの ID**」フィールドに、演習 1 で作成した一意の ID を入力します。
 
-    lab06-setup.azcli スクリプト ファイルは、ラボ 6 の設定フォルダー内にあります。
+1. 「**コース ID**」フィールドに、「**az220**」と入力します。
 
-1. **lab06-setup.azcli** ファイルを選択し、「**開く**」 をクリックします。
+1. テンプレートを検証するには、「**確認と作成**」をクリックします。
 
-    ファイルのアップロードが完了すると、通知が表示されます。
+1. 検証に成功したら、「**作成**」をクリックします。
 
-1. 正しいファイルが Azure Cloud Shell にアップロードされたことを確認するには、次のコマンドを入力します。
+    デプロイが開始されます。
 
-    ```bash
-    ls
-    ```
+1. デプロイが完了したら、左側のナビゲーション領域で、テンプレートからの出力値を確認するために「**出力**」をクリックします。
 
-    `ls` コマンドを使用して、現在のディレクトリの内容を表示します。一覧にある lab06-setup.azcli ファイルを確認できるはずです。
+    後で使用するために、出力をメモしておきます:
 
-1. セットアップ スクリプトを含むこのラボのディレクトリを作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
+    * connectionString
+    * dpsScopeId
 
-    ```bash
-    mkdir lab6
-    mv lab06-setup.azcli lab6
-    cd lab6
-    ```
-
-1. **lab06-setup.azcli** スクリプトに実行権限があることを確認するには、次のコマンドを入力します。
-
-    ```bash
-    chmod +x lab06-setup.azcli
-    ```
-
-1. Cloud Shell ツールバーで、lab06-setup.azcli ファイルへのアクセスを有効にするには、「**エディタを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。
-
-1. 「**ファイル**」 の一覧で、lab6 フォルダーを展開してスクリプト ファイルを開き 、**lab6**、「**lab06-setup.azcli**」 の順にクリックします。
-
-    エディタは **lab06-setup.azcli** ファイルの内容を表示します。
-
-1. エディターで、`{your-id}` と `{your-location}` 変数の値を更新します。
-
-    サンプル例として、このコースの最初に作成した一意の id 、つまり **cah191211** に `{your-id}` を設定し、リソースにとって意味のある場所に `{your-location}` を設定する必要があります。
-
-    ```bash
-    #!/bin/bash
-
-    # これらの値を変更してください!
-    YourID="{your-id}"
-    Location="{your-location}"
-    ```
-
-    > **注**:  `{your-location}` 変数は、すべてのリソースをデプロイするリージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
-
-    ```bash
-    az account list-locations -o Table
-
-    DisplayName           Latitude    Longitude    Name
-    --------------------  ----------  -----------  ------------------
-    East Asia             22.267      114.188      eastasia
-    Southeast Asia        1.283       103.833      southeastasia
-    Central US            41.5908     -93.6208     centralus
-    East US               37.3719     -79.8164     eastus
-    East US 2             36.6681     -78.3889     eastus2
-    ```
-
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディターを閉じるには、**...** をクリックし、「**エディターを閉じる**」 をクリックします。
-
-    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。
-
-    > **注**:  **CTRL+S**を使っていつでも保存でき、 **CTRL+Q**を押してエディターを閉じます。
-
-1. このラボに必要なリソースを作成するには、次のコマンドを入力します。
-
-    ```bash
-    ./lab06-setup.azcli
-    ```
-
-    これは、実行するのに数分かかります。各ステップが完了すると、出力が表示されます。
-
-    スクリプトが完了したら、ラボを続行することができます。
+これでリソースが作成されました。
 
 ### 演習 2: OpenSSL を使用した X.509 CA 証明書の生成と構成
 
@@ -162,25 +104,25 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 1. Cloud Shell コマンド プロンプトで、新しいディレクトリを作成して移動するには、次のコマンドを入力します。
 
     ```sh
-    # 現在のディレクトリがユーザーのホーム ディレクトリであることを確認してください
+    # ensure the current directory is the user's home directory
     cd ~
 
-    # "certificates" という名前のディレクトリを作成します
+    # make a directory named "certificates"
     mkdir certificates
 
-    # ディレクトリを "certificates" ディレクトリに変更します
+    # change directory to the "certificates" directory
     cd certificates
     ```
 
 1. Cloud Shell コマンド プロンプトで、使用する Azure IoT ヘルパー スクリプトをダウンロードして準備するには、次のコマンドを入力します。
 
     ```sh
-    # ヘルパー スクリプト ファイルをダウンロードする
+    # download helper script files
     curl https://raw.githubusercontent.com/Azure/azure-iot-sdk-c/master/tools/CACertificates/certGen.sh --output certGen.sh
     curl https://raw.githubusercontent.com/Azure/azure-iot-sdk-c/master/tools/CACertificates/openssl_device_intermediate_ca.cnf --output openssl_device_intermediate_ca.cnf
     curl https://raw.githubusercontent.com/Azure/azure-iot-sdk-c/master/tools/CACertificates/openssl_root_ca.cnf --output openssl_root_ca.cnf
 
-    # スクリプトのアクセス許可を更新して、ユーザーがスクリプトの読み取り、書き込み、実行を行えるようにする
+    # update script permissions so user can read, write, and execute it
     chmod 700 certGen.sh
     ```
 
@@ -212,7 +154,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 1. ルート証明書を (DPS にアップロードできるように) ローカル マシンにダウンロードするには、次のコマンドを入力します。
 
     ```sh
-    ~/certificates/certs/azure-iot-test-only.root.ca.cert.pem のダウンロード
+    download ~/certificates/certs/azure-iot-test-only.root.ca.cert.pem
     ```
 
     ファイルをローカル コンピュータに保存するように求められます。ファイルの保存場所をメモしておきます。次のタスクで必要になります。
@@ -403,24 +345,12 @@ Contoso の資産の監視および追跡ソリューションに対する現在
     mv ~/certificates/certs/new-device.cert.pem ~/certificates/certs/sensor-thl-2000-device.cert.pem
     ```
 
-1. 4 つの追加のデバイス証明書を作成するには、次のコマンドを入力します。
+1. 追加のデバイス証明書を作成するには、次のコマンドを入力します。
 
     ```sh
     ./certGen.sh create_device_certificate sensor-thl-2001
     mv ~/certificates/certs/new-device.cert.pfx ~/certificates/certs/sensor-thl-2001-device.cert.pfx
     mv ~/certificates/certs/new-device.cert.pem ~/certificates/certs/sensor-thl-2001-device.cert.pem
-
-    ./certGen.sh create_device_certificate sensor-thl-2002
-    mv ~/certificates/certs/new-device.cert.pfx ~/certificates/certs/sensor-thl-2002-device.cert.pfx
-    mv ~/certificates/certs/new-device.cert.pem ~/certificates/certs/sensor-thl-2002-device.cert.pem
-
-    ./certGen.sh create_device_certificate sensor-thl-2003
-    mv ~/certificates/certs/new-device.cert.pfx ~/certificates/certs/sensor-thl-2003-device.cert.pfx
-    mv ~/certificates/certs/new-device.cert.pem ~/certificates/certs/sensor-thl-2003-device.cert.pem
-
-    ./certGen.sh create_device_certificate sensor-thl-2004
-    mv ~/certificates/certs/new-device.cert.pfx ~/certificates/certs/sensor-thl-2004-device.cert.pfx
-    mv ~/certificates/certs/new-device.cert.pem ~/certificates/certs/sensor-thl-2004-device.cert.pem
     ```
 
 1. 生成された X.509 デバイス証明書を Cloud Shell からローカル コンピューターにダウンロードするには、次のコマンドを入力します。
@@ -428,9 +358,6 @@ Contoso の資産の監視および追跡ソリューションに対する現在
     ```sh
     download ~/certificates/certs/sensor-thl-2000-device.cert.pfx
     download ~/certificates/certs/sensor-thl-2001-device.cert.pfx
-    download ~/certificates/certs/sensor-thl-2002-device.cert.pfx
-    download ~/certificates/certs/sensor-thl-2003-device.cert.pfx
-    download ~/certificates/certs/sensor-thl-2004-device.cert.pfx
     ```
 
     次のタスクでは、X.509 デバイス証明書を使用してデバイス プロビジョニング サービスで認証するシミュレートされたデバイスの構築を開始します。
@@ -453,9 +380,9 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. Windows ファイル エクスプローラーを開き、`sensor-thl-2000-device.cert.pfx` 証明書ファイルがダウンロードされたフォルダーに移動します。
 
-1. ファイル エクスプローラを使用して、5 つのデバイス証明書ファイルのコピーを作成します。
+1. ファイル エクスプローラーを使用して、2 つのデバイス証明書ファイルのコピーを作成します。
 
-    5 つの証明書ファイルすべてをコピーすることで時間を節約できますが、最初にビルドするコード プロジェクトでは、最初の証明書である `sensor-thl-2000-device.cert.pfx` のみを使用します。
+    両方の証明書ファイルすべてをコピーすることで時間を節約できますが、最初にビルドするコード プロジェクトでは、最初の証明書である `sensor-thl-2000-device.cert.pfx` のみを使用します。
 
 1. ファイル エクスプローラーで、ラボ 6 (DPS のデバイスの自動登録) のスターター フォルダーに移動します。
 
@@ -545,185 +472,6 @@ Contoso の資産の監視および追跡ソリューションに対する現在
     >
     > HSM (ハードウェア セキュリティ モジュール) は、デバイス シークレットの安全なハードウェア ベースのストレージに使用され、最も安全なフォームのシークレット ストレージです。X.509 証明書と SAS トークンの両方を HSM に格納できます。HSM は、プロビジョニング サービスがサポートするすべての構成証明メカニズムで使用できます。HMS については、このコースの後半で詳しく解説します。
 
-#### タスク 3: プロビジョニング コードを追加する
-
-このタスクでは、Main メソッド、デバイス プロビジョニング、デバイス ツイン プロパティに関連付けられた実装を完了するコードを入力します。
-
-1. Program.cs ファイルのコード エディター ペインで、`// INSERT Main method below here` コメントを見つけます。
-
-1. Main メソッドを実装するには、次のコードを入力します。
-
-    ```csharp
-    public static async Task Main(string[] args)
-    {
-        X509Certificate2 certificate = LoadProvisioningCertificate();
-
-        using (var security = new SecurityProviderX509Certificate(certificate))
-        using (var transport = new ProvisioningTransportHandlerAmqp(TransportFallbackType.TcpOnly))
-        {
-            ProvisioningDeviceClient provClient =
-                ProvisioningDeviceClient.Create(GlobalDeviceEndpoint, dpsIdScope, security, transport);
-
-            using (deviceClient = await ProvisionDevice(provClient, security))
-            {
-                await deviceClient.OpenAsync().ConfigureAwait(false);
-
-                // 以下にセットアップ OnDesiredPropertyChanged イベント処理を挿入します
-
-                // 以下にデバイス ツイン プロパティの読み込みを挿入します
-
-                // デバイス テレメトリの読み取りと送信を開始します
-                Console.WriteLine("Start reading and sending device telemetry...");
-                await SendDeviceToCloudMessagesAsync();
-
-                await deviceClient.CloseAsync().ConfigureAwait(false);
-            }
-        }
-    }
-    ```
-
-    この Main メソッドは、以前のラボで使用されたものと非常によく似ています。2 つの重要な変更は、X.509 証明書をロードする必要があることと、セキュリティ プロバイダーとして **SecurityProviderX509Certificate** を使用することへの変更です。残りのコードは同じです。デバイス ツイン プロパティ変更コードも存在することに注意してください。
-
-1. `// INSERT LoadProvisioningCertificate method below here` コメントを見つけます。
-
-1. LoadProvisioningCertificate メソッドを実装するには、次のコードを挿入します。
-
-    ```csharp
-    private static X509Certificate2 LoadProvisioningCertificate()
-    {
-        var certificateCollection = new X509Certificate2Collection();
-        certificateCollection.Import(certificateFileName, certificatePassword, X509KeyStorageFlags.UserKeySet);
-
-        X509Certificate2 certificate = null;
-
-        foreach (X509Certificate2 element in certificateCollection)
-        {
-            Console.WriteLine($"Found certificate: {element?.Thumbprint} {element?.Subject}; PrivateKey: {element?.HasPrivateKey}");
-            if (certificate == null && element.HasPrivateKey)
-            {
-                certificate = element;
-            }
-            else
-            {
-                element.Dispose();
-            }
-        }
-
-        if (certificate == null)
-        {
-            throw new FileNotFoundException($"{certificateFileName} did not contain any certificate with a private key.");
-        }
-
-        Console.WriteLine($"Using certificate {certificate.Thumbprint} {certificate.Subject}");
-        return certificate;
-    }
-    ```
-
-    名前から想像できるように、このメソッドの目的は、ディスクから X.509 証明書をロードすることです。ロードが成功すると、メソッドは **X509Certificate2** クラスのインスタンスを返します。
-
-    > **情報**: 結果が **X509Certificate** ではなく **X509Certificate2** タイプである理由について興味があるかもしれません。**X509Certificate** は以前の実装であり、機能が制限されています。**X509Certificate2** は、**X509Certificate** のサブクラスであり、X509 標準の V2 と V3 の両方をサポートする追加機能を備えています。
-
-    このメソッドは、**X509Certificate2Collection** クラスのインスタンスを作成し、ハードコードされたパスワードを使用して、ディスクから証明書ファイルをインポートしようとします。**X509KeyStorageFlags.UserKeySet** 値は、秘密キーがローカル コンピューター ストアではなく現在のユーザー ストアに格納されることを指定します。これは、キーがローカル コンピューター ストアに配置されるように証明書で指定されている場合でも発生します。
-
-    次に、このメソッドはインポートされた証明書 (この場合は 1 つだけである必要があります) を繰り返し処理し、証明書に秘密キーがあることを確認します。インポートされた証明書がこの基準に一致しない場合、例外がスローされます。一致しない場合、メソッドはインポートされた証明書を返します。
-
-1. `// INSERT ProvisionDevice method below here` コメントを見つけます。
-
-1. ProvisionDevice メソッドを実装するには、次のコードを入力します。
-
-    ```csharp
-    private static async Task<DeviceClient> ProvisionDevice(ProvisioningDeviceClient provisioningDeviceClient, SecurityProviderX509Certificate security)
-    {
-        var result = await provisioningDeviceClient.RegisterAsync().ConfigureAwait(false);
-        Console.WriteLine($"ProvisioningClient AssignedHub: {result.AssignedHub}; DeviceID: {result.DeviceId}");
-        if (result.Status != ProvisioningRegistrationStatusType.Assigned)
-        {
-            throw new Exception($"DeviceRegistrationResult.Status is NOT 'Assigned'");
-        }
-
-        var auth = new DeviceAuthenticationWithX509Certificate(
-            result.DeviceId,
-            security.GetAuthenticationCertificate());
-
-        return DeviceClient.Create(result.AssignedHub, auth, TransportType.Amqp);
-    }
-    ```
-
-    このバージョンの **ProvisionDevice** は、以前のラボで使用したものと非常によく似ています。主な変更点は、**セキュリティ** パラメーターのタイプが **SecurityProviderX509Certificate** になったことですこれは、**DeviceClient** の作成に使用される **auth** 変数が **DeviceAuthenticationWithX509Certificate** タイプである必要があり、`security.GetAuthenticationCertificate()` 値を使用することを意味します。実際のデバイス登録は以前と同じです。
-
-#### タスク 4: デバイス ツイン統合コードを追加する
-
-デバイスで (Azure IoT Hub から) デバイス ツインのプロパティを使用するには、デバイス ツインのプロパティにアクセスして適用するコードを作成する必要があります。この場合、シミュレートされたデバイス コードを更新してデバイス ツインの必要なプロパティを読み取ってから、その値を **telemetryDelay** 変数に割り当てます。また、現在デバイスに実装されている遅延値を示すために、デバイス ツインの報告されるプロパティを更新します。
-
-1. Visual Studio Code エディターで、**Main** メソッドを見つけます。
-
-1. コードを確認してから、`// INSERT Setup OnDesiredPropertyChanged Event Handling below here` コメントを見つけてください。
-
-    デバイス ツイン プロパティの統合を開始するには、デバイス ツイン プロパティが更新されたときに、シミュレートされたデバイスに通知を有効にするコードが必要です。
-
-    これを実現するには、**DeviceClient.SetDesiredPropertyUpdateCallbackAsync** メソッドを使用し、**OnDesiredPropertyChanged** メソッドを作成することによってイベント ハンドラーを設定します。
-
-1. OnDesiredPropertyChanged イベントの DeviceClient を設定するには、次のコードを入力します。
-
-    ```csharp
-    await deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).ConfigureAwait(false);
-    ```
-
-    **SetDesiredPropertyUpdateCallbackAsync** メソッドは、デバイス ツインの必要なプロパティ変更を受け取るために **DesiredPropertyUpdateCallback** イベント ハンドラーを設定するために使用されます。このコードは、デバイス ツイン プロパティの変更イベントを受信したときに **OnDesiredPropertyChanged** という名前のメソッドを呼び出す **deviceClient** を構成します。
-
-    イベント ハンドラーを設定するための **SetDesiredPropertyUpdateCallbackAsync** メソッドが整ったので、呼び出す **OnDesiredPropertyChanged** メソッドを作成する必要があります。
-
-1. `// INSERT OnDesiredPropertyChanged method below here` コメントを見つけます。
-
-1. イベントハンドラーのセットアップを完了するには、次のコードを入力します。
-
-    ```csharp
-    private static async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
-    {
-        Console.WriteLine("Desired Twin Property Changed:");
-        Console.WriteLine($"{desiredProperties.ToJson()}");
-
-        // 必要なツイン プロパティを読み取る
-        if (desiredProperties.Contains("telemetryDelay"))
-        {
-            string desiredTelemetryDelay = desiredProperties["telemetryDelay"];
-            if (desiredTelemetryDelay != null)
-            {
-                telemetryDelay = int.Parse(desiredTelemetryDelay);
-            }
-            // 必要な telemetryDelay が null または未指定の場合は、変更しないでください
-        }
-
-        // ツイン プロパティをレポートする
-        var reportedProperties = new TwinCollection();
-        reportedProperties["telemetryDelay"] = telemetryDelay.ToString();
-        await deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-        Console.WriteLine("Reported Twin Properties:");
-        Console.WriteLine($"{reportedProperties.ToJson()}");
-    }
-    ```
-
-    **OnDesiredPropertyChanged** イベント ハンドラーが **TwinCollection** 型の **desiredProperties** パラメーターを受け入れることに注意してください。
-
-    **desiredProperties** パラメーターの値に **telemetryDelay** (デバイス ツインの必要なプロパティ) が含まれている場合、コードはデバイス ツイン プロパティの値を **telemetryDelay** 変数に割り当てます。**SendDeviceToCloudMessagesAsync** メソッドには、IoT Hub に送信されるメッセージ間の遅延時間を設定するために **telemetryDelay** 変数を使用する **Task.Delay** 呼び出しが含まれていることを思い出すかもしれません。
-
-    次のコード ブロックは、デバイスの現在の状態を Azure IoT Hub に報告するために使用されることに注意してください。このコードは、**DeviceClient.UpdateReportedPropertiesAsync** メソッドを呼び出し、デバイス プロパティの現在の状態を含む **TwinCollection** を渡します。これは、デバイス ツインの必要なプロパティ変更イベントを受信し、それに応じて構成を更新したことを IoT Hub に報告する方法です。これは、目的のプロパティのエコーではなく、プロパティに設定されている内容を報告することに注意してください。デバイスから送信された報告されたプロパティが、デバイスが受信した望ましい状態と異なる場合、IoT Hub はデバイスの状態を反映する正確なデバイス ツインを維持します。
-
-    デバイスは、Azure IoT Hub からデバイス ツインの必要なプロパティに対する更新を受け取ることができるようになったので、デバイスの起動時に初期セットアップを構成するようにコード化する必要があります。これを行うには、デバイスは、Azure IoT Hub から現在のデバイス ツインの必要なプロパティを読み込み、それに応じてそれ自体を構成する必要があります。
-
-1. **Main** メソッドで、`// INSERT Load Device Twin Properties below here` コメントを見つけます。
-
-1. デバイス ツインの必要なプロパティを読み取り、デバイスの起動時に一致するようにデバイスを構成するには、次のコードを入力します。
-
-    ```csharp
-    var twin = await deviceClient.GetTwinAsync().ConfigureAwait(false);
-    await OnDesiredPropertyChanged(twin.Properties.Desired, null);
-    ```
-
-    このコードは、シミュレートされたデバイスのデバイス ツインを取得する **DeviceTwin.GetTwinAsync** メソッドを呼び出します。次に、**Properties.Desired** プロパティ オブジェクトにアクセスして、デバイスの現在の必要な状態を取得し、それをシミュレートされたデバイスの **telemetryDelay** 変数を構成する **OnDesiredPropertyChanged** メソッドに渡します。
-
-    このコードでは、_OnDesiredPropertyChanged_ イベントを処理するために既に作成されている **OnDesiredPropertyChanged** メソッドを再利用しています。これにより、デバイス ツインの目的の状態プロパティを読み取り、起動時にデバイスを 1 か所で構成するコードを保持できます。結果のコードは、より簡単で保守が容易になります。
-
 1. 「Visual Studio Code **ファイル**」 メニューの 「**保存**」 をクリックします。
 
     次に、シミュレートされたデバイスは、Azure IoT Hub のデバイス ツイン プロパティを使用して、テレメトリ メッセージ間の遅延を設定します。
@@ -761,12 +509,6 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「**ContainerDevice-Copy**」 を右クリックし、「**名前の変更**」 をクリックして、「**ContainerDevice2001**」と入力します
 
-1. 手順 3 から 5 を繰り返して、次の名前のフォルダーを作成します。
-
-    * **ContainerDevice2002**
-    * **ContainerDevice2003**
-    * **ContainerDevice2004**
-
 #### タスク 2: コード プロジェクトの証明書ファイル参照を更新する
 
 1. 必要に応じて、Visual Studio Code を開きます。
@@ -792,24 +534,14 @@ Contoso の資産の監視および追跡ソリューションに対する現在
     ```xml
     <ItemGroup>
         <None Update="sensor-thl-2001-device.cert.pfx" CopyToOutputDirectory="PreserveNewest" />
-        <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.*"/>
-        <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Mqtt" Version="1.*"/>
-        <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Amqp" Version="1.*"/>
-        <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Http" Version="1.*"/>
+        <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.*" />
+        <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Mqtt" Version="1.*" />
+        <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Amqp" Version="1.*" />
+        <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Http" Version="1.*" />
     </ItemGroup>
     ```
 
 1. 「**ファイル**」 メニューで、「**すべて保存**」 をクリックします。
-
-1. 上記の手順 3 ? 9 を繰り返して、残りの各コード プロジェクトの **Program.cs** ファイルと **ContainerDevice.csproj** ファイルを次のように更新します。
-
-    | プロジェクト フォルダー | 証明書名 |
-    |----------------|------------------------------|
-    | ContainerDevice2002 | sensor-thl-2002-device.cert.pfx |
-    | ContainerDevice2003 | sensor-thl-2003-device.cert.pfx |
-    | ContainerDevice2004 | sensor-thl-2004-device.cert.pfx |
-
-    **注**: 次のフォルダーに進む前に、必ず**すべてを保存**してください。
 
 ### 演習 5: シミュレートされたデバイスのテスト
 
@@ -900,7 +632,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. シミュレートされたデバイスを実行したままにします。
 
-#### タスク 2: 他のシミュレートされたデバイスを起動します
+#### タスク 2: 他のシミュレートされたデバイスを起動する
 
 1. Visual Studio Code の新しいインスタンスを開きます。
 
@@ -927,14 +659,6 @@ Contoso の資産の監視および追跡ソリューションに対する現在
     ```cmd/sh
     dotnet run
     ```
-
-1. 上記の手順 1 ? 7 を繰り返して、次のように他のシミュレートされたデバイス プロジェクトを開いて開始します。
-
-    | プロジェクト フォルダー |
-    |----------------|
-    | ContainerDevice2002 |
-    | ContainerDevice2003 |
-    | ContainerDevice2004 |
 
 #### タスク 3: ツインを使用してデバイスの構成を変更する
 
@@ -1043,7 +767,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 #### タスク 1: デバイスの無効な個別登録を作成する。
 
-このタスクでは、個別登録に **sensor-thl-2004** デバイスを使用します。
+このタスクでは、個別登録に **sensor-thl-2001** デバイスを使用します。
 
 1. 必要な場合は、お使いの Azure アカウントの資格情報を使用して Azure portal にログインします。
 
@@ -1066,7 +790,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 1. .pem デバイス証明書を Cloud Shell からローカル コンピューターにダウンロードするには、次のコマンドを入力します。
 
     ```sh
-    download ~/certificates/certs/sensor-thl-2004-device.cert.pem
+    download ~/certificates/certs/sensor-thl-2001-device.cert.pem
     ```
 
 1. Azure ダッシュボードへの切り替え
@@ -1083,9 +807,9 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「**開く**」 ダイアログで、ダウンロード フォルダーに移動します。
 
-1. ダウンロード フォルダーで、「**sensor-thl-2004-device.cert.pem**」 をクリックし、「**開く**」 をクリックします。
+1. ダウンロード フォルダーで、「**sensor-thl-2001-device.cert.pem**」をクリックし、「**開く**」をクリックします。
 
-1. 「**登録の追加**」 ブレードの 「**IoT Hub デバイス ID**」 で、「**sensor-thl-2004**」と入力します
+1. 「**登録の追加**」ブレードの「**IoT Hub デバイス ID**」で、「**sensor-thl-2001**」と入力します
 
 1. 「**エントリの有効化**」 で、「**無効化**」 をクリックします。
 
@@ -1099,9 +823,9 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「IoT Hub」 ブレードの左側のメニューにある 「**エクスプローラー**」 で、「**IoT デバイス**」 をクリックします。
 
-1. 「**IoT デバイス**」 ペインの 「**デバイス ID**」 で、**sensor-thl-2004** デバイスを見つけます。
+1. 「**IoT デバイス**」ペインの「**デバイス ID**」で、**sensor-thl-2001** デバイスを見つけます。
 
-1. **sensor-thl-2004** の左側にあるチェックボックスをクリックします。
+1. **sensor-thl-2001** の左側にあるチェックボックスをクリックします。
 
 1. 「**IoT デバイス**」 ペインの上部にある 「**削除**」 をクリックしてから、「**はい**」 をクリックします。
 
@@ -1113,7 +837,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. **「表示」**メニューで、**「ターミナル」** をクリック します。
 
-1. コマンド プロンプトが 「**ContainerDevice2004**」 フォルダーの場所にあることを確認します。
+1. コマンド プロンプトが「**ContainerDevice2001**」フォルダーの場所にあることを確認します。
 
 1. 次のコマンドを入力して、シミュレートされたデバイス アプリを実行します。
 
@@ -1128,8 +852,8 @@ Contoso の資産の監視および追跡ソリューションに対する現在
     アプリケーションが構成済みの X.509 証明書を使用して DPS に接続しようとすると、DPS は DeviceRegistrationResult.Status が `割り当て済み` ではないと報告します。
 
     ```txt
-    Found certificate: 13F32448E03F451E897B681758BAC593A60BFBFA CN=sensor-thl-2004; PrivateKey: True
-    Using certificate 13F32448E03F451E897B681758BAC593A60BFBFA CN=sensor-thl-2004
+    Found certificate: 13F32448E03F451E897B681758BAC593A60BFBFA CN=sensor-thl-2001; PrivateKey: True
+    Using certificate 13F32448E03F451E897B681758BAC593A60BFBFA CN=sensor-thl-2001
     ProvisioningClient AssignedHub: ; DeviceID:
     Unhandled exception. System.Exception: DeviceRegistrationResult.Status is NOT 'Assigned'
     at ContainerDevice.Program.ProvisionDevice(ProvisioningDeviceClient provisioningDeviceClient, SecurityProviderX509Certificate security) in C:\Users\howdc\Allfiles\Labs\06-Automatic Enrollment of Devices
@@ -1195,11 +919,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「選択したデバイスを削除してよろしいですか？」という確認メッセージが表示されたら、「**はい**」をクリック します。
 
-1. 上記の手順 4 ? 5 を繰り返して、次のデバイスを削除します。
-
-    * sensor-thl-2001
-    * sensor-thl-2002
-    * sensor-thl-2003
+1. 上記の手順 4 から 5 を繰り返して、sensor-thl-2001 デバイスを削除します。
 
 #### タスク 3: デバイスのプロビジョニングが解除されていることを確認する
 
@@ -1211,7 +931,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「Visual Studio Code **ビュー**」 メニューで、「**ターミナル**」 をクリックします。
 
-1. コマンド プロンプトが 「**ContainerDevice**」 フォルダーの場所にあることを確認します。
+1. コマンド プロンプトが「**ContainerDevice**」フォルダーの場所にあることを確認します。
 
 1. 次のコマンドを入力して、シミュレートされたデバイス アプリを実行します。
 
@@ -1227,7 +947,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
     Found certificate: AFF851ED016CA5AEB71E5749BCBE3415F8CF4F37 CN=sensor-thl-2000; PrivateKey: True
     Using certificate AFF851ED016CA5AEB71E5749BCBE3415F8CF4F37 CN=sensor-thl-2000
     RegistrationID = sensor-thl-2000
-    ProvisioningClient RegisterAsync .. . Unhandled exception. Microsoft.Azure.Devices.Provisioning.Client.ProvisioningTransportException: {"errorCode":401002,"trackingId":"df969401-c766-49a4-bab7-e769cd3cb585","message":"Unauthorized","timestampUtc":"2019-12-20T21:30:46.6730046Z"}
+    ProvisioningClient RegisterAsync . . . Unhandled exception. Microsoft.Azure.Devices.Provisioning.Client.ProvisioningTransportException: {"errorCode":401002,"trackingId":"df969401-c766-49a4-bab7-e769cd3cb585","message":"Unauthorized","timestampUtc":"2019-12-20T21:30:46.6730046Z"}
        at Microsoft.Azure.Devices.Provisioning.Client.Transport.ProvisioningTransportHandlerAmqp.ValidateOutcome(Outcome outcome)
        at Microsoft.Azure.Devices.Provisioning.Client.Transport.ProvisioningTransportHandlerAmqp.RegisterDeviceAsync(AmqpClientConnection client, String correlationId, DeviceRegistration deviceRegistration)
        at Microsoft.Azure.Devices.Provisioning.Client.Transport.ProvisioningTransportHandlerAmqp.RegisterAsync(ProvisioningTransportRegisterMessage message, CancellationToken cancellationToken)

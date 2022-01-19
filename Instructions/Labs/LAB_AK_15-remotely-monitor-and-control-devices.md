@@ -49,8 +49,8 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 * ラボの前提条件が満たされていることを確認する (必要な Azure リソースがあること)
 
-    * スクリプトは、必要に応じて IoT Hub を作成します。
-    * スクリプトは、このラボに必要な新しいデバイス ID を作成します。
+  * スクリプトは、必要に応じて IoT Hub を作成します。
+  * スクリプトは、このラボに必要な新しいデバイス ID を作成します。
 
 * シミュレートされたデバイス アプリを作成して、デバイス テレメトリを IoT Hub 送信する
 * テレメトリをリッスンするバックエンド サービス アプリを作成する
@@ -69,161 +69,72 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 | IoT Hub | iot-az220-training-{your-id} |
 | IoT デバイス | sensor-th-0055 |
 
-> **重要**: セットアップ スクリプトを実行して、必要なデバイスを作成します。
+これらのリソースを使用できるようにするには、次のタスクを完了してください。
 
-不足しているリソースと新しいデバイスを作成するには、演習 2 に進む前に、以下の手順に従って **lab15-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+1. 「**Azure へのデプロイ**」を選択:します。
 
-**lab15-setup.azcli** スクリプトは、**Bash** シェル環境で実行するために記述されています。Azure Cloud Shell でこれを実行するのが、最も簡単な方法です。
+    [Azure へのデプロイ](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fbicep%2FAllfiles%2FARM%2Flab15.json)
 
-> **注:** **sensor-th-0055** デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
->
-> ```bash
-> az iot hub device-identity connection-string show --hub-name iot-az220-training-{your-id} --device-id sensor-th-0055 -o tsv
-> ```
+1. メッセージが表示されたら、**Azure portal** にログインします。
 
-1. ブラウザーを使用して [Azure Cloud Shell](https://shell.azure.com/) を開き、このコースで使用している Azure サブスクリプションでログインします。
+    「**カスタム デプロイ**」ページが表示されます。
 
-    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
+1. 「**サブスクリプション**」ドロップダウンの「**プロジェクトの詳細**」で、このコースで使用しようとしている Azure サブスクリプションが選択されていることを確認します。
 
-1. Cloud Shell が **Bash** を使用していることを確認します。
+1. 「**リソース グループ**」ドロップダウンで、「**rg-az220**」を選択します。
 
-    「Azure Cloud Shell」 ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash** であることを確認します。
+    > **注**: 「**rg-az220**」が表示されていない場合は、次の手順を行います。
+    >
+    > 1. 「**リソース グループ**」ドロップダウンで、「**新規作成**」をクリックします。
+    > 1. 「**名前**」に「**rg-az220**」と入力します。
+    > 1. 「**OK**」をクリックします。
 
-1. Cloud Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします(右から 4番目のボタン)。
+1. 「**リージョン**」ドロップダウンの「**インスタンスの詳細**」で、最寄りのリージョンを選択します。
 
-1. ドロップダウンで、「**アップロード**」 をクリックします。
+    > **注**: 「**rg-az220**」グループが既に存在している場合、"**リージョン**" フィールドは、読み取り専用のリソース グループによって使用されるリージョンに設定されます。
 
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
+1. "**自分の ID**" フィールドに、演習 1 で作成した固有の ID を入力します。
 
-    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
+1. "**コース ID**" フィールドに、「**az220**」と入力します。
 
-    * すべてのファイル
-      * ラボ
-          * 15-Azure IoT Hub を使用してリモートによるデバイスを監視および制御する
-            * 設定
+1. テンプレートを検証するには、「**確認と作成**」をクリックします。
 
-    lab15-setup.azcli スクリプト ファイルは、ラボ 15 の設定フォルダー内にあります。
+1. 検証に合格したら、「**作成**」をクリックします。
 
-1. **lab15-setup.azcli** ファイルを選択し、「**開く**」 をクリックします。
+    デプロイが開始します。
 
-    ファイルのアップロードが完了すると、通知が表示されます。
+1. デプロイが完了したら、左側のナビゲーション エリアで、「**出力**」をクリックして、テンプレートからの出力値を確認します。
 
-1. 正しいファイルが Azure Cloud Shell にアップロードされたことを確認するには、次のコマンドを入力します。
+    後で使用する場合のために、出力をメモしておきます。
 
-    ```bash
-    ls
-    ```
+    * deviceConnectionString
+    * devicePrimaryKey
+    * eventHubsCompatibleEndpoint
+    * eventHubsCompatiblePath
+    * iotHubSasKey
+    * serviceConnectionString
 
-    `ls` コマンドを使用して、現在のディレクトリの内容を表示します。一覧にある lab15-setup.azcli ファイルを確認できるはずです。
+これで、リソースが作成されました。
 
-1. セットアップ スクリプトを含むこのラボのディレクトリを作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
+### 演習 2: テレメトリを送受信するためのコードを確認する
 
-    ```bash
-    mkdir lab15
-    mv lab15-setup.azcli lab15
-    cd lab15
-    ```
-
-1. **lab15-setup.azcli** に実行権限があることを確認するには、次のコマンドを入力します。
-
-    ```bash
-    chmod +x lab15-setup.azcli
-    ```
-
-1. Cloud Shell ツールバーで、lab15-setup.azcli ファイルへのアクセスを有効にするには、「**エディターを開く**」 (右から 2 番目のボタン - **{ }**) をクリックします。
-
-1. 「**ファイル**」 の一覧で、lab15 フォルダーを展開してスクリプト ファイルを開くには、「**lab15**」 をクリックし、「**lab15-setup.azcli**」 をクリックします。
-
-    エディタは **lab15-setup.azcli** ファイルの内容を表示します。
-
-1. エディターで、割り当て済みの値 `{your-id}` と `{your-location}` を更新します。
-
-    サンプル例として、このコースの最初に作成した一意の id 、つまり **cah191211** に `{your-id}` を設定し、リソースにとって意味のある場所に `{your-location}` を設定する必要があります。
-
-    ```bash
-    #!/bin/bash
-
-    # これらの値を変更してください!
-    YourID="{your-id}"
-    Location="{your-location}"
-    ```
-
-    > **注**:  `{your-location}` 変数は、すべてのリソースをデプロイするリージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な場所と短い名前 (「**名前**」 の列) の一覧を表示できます。
-
-    ```bash
-    az account list-locations -o Table
-
-    DisplayName           Latitude    Longitude    Name
-    --------------------  ----------  -----------  ------------------
-    East Asia             22.267      114.188      eastasia
-    Southeast Asia        1.283       103.833      southeastasia
-    Central US            41.5908     -93.6208     centralus
-    East US               37.3719     -79.8164     eastus
-    East US 2             36.6681     -78.3889     eastus2
-    ```
-
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディターを閉じるには、**...** をクリックし、「**エディターを閉じる**」 をクリックします。
-
-    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。
-
-    > **注**: **CTRL+S** を使っていつでも保存でき、**CTRL+Q** を押してエディターを閉じます。
-
-1. このラボに必要なリソースを作成するには、次のコマンドを入力します。
-
-    ```bash
-    ./lab15-setup.azcli
-    ```
-
-    このスクリプトの実行には数分かかります。各ステップが完了すると、出力が表示されます。
-
-    このスクリプトは、まず **rg-az220** という名前のリソース グループ と **iot-az220-training-{your-id}** という名前の IoT Hub を作成します。既に存在する場合は、対応するメッセージが表示されます。次にスクリプトは、**sensor-th-0055** の ID を持つデバイスを IoT Hub に追加し、デバイスの接続文字列を表示します。
-
-1. スクリプトが完了すると、IoT Hub とデバイスに関する情報が表示されます。
-
-    スクリプトは、以下のような情報を表示します。
-
-    ```text
-    Configuration Data:
-    ------------------------------------------------
-    iot-az220-training-{your-id} Service connectionstring:
-    HostName=iot-az220-training-{your-id}.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=nV9WdF3Xk0jYY2Da/pz2i63/3lSeu9tkW831J4aKV2o=
-
-    sensor-th-0055 device connection string:
-    HostName=iot-az220-training-{your-id}.azure-devices.net;DeviceId=sensor-th-0055;SharedAccessKey=TzAzgTYbEkLW4nWo51jtgvlKK7CUaAV+YBrc0qj9rD8=
-
-    iot-az220-training-{your-id} eventhub endpoint:
-    sb://iothub-ns-iot-az220-training-2610348-5a463f1b56.servicebus.windows.net/
-
-    iot-az220-training-{your-id} eventhub path:
-    iot-az220-training-{your-id}
-
-    iot-az220-training-{your-id} eventhub SaS primarykey:
-    tGEwDqI+kWoZroH6lKuIFOI7XqyetQHf7xmoSf1t+zQ=
-    ```
-
-1. スクリプトが表示する出力をテキスト ドキュメントにコピーして、このラボで後ほど使用します。
-
-    情報を簡単に見つけることができる場所に保存したら、ラボを続ける準備が整います。
-
-### 演習 2: テレメトリを送受信するコードを記述する
-
-この演習では、IoT Hub にテレメトリを送信するシミュレートされたデバイス アプリ (sensor-th-0055 デバイス用) を作成します。
+この演習では、IoT Hub へテレメトリを送信する、シミュレート済みデバイス アプリ (sensor-th-0055 デバイス用) を完成させます。
 
 #### タスク 1: テレメトリを生成するシミュレートされたデバイスを開く
 
 1. **Visual Studio Code** を開きます。
 
-1. **「ファイル」** メニューで、**「フォルダを開く」** を選択します。
+1. 「**ファイル**」メニューで、「**フォルダーを開く**」を開きます。
 
 1. 「フォルダーを開く」 ダイアログで、ラボ 15 のスターター フォルダーに移動します。
 
-    _ラボ 3: 開発環境の設定_: ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
+    _ラボ 3: 開発環境のセットアップ_では、ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボのリソースを含む GitHub リポジトリを複製します。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
     * すべてのファイル
         * ラボ
             * 15-Azure IoT Hub を使用してリモートによるデバイスを監視および制御する
                 * スターター
-                    * cheesecavedevice
+                    * CheeseCaveDevice
                     * CheeseCaveOperator
 
 1. 「**cheesecavedevice**」 をクリックし、「**フォルダーの選択**」 をクリックします。
@@ -294,27 +205,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
       * CheeseCaveSimulator クラス - (EnvironmentSensor を置き換えます) テレメトリを生成するだけでなく、このクラスは、冷却ファンの動作によって影響を受ける実行中のチーズ セラー環境もシミュレートします。
       * ConsoleHelper - コンソールへの異なる色のテキストの書き込みをカプセル化するクラス
 
-1. **Main** メソッドを確認する:
-
-    ```csharp
-    private static void Main(string[] args)
-    {
-        ConsoleHelper.WriteColorMessage("Cheese Cave device app.\n", ConsoleColor.Yellow);
-
-        // MQTT プロトコルを使用して IoT Hub に接続します。
-        deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
-
-        // チーズ セラー シミュレーターのインスタンスを作成します
-        cheeseCave = new CheeseCaveSimulator();
-
-        // 以下にレジスタ直接メソッド コードを挿入します
-
-        // 以下に希望のレジスタ プロパティ変更ハンドラ コードを挿入します
-
-        SendDeviceToCloudMessagesAsync();
-        Console.ReadLine();
-    }
-    ```
+1. **Main** メソッドを確認します。
 
     以前のラボと同様に、**Main** メソッドを使用して IoT Hub への接続を確立します。デバイス ツインのプロパティの変更を統合するために使用されることに気付いたかもしれません。この場合、ダイレクト メソッドも統合します。
 
@@ -350,11 +241,11 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     このラボの後半で、IoT Hub にテレメトリを送信する必要があります。
 
-### 演習 3: テレメトリを受信する 2 つ目のアプリを作成する
+### 演習 3テレメトリを受信するための 2 つめのアプリを完成させる
 
-(シミュレートされた) チーズ セラー デバイスが IoT Hub にテレメトリを送信するようになったので、IoT Hub に接続してそのテレメトリを 「リッスン」 できるバックエンド アプリを作成する必要があります。最終的には、このバックエンド アプリは、チーズ ケーブの温度の制御を自動化するために使用されます。
+IoT Hub へテレメトリを送信する (シミュレート済み) cheese cave デバイスがあるので、ここでは、IoT Hub との接続が可能で、そのテレメトリを 「リッスン」 することができるバックエンド アプリを完成させる必要があります。最終的には、このバックエンド アプリは、チーズ ケーブの温度の制御を自動化するために使用されます。
 
-#### タスク 1: テレメトリを受信するアプリを作成する
+#### タスク 1: テレメトリを受信するためのアプリを完成させる
 
 このタスクでは、IoT Hub イベント ハブのエンドポイントからテレメトリを受信するために使用するバックエンド アプリの作業を追加します。
 
@@ -370,144 +261,25 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     用意されている CheeseCaveOperator アプリケーションは、いくつかの NuGet パッケージ ライブラリと使用されるいくつかのコメントを含む単純なコンソール アプリケーションであり、コードを構築するプロセスをガイドします。アプリケーションを実行する前に、プロジェクトにコードブ ロックを追加する必要があります。
 
-1. **「エクスプローラー」** ペインで、アプリケーション プロジェクト ファイルを開くには、「**CheeseCaveOperator.csproj**」 をクリックします。
+#### タスク 3: テレメトリ受信コードを有効にする
 
-    これで、**CheeseCaveOperator.cs** ファイルがコード エディター ペインで開かれるはずです。
+1. 「**エクスプローラー**」ウィンドウで、**Program.cs** をクリックします。
 
-1. 時間を割いて **CaveDevice.csproj** ファイルの内容を確認します。
-
-    ファイルの内容は次のようになります。
-
-    ```xml
-    <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Azure.Devices" Version="1.*" />
-        <PackageReference Include="Microsoft.Azure.EventHubs" Version="4.*" />
-    </ItemGroup>
-
-    </Project>
-    ```
-
-    > **注**: ファイル内のパッケージのバージョン番号は、上記の番号よりも遅い場合は、問題ありません。
-
-    プロジェクト ファイル (.csproj) は、作業中のプロジェクトのタイプを指定する XML ドキュメントです。この場合、プロジェクトは **Sdk** スタイルのプロジェクトです。
-
-    ご覧のとおり、プロジェクト定義には、**PropertyGroup** と **ItemGroup** の 2 つのセクションが含まれています。
-
-    **PropertyGroup** は、このプロジェクトを構築することで生成される出力のタイプを定義します。この場合、.NET Core3.1 を対象とする実行可能ファイルを作成します。
-
-    **ItemGroup** は、アプリケーションに必要な外部ライブラリを指定します。これらの特定の参照は NuGet パッケージ用であり、各パッケージ参照はパッケージ名とバージョンを指定します。
-
-    > **注**: コマンド プロンプト (Visual Studio Code Terminal コマンド プロンプトなど) でコマンド `dotnet add package` を入力することにより、NuGet ライブラリ (上記の ItemGroup にリストされているものなど) をプロジェクト ファイルに手動で追加できます。`dotnet restore` コマンドを入力すると、すべての依存関係が確実にダウンロードされます。たとえば、上記のライブラリをロードし、それらがコード プロジェクトで使用可能であることを確認するには、次のコマンドを入力できます。
-    >
-    >   dotnet add package Microsoft.Azure.EventHubs
-    >   dotnet add package Microsoft.Azure.Devices
-    >   dotnet restore
-    >
-    > **情報**: NuGet について詳しくは、[こちら](https://docs.microsoft.com/ja-jp/nuget/what-is-nuget)をご覧ください。
-
-#### タスク 3: テレメトリ レシーバー コードを追加する
-
-1. **「エクスプローラー」** ペインで、**「Program.cs」** をクリックします。
-
-    **Program.cs** ファイルは次のようになります。
+1. using ステートメント (ほとんどが前のラボで使用済み) を見つけて、確認します。ただし、2 つの名前空間が新たに追加されています。
 
     ```csharp
-    // Copyright (c) Microsoft. All rights reserved.
-    // MITライセンスの下でライセンスされています。ライセンス情報の全容については、プロジェクト ルートのライセンス ファイルをご覧ください。
-
-    // 以下のステートメントを使用して INSERT を実行します
-
-    namespace CheeseCaveOperator
-    {
-        class Program
-        {
-            // ここに変数を挿入します
-
-            // 以下に Main メソッドを挿入します
-
-            // 以下に ReceiveMessagesFromDeviceAsync メソッドを挿入します
-
-            // 以下に InvokeMethod メソッドを挿入します
-
-            // 以下にデバイス ツイン セクションを挿入します
-        }
-
-        internal static class ConsoleHelper
-        {
-            internal static void WriteColorMessage(string text, ConsoleColor clr)
-            {
-                Console.ForegroundColor = clr;
-                Console.WriteLine(text);
-                Console.ResetColor();
-            }
-            internal static void WriteGreenMessage(string text)
-            {
-                WriteColorMessage(text, ConsoleColor.Green);
-            }
-
-            internal static void WriteRedMessage(string text)
-            {
-                WriteColorMessage(text, ConsoleColor.Red);
-            }
-        }
-    }
+    using Azure.Messaging.EventHubs;
+    using Azure.Messaging.EventHubs.Consumer;
     ```
 
-    このコードは、オペレーター アプリの構造の概要を示しています。
+    これらの名前空間は両方とも、[**Azure.Messaging.EventHubs** NuGet パッケージ](https://www.nuget.org/packages/Azure.Messaging.EventHubs/)で生成されたものです。このクライアント ライブラリを使用すると、Azure Event Hub を使用する発行イベントと使用イベントの両方が発生します。このラボでは、ライブラリは、IoT Hub 組み込み EventHub に互換性のあるエンドポイントに接続するように構成されます。
 
-1. `// INSERT using statements below here` コメントを見つけます。
+    > **注**: NuGet パッケージをインストールするには、`dotnet add package Azure.Messaging.EventHubs` コマンドを実行します。詳細については、次のリンクをご覧ください。
+    > * [Azure Event Hubs client library for .NET - Version 5.5.0](https://docs.microsoft.com/ja-jp/dotnet/api/overview/azure/messaging.eventhubs-readme?view=azure-dotnet)
 
-1. アプリケーション コードが使用する名前空間を指定するには、次のコードを入力します。
+1. `Global variables.` コメントを見つけます。
 
-    ```csharp
-    using System;
-    using System.Threading.Tasks;
-    using System.Text;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Microsoft.Azure.EventHubs;
-    using Microsoft.Azure.Devices;
-    using Newtonsoft.Json;
-    ```
-
-    **System** を指定するだけでなく、文字列をエンコードするための **System.Text**、非同期タスクのための **System.Threading.Tasks**、前に追加した 2 つのパッケージの名前空間など、コードが使用する他の名前空間も宣言していることに注意してください。
-
-    > **ヒント**: コードを挿入する場合、コード レイアウトが理想的でない場合があります。コード エディター ペインを右クリックし、**「ドキュメントのフォーマット」** をクリックすると、Visual Studio Code でドキュメントをフォーマットできます。**「タスク」** ペインを開いて (**F1** を押す)、**「ドキュメントのフォーマット」** と入力してから **Enter** キーを押すと、同じ結果を得ることができます。また、Windows では、このタスクのショートカットは **SHIFT+ALT+F** です。
-
-1. `// INSERT variables below here` コメントを見つけます。
-
-1. プログラムが使用している変数を指定するには、次のコードを入力します。
-
-    ```csharp
-    // グローバル変数。
-    // イベント ハブ互換エンドポイント。
-    private readonly static string eventHubsCompatibleEndpoint = "<your event hub endpoint>";
-
-    // イベント ハブと互換性のある名前。
-    private readonly static string eventHubsCompatiblePath = "<your event hub path>";
-    private readonly static string iotHubSasKey = "<your event hub SaS key>";
-    private readonly static string iotHubSasKeyName = "service";
-    private static EventHubClient eventHubClient;
-
-    // 以下にサービス クライアント変数を挿入します
-
-    // 以下にレジストリ マネージャー変数を挿入します
-
-    // IoT Hub の接続文字列。
-    private readonly static string serviceConnectionString = "<your service connection string>";
-
-    private readonly static string deviceId = "sensor-th-0055";
-    ```
-
-1. 入力したコード (およびコード コメント) を確認してください。
+1. グローバル変数を確認する時間を取ります。
 
     **eventHubsCompatibleEndpoint** 変数は、イベント ハブと互換性のある IoT Hub 組み込みサービス向けエンド ポイント (メッセージ/イベント) の URI を格納するために使用されます
 
@@ -523,7 +295,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
     **serviceConnectionString** 変数には、オペレーター アプリが IoT Hub に接続できるようにする接続文字列が含まれます。
 
-    **deviceId** 変数には、**CheeseCaveDevice** アプリケーションで使用されるデバイス ID が含まれます。
+    **deviceId** 変数には、**CheeseCaveDevice** アプリケーションによって使用されるデバイス ID (`"sensor-th-0055"`) が含まれます。
 
 1. サービス接続文字列の割り当てに使用するコード行を見つける
 
@@ -533,9 +305,9 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 1. **\<your service connection string\>** を、このラボで以前に保存した IoT Hub サービス接続文字列に置き換えます。
 
-    演習 1 で実行したラボ 5- setup.azcli セットアップ スクリプトによって生成された iothubowner 共有アクセス ポリシーのプライマリ接続文字列を保存しておく必要があります。
+    演習 1 で実行した ARM テンプレートによって生成された、iothubowner 共有アクセス ポリシーのプライマリ接続文字列が保存されているはずです。
 
-    > **注**: **サービス**共有ポリシーではなく、**iothubowner** 共有ポリシーがなぜ使用されているのか、不思議に思われるかもしれません。答えは、各ポリシーに割り当てられた IoT Hub のアクセス許可に関連しています。**サービス**ポリシーには **ServiceConnect** アクセス許可があり、通常はバックエンド クラウド サービスによって使用されます。これは、次の権利を付与します。
+    > **注意**: **サービス**共有ポリシーではなく、**iothubowner** 共有ポリシーがなぜ使用されているのか、不思議に思われるかもしれません。答えは、各ポリシーに割り当てられた IoT Hub のアクセス許可に関連しています。**サービス**ポリシーには **ServiceConnect** アクセス許可があり、通常はバックエンド クラウド サービスによって使用されます。これは、次の権利を付与します。
     >
     > * クラウド サービス向けの通信エンドポイントと監視エンドポイントへのアクセスを許可します。
     > * デバイスからクラウドへのメッセージの受信、クラウドからデバイスへのメッセージの送信、対応する配信確認メッセージの取得のアクセス許可を付与します。
@@ -552,106 +324,35 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 1. **\<your event hub endpoint\>**、**\<your event hub path\>**、および **\<your event hub SaS key\>** を、このラボで前に保存した値に置き換えます。
 
-1. `// INSERT Main method below here` コメントを見つけます。
+1. **Main** メソッドを見つけて、コード (およびコード コメント) を確認する時間を取ります。
 
-1. **Main** メソッドを実装するには、次のコードを入力します。
+    この接続文字列が、以前に入力した値からどのように構成されているかに注目してください。その後、これは、既定のコンシューマー グループと併せ、**EventHubConsumerClient** のインスタンスを作成および構成するために使用されます。
 
-    ```csharp
-    public static void Main(string[] args)
-    {
-        ConsoleHelper.WriteColorMessage("Cheese Cave Operator\n", ConsoleColor.Yellow);
+    > **注意**: コード `var consumerGroup = EventHubConsumerClient.DefaultConsumerGroupName;` によって、文字列 `"$Default` が **consumerGroup** に割り当てられます。ここでコンシューマー グループの名前が代わりに使用される場合は、カスタムのコンシューマー グループを作成するのが一般的です。
 
-        // IoT Hub イベント ハブと互換性のあるエンドポイントに接続する EventHubClient インスタンスを作成します。
-        var connectionString = new EventHubsConnectionStringBuilder(new Uri(eventHubsCompatibleEndpoint), eventHubsCompatiblePath, iotHubSasKeyName, iotHubSasKey);
-        eventHubClient = EventHubClient.CreateFromConnectionString(connectionString.ToString());
+    > **情報**: コンシューマー グループの詳細については、[こちら](https://docs.microsoft.com/ja-jp/azure/event-hubs/event-hubs-features#consumer-groups)をご覧ください。
 
-        // ハブの各パーティションに対して PartitionReceiver を作成します。
-        var runtimeInfo = eventHubClient.GetRuntimeInformationAsync().GetAwaiter().GetResult();
-        var d2cPartitions = runtimeInfo.PartitionIds;
+    この **EventHubConsumerClient** クラスは、**EventHub**, (この場合、IoT Hub の組み込み Event Hub エンドポイント) からの値を読み取るために使用されます。
 
-        // 以下に希望のレジスタ プロパティ変更ハンドラ コードを挿入します
-
-        // 以下にサービス クライアント インスタンス変数を挿入します
-
-        // メッセージをリッスンする受信者を作成します。
-        var tasks = new List<Task>();
-        foreach (string partition in d2cPartitions)
-        {
-            tasks.Add(ReceiveMessagesFromDeviceAsync(partition));
-        }
-
-        // すべての PartitionReceivers が完了するのを待ちます。
-        Task.WaitAll(tasks.ToArray());
-    }
-    ```
-
-1. 入力したコード (およびコード コメント) を確認してください。
-
-    **EventHubsConnectionStringBuilder** クラスを使用して **EventHubClient** 接続文字列を構築していることに注意してください。これは事実上、さまざまな値を正しい形式に連結するヘルパークラスです。次に、これを使用してイベント ハブ エンド ポイントに接続し、**eventHubClient** 変数にデータを入力します。
-
-    次に、**eventHubClient** を使用して、イベントハブの実行時情報を取得します。この情報には次のものが含まれます。
-
-    * **CreatedAt** - イベントハブが作成された日時
-    * **PartitionCount** - パーティションの数 (ほとんどの IoT Hub は 4 つのパーティションで構成されています） 
-    * **PartitionIds** - パーティション ID を含む文字列配列
-    * **Path** - イベント ハブ エンティティ パス
-
-    パーティション ID の配列は、**d2cPartitions** 変数に格納されます。この変数は、各パーティションからメッセージを受信するタスクのリストを作成するためにまもなく使用されます。
+    **EventHubConsumerClient** リファレンスは、**consumer** 変数に格納されます。次に、パーティション ID 文字列の配列を取得するために、コンシューマーが使用されます。この文字列は、その後 **d2cPartitions** 変数に格納さされます。この配列は、各パーティションからメッセージを受信するタスクの一覧を作成するために使用されます。
 
     > **情報**: 共パーティションの目的の詳細については、[こちら](https://docs.microsoft.com/ja-jp/azure/iot-hub/iot-hub-scaling#partitions)を参照してください。
 
     デバイスから IoT Hub に送信されるメッセージは任意のパーティションで処理される可能性があるため、アプリは各パーティションからメッセージを取得する必要があります。コードの次のセクションでは、非同期タスクのリストを作成します。各タスクは特定のパーティションからメッセージを受信します。最後の行は、すべてのタスクが完了するのを待ちます。各タスクは無限ループになるため、この行はアプリケーションが終了するのを防ぎます。
 
-1. `INSERT ReceiveMessagesFromDeviceAsync method below here` コメントを見つけます。
+1. **ReceiveMessagesFromDeviceAsync** メソッドを見つけて確認します。
 
-1. **ReceiveMessagesFromDeviceAsync** メソッドを実装するには、次のコードを入力します。
+    このメソッドには、目的のパーティションを定義する引数が含まれています。既定の構成では 4 つのパーティションが指定されているため、このメソッドは 4 回呼び出され、そのたびに、各パーティションに対して、非同期および並行して実行されることを思い出してください。
 
-    ```csharp
-    // パーティションの PartitionReceiver を非同期的に作成し、シミュレートされたクライアントから送信されたメッセージの読み取りを開始します。
-    private static async Task ReceiveMessagesFromDeviceAsync(string partition)
-    {
-        // 既定のコンシューマー グループを使用して受信側を作成します。
-        var eventHubReceiver = eventHubClient.CreateReceiver("$Default", partition, EventPosition.FromEnqueuedTime(DateTime.Now));
-        Console.WriteLine("Created receiver on partition: " + partition);
+    次に、パーティション内に存在する最初のイベントの開始位置が指定されます。
 
-        while (true)
-        {
-            // EventData を確認する - このメソッドは、取得するものがない場合にタイムアウトします。
-            var events = await eventHubReceiver.ReceiveAsync(100);
+    > **情報**: `EventPosition.Earliest` は列挙型に見える可能性がありますが、`EventPosition` は構造体であり、`Earliest` と `Latest` の定義だけではなく、キューに加えられた時間、オフセット、およびシーケンス番号から計算されたイベント位置を返すメソッドも指定します。**EventPosition Struct** の詳細については、[こちら](https://docs.microsoft.com/dotnet/api/azure.messaging.eventhubs.consumer.eventposition?view=azure-dotnet)でご確認いただけます。
 
-            // バッチにデータがある場合は、処理します。
-            if (events == null) continue;
+    次のセクションでは、非同期可算として要求されたパーティションからイベントを読み取ります。これにより、パーティションで使用可能になったイベントを反復することができます。使用可能なイベントがない場合は、必要に応じて待機します。
 
-            foreach (EventData eventData in events)
-            {
-                string data = Encoding.UTF8.GetString(eventData.Body.Array);
+    > **情報**: 非同期ストリームの詳細については、[こちら](https://docs.microsoft.com/dotnet/csharp/whats-new/csharp-8#asynchronous-streams)でご確認いただけます。
 
-                ConsoleHelper.WriteGreenMessage("Telemetry received: " + data);
-
-                foreach (var prop in eventData.Properties)
-                {
-                    if (prop.Value.ToString() == "true")
-                    {
-                        ConsoleHelper.WriteRedMessage(prop.Key);
-                    }
-                }
-                Console.WriteLine();
-            }
-        }
-    }
-    ```
-
-    ご覧のとおり、このメソッドには、ターゲット パーティションを定義する引数が付属しています。4 つのパーティションが指定されている既定の構成の場合、このメソッドは 4 回呼び出され、それぞれが非同期で並列に実行され、パーティションごとに 1 つ実行されることを思い出してください。
-
-    このメソッドの最初の部分は、イベント ハブ レシーバーを作成します。このコードは、$Default コンシューマー グループ (カスタム コンシューマー グループを作成するのが一般的です) が、パーティション、そして最後にイベント パーティションのデータのどの位置から受信を開始するかを指定します。この場合、受信者は現在の時刻以降にキューに入れられたメッセージのみに関心があります。データ ストリームの開始、データ ストリームの終了、または特定のオフセットを提供できるようにする他のオプションがあります。
-
-    > **情報**: コンシューマー グループの詳細については、[こちら](https://docs.microsoft.com/ja-jp/azure/event-hubs/event-hubs-features#consumer-groups)をご覧ください。
-
-    レシーバーが作成されると、アプリは無限ループに入り、イベントの受信を待ちます。
-
-    > **注**: `eventHubReceiver.ReceiveAsync(100)` コードは、一度に受信できるイベントの最大数を指定しますが、その数を待つことはありません。少なくとも 1 つが利用可能になるとすぐに戻ります。(タイムアウトのために) イベントが返されない場合、ループは続行され、コードはさらにイベントを待機します。
-
-    1 つ以上のイベントが受信されると、各イベント データ本体がバイト配列から文字列に変換され、コンソールに書き込まれます。次に、イベントデータのプロパティが繰り返され、この場合、値が true であるかどうかが確認されます。現在のシナリオでは、これはアラートを表します。アラートが見つかると、コンソールに書き込まれます。
+    イベントが受け取られると、バイナリ ボディ データが文字列に変換され、コンソールに書き込まれます。もちろん、現実には、JSON がシリアル化解除されるなどのことが起こります。次に、イベントデータのプロパティが繰り返され、この場合、値が true であるかどうかが確認されます。現在のシナリオでは、これはアラートを表します。アラートが見つかると、コンソールに書き込まれます。
 
 1. 「**ファイル**」 メニューで 変更を Program.cs ファイルに保存するには、「**保存**」 をクリックします。
 
@@ -667,7 +368,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
    このコマンドは、 現在のフォルダー内の **Program.cs** ファイルを実行します。
 
-   > **注**:  未使用の変数 **serviceConnectionString** - に関する警告は無視してかまいません。まもなく、その変数を使用するためのコードを追加します。
+   > **注**:  未使用の変数 **serviceConnectionString** -  に関する警告は無視してかまいません。まもなく、その変数を使用するためのコードを追加します。
 
 1. ターミナルへの出力をしばらく観察してください。
 
@@ -692,7 +393,7 @@ Contoso から貯蔵庫の環境を制御制限の範囲内に保つ自動化シ
 
 これで、デバイスからテレメトリを送信するアプリと、データの受信を確認するバックエンド アプリが作成されました。次の演習では、制御側を処理するステップ (データに問題が発生した場合の対処方法) の作業を開始します。
 
-### 演習 4: ダイレクト メソッドを呼び出すコードを記述する
+### 演習 4: ダイレクト メソッドを呼び出すコードを含める
 
 ダイレクト メソッドを呼び出すバックエンド アプリからの呼び出しには、ペイロードの一部として複数のパラメーターを含めることができます。ダイレクト メソッドは、通常、デバイスの機能をオンまたはオフにしたり、デバイスの設定を指定したりするために使用されます。
 
@@ -706,7 +407,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
 この演習では、チーズ ケーブでファンをオンにするシミュレーションを行うダイレクト メソッドのコードを追加して、デバイス アプリを更新します。次に、このダイレクト メソッドを呼び出すコードをバックエンド サービス アプリに追加します。
 
-#### タスク 1: デバイス アプリでダイレクト メソッドを定義するコードを追加する
+#### タスク 1: デバイス アプリでダイレクト メソッドを定義するコードを有効にする
 
 1. **cheesecavedevice** アプリを含む Visual Studio Code インスタンスに戻ります。
 
@@ -714,61 +415,21 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
 1. **Program.cs** がコード エディターで開かれていることを確認します。
 
-1. `INSERT register direct method code below here` コメントを見つけます。
+1. `UNCOMMENT register direct method code below here` コメントを見つけます。
 
-1. ダイレクト メソッドを登録するには、次のコードを入力します。
+1. ダイレクト メソッドを登録するには、次のコードをコメント解除します。
 
     ```csharp
-    // ダイレクト メソッド呼び出しのハンドラーを作成する
     deviceClient.SetMethodHandlerAsync("SetFanState", SetFanState, null).Wait();
     ```
 
-    **SetFanState** ダイレクト メソッド ハンドラーもこのコードによって設定されていることに注意してください。ご覧のとおり、deviceClient の **SetMethodHandlerAsync** メソッドは、リモート メソッド名 `"SetFanState"`を、呼び出す実際のローカル メソッド、およびユーザー コンテキスト オブジェクト (この場合は null) とともに引数として受け取ります。
+    **SetFanState** ダイレクト メソッド ハンドラーもこのコードによって設定されていることに注意してください。ご覧のとおり、**deviceClientのSetMethodHandlerAsync** メソッドは、リモート メソッド名 `"SetFanState"`を、呼び出す実際のローカル メソッド、およびユーザー コンテキスト オブジェクト (この場合は null) とともに引数として受け取ります。
 
-1. `INSERT SetFanState method below here` コメントを見つけます。
+1. `UNCOMMENT SetFanState method below here` コメントを見つけます。
 
-1. **SetFanState** メソッドを実装するには、次のコードを入力します。
+1. **SetFanState** ダイレクト メソッドをコメント解除して、コードとコメントを確認します。
 
-    ```csharp
-    // ダイレクト メソッド呼び出しを処理する
-    private static Task<MethodResponse> SetFanState(MethodRequest methodRequest, object userContext)
-    {
-        if (cheeseCave.FanState == StateEnum.Failed)
-        {
-            // 400 の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
-            string result = "{\"result\":\"Fan failed\"}";
-            ConsoleHelper.WriteRedMessage("Direct method failed: " + result);
-            return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
-        }
-        else
-        {
-            try
-            {
-                var data = Encoding.UTF8.GetString(methodRequest.Data);
-
-                // データから引用符を削除します。
-                data = data.Replace("\"", "");
-
-                // ペイロードを解析し、無効な場合は例外をトリガーします。
-                cheeseCave.UpdateFan((StateEnum)Enum.Parse(typeof(StateEnum), data));
-                ConsoleHelper.WriteGreenMessage("Fan set to: " + data);
-
-                // 200 の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
-                string result = "{\"result\":\"Executed direct method: " + methodRequest.Name + "\"}";
-                return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 200));
-            }
-            catch
-            {
-                // 400 の成功メッセージで、ダイレクト メソッド 呼び出しを認識します。
-                string result = "{\"result\":\"Invalid parameter\"}";
-                ConsoleHelper.WriteRedMessage("Direct method failed: " + result);
-                return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
-            }
-        }
-    }
-    ```
-
-    これは、**SetFanState** とも呼ばれる関連するリモートメソッドが IoT Hub を介して呼び出されたときに、デバイス上で実行されるメソッドです。**MethodRequest** インスタンスの受信に加えて、ダイレクト メッセージ コールバックが登録されたときに定義された **userContext** オブジェクトも受信することに注意してください (この場合は null になります)。
+    これは、関連付けられたリモート メソッド (**SetFanState** とも呼ばれます) が IoT Hub を介して呼び出される場合に、デバイス上で実行されるメソッドです。**MethodRequest** インスタンスの受信に加えて、ダイレクト メッセージ コールバックが登録されたときに定義された **userContext** オブジェクトも受信することに注意してください (この場合は null になります)。
 
     このメソッドの最初の行は、チーズ セラー ファンが現在**故障**状態にあるかどうかを判断します。チーズ セラー シミュレーターは、ファンが故障すると、後続のコマンドは自動的に失敗することを前提としています。したがって、JSON 文字列は、**結果**プロパティを **Fan Failed** に設定して作成されます。次に、新しい **MethodResponse** オブジェクトが作成され、結果文字列がバイト配列と HTTP ステータス コードにエンコードされます。この場合、**400** が使用されます。これは、REST API のコンテキストでは、一般的なクライアント側エラーが発生したことを意味します。**Task\<MethodResponse\>** を返すには、ダイレクト メソッド コールバックが必要なため、新しいタスクが作成されて返されます。
 
@@ -776,8 +437,8 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
     ファンの状態が **Failed** でない場合、コードはメソッド要求の一部として送信されたデータの処理に進みます。**methodRequest.Data** プロパティには、バイト配列の形式でデータが含まれているため、最初に文字列に変換されます。このシナリオでは、次の 2 つの値が予想されます (引用符を含む)。
 
-    * 「On」
-    * 「Off」
+    * "On"
+    * "Off"
 
     受信したデータは **StateEnum** のメンバーにマップされると想定されています。
 
@@ -806,57 +467,38 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
 1. **Program.cs** がコード エディターで開かれていることを確認します。
 
-1. `INSERT service client variable below here` コメントを見つけます。
-
-1. サービス クライアント インスタンスを保持するグローバル変数を追加するには、次のコードを入力します。
+1. アプリケーションによって、サービス クライアント インスタンスを保持するグローバル変数が定義されます。
 
     ```csharp
     private static ServiceClient serviceClient;
     ```
 
-1. `INSERT create service client instance below here` コメントを見つけます。
+    **ServiceClient** は、メッセージをデバイスへ送信するために使用されます。
 
-1. サービス クライアント インスタンスを作成して、ダイレクト メソッドを呼び出すコードを追加するには、次のコードを入力します。
+1. `UNCOMMENT create service client instance below here` コメントを見つけます。
+
+1. 次のコードをコメント解除します。
 
     ```csharp
-    // ハブ上のサービスに接続するエンドポイントと通信する ServiceClient を作成します。
+    // Create a ServiceClient to communicate with service-facing endpoint
+    // on your hub.
     serviceClient = ServiceClient.CreateFromConnectionString(serviceConnectionString);
-    InvokeMethod().GetAwaiter().GetResult();
+    // Invokes a Direct Method on the device
+    await InvokeMethod();
     ```
 
-1. `INSERT InvokeMethod method below here` コメントを見つけます。
+    **ServiceClient** が、前に定義された **serviceConnectionString** を使用して、どのように接続されるかに注目してください。次に、**InvokeMethod** が呼び出されます。
 
-1. ダイレクト メソッドを呼び出すコードを追加するには、次のコードを入力します。
+1. `UNCOMMENT InvokeMethod method below here` コメントを見つけます。
 
-    ```csharp
-    // ダイレクト メソッドの呼び出しを処理します。
-    private static async Task InvokeMethod()
-    {
-        try
-        {
-            var methodInvocation = new CloudToDeviceMethod("SetFanState") { ResponseTimeout = TimeSpan.FromSeconds(30) };
-            string payload = JsonConvert.SerializeObject("On");
+1. ダイレクト メソッドを呼び出すコードをコメント解除し、確認します。
 
-            methodInvocation.SetPayloadJson(payload);
+    **CloudToDeviceMethod** クラスによって、ダイレクト メソッドに関する情報 (メソッド名、タイムアウト、ペイロード) がカプセル化されます。その後、前に作成された **ServiceClient** が、IoT Hub を介してダイレクト メソッドを呼び出すために使用され、応答オブジェクトが返されます。`response.Status` プロパティ値が `200` であれば、成功を示しています。
 
-            // ダイレクト メソッドを非同期的に呼び出し、シミュレートされたデバイスから応答を取得します。
-            var response = await serviceClient.InvokeDeviceMethodAsync(deviceId, methodInvocation);
-
-            if (response.Status == 200)
-            {
-                ConsoleHelper.WriteGreenMessage("Direct method invoked: " + response.GetPayloadAsJson());
-            }
-            else
-            {
-                ConsoleHelper.WriteRedMessage("Direct method failed: " + response.GetPayloadAsJson());
-            }
-        }
-        catch
-        {
-            ConsoleHelper.WriteRedMessage("Direct method failed: timed-out");
-        }
-    }
-    ```
+    > **情報**: **ServiceClient** クラスによって、基になる Azure REST API との対話がカプセル化されます。ダイレクト メソッドを呼び出すための、基になる REST API の詳細については、「[Understand and invoke direct methods from IoT Hub](https://docs.microsoft.com/ja-jp/azure/iot-hub/iot-hub-devguide-direct-methods)」 (ダイレクト メソッドの理解および IoT Hub からの呼び出し) でご確認いただけます。また、ドキュメント化されたその他の状態コードもご確認いただけます。
+    > * 200 は、ダイレクト メソッドが正常に実行されたことを示します。
+    > * 404 は、デバイス ID が無効であるか、ダイレクト メソッド呼び出し時およびその後 connectTimeoutInSeconds にわたってデバイスがオンラインになっていないかのどちらかを示します (根本原因を把握するには、併記のエラー メッセージを確認してください)。
+    > * 504 は、デバイスが responseTimeoutInSeconds 以内にダイレクト メソッド呼び出しに応答しないことが原因で発生した、ゲートウェイ タイムアウトを示します。
 
     このコードは、 デバイス アプリで **SetFanState** ダイレクト メソッドを呼び出すために使用されます。
 
@@ -878,7 +520,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
 1. **CheeseCaveOperator** バックエンド アプリを起動するには、「ターミナル」 ペインを開き、`dotnet run` コマンドを入力します。
 
-    > **注**:  `Direct method failed: timed-out` というメッセージが表示された場合は、**CheeseCaveDevice** に変更を保存し、アプリを再起動していることを再確認してください。
+    > **注**:  `Direct method failed: timed-out`というメッセージが表示された場合は、**CheeseCaveDevice** に変更を保存し、アプリを再起動していることを再確認してください。
 
     CheeseCaveOperator バックエンド アプリは、すぐにダイレクト メソッドを呼び出します。
 
@@ -894,7 +536,7 @@ Contoso のシナリオでは、チーズ セラーにあるファンの動作�
 
 しかし、チーズ セラー環境に対して希望する設定をリモートで指定したい場合はどうしますか? おそらく、熟成プロセスのある時点でチーズ セラーの特定の目標温度を設定したいと思うでしょう。ダイレクト メソッド (有効なアプローチ) で目的の設定を指定することも、この目的のために設計されたデバイス ツインと呼ばれる IoT Hub の別の機能を使用することもできます。次の演習では、ソリューション内でデバイス ツイン プロパティを実装する作業を行います。
 
-### 演習 5: デバイス ツイン機能を実装する
+### エクササイズ 5: デバイス ツイン機能を実装する
 
 デバイス ツインには、次の 4 種類の情報が含まれている点に留意してください。
 
@@ -907,17 +549,25 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
 
 デバイス ツインとダイレクト メソッドの機能には、いくつかの重複があります。ダイレクトメソッドを使用してデバイスプロパティを設定することができるので、直感的なやり方のように感じられるかもしれません。しかし、ダイレクト メソッドを使用すると、それらの設定にアクセスする必要がある場合は、バックエンド アプリで設定を明示的に記録する必要があります。デバイス ツインを使用すると、この情報は既定で格納および管理されます。
 
-この演習では、デバイス アプリとバックエンド サービス アプリの両方に何らかのコードを追加して、操作中のデバイス ツイン同期を表示します。
+この演習では、デバイス ツインの同期が動作中であることを示すために、バックエンド サービス アプリで一部のコードを有効にします (ツインの同期のデバイス コードは、追加済みであり、前のラボで説明されています)。
 
-#### タスク 1: デバイス ツインを使用してデバイス のプロパティを同期するためのコードを追加する
+#### タスク 1: デバイス プロパティを同期するためのデバイス ツインを使用するコードを有効にする
 
 1. **CheeseCaveOperator** バックエンド アプリを実行している Visual Studio Code インスタンスに戻ります。
 
-1. アプリがまだ実行されている場合は、端末に入力フォーカスを置き、**Ctrl+C** を押してアプリを終了します。
+1. アプリがまだ実行されている場合は、端末に入力フォーカスを置き、**Ctrl + C** を押してアプリを終了します。
 
 1. **Program.cs** が開いていることを確認します。
 
-1. `INSERT registry manager variable below here` コメントを見つけます。
+1. **RegistryManager** インスタンスのグローバル変数は、既に定義されています。
+
+    ```csharp
+    private static RegistryManager registryManager;
+    ```
+
+    **RegistryManager** クラスによって、デバイス ID レジストリ上の操作、クエリを実行するデバイス ツイン、およびインポート/エクスポート ジョブを含む IoT Hub Service REST API の一部がカプセル化されます。この演習では、これは、デバイス ツインの更新に使用されます。
+
+1. `UNCOMMENT registry manager variable below here` コメントを見つけます。
 
 1. レジストリ マネージャー変数を挿入するには、次のコードを入力します。
 
@@ -925,105 +575,51 @@ IoT Hub で管理されるデバイス ツインはクエリ用に設計され�
     private static RegistryManager registryManager;
     ```
 
-1. `INSERT register desired property changed handler code below here` コメントを見つけます。
+1. `UNCOMMENT device twin management below here` コメントを見つけます。
 
 1. レジストリ マネージャー インスタンスを作成し、ツイン プロパティを設定する機能を追加するには、次のコードを入力します。
 
     ```csharp
-    // レジストリマネージャは、デジタル ツインへのアクセスに用います。
-    registryManager = RegistryManager.CreateFromConnectionString(serviceConnectionString);
-    SetTwinProperties().Wait();
+    // A registry manager is used to access the digital twins.
+    registryManager = RegistryManager
+        .CreateFromConnectionString(serviceConnectionString);
+    await SetTwinProperties();
     ```
 
-1. `INSERT Device twins section below here` コメントを見つけます。
+    **serviceConnectionString** 値は、適切なアクセス レベルで IoT Hub に接続するために使用されます。次に、**SetTwinProperties** が呼び出されます。
 
-1. デバイス ツインの必要なプロパティを更新する機能を追加するには、次のコードを入力します。
+1. `UNCOMMENT Device twins section below here` コメントを見つけます。
 
-    ```csharp
-    // デバイス ツイン セクション。
+1. デバイス ツインの対象のプロパティを更新する機能を追加するには、**SetTwinProperties** をコメント解除して、コードをコメントを確認します。
 
-    private static async Task SetTwinProperties()
-    {
-        var twin = await registryManager.GetTwinAsync(deviceId);
-        var patch =
-            @"{
-                tags: {
-                    customerID: 'Customer1',
-                    cheeseCave: 'CheeseCave1'
-                },
-                properties: {
-                    desired: {
-                        patchId: 'set values',
-                        temperature: '50',
-                        humidity: '85'
-                    }
-                }
-            }";
-        await registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
-
-        var query = registryManager.CreateQuery(
-            "SELECT * FROM devices WHERE tags.cheeseCave = 'CheeseCave1'", 100);
-        var twinsInCheeseCave1 = await query.GetNextAsTwinAsync();
-        Console.WriteLine("Devices in CheeseCave1: {0}",
-            string.Join(", ", twinsInCheeseCave1.Select(t => t.DeviceId)));
-    }
-    ```
-
-    > **注**:  **SetTwinProperties** メソッドは、デバイス ツインに追加されるタグとプロパティを定義する JSON の一部を作成し、ツインを更新します。メソッドの次の部分では、**cheeseCave** タグが 「CheeseCave1」 に設定されているデバイスをリストするために、クエリをどのように実行できるかを示します。このクエリでは、接続に**レジストリ読み取り**アクセス許可が必要です。
+    **SetTwinProperties** メソッドは、デバイス ツインに追加されるタグとプロパティを定義する JSON の一部を作成し、ツインを更新します。メソッドの次の部分では、**cheeseCave** タグが "CheeseCave1" に設定されているデバイスをリストするために、クエリをどのように実行できるかを示します。このクエリでは、接続に**レジストリ読み取り**アクセス許可が必要です。
 
 1. 「**ファイル**」 メニューで Program.cs ファイルを保存するために、「**保存**」 をクリックします。
 
-#### タスク 2: デバイスのデバイス ツイン設定を同期するためのコードを追加する
+#### タスク 2: デバイスのデバイス ツイン設定を同期するコードを有効にする
 
 1. **cheesecavedevice** アプリを含む Visual Studio Code インスタンスに戻ります。
 
-1. アプリがまだ実行されている場合は、端末に入力フォーカスを置き、**Ctrl+C** を押してアプリを終了します。
+1. アプリがまだ実行されている場合は、端末に入力フォーカスを置き、**Ctrl + C** を押してアプリを終了します。
 
 1. **Program.cs** ファイルが 「コード エディター」 ウィンドウで開かれていることを確認します。
 
-1. `INSERT register desired property changed handler code below here` コメントを見つけます。
+1. `UNCOMMENT register desired property changed handler code below here` コメントを見つけます。
 
-1. 必要なプロパティ変更ハンドラーを登録するために、次のコードを追加します。
+1. 適切に変更された対象のハンドラーを登録するには、次のコードをコメント解除します。
 
     ```csharp
-    // デバイス ツインを取得して、最初に必要なプロパティを報告します。
-    Twin deviceTwin = deviceClient.GetTwinAsync().GetAwaiter().GetResult();
+    // Get the device twin to report the initial desired properties.
+    Twin deviceTwin = await deviceClient.GetTwinAsync();
     ConsoleHelper.WriteGreenMessage("Initial twin desired properties: " + deviceTwin.Properties.Desired.ToJson());
 
-    // デバイス ツインの更新コールバックを設定します。
-    deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null).Wait();
+    // Set the device twin update callback.
+    await deviceClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, null);
     ```
 
-1. `INSERT OnDesiredPropertyChanged method below here` コメントを見つけます。
+1. `UNCOMMENT OnDesiredPropertyChanged method below here` コメントを見つけます。
 
-1. デバイス ツイン プロパティの変更に応答するコードを追加するには、次のコードを入力します。
-
-    ```csharp
-    private static async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
-    {
-        try
-        {
-            // チーズ セラー シミュレーターのプロパティを更新します
-            cheeseCave.DesiredHumidity = desiredProperties["humidity"];
-            cheeseCave.DesiredTemperature = desiredProperties["temperature"];
-            ConsoleHelper.WriteGreenMessage("Setting desired humidity to " + desiredProperties["humidity"]);
-            ConsoleHelper.WriteGreenMessage("Setting desired temperature to " + desiredProperties["temperature"]);
-
-            // IoT Hub にプロパティを報告します。
-            var reportedProperties = new TwinCollection();
-            reportedProperties["fanstate"] = cheeseCave.FanState.ToString();
-            reportedProperties["humidity"] = cheeseCave.DesiredHumidity;
-            reportedProperties["temperature"] = cheeseCave.DesiredTemperature;
-            await deviceClient.UpdateReportedPropertiesAsync(reportedProperties);
-
-            ConsoleHelper.WriteGreenMessage("\nTwin state reported: " + reportedProperties.ToJson());
-        }
-        catch
-        {
-            ConsoleHelper.WriteRedMessage("Failed to update device twin");
-        }
-    }
-    ```
+1. デバイス ツイン プロパティの変更に応答するコードを有効にするには、**OnDesiredPropertyChanged** メソッドをコメント解除して、コードを確認します。
 
     このコードは、デバイス ツインで必要なプロパティが変更されたときに呼び出されるハンドラーを定義します。変更を確認するために、新しい値が IoT Hub に報告されることに注意してください。
 

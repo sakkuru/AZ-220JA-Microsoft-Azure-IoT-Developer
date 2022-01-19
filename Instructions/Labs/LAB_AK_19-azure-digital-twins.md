@@ -996,7 +996,7 @@ Azure Digital Twins とその API にアクセスするには、適切なアク�
     az functionapp create --resource-group rg-az220 --consumption-plan-location {your-location} --name func-az220-hub2adt-training-{your-id} --storage-account staaz220training{your-id} --functions-version 3
     ```
 
-    > **注**: 上記の **{your-location}** トークンと** {your-id}** トークンを忘れずに置き換えてください。
+    > **注**: 上記の **{your-location}** トークンと **{your-id}** トークンを忘れずに置き換えてください。
 
     Azure 関数では、Azure Digital Twins で認証するために、ベアラー トークンを渡す必要があります。このトークンが確実に渡されるようにするには、関数アプリのマネージド ID を作成する必要があります。
 
@@ -1052,7 +1052,7 @@ Azure Digital Twins とその API にアクセスするには、適切なアク�
 >           * 最終工程
 >               * Contoso.AdtFunctions
 
-    プロジェクトが次の NuGet パッケージを参照していることに注目してください。
+プロジェクトが次の NuGet パッケージを参照していることに注目してください。
 
     * **Azure.DigitalTwins.Core** パッケージには、Azure Digital Twins サービスの SDK が含まれています。このライブラリは、ツイン、モデル、リレーションシップなどを管理するための Azure Digital Twins サービスへのアクセスを提供します。
     * **Microsoft.Azure.WebJobs.Extensions.EventGrid** パッケージは、Azure Functions で Event Grid の Webhook 呼び出しを受信する機能を提供し、Event Grid に公開された任意のイベントに応答する関数を簡単に記述できるようにします。
@@ -1262,7 +1262,7 @@ Azure Digital Twins とその API にアクセスするには、適切なアク�
 
 1. 左側のナビゲーション領域で、「**イベント**」を選択します。
 
-1. イベント サブスクリプションを追加するには、「** +イベント サブスクリプション**」をクリックします。
+1. イベント サブスクリプションを追加するには、「**+イベント サブスクリプション**」をクリックします。
 
 1. 「**イベント サブスクリプションの詳細**」セクションの「**名前**」フィールドに、「**device-telemetry**」と入力します。
 

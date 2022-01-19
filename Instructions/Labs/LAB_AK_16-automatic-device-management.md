@@ -152,7 +152,7 @@ Azure portal を使用して、デバイス　ツインのプロパティを使�
 
 このタスクでは、IoT Hub で生成された要求に応答して、デバイスのファームウェア更新プログラムをシミュレートするためのコードを確認します。
 
-1. **Program.cs **ファイルが Visual Studio Code で開かれていることを確認します。
+1. **Program.cs** ファイルが Visual Studio Code で開かれていることを確認します。
 
 1. `Global Variables` コメントを見つけます。
 

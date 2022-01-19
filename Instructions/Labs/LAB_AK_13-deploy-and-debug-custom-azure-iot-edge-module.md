@@ -667,7 +667,7 @@ Azure Container Registry を作成し、これに対してローカル マシン
 1. 「**デバイスのモジュールを設定: objectcountingdevice**」 ブレードの 「**コンテナー レジストリ設定**」 で、次の値を入力します。
 
     * **名前**: Azure Container Registry の **レジストリ名**を入力します (例: `acraz220trainingcah191204`)。
-    * アドレス**: Azure Container Registry サービスの**ログイン サーバー** (または DNS 名) を入力します (例: `acraz220trainingcah191204.azurecr.io`)
+    * **アドレス**: Azure Container Registry サービスの**ログイン サーバー** (または DNS 名) を入力します (例: `acraz220trainingcah191204.azurecr.io`)
     * **ユーザー名**: Azure Container Registry サービスの**ユーザー名**を入力します。
     * **パスワード**: Azure Container Registry サービスの**パスワード**を入力します。
 

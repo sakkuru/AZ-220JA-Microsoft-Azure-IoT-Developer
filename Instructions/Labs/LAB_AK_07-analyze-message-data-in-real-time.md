@@ -523,7 +523,7 @@ loggingMessage.Properties.Add("sensorID", "VSLog");
 
     「**出力**」ペインが表示されます。
 
-1. 「**出力**」ペインで、**「+ 追加」**をクリックし、「**Blob Storage/ADLS Gen2**」をクリックします。
+1. 「**出力**」ペインで、**「+ 追加」** をクリックし、「**Blob Storage/ADLS Gen2**」をクリックします。
 
     「**Blob Storage/ADLS Gen2 - 新しい出力**」ペインが表示されます。
 

@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 12: IoT Edge ゲートウェイを設定する'
     module: 'モジュール 6: Azure IoT Edge のデプロイプロセス'

@@ -1,4 +1,4 @@
-﻿---
+---
 lab:
     title: 'ラボ 16: Azure IoT Hub を使用した IoT デバイス管理の自動化'
     module: 'モジュール 8: デバイス管理'

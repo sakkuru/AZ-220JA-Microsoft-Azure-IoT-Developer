@@ -1,10 +1,10 @@
-﻿---
+---
 lab:
-    title: 'ラボ 14: 制限されたネットワークとオフラインで IoT Edge デバイスを実行する'
+    title: 'ラボ 14: 制限付きネットワークとオフラインで IoT Edge デバイスを実行する'
     module: 'モジュール 7: Azure IoT Edge モジュール'
 ---
 
-# 制限されたネットワークとオフラインで IoT Edge デバイスを実行する
+# 制限付きネットワークとオフラインで IoT Edge デバイスを実行する
 
 ## ラボ シナリオ
 
@@ -20,17 +20,20 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 
 ## このラボでは
 
-このラボでは、次のタスクを完了します。
+このラボでは、次のタスクを正常に達成します。
 
-* ラボの前提条件を確認する
-* IoT ハブとデバイス ID を作成する
-* Azure IoT Edge が有効な Linux VM をデプロイする
-* 子 IoT デバイスを使用した 親 IoT Edge のセットアップ
+* ラボの前提条件が満たされていることを確認する (必要な Azure リソースがあること)
+
+  * スクリプトは、必要に応じて IoT Hub を作成します。
+  * スクリプトは、このラボに必要な新しいデバイス ID を作成します。
+
+* Azure IoT Edge 対応の Linux VM をデプロイする
+* 子 IoT デバイスにより IoT Edge 親デバイスをセットアップする
 * IoT Edge デバイスをゲートウェイとして構成する
 * Azure CLI を使用して IoT Edge ゲートウェイ デバイスの受信ポートを開く
-* IoT Edge デバイスの Time-to-Live とメッセージ の記憶域を構成する
+* IoT Edge ゲートウェイ デバイスの存続可能時間とメッセージ ストアを構成する
 * 子 IoT デバイスを IoT Edge ゲートウェイに接続する
-* デバイス接続とオフライン サポートのテスト
+* デバイス接続とオフライン サポートをテストする
 
 ## ラボの手順
 
@@ -38,614 +41,373 @@ Contoso がチーズ用パッケージングおよび出荷設備で導入した
 
 このラボでは、次の Azure リソースが利用可能であることを前提としています。
 
-| リソースの種類:  | リソース名 |
+| リソースの種類 | リソース名 |
 | :-- | :-- |
 | リソース グループ | rg-az220 |
 | IoT Hub | iot-az220-training-{your-id} |
-| IoT デバイス | SimulatedThermostat |
+| loT Edge デバイス | vm-az220-training-gw0002-{your-id} |
+| IoT デバイス | sensor-th-0084 |
 
-これらのリソースが利用できない場合は、演習 2 に進む前に、以下の手順に従って **lab14-setup.azcli** スクリプトを実行する必要があります。スクリプト ファイルは、開発環境構成 (ラボ 3) の一部としてローカルに複製した GitHub リポジトリに含まれています。
+これらのリソースを使用できるようにするには、次のタスクを完了してください。
 
-**lab14-setup.azcli** スクリプトは、Azure Cloud Shell 上で最も実行しやすい **bash**シェル環境で実行するように記述されています 。 
+1. 「**Azure にデプロイする**」を選択します。
 
->**注:** **SimulatedThermostat** デバイスの接続文字列が必要です。このデバイスが Azure IoT Hub に登録されている場合は、Azure Cloud Shell で次のコマンドを実行して接続文字列を取得できます
->
-> ```bash
-> az iot hub device-identity show-connection-string --hub-name iot-az220-training-{your-id} --device-id SimulatedThermostat -o tsv
-> ```
+    [Azure へのデプロイ](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fbicep%2FAllfiles%2FARM%2Flab14.json)
 
-#### タスク 1: セットアップ スクリプトを実行する
+1. メッセージが表示されたら、**Azure portal** にログインします。
 
-1. ブラウザーを使用して [Azure Shell](https://shell.azure.com/)を開き、このコースで使用している Azure サブスクリプションでログインします。
+    「**カスタム デプロイ**」ページが表示されます。
 
-    Cloud Shell のストレージの設定に関するメッセージが表示された場合は、デフォルトをそのまま使用します。
+1. 「**サブスクリプション**」ドロップダウンの「**プロジェクトの詳細**」で、このコースで使用しようとしている Azure サブスクリプションが選択されていることを確認します。
 
-1. Azure Cloud Shell が **Bash** を使用していることを確認 します。
+1. 「**リソース グループ**」ドロップダウンで、「**rg-az220**」を選択します。
 
-    「Azure Cloud Shell] ページの左上隅にあるドロップダウンは、環境を選択するために使用されます。選択されたドロップダウンの値が **Bash**であることを確認します。 
-
-1. Azure Shell ツール バーで、「**ファイルのアップロード/ダウンロード**」 をクリックします (右から 4 番目のボタン)。
-
-1. ドロップダウンで、「**アップロード**」 をクリックします。
-
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
-
-    _ラボ 3: 開発環境のセットアップ_: ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * すべてのファイル
-      * ラボ
-          * 14 - 制限されたネットワークおよびオフラインでの IoT Edge デバイスの実行
-            * セットアップ
-
-    lab14-setup.azcli スクリプト ファイルは、ラボ 14 のセットアップ フォルダーにあります。
-
-1. **lab14-setup.azcli**ファイルを選択し、「**開く**」 をクリックします。
-
-    ファイルのアップロードが完了すると、通知が表示されます。
-
-1. 正しいファイルが Azure Cloud Shell にアップロードされたことを確認するには、次のコマンドを入力します。
-
-    ```bash
-    ls
-    ```
-
-    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。lab14-setup.azcli ファイルが一覧表示されます。
-
-1. セットアップ スクリプトを含むディレクトリをこのラボ用に作成し、そのディレクトリに移動するには、次の Bash コマンドを入力します。
-
-    ```bash
-    mkdir lab14
-    mv lab14-setup.azcli lab14
-    cd lab14
-    ```
-
-1. **lab14-setup.azcli** に実行権限があることを確認するには、次のコマンドを入力します。
-
-    ```bash
-    chmod +x lab14-setup.azcli
-    ```
-
-1. Cloud Shell ツール バーで、lab14-setup.azcli ファイルを編集するには、**エディターを開く**ためのボタン (右から2番目のボタン - **{ }**) をクリックします。
-
-1. 「**ファイル**」 の一覧で、lab14 フォルダーを展開してスクリプト ファイルを開くには、「**lab14**」 をクリックし、「**lab14-setup.azcli**」 をクリックします。
-
-    エディターに **lab14-setup.azcli** ファイルの内容が表示されます。
-
-1. エディターで、割り当て済みの値 `{YOUR-ID}` と `{YOUR-LOCATION}` を更新します。
-
-    サンプル例として、このコースの最初に作成した一意の ID 、つまり **CAH191211** に `{YOUR-ID}` を設定し、リソースにとって意味のある場所に `{YOUR-LOCATION}` を設定する必要があります。
-
-    ```bash
-    #!/bin/bash
-
-    RGName="rg-az220"
-    IoTHubName="iot-az220-training-{your-id}"
-
-    Location="{YOUR-LOCATION}"
-    ```
-
-    > **注意**:  `{YOUR-LOCATION}` 変数は、リージョンの短い名前に設定する必要があります。次のコマンドを入力すると、使用可能な領域とその短い名前 (「**名前**」 列) の一覧を表示できます。
+    > **注**: 「**rg-az220**」が表示されていない場合は、次の手順を行います。
     >
-    > ```bash
-    > az account list-locations -o Table
-    >
-    > DisplayName           Latitude    Longitude    Name
-    > --------------------  ----------  -----------  ------------------
-    > East Asia             22.267      114.188      eastasia
-    > Southeast Asia        1.283       103.833      southeastasia
-    > Central US            41.5908     -93.6208     centralus
-    > East US               37.3719     -79.8164     eastus
-    > East US 2             36.6681     -78.3889     eastus2
-    > ```
+    > 1. 「**リソース グループ**」ドロップダウンで、「**新規作成**」 をクリックします。
+    > 1. 「**名前**」に「**rg-az220**」と入力します。
+    > 1. 「**OK**」をクリックします。
 
-1. エディター画面の右上で、ファイルに加えた変更を保存してエディタを閉じるには、「..」 をクリックし、「**エディタを閉じる**」 をクリックします。 
+1. 「**リージョン**」ドロップダウンの「**インスタンスの詳細**」で、最寄りのリージョンを選択します。
 
-    保存を求められたら、「**保存**」 をクリックすると、エディタが閉じます。 
+    > **注**: 「**rg-az220**」グループが既に存在している場合、「**リージョン**」 フィールドは、読み取り専用のリソース グループによって使用されるリージョンに設定されます。
 
-    > **注意**:  「**CTRL+S**」 を使っていつでも保存でき、 「**CTRL+Q**」 を押してエディターを閉じます。
+1. 「**自分の ID**」フィールドに、演習 1 で作成した一意の ID を入力します。
 
-1. この実習ラボに必要なリソースを作成するには、次のコマンドを入力します。
+1. "**コース ID**" フィールドに、「**az220**」と入力します。
 
-    ```bash
-    ./lab14-setup.azcli
-    ```
+1. 「**リソース グループ**」テキストボックスに、「**rg-az220vm**」と入力します。
 
-    このスクリプトの実行には数分かかります。各ステップが完了すると、JSON 出力が表示されます。
+1. **管理者ユーザー名**に、使用するアカウント名を入力します。
 
-    このスクリプトは、まず **rg-az220** という名前のリソース グループ と **AZ-220-ハブ-{YourID}** という名前の IoT ハブを作成します。  既に存在する場合は、対応するメッセージが表示されます。次にスクリプトは、 **SimulatedThermostat** の ID を持つデバイスを IoT ハブに追加し、デバイス接続文字列を表示します。
+1. 「**認証の種類**」フィールドで、**パスワード**を選択します。
 
-1. スクリプトが完了すると、デバイスの接続文字列が表示されることに注意してください。
+1. 「**管理者パスワードまたはキー**」フィールドに、管理者アカウントに使用するパスワードを入力します。
 
-    接続文字列は「HostName=」で始まります。
+1. テンプレートを検証するには、「**確認および作成**」をクリックします。
 
-1. 接続文字列をテキスト ドキュメントにコピーし、それが **SimulatedThermostat** デバイス用であることを記録しておいてください。
+1. 検証に合格したら、「**作成**」をクリックします。
 
-    接続文字列を簡単に見つけることができる場所に保存すると、ラボを続ける準備が整います。
+    デプロイが開始します。
 
-### 演習 2: Azure IoT Edge 対応 Linux VM をデプロイする
+1. デプロイが完了したら、左側のナビゲーション エリアで、「**出力**」をクリックして、テンプレートからの出力値を確認します。
 
-この演習では、 Azure Marketplace の Azure IoT Edge ランタイム サポートを使用して Ubuntu サーバー VM をデプロイします。
+    後で使用する場合のために、出力をメモしておきます。
+    * connectionString
+    * deviceConnectionString
+    * gatewayConnectionString
+    * devicePrimaryKey
+    * publicFQDN
+    * publicSSH
 
-前のラボで、Azure portalを使用して VM を作成しました。このラボでは、Azure CLI を使用して VM を作成します。
+これで、リソースが作成されました。
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+> **注**: ARM テンプレートは、VM と IoT Edge のプロビジョニングに加えて、着信トラフィック用のファイアウォール ルールを構成し、子デバイスを作成しました。
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+### 演習 2: デバイス CA 証明書をダウンロードする
 
-1. Azure portal のツール バーで、**「Cloud Shell」** をクリックします。
+この演習では、先ほど作成した **vm-az220-training-gw0002-{your-id}** 仮想マシンを調べ、生成されたテスト証明書を Cloud Shell にダウンロードします。
 
-    シェルで **Bash** に設定されていることを確認 します。
+#### タスク 1: VM に接続する
 
-1. Azure IoT Edge に対応した VM のリソース グループを作成するには、次のコマンドを入力します。
+1. IoT Edge 仮想マシンが正常にデプロイされたことを確認します。
 
-    ```bash
-    az group create --name AZ-220-IoTEdge-RG --location {YOUR-LOCATION}
-    ```
+    Azure portal で通知ウィンドウを確認できます。
 
-    `{YOUR-LOCATION}` を近いリージョンに置き換えることを忘れないでください。
+1. **rg-az220vm** リソース グループが Azure ダッシュボードに固定されていることを確認します。
 
-1. Linux VM を作成するには、次の 2 つのコマンドを入力します。
+    リソース グループをダッシュボードに固定するには、Azure ダッシュボードに移動して、次の手順を実行します。
 
-    ```bash
-    az vm image terms accept --urn microsoft_iot_edge:iot_edge_vm_ubuntu:ubuntu_1604_edgeruntimeonly:latest
-    az vm create --resource-group AZ-220-IoTEdge-RG --name AZ220EdgeVM{YOUR-ID} --image microsoft_iot_edge:iot_edge_vm_ubuntu:ubuntu_1604_edgeruntimeonly:latest --admin-username vmadmin --admin-password {YOUR-PASSWORD-HERE} --authentication-type password
-    ```
-
-    > **注意**: 2 番目のコマンドにあるプレースホルダーを置き換えてください。
-
-    上の 1 番目のコマンドは、VM イメージの使用条件を受け入れます。
-
-    2 番目のコマンドは、実際に上記で指定したリソース グループ内にVMを作成します。`AZ220EdgeVM{YOUR-ID}` を一意の ID で更新し、`{YOUR-PASSWORD-HERE}` を適切で安全なパスワードに置き換えてください。
-
-    > **注意**: 実稼働環境では、ユーザー名/パスワードの方法ではなく、SSH キーの生成を選択することができます。Linux VM と SSH の詳細については、こちらをご参照ください。[https://docs.microsoft.com/ja-jp/azure/virtual-machines/linux/create-ssh-keys-detailed](https://docs.microsoft.com/ja-jp/azure/virtual-machines/linux/create-ssh-keys-detailed).
-    >
-    > **注意**:  処理がデプロイされるまでに約 5 分程かかります。デプロイ中は、次のユニットに進むことができます。
-
-### エクササイズ 3: 子 IoT デバイスを使用した 親 IoT Edge のセットアップ
-
-IoT Edge ゲートウェイ (親) と、他 IoT デバイス (子またはリーフ デバイス) による、親子関係を使用すると、Azure IoT ソリューション内でオフライン機能を実装することができます。IoT Edge デバイスが IoT ハブに 1 度でも接続する機会があれば、そのデバイスと子デバイスは、インターネットの断続的接続、または接続なしでも機能し続けることができます。
-
-次の図は、IoT Edge デバイスの親と子デバイスの関係を示しています。
-
-![IoT Edge 親と子デバイスの図](media/LAB_AK_14-IoTEdge-Parent-Child-Relationship.jpg "IoT Edge Parent with Child Device Diagram")
-
-この図では、子デバイスが親 IoT Edge デバイスに接続し、認証を行います。子デバイスは、Azure IoT Hub の資格情報を使用して、この認証を行います。認証されると、子 IoT デバイスは、IoT Edge デバイス上のエッジ ハブ (`$edgeHub`) にメッセージを送信します。メッセージが親 IoT Edge デバイスに届くと、IoT Edge のモジュールとルーティングはメッセージを構成どおりに処理します。たとえば、接続時にはメッセージを Azure IoT Hub に送信します。
-
-親 IoT Edge デバイスへの接続が切断されると (または Azure IoT Hub への接続が切れると)、すべてのデバイス メッセージが IoT Edgeデバイスに自動保存されます。接続が復元されると、IoT Edge デバイスも接続を再開し、保存されたメッセージをすべて Azure IoT Hub に送信します。IoT Edge デバイスに保存されたメッセージは、デバイスの存続時間 (TTL) 構成に応じて期限切れになる場合があります。デフォルトでは、メッセージを最大 7200 秒間 (2 時間) 保存します。
-
-この演習では、IoT Edge デバイスを Azure IoT Hub に登録し、IoT デバイスを作成して IoT Edge デバイスの子として構成します。これにより、前述された説明のとおり、クラウドの Azure IoT Hub に通信が送信される前に、子 IoT デバイスが親 IoT Edge ゲートウェイ デバイスを介してメッセージを送信することができます。Edge ゲートウェイ デバイスと IoT ハブ 間の接続が失われた場合、接続が復元されるまで、Edge ゲートウェイ デバイスによって (構成された期間内で) メッセージが保存されます。
-
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
-
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
-
-1. Azure portal のツールバーで、「**Cloud Shell**」 をクリックします。
-
-    環境が **Bash** を使用していることを確認します。
-
-1. Azure IoT Hub 内に新しい **IoT Edge デバイス ID** を作成するには、次のコマンドを入力します。
-
-    ```sh
-    az iot hub device-identity create --edge-enabled --hub-name iot-az220-training-{your-id} --auth-method shared_private_key --device-id IoTEdgeGateway
-    ```
-
-    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
-
-    `az iot hub device-identity create` コマンドには、次のパラメーターが含まれていることに注意してください。
-
-    * `--hub-name`: この必須パラメーターは、**Azure IoT Hub** の名前を指定して新しいデバイスを追加するために使用されます。
-
-    * `--device-id`: この必須パラメーターは、作成する IoT デバイスの **デバイス ID** を指定するために使用されます。
-
-    * `--edge-enabled`: これは、作成される IoT デバイスが **IoT Edge デバイス**であり、IoT Edge で有効になることを指定します。
-
-    * `--auth-method`: これにより、IoT デバイスで使用する認証方法を指定します。`shared_private_key` の値により、対称キーの暗号化を使用するように指定します。その他の使用可能なオプションは、`x509_ca` と `x509_thumbprint` です。
-
-1. コマンドによって生成された JSON 出力を確認する時間を取ります。
-
-    コマンドが完了すると、ターミナルに戻される JSON のブログがあることに注意してください。この JSON には、作成されたばかりの **IoT Edge デバイス** の構成に関するいくつかの詳細が含まれています。デバイスの詳細の中には、デバイスのサービスによって自動生成された**対称キー** があります。
-
-    ```json
-        {
-          "authentication": {
-            "symmetricKey": {
-              "primaryKey": "gOAYooDeRrinZzyo0yWZNEkvc0wZaF9/4qaXv7s7olw=",
-              "secondaryKey": "MzE5VtKJzOO6HGnNkI4kyn+MCziUYXZ/MSJCKxHIHa0="
-            },
-            "type": "sas",
-            "x509Thumbprint": {
-              "primaryThumbprint": null,
-              "secondaryThumbprint": null
-            }
-          },
-          "capabilities": {
-            "iotEdge": true
-          },
-          "cloudToDeviceMessageCount": 0,
-          "connectionState": "Disconnected",
-          "connectionStateUpdatedTime": "0001-01-01T00:00:00",
-          "deviceId": "IoTEdgeGateway",
-          "deviceScope": "ms-azure-iot-edge://IoTEdgeGateway-637121074930370650",
-          "etag": "Nzk1MjE0NjM2",
-          "generationId": "637121074930370650",
-          "lastActivityTime": "0001-01-01T00:00:00",
-          "status": "enabled",
-          "statusReason": null,
-          "statusUpdatedTime": "0001-01-01T00:00:00"
-        }
-    ```
-
-1. IoT ハブから **IoTEdgeGateway** デバイスの**接続文字列**を取得するには、次のコマンドを入力します。
-
-    ```cmd/sh
-    az iot hub device-identity show-connection-string --hub-name iot-az220-training-{your-id} --device-id IoTEdgeGateway -o tsv
-    ```
-
-    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
-
-    `az iot hub device-identity show-connection-string` コマンドは、いくつかのパラメーターを渡すことによって呼び出されます。
-
-    * `--hub-name`: この必須パラメーターは、**Azure IoT Hub** の名前を指定して新しいデバイスを追加するために使用されます。
-
-    * `--device-id`: この必須パラメーターは、作成する IoT デバイスの **デバイス ID** を指定するために使用されます。
-
-    **IoTEdgeGateway** デバイスから出力される IoT ハブ接続文字列は、次の形式になります。
-
-    ```text
-    HostName={iot-hub-name}.azure-devices.net;DeviceId=IoTEdgeGateway;SharedAccessKey={shared-access-key}
-    ```
-
-1. このラボで後述する参照用に接続文字列の値のコピーを保存します。
-
-    次の手順では、親 IoT Edge ゲートウェイ デバイスに直接接続して IoT ハブと通信する子 IoT デバイスを作成します。
-
-1. IoT Edge デバイスの子として IoT デバイスを作成して構成するには、次のコマンドを実行します。
-
-    ```sh
-    az iot hub device-identity create -n iot-az220-training-{your-id} --device-id ChildDevice1 --pd IoTEdgeGateway
-    ```
-
-    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
-
-    このコマンドには、次のパラメーターが渡されます。
-
-    * `-n`: この必須パラメーターは `--hub-name` の短縮形であり、**Azure IoT Hub** の名前を指定して新しいデバイスを追加するために使用されます。
-
-    * `--device-id`: この必須パラメーターは、作成する IoT デバイスの **デバイス ID** を指定するために使用されます。
-
-    * `--pd`: このパラメーターは、 作成する IoT デバイスの**親デバイス**を指定します。渡される値は、**子デバイス** を割り当てるための **親デバイス** の **デバイス ID** でなくてはなりません。
-
-    このコマンドは `--auth-method` を渡さない点に注意してください。このパラメーターを省略すると、既定値の `shared_private_key` が使用されます。
-
-1. このコマンドの JSON 出力を確認するために時間を取ってください。
-
-    コマンドが完了すると、ターミナルに戻された JSON のブログがあることに注意してください。この JSON には、作成されたばかりの **IoT デバイス**に関するいくつかの詳細が含まれています。Azure IoT Hub でデバイスを認証するため、または子デバイスが親 IoT Edge ゲートウェイに接続するときに使用できる対称キーを含む `symmetricKey` ノードに注意してください。
-
-    後で使用できるよう、この IoT デバイスの **primaryKey** が必要になります。
-
-    ```json
-        {
-          "authentication": {
-            "symmetricKey": {
-              "primaryKey": "uMhYoXK/WRoXrIATh25aijyEbA401PKDxy4KCS488U4=",
-              "secondaryKey": "9tOPmSkmoqRd2KEP1JFyQQ6y2JdA5HPO7qnckFrBVm4="
-            },
-            "type": "sas",
-            "x509Thumbprint": {
-              "primaryThumbprint": null,
-              "secondaryThumbprint": null
-            }
-          },
-          "capabilities": {
-            "iotEdge": false
-          },
-          "cloudToDeviceMessageCount": 0,
-          "connectionState": "Disconnected",
-          "connectionStateUpdatedTime": "0001-01-01T00:00:00",
-          "deviceId": "ChildDevice1",
-          "deviceScope": "ms-azure-iot-edge://IoTEdgeGateway-637121074930370650",
-          "etag": "MTgxNjg1MjE0",
-          "generationId": "637121169262975883",
-          "lastActivityTime": "0001-01-01T00:00:00",
-          "status": "enabled",
-          "statusReason": null,
-          "statusUpdatedTime": "0001-01-01T00:00:00"
-        }
-    ```
-
-1. このラボの後半で参照するために `primaryKey` 値のコピーを保存します。
-
-1. IoT ハブから **ChildDevice1** デバイスの**接続文字列**を取得するには、次のコマンドを入力します。
-
-    ```cmd/sh
-    az iot hub device-identity show-connection-string --hub-name iot-az220-training-{your-id} --device-id ChildDevice1 -o tsv
-    ```
-
-    > **注意**:  必ず **iot-az220-training-{your-id}** IoT ハブ名を Azure IoT Hub の名前に置き換えてください。
-
-1. このラボで後述する参照用に接続文字列の値のコピーを保存します。
-
-1. 完了したアクションの結果を検討します。
-
-    これで、IoT Edge デバイスと子 IoT デバイスが Azure IoT Hub 内に登録されました。**IoT デバイス**は、その親として **IoT Edge デバイス**を使用して構成されます。
-
-    この構成により、Azure IoT Hub に直接接続せずに、子 IoT デバイスは親 IoT Edge デバイスに接続して通信できるようになります。このように IoT デバイス トポロジを構成するとオフライン対応のシナリオが可能になり、Azure IoT Hub への接続が切断されても、IoT デバイスと IoT Edge デバイスは動作し続けることができます。
-
-1. Azure portal で、Azure ダッシュボードに移動します。
-
-1. Azure portal メニューで、**「リソース グループ」** をクリックします。
-
-1. **「リソース グループ」** ブレードの **「名前」** で **AZ-220-IoTEdge-RG** リソース グループを見つけます。
-
-1. **AZ-220-IoTEdge-RG** 行でブレードの右側にある 「...」 をクリックした後、**「ダッシュボードにピン留め」** をクリックします。
+    * Azure portal メニューで、「**リソース グループ**」をクリックします。
+    * 「**リソース グループ**」ブレードの 「**名前**」で、**rg-az220vm** リソース グループを見つけます。
+    * **rg-az220vm** 行でブレードの右側にある **「...」** をクリックした後、「**ダッシュボードにピン留め**」をクリックします。
 
     ダッシュボードを編集して、RG タイルとリストに表示されたリソースへのアクセスを容易にすることもできます。
 
-### 演習 4: IoT Edge デバイスをゲートウェイとして構成する
+1. Azure portal のツールバーで、「**Cloud Shell**」をクリックします。
 
-この演習では、(以前作成した) Ubuntu 仮想マシン上の Azure IoT Edge を IoT Edge 透過ゲートウェイ デバイスに構成します。
+1. Cloud Shell のコマンド プロンプトで、前のタスクでメモした **ssh** を **ssh vmadmin@vm-az220-training-gw0002-dm080321.centralus.cloudapp.azure.com** のように貼り付けて、**Enter** キーを押します。
 
-ダウンストリーム デバイスが独自の IoT ハブ ID を持ち、理論的に単独で IoT ハブに接続できる場合は、IoT Edge 透過ゲートウェイが使用されることを思い出してください。ゲートウェイは、デバイスと IoT ハブの間の通信を単純に受け渡します。ネットワーク接続が失われたときに発生するオフライン シナリオをサポートするために、このゲートウェイ デバイスを実装しています。
+1. 「**接続を続行しますか?**」というメッセージが表示されたら、「**yes**」と入力して **Enter** キーを押します。
 
-> **注意**: ヘルパー スクリプトを使用して、IoT Edge デバイスを透過ゲートウェイとして構成します。これにより、プロセスをより迅速に完了できます。
+    VM への接続をセキュリティで保護するために使用される証明書が自己署名であるため、このプロンプトがセキュリティの確認となります。このプロンプトに対する回答は、後続の接続で記憶されます。また、これは最初の接続でのみ表示されます。
 
-1. Visual Studio Code の新しいインスタンスを開きます。
+1. パスワードを入力するよう求められたら、Edge ゲートウェイ VM がプロビジョニングされる時に作成した管理者パスワードを入力します。
 
-1. Visual Studio Code の 「**ファイル**」 メニューで 「**フォルダーを開く**」 をクリックします。
+1. 接続されると、ターミナルは次のように Linux VM の名前を表示するように変更されます。これにより、接続された VM が分かります。
 
-1. 「フォルダーを開く」 ダイアログで、**>Allfile\Labs\14-Run an IoT Edge device in restricted network and offline\Setup** フォルダーに移動します。 
-
-    _ラボ 3: 開発環境のセットアップ_: ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * すべてのファイル
-      * ラボ
-          * 14 - 制限されたネットワークおよびオフラインでの IoT Edge デバイスの実行
-            * セットアップ
-
-1. 「**セットアップ**」、「**「フォルダーの選択**」 の順にクリックします。
-
-1. **「エクスプローラ」**ペインで、**「setup-iot-edge-gateway.sh」** をクリックします。 
-
-1. コード エディターで、プレースホルダーの値を次のように置き換えます。
-
-    更新する必要がある変数は、`setup-iot-edg-gateway.sh` スクリプトの先頭付近にあり、プレースホルダーが置き換えられる前は、次のようになります。
-
-    ```sh
-    connectionstring="{iot-edge-device-connection-string}"
-    hostname="{iot-edge-device-hostname}"
+    ``` bash
+    username@vm-az220-training-gw0002-{your-id}:~$
     ```
 
-    プレースホルダーの値に関するガイダンス: 
-
-    | プレースホルダー | 置き換える値 |
-    | :--- | :--- |
-    | `{iot-edge-device-connection-string}` | Azure IoT Hub 内で作成された IoT Edge デバイス  **IoTEdgeGateway** の 「**接続文字列**」 に貼り付けます。
-    | `{iot-edge-device-hostname}` | 先ほど作成した Ubuntu VM の IoT Edge **AZ220EdgeVM{Your ID}** の 「**パブリック IP アドレス**」 に貼り付けます。パブリック IP アドレスは、子 IoT デバイスで DNS ホスト名として使用され、 IoT Edge の透過的なゲートウェイに接続するのに必要です。パブリック IP アドレスは、Azure portalの仮想マシン **AZ220EdgeVM{Your ID}** の 「概要」 ペインに表示されています。
-
-1. 「**ファイル**」 メニューの 「**上書き保存**」 をクリックします。   
-
-1. **「エクスプローラ」** ペインで、 **setup-remote-iot-edge-gateway.sh** をクリックします。 
-
-1. コード エディターで、プレースホルダーの値を次のように置き換えます。
-
-    更新する必要がある変数は、`setup-remote-iot-edg-gateway.sh` スクリプトの先頭付近にあり、プレースホルダーが置き換えられる前は以下のようになります。
-
-    ```sh
-    username="{iot-edge-username}"
-    ipaddress="{iot-edge-ipaddress}"
-    ```
-
-    プレースホルダーの値に関するガイダンス: 
-
-    | プレースホルダー | 置き換える値 |
-    | :--- | :--- |
-    | `{iot-edge-username}` | 管理者の**ユーザー名**を入力して、Ubuntu VM の IoT Edge **AZ220EdgeVM{Your ID}** に接続します。このユーザー名は、SSH を介した VM への接続に使用されます。このユーザー名は、この演習で既に (VM を作成するために) 使用した Azure CLI コマンド内で **vmadmin** として指定されています 。 
-    | `{iot-edge-ipaddress}` | Ubuntu VM の IoT Edge **AZ220EdgeVM{Your ID}** の**パブリック IP アドレス**を入力します。このIP アドレスは、SSH を介した VM への接続に使用されます。
-
-1. 「**ファイル**」 メニューの 「**上書き保存**」 をクリックします。   
-
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
-
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
-
-1. Azure portal のツールバーで、「**Cloud Shell**」 をクリックします。
-
-    **Bash** を使用するように環境設定されているかを確認します。
-
-1. Azure Cloud Shell ツール バーで、セットアップ スクリプトをアップロードするには、「**ファイルのアップロード/ダウンロード**」 (右から 4 番目のボタン) をクリックします。
-
-1. ドロップダウンで、「**アップロード**」 をクリックします。
-
-1. ファイル選択ダイアログで、開発環境を構成したときにダウンロードした GitHub ラボ ファイルのフォルダーの場所に移動します。
-
-    このコースのラボ 3 にあたる「開発環境のセットアップ」では、ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
-
-    * すべてのファイル
-      * ラボ
-          * 14 - 制限されたネットワークおよびオフラインでの IoT Edge デバイスの実行
-            * セットアップ
-
-    setup-iot-edge-gateway.sh および setup-remote-iot-edge-gateway.sh スクリプト ファイルは、演習 14 の設定フォルダー内にあります。
-
-1. **setup-iot-edge-gateway.sh** および **setup-remote-iot-edge-gateway.sh** スクリプト ファイルを選択し、「**開く**」 をクリックします。
-
-    アップロードが完了すると、通知が表示されます。
-
-    > **注意**:  この 2 つのヘルパー スクリプトは、Ubuntu VM 上で Azure IoT Edge を透過的なゲートウェイ デバイスとして設定するのに役立ちます。これらのスクリプトは、このラボでの開発用途のものであり、実稼働用ではありません。
-
-1. 両方のファイルのアップロードが完了したことを確認するには、次のコマンドを入力します。
+1. 仮想マシンのパブリック IP アドレスを確認するには、次のコマンドを入力します。
 
     ```bash
+    nslookup vm-az220-training-gw0001-{your-id}.centralus.cloudapp.azure.com
+    ```
+
+    次のように出力されます。
+
+    ```bash
+    Server:         127.0.0.53
+    Address:        127.0.0.53#53
+
+    Non-authoritative answer:
+    Name:   vm-az220-training-gw0001-{your-id}}.centralus.cloudapp.azure.com
+    Address: 168.61.181.131
+    ```
+
+    VM のパブリック IP は、最終的な**アドレス**値 (この場合は **168.61.181.131**) です。
+
+    > **重要**: この IP アドレスは後で必要になるため、メモしておきます。IP アドレスは通常、VM を再起動するたびに変更されます。
+
+#### タスク 2: IoT Edge 構成の詳細を確認する
+
+VM の最初の起動時に、IoT Edge を構成するスクリプトが実行されました。このスクリプトは、次の操作を実行しました。
+
+* **aziot-identity-service** パッケージのインストール
+* **aziot-edge** パッケージのインストール
+* 初期バージョンの **config.toml** (IoT Edge の構成ファイル) を **/etc/aziot/config.toml** にダウンロード
+* ARM テンプレートの実行時に提供されたデバイス接続文字列を **/etc/aziot/config.toml** に追加
+* [Iot Edge の git リポジトリ](https://github.com/Azure/iotedge.git) を **/etc/gw-ssl/iotedge** に複製
+* ディレクトリ **/tmp/lab12** を作成し、IoT Edge ゲートウェイの SSL テスト ツールを **/etc/gw-ssl/iotedge** からコピー
+* **/tmp/lab12** にテスト SSL 証明書を生成し、**/etc/aziot** にコピー
+* **/etc/aziot/config.toml** に証明書を追加
+* 更新された **/etc/aziot/config.toml** を IoT Edge ランタイムに適用
+
+1. インストールされた IoT Edge のバージョンを確認するには、次のコマンドを入力します。
+
+    ```bash
+    iotedge --version
+    ```
+
+    この記事の執筆時点で、インストールされているバージョンは `iotedge 1.2.3` です。
+
+1. IoT Edge の構成を表示するには、次のコマンドを入力します。
+
+    ```bash
+    cat /etc/aziot/config.toml
+    ```
+
+    次のように出力されます。
+
+    ```s
+    [provisioning]
+    source = "manual"
+    connection_string = "HostName=iot-az220-training-dm080221.azure-devices.net;DeviceId=sensor-th-0067;SharedAccessKey=2Zv4wruDViwldezt0iNMtO1mA340tM8fnmxgoQ3k0II="
+
+    [agent]
+    name = "edgeAgent"
+    type = "docker"
+
+    [agent.config]
+    image = "mcr.microsoft.com/azureiotedge-agent:1.2"
+
+    [connect]
+    workload_uri = "unix:///var/run/iotedge/workload.sock"
+    management_uri = "unix:///var/run/iotedge/mgmt.sock"
+
+    [listen]
+    workload_uri = "fd://aziot-edged.workload.socket"
+    management_uri = "fd://aziot-edged.mgmt.socket"
+
+    [moby_runtime]
+    uri = "unix:///var/run/docker.sock"
+    network = "azure-iot-edge"
+
+    trust_bundle_cert = 'file:///etc/aziot/azure-iot-test-only.root.ca.cert.pem'
+
+    [edge_ca]
+    cert = 'file:///etc/aziot/iot-edge-device-ca-MyEdgeDeviceCA-full-chain.cert.pem'
+    pk = 'file:///etc/aziot/iot-edge-device-ca-MyEdgeDeviceCA.key.pem'
+    ```
+
+    セットアップ中に、**connection_string**、**trust_bundle_cert**、**cert**、**pk** の値が更新されました。
+
+1. IoT Edge デーモンが実行されていることを確認するには、次のコマンドを入力します。
+
+    ```bash
+    sudo iotedge system status
+    ```
+
+    このコマンドにより、次のような出力が表示されます。
+
+    ```bash
+    System services:
+        aziot-edged             Running
+        aziot-identityd         Running
+        aziot-keyd              Running
+        aziot-certd             Running
+        aziot-tpmd              Ready
+
+    Use 'iotedge system logs' to check for non-fatal errors.
+    Use 'iotedge check' to diagnose connectivity and configuration issues.
+    ```
+
+1. IoT Edge ランタイムが接続されていることを確認するには、次のコマンドを実行します。
+
+    ```bash
+    sudo iotedge check
+    ```
+
+    これにより、いくつかのチェックが実行され、結果が表示されます。このラボでは、**構成チェック**の警告/エラーを無視してください。**接続チェック**は成功し、次のようになります。
+
+    ```bash
+    Connectivity checks (aziot-identity-service)
+    --------------------------------------------
+    √ host can connect to and perform TLS handshake with iothub AMQP port - OK
+    √ host can connect to and perform TLS handshake with iothub HTTPS / WebSockets port - OK
+    √ host can connect to and perform TLS handshake with iothub MQTT port - OK
+
+    Configuration checks
+    --------------------
+    ** entries removed for legibility **
+
+    Connectivity checks
+    -------------------
+    √ container on the default network can connect to IoT Hub AMQP port - OK
+    √ container on the default network can connect to IoT Hub HTTPS / WebSockets port - OK
+    √ container on the default network can connect to IoT Hub MQTT port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub AMQP port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub HTTPS / WebSockets port - OK
+    √ container on the IoT Edge module network can connect to IoT Hub MQTT port - OK
+    ```
+
+    接続が失敗した場合は、**config.toml** の接続文字列値を再確認してください。
+
+1. VM シェルを終了するには、次のコマンドを入力します。
+
+    ```bash
+    exit
+    ```
+
+    VM への接続が終了し、Cloud Shell プロンプトが表示されるはずです。
+
+#### タスク 3: SSL 証明書のダウンロード
+
+次に、リーフ デバイスと IoT Edge ゲートウェイ間の通信を暗号化するための **MyEdgeDeviceCA** 証明書を **vm-az220-training-gw0002-{your-id}** 仮想マシンから「ダウンロード」する必要があります。
+
+1. Cloud Shell コマンド プロンプトで、**/tmp/lab12** ディレクトリを **vm-az220-training-gw0002-{your-id}** 仮想マシンから **Cloud Shell** ストレージにダウンロードするには、次のコマンドを入力します。
+
+    ```bash
+    mkdir lab12
+    scp -r -p <username>@<FQDN>:/tmp/lab12 .
+    ```
+
+    > **注**: OK **<username>** プレースホルダーを VM の管理者ユーザーのユーザー名に置き換え、**<FQDN>** プレースホルダーを VM の完全修飾ドメイン名に置き換えます。必要に応じて、SSH セッションを開くために使用されるコマンドを参照してください。
+    > `scp -r -p vmadmin@vm-az220-training-edge0001-dm080321.centralus.cloudapp.azure.com:/tmp/lab12 .`
+
+1. プロンプトが表示されたら、VM の管理者パスワードを入力します。
+
+    コマンドが実行されると、SSH 経由で証明書とキー ファイルを含む **/tmp/lab12** ディレクトリのコピーが Cloud Shell ストレージにダウンロードされます。
+
+1. ファイルがダウンロードされたことを確認するには、次のコマンドを入力します。
+
+    ```bash
+    cd lab12
     ls
     ```
 
-    `ls` コマンドを実行すると、現在のディレクトリの内容が一覧表示されます。続行する前に、両方のファイルがあることを確認してください。
-
-1. **setup-remote-iot-edge-gateway.sh** に、読み取り/書き込み/実行の権限があることを確認するには、次のコマンドを入力します。
-
-    ```sh
-    chmod 700 setup-remote-iot-edge-gateway.sh
-    ```
-
-1. IoT Edge Transparent Gateway として Ubuntu VM に IoT Edge を設定するには、次のコマンドを入力します。
-
-    ```sh
-    ./setup-remote-iot-edge-gateway.sh
-    ```
-
-    ホストの信頼性を確立できないというメッセージが表示され、接続を続行するかを確認された場合は、**yes** と入力します。
-
-1. プロンプトが表示されたら、Ubuntu VM の IoT Edge の **パスワード**を入力します。
-
-    合計 3 回パスワードの入力を求められます。これらのプロンプトは、`ssh` と `scp` コマンドが `setup-iot-edge-gateway.sh` ヘルパー スクリプトを VM にアップロードするため、スクリプトを実行し、このあと IoT Edge Transparent Gateway が子 IoT デバイスを認証するように x.509 証明書をダウンロードします。
-
-    ヘルパー スクリプトが Ubuntu VM の IoT Edgeを IoT Edge Transparent Gateway に構成し終えると、Cloud Shell は `azure-iot-test-only.root.cert.pem` x.509 証明書をダウンロードします。
-
-1. 指示に従い、x.509 証明書をダウンロード フォルダーに保存します。 
-
-    この証明書は、子 IoT デバイス認証の構成に使用されます。
-
-    > **注意**: Web ブラウザー内で x.509 証明書が自動的にダウンロードされない場合は、Cloud Shell コマンド プロンプトを開き、次のコマンドを実行します。
-
-    ```sh
-    download azure-iot-test-only.root.ca.cert.pem
-    ```
-
-    この演習では、ヘルパー スクリプトを使用して、Ubuntu VM の IoT Edge を IoT Edge Transparent Gateway Device として設定と構成を行いました。スクリプト ファイルを使用することにより、ラボのアクティビティは、Azure IoT Edge の制限されたネットワークとオフライン機能を理解するという、より大きなシナリオに焦点を当てます。Ubuntu VM で、IoT Edge Transparent Gateway として IoT Edgeを設定する手順については、このコースのラボ 12 をご覧ください。 
-
-### 演習 5: Azure CLI を使用して IoT Edge ゲートウェイ デバイスの受信ポートを開く
-
-この演習では、Azure CLI を使用して、インターネットから Azure IoT Edge ゲートウェイへのアクセスを保護するネットワーク セキュリティ グループ (NSG) を構成します。ダウンストリーム IoT デバイスがゲートウェイと通信できるよう、MQTT、AMQP、および HTTPS 通信に必要なポートが開かれている必要があります。
-
-Azure IoT Edge ゲートウェイが子 IoT デバイスと通信するには、デバイス プロトコルの TCP/IP ポートが **受信**通信用に開かれていなくてはなりません。デバイスは、サポートされている 3 つのプロトコルのいずれかを使用して IoT ゲートウェイと通信できます。
-
-サポートされているプロトコルの TCP/IP ポート番号は次のとおりです。
-
-| プロトコル | ポート番号 |
-| --- | --- |
-| MQTT | 8883 |
-| AMQP | 5671 |
-| HTTPS<br/>MQTT + WS (Websocket)<br/>AMQP + WS (Websocket) | 443 |
-
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
-
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
-
-1. ダッシュボードで **AZ220EdgeVM{Your ID}** 仮想マシンを含むリソース グループのタイルを探します。
-
-    この RG タイルには、**AZ220EdgeVM{Your ID}** 仮想マシンのために作成された **AZ220EdgeVM{Your ID}NSG**ネットワーク セキュリティ グループ (NSG) も含まれています。
-
-1. Azure portal のツール バーで、**「Cloud Shell」** をクリックします。
-
-    **Bash** を使用するように環境設定されているかを確認します。
-
-1. Cloud Shell コマンド プロンプトで、Azure IoT Edge ゲートウェイ VM で使用されているネットワーク セキュリティ グループ (NSG) の名前を一覧表示するには、次のコマンドを入力します。
+    次の一覧表示されたファイルを確認する必要があります。
 
     ```bash
-    az network nsg list --resource-group AZ-220-IoTEdge-RG -o table
+    certGen.sh  csr        index.txt.attr      index.txt.old  openssl_root_ca.cnf  serial
+    certs       index.txt  index.txt.attr.old  newcerts       private              serial.old
     ```
 
-    次のような出力が表示されます。
+    ファイルが **vm-az220-training-gw0002-{your-id}** 仮想マシンから Cloud Shell ストレージにコピーされたら、必要に応じて、任意の IoT Edge デバイス証明書とキー ファイルをローカル コンピューターに簡単にダウンロードできるようになります。'download <filename>' コマンドを使用して、ファイルを Cloud Shell からダウンロードできます。ラボの後半でこれを行います。
 
-    ```text
-    Location    Name                     ProvisioningState    ResourceGroup            ResourceGuid
-    ----------  -----------------------  -------------------  -----------------------  ------------------------------------
-    westus2     AZ220EdgeVM{YOUR-ID}NSG  Succeeded            AZ-220-IoTEdge-RG        <GUID>
+1. このラボで後で使用するルート証明書をダウンロードするには、次のコマンドを入力します。
+
+    ```bashd
+    download ~/lab12/
     ```
 
-1. Cloud Shell コマンド プロンプトで、MQTT、AMQP、および HTTPS 通信プロトコルの NSG に **受信規則** を追加するには、以下のコマンドを入力します。
+### 演習 3IoT Edge デバイスの Time to Live とメッセージの記憶域を構成する
 
-    ```cmd/sh
-    az network nsg rule create --name MQTT --nsg-name AZ220EdgeVM{YOUR-ID}NSG --resource-group AZ-220-IoTEdge-RG --destination-port-ranges 8883 --priority 101
-    az network nsg rule create --name AMQP --nsg-name AZ220EdgeVM{YOUR-ID}NSG --resource-group AZ-220-IoTEdge-RG --destination-port-ranges 5671 --priority 102
-    az network nsg rule create --name HTTPS --nsg-name AZ220EdgeVM{YOUR-ID}NSG --resource-group AZ-220-IoTEdge-RG --destination-port-ranges 443 --priority 103
-    ```
+拡張オフライン シナリオ用に IoT Edge デバイスを構成するには、オフラインになる可能性のあるサポートされている期間 (Time-to-Live と呼ばれることが多い) の指定、およびローカル ストレージ設定の指定が含まれます。
 
-    コマンドを実行する前に、上記の **{YOUR-ID}** プレースホルダーを適切な値に置き換えてください。
+Time-to-Live (TTL) のデフォルト値は `7200` (7200 秒、つまり 2 時間) です。これは迅速な中断には十分な時間ですが、デバイスまたはソリューションが長期間オフラインモードで機能する必要がある場合、2 時間が十分に長くない場合があります。長期間にわたって切断された状態が発生する可能性がある場合に、ソリューションが製品利用統計情報を失わずに動作するよう、IoT Edge ハブ モジュールの TTL プロパティを最大 1,209,600 秒 (2 週間の TTL 期間) に構成できます。
 
-    > **注意**:  運用環境では、IoT デバイスで使用されている通信プロトコルへの受信通信のみを開くことをお勧めします。ご使用のデバイスで MQTT のみを使用している場合は、そのポートの受信通信のみを開きます。これにより、悪用される可能性のあるオープン ポートの表面攻撃領域を制限できます。
+IoT Edge Hub モジュール (`$edgeHub`) は、Azure IoT Hub サービスとゲートウェイ デバイスで実行されている IoT Edge Hub 間の通信を調整するために使用されます。モジュール ツインの必要なプロパティ内にある、'storeAndForwardConfiguration.timeToLiveSecs' プロパティで、Azure IoT Hub などのルーティング エンドポイントから切断された状態のときに IoT Edge Hub がメッセージを保持する時間を秒単位で指定します。単一デバイスまたは大規模なデプロイの一部である特定のデバイスの配置マニフェストで、Edge ハブの 'timeToLiveSecs' プロパティを指定できます。
 
-    **受信規則**が**ネットワーク セキュリティ グループ** (NSG) に追加されると、子 IoT デバイスは IoT Edge ゲートウェイ仮想マシンと通信できるようになります。
+IoT Edge デバイスは、切断/オフライン状態の場合に自動的にメッセージを保存します。ストレージの場所は、'HostConfig' オブジェクトを使用して構成できます。
 
-### 演習 6: IoT Edge デバイスの Time-to-Live とメッセージ の記憶域を構成する
+この演習では、Azure IoT Hub の Azure portal ユーザー インターフェイスを使用して、単一の IoT Edge ゲートウェイ デバイスにある Edge Hub ('$edgeHub') モジュールの 'timeToLiveSecs' プロパティを変更します。また、メッセージが保存される IoT Edge デバイス上の保存場所も構成します。
 
-この演習では、Azure IoT Edge ゲートウェイ デバイス上の Edge ハブ モジュールのメッセージ Time-to-Live (TTL) が既定よりも長くなるように構成します。また、IoT Edge デバイス上でメッセージを保存するストレージの場所も構成します。
+#### タスク 1: $edgeHub モジュール ツインを構成する
 
-TTL の既定値は `7200` (2 時間) で、短い中断には十分です。ただし、オフライン モードで長時間動作する必要があるデバイスまたはソリューションでは、2 時間では足りない場合があります。長期間にわたって切断された状態が発生する可能性がある場合に、ソリューションが製品利用統計情報を失わずに動作するよう、IoT Edge ハブ モジュールの TTL プロパティを最大 1,209,600 秒 (2 週間の TTL 期間) に構成できます。
+1. 必要な場合は、お使いの Azure アカウントの資格情報を使用して Azure portal にログインします。
 
-IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行されている IoT Edge ハブと Azure IoT Hub サービス間の通信を調整するために使用します。モジュール ツインの必要なプロパティ内にある、`storeAndForwardConfiguration.timeToLiveSecs` プロパティで、Azure IoT Hub などのルーティング エンドポイントから切断された状態のときに IoT Edge ハブがメッセージを保持する時間を秒単位で指定します。
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントを使用してログインしていることを確認してください。
 
-単一デバイスまたは大規模なデプロイの一部である特定のデバイスの配置マニフェストで、Edge ハブの `timeToLiveSecs` プロパティを指定できます。この演習では、Azure IoT Hub の Azure portal ユーザー インターフェイスを使用して、単一の IoT Edge ゲートウェイ デバイスにある Edge Hub (`$edgeHub`) モジュールの `timeToLiveSecs` プロパティを変更します。
+1. **rg-az220** リソース グループのタイルで、**iot-az220-training-{your-id}** をクリックします
 
-#### タスク 1: モジュール ツインを設定する
+1. 「IoT Hub」ブレードの左側のメニューで、「**自動デバイス管理**」で、「**IoT Edge**」をクリックします。
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+    このウィンドウでは、IoT Hub に接続されている IoT Edge デバイスを管理することができます。
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+1. 「**デバイス ID**」で 「**vm-az220-training-gw0002-{your-id}**」をクリックします。
 
-1. リソース グループ タイルで、 **iot-az220-training-{your-id}** をクリックします。
+1. 「**モジュール**」の「**$edgeHub**」をクリックします。
 
-1. **「iot-az220-training-{your-id}」** ブレードのナビゲーション メニュー 左側で、**「自動デバイス管理」** の下にある **「IoT Edge」** をクリックします。
+    **Edge ハブ** モジュールの 「モジュール ID の詳細」ブレードでは、IoT Edge デバイスのモジュール ID ツインおよびその他のリソースにアクセスできます。
 
-    このウィンドウでは、IoT ハブに接続されている IoT Edge デバイスを管理することができます。
+1. 「**モジュール ID の 詳細**」ブレードで、「**モジュール ID ツイン**」をクリックします。
 
-1. **「デバイス ID」** の下にある、 **「IoTEdge ゲートウェイ」** をクリックします。
+    このブレードには、エディター ウィンドウに JSON として表示される `vm-az220-training-gw0002-{your-id}/$edgeHub` のモジュール ID ツインが含まれています。
 
-1. **「モジュール」** の **「$edgeHub」** をクリックします。
-
-    **Edge ハブ** モジュールの 「モジュール ID の詳細」 ブレードでは、IoT Edge デバイスのモジュール ID ツインおよびその他のリソースにアクセスできます。
-
-1. 「**モジュール ID の 詳細**」 ブレードで、「**モジュール ID ツイン**」 をクリックします。
-
-    このブレードには、エディター ウィンドウに JSON として表示される `IoTEdgeGateway/$edgeHub` のモジュール ID ツインが含まれています。 
-    
 1. $edgeHub モジュール ID ツインの内容を確認してください。
 
     これは新しいデバイスなので、目的のプロパティは基本的に空であることに注意してください。
 
-1. 「**モジュール ID ツイン**」 ブレードを閉じます。
+1. 「**モジュール ID ツイン**」ブレードを閉じます。
 
-1. 「**IoTEdgeGateway**」 ブレードに戻ります。
+1. 「**vm-az220-training-gw0002-{your-id}**」ブレードに戻ります。
 
-1. ブレードの上部で、「**モジュールの設定**」 をクリックします。
+1. ブレードの上部で、「**モジュールの設定**」をクリックします。
 
-    **「デバイスでのモジュールの設定」** ブレードを使用すると、この IoT Edge デバイスに展開される IoT Edge モジュールを作成して構成できます。
+    「**デバイスでのモジュールの設定**」ブレードを使用すると、この IoT Edge デバイスに展開される IoT Edge モジュールを作成して構成できます。
 
-1. **「モジュールの設定」** ブレードの **「IoT Edge モジュール」** で、**「ランタイム設定」** をクリックします。
+1. 「**モジュールの設定**」ブレードの 「**IoT Edge モジュール**」で、「**ランタイム設定**」 をクリックします。
 
-1. **「ランタイム設定」** ウィンドウの  **「Edge ハブ」** で、**「ストア アンド フォワードの構成 - Time to Live (秒)」** フィールドを見つけます。 
+1. 「**ランタイム設定**」ペインで、「**Edge Hub**」タブを選択します。
 
-1. **「保存と転送の設定 - 有効期限 (秒)」** で、値を **1209600** に変更します。　
+1. 「**ストア アンド フォワードの構成 - Time to Live (秒)**」フィールドを見つけます。
 
-    これにより、IoT Edge デバイス向けに 2 週間のメッセージ有効期限が指定されます。
+1. 「**ストア アンド フォワードの構成 - Time to Live (秒)**」テキストボックスに、**1209600** と入力します
 
-    > **注意**:  Edge ハブ (`$edgeHub`) モジュールで**メッセージの有効期限** (TTL) を構成する場合は、いくつかの点を考慮する必要があります。IoT Edge デバイスが切断されると、メッセージはローカル デバイスに格納されます。TTL 期間中に保存されるデータ量を計算し、それだけのデータをデバイスに格納するのに十分なストレージがあることを確認する必要があります。重要なデータの損失を回避するには、ストレージと TTL の構成量がソリューション要件を満たさなくてはなりません。
+    これは、IoT Edge デバイスのメッセージの存続可能時間の値 2 週間を指定します。これは、最大時間です。
+
+    > **注**:  Edge ハブ (`$edgeHub`) モジュールで**メッセージの有効期限** (TTL) を構成する場合は、いくつかの点を考慮する必要があります。IoT Edge デバイスが切断されている場合、メッセージはローカル デバイスに保存されます。TTL 期間中に保存されるデータ量を計算し、その量のデータに対して十分な記憶域がデバイスにあることを確認する必要があります。重要なデータの損失を回避するには、ストレージと TTL の構成量がソリューション要件を満たさなくてはなりません。
     >
-    > デバイスに十分なストレージがない場合は、短い TTL を構成する必要があります。メッセージの経過時間が TTL の制限時間に達すると、Azure IoT Hub にまだ送信されていないメッセージは削除されます。
+    > デバイスに十分な記憶域がない場合は、より短い TTL を構成する必要があります。メッセージの格納期間が TTL の時間制限に達すると、まだ Azure IoT Hub に送信されていない場合は削除されます。
 
-    IoT Edge デバイスは、切断/オフライン状態の場合に自動的にメッセージを保存します。ストレージの場所は、`HostConfig` オブジェクトを使用して構成できます。
+    IoT Edge デバイスは、切断/オフライン状態の場合に自動的にメッセージを保存します。ストレージの場所は、'HostConfig' オブジェクトを使用して構成できます。
 
-1. **「Edge ハブ」** の **「作成オプション」** フィールドを見つけます。
+1. 「**環境変数**」フィールドを見つけます。
 
-    このフィールドには、構成可能な `HostConfig` JSON オブジェクトが含まれていることに注意してください。
+    メッセージの保存場所の構成を完了するには、新しい環境変数を追加する必要があります。
 
-1. **「作成オプション」** で、`HostConfig` オブジェクトを次のように更新します。
+1. 「**環境変数** 」の「**名前**」テキストボックスに「**storageFolder**」と入力します
 
-    `HostConfig` オブジェクト内のストレージの場所を構成するには、次の `Binds` プロパティを `HostConfig` に追加します。
+1. 「**環境変数**」の「**値**」テキストボックスに「**/iotedge/storage/**」と入力します
+
+1. 「**コンテナーの作成オプション**」フィールドを見つけます。
+
+    このフィールドには、構成可能な 'HostConfig' JSON オブジェクトが含まれていることに注意してください。`HostConfig` プロパティと環境変数を作成して、Edge デバイスの保存場所を構成します。
+
+1. `HostConfig` オブジェクトの `PortBindings` プロパティの閉じ括弧の下に、次の `Binds` プロパティを追加します。
 
     ```json
     "Binds": [
-        "/etc/iotedge/storage/:/iotedge/storage/"
+        "/etc/aziot/storage/:/iotedge/storage/"
     ]
     ```
 
-    この `Binds` 値は、Edge ハブ モジュールで Docker コンテナーの `/iotedge/storage/` ディレクトリが物理 IoT Edge デバイス上のホスト システム ディレクトリ `/etc/iotedge/storage/` にマッピングされるように構成します。
+    > **注**: `PortBindings` プロパティと `Binds` プロパティは必ずコンマで区切ります。
 
-    値は `<HostStoragePath>:<ModuleStoragePath>` の形式になります。`<HostStoragePath>` 値は、IoT Edge デバイス上のホスト ディレクトリの場所です。`<ModuleStoragePath>` は、コンテナー内で使用可能なモジュール ストレージ パスです。これらの値はどちらも絶対パスでなければなりません。
-
-    `Binds` プロパティは、`PortBindings` プロパティのすぐ下の `HostConfig` に追加できます。プロパティは必ずコンマで区切ってください。
-
-    **「作成オプション」** ボックスの結果の JSON は、次のようになります。
+    「**作成オプション**」テキストボックスの結果の JSON は、次のようになります。
 
     ```json
     {
@@ -668,70 +430,60 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
                 ]
             },
             "Binds": [
-                "/etc/iotedge/storage/:/iotedge/storage/"
+                "/etc/aziot/storage/:/iotedge/storage/"
             ]
         }
     }
     ```
 
-1. **「Edge ハブ」** で **「環境変数」** フィールドを見つけます。
+    この `Binds` 値は、Edge ハブ モジュールで Docker コンテナーの `/iotedge/storage/` ディレクトリが物理 IoT Edge デバイス上のホスト システム ディレクトリ `/etc/iotedge/storage/` にマッピングされるように構成します。
 
-    メッセージの保存場所で変更の更新を完了するには、新しい環境変数を追加する必要があります。
+    値は `<HostStoragePath>:<ModuleStoragePath>` の形式になります。`<HostStoragePath>` 値は、IoT Edge デバイス上のホスト ディレクトリの場所です。`<ModuleStoragePath>` は、コンテナー内で使用可能なモジュール ストレージ パスです。これらの値はどちらも絶対パスを指定する必要があります。
 
-1. **「環境変数」** の **「名前」** テキストボックスに「**storageFolder**」と入力します
+1. 「**ランタイム設定**」ペインの下部にある 「**適用**」をクリックします。
 
-1. **「環境変数」** の **「値」** テキストボックスに「**/iotedge/storage/**」と入力します
-
-1. ブレードの上部にある 「**保存**」 をクリックします。
-
-1. **「モジュールの設定」** ブレードで **「Review + create」** をクリックします。
+1. 「**デバイスにモジュールを設定する** 」レードで「**Review + create**」をクリックします。
 
 1. 配置マニフェストの内容を確認してください。
 
-    配置マニフェスト内で更新プログラムを見つけます。これを見つけるには、`$edgeAgent` と `$edgeHub` の両方をチェックする必要があります。  
+    配置マニフェスト内で更新プログラムを見つけます。これを見つけるには、`$edgeAgent` と `$edgeHub` の両方をチェックする必要があります。
 
-1. ブレードの最下部で、**作成**をクリックします。
+1. ブレードの最下部で、「**作成**」をクリックします。
 
     変更が保存されると、モジュール構成の変更が **IoT Edge デバイス**に通知され、それに応じてデバイスで新しい設定が再構成されます。
 
     変更が Azure IoT Edge デバイスに渡されると、新しい構成で **edgeHub** モジュールが再起動されます。
 
+    > **注**: **モジュール** リストでは、**$edgeHub** モジュールの **ランタイムの状態** にエラーが表示されます。
+
+1. エラー メッセージを確認するには、「**Error**」をクリックします。
+
+    **トラブルシューティング** ページには、エラーログが表示されます。以下のような例外が含まれます。
+
+    ```log
+    Unhandled exception. System.AggregateException: One or more errors occurred. (Access to the path '/iotedge/storage/edgeHub' is denied.)
+    ```
+
+    次のタスクでは、このエラーを解決します。
+
 #### タスク 2: ディレクトリのアクセス許可を更新する
 
-続行する前に、IoT Edge ハブ モジュールのユーザー プロファイルに、**/etc/iotedge/storage/** ディレクトリに対する必要な読み取り、書き込み、および実行のアクセス許可があることを確認する必要があります。
+続行する前に、IoT Edge Hub モジュールのユーザー プロファイルに、**/etc/aziot/storage/** ディレクトリに対する必要な読み取り、書き込み、および実行のアクセス許可があることを確認する必要があります。
 
-1. Azure portal ダッシュボードで **AZ220EdgeVM{YOUR-ID}** をクリックします。
+1. Azure portal のツールバーで、「**Cloud Shell**」をクリックします。
 
-    これで IoT Edge 仮想マシンのブレードが開き、「概要」 ウィンドウが選択されます。
+1. Cloud Shell のコマンド プロンプトで、前のタスクでメモした **ssh** を **ssh vmadmin@vm-az220-training-gw0002-dm080321.centralus.cloudapp.azure.com** のように貼り付けて、**Enter** キーを押します。
 
-1. **「AZ220EdgeVM{YOUR-ID}」** ブレードの最上部で **「接続」** をクリックしてから、**「SSH」** をクリックします。
+1. 「**接続を続行しますか?**」というメッセージが表示されたら、「**yes**」と入力して **Enter** キーを押します。
 
-1. **「クライアントを使用して SSH 経由で接続する」** で **4. 「次のコマンド例を実行して VM に接続する」** フィールドを見つけます。
+    VM への接続をセキュリティで保護するために使用される証明書が自己署名であるため、このプロンプトがセキュリティの確認となります。このプロンプトに対する回答は、後続の接続で記憶されます。また、これは最初の接続でのみ表示されます。
 
-    これは、仮想マシンへの接続に使用されるサンプル SSH コマンドです。VM の IP アドレスと管理者ユーザー名が含まれています。このコマンドは、たとえば `ssh username@52.170.205.79` のような形式になります。
+1. パスワードを入力するよう求められたら、Edge ゲートウェイ VM がプロビジョニングされる時に作成した管理者パスワードを入力します。
 
-    > **注意**: このコマンドの `-i <private key path>` の部分を削除する必要があります (サンプル コマンドに含まれている場合)。 
+1. 接続されると、ターミナルは次のように Linux VM の名前を表示するように変更されます。これにより、接続された VM が分かります。
 
-1. 「**4. Run the example command below to connect to your VM.**」 (次のコマンド例を実行して VM に接続します) の下で、値の右側にある 「**クリップボードにコピー**」 をクリックします。
-
-    > **注意**: 上記のサンプル コマンドに `-i <private key path>` が含まれている場合は、テキスト エディターを使用してコマンドのその部分を削除し、更新されたコマンドをクリップボードにコピーします。 
-
-1. Azure portal のツール バーで、**「Cloud Shell」** をクリックします。
-
-    環境が **Bash** に設定されていることを確認します。
-
-1. Cloud Shell コマンド プロンプトで、クリップボードから `ssh` コマンドを貼り付け、**Enter** キーを押します。
-
-1. 「**接続を続行しますか?**」というメッセージが表示されたら、「はい」と入力して 「Enter」 を押します。
-
-    VM への接続を保護するために使用される証明書は自己署名されているので、このプロンプトはセキュリティの確認です。このプロンプトに対する答えは、その後の接続のために記憶され、最初の接続時にのみプロンプトが表示されます。
-
-1. パスワードの入力を求められたら、VM のプロビジョニング時に入力された管理者パスワードを入力します。
-
-    接続後は、ターミナルのプロンプトが更新され、接続している Linux VM の名前が表示されます。例:
-
-    ```cmd/sh
-    username@AZ220EdgeVM{YOUR-ID}:~$
+    ``` bash
+    username@vm-az220-training-gw0002-{your-id}:~$
     ```
 
 1. 実行中の IoT Edge モジュールを表示するには、次のコマンドを入力します。
@@ -746,32 +498,38 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 
     ```text
     NAME             STATUS           DESCRIPTION                 CONFIG
-    edgeAgent        running          Up 4 seconds                mcr.microsoft.com/azureiotedge-agent:1.0
-    edgeHub          failed           Failed (139) 0 seconds ago  mcr.microsoft.com/azureiotedge-hub:1.0
+    edgeAgent        running          Up 4 seconds                mcr.microsoft.com/azureiotedge-agent:1.1
+    edgeHub          failed           Failed (139) 0 seconds ago  mcr.microsoft.com/azureiotedge-hub:1.1
     ```
 
     これは、**/etc/iotedge/storage/** ディレクトリに書き込むアクセス許可が *edgeHub* プロセスにないためです。
 
-1. ディレクトリ アクセス許可に関する問題を確認するには、次のコマンドを入力します。
+1. ディレクトリのアクセス許可に関する問題を確認するために、次のコマンドを入力します。
 
     ```bash
     iotedge logs edgeHub
     ```
 
-    ターミナルは現在のログを出力します。ログをスクロールすると、関連するエントリが表示されます。
+    ターミナルに現在のログが出力されます。ログをスクロールすると、次のような関連するエントリが表示されます。
 
     ```text
-    ハンドルされない例外: System.AggregateException: 1 つ以上のエラーが発生しました。(パス `/iotedge/storage/edgeHub` へのアクセスが拒否されました。)---> System.UnauthorizedAccessException: パス `/iotedge/storage/edgeHub` へのアクセスが拒否されました。---> System.IO.IOException: アクセス許可が拒否された場合
+    Unhandled Exception: System.AggregateException: One or more errors occurred. (Access to the path '/iotedge/storage/edgeHub' is denied.) ---> System.UnauthorizedAccessException: Access to the path '/iotedge/storage/edgeHub' is denied. ---> System.IO.IOException: Permission denied
     ```
-  
+
 1. ディレクトリのアクセス許可を更新するには、次のコマンドを入力します。
 
     ```sh
-    sudo chown $( whoami ):iotedge /etc/iotedge/storage/
-    sudo chmod 775 /etc/iotedge/storage/
+    sudo chown $( whoami ):iotedge /etc/aziot/storage/
+    sudo chmod 775 /etc/aziot/storage/
     ```
 
-    最初のコマンドは、ディレクトリの所有者を現在のユーザーに設定し、所有しているユーザー グループを **iotedge** に設定します。2 番目のコマンドは、現在のユーザーと **iotedge** グループのメンバーの両方へのフル アクセスを有効にします。これにより、*edgeHub* モジュールは **/etc/iotedge/storage/** ディレクトリ内でディレクトリとファイルを作成できるようになります。 
+    最初のコマンドは、ディレクトリの所有者を現在のユーザーに設定し、所有しているユーザー グループを **iotedge** に設定します。2 番目のコマンドは、現在のユーザーと **iotedge** グループのメンバーの両方へのフル アクセスを有効にします。これにより、*edgeHub* モジュールは **/etc/iotedge/storage/** ディレクトリ内でディレクトリとファイルを作成できるようになります。
+
+    > **注**: 「**chown: '/etc/iotedge/storage/' にアクセスできません: そのようなファイルまたはディレクトリはありません**」というエラーが表示された場合、次のコマンドを使用してディレクトリを作成してから、上記のコマンドを再実行します。
+
+    ```sh
+    sudo mkdir /etc/iotedge/storage
+    ```
 
 1. *edgeHub* モジュールを再起動して、起動されていることを確認するには、次のコマンドを入力します。
 
@@ -780,67 +538,115 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
     iotedge list
     ```
 
+    > **注**: 再起動時のモジュール名は、大文字と小文字が区別されます - **edgeHub**
+
     *edgeHub* モジュールが実行されているはずです。
 
     ```text
     NAME             STATUS           DESCRIPTION      CONFIG
-    edgeAgent        running          Up 13 minutes    mcr.microsoft.com/azureiotedge-agent:1.0
-    edgeHub          running          Up 6 seconds     mcr.microsoft.com/azureiotedge-hub:1.0
+    edgeAgent        running          Up 13 minutes    mcr.microsoft.com/azureiotedge-agent:1.1
+    edgeHub          running          Up 6 seconds     mcr.microsoft.com/azureiotedge-hub:1.1
     ```
 
-これで、デバイスをこの IoT Edge ゲートウェイ デバイスに接続する準備ができました。
+これで、IoT１デバイス (子/リーフ) をこの IoT Edge Gateway デバイスに接続する準備が整いました。
 
-### 演習 7: 子 IoT デバイスを IoT Edge ゲートウェイに接続する
+### 演習 4: 子 IoT デバイスを IoT Edge ゲートウェイに接続する
 
-対称キーを使用して通常の IoT デバイスに対して IoT ハブを認証するプロセスは、ダウンストリーム (または子/リーフ) デバイスにも適用されます。唯一の違いは、接続をルーティングするゲートウェイ デバイスへのポインターを追加する必要があること、またはオフラインのシナリオでは、IoT ハブの代わりに認証を処理する必要がある点です。
+対称キーを使用して通常の IoT デバイスを IoT Hub に対して認証するプロセスは、ダウンストリーム (または子/リーフ) デバイスにも適用されます。唯一の違いは、接続をルーティングするためのゲートウェイ デバイスへのポインターを追加するか、またはオフライン シナリオでは IoT Hub に代わって認証を処理する必要があることです。
 
-> **注意**: この演習では、先ほどラボで保存した **ChildDevice1** の接続文字列値を使用します。接続文字列の新しいコピーが必要な場合は、Azure portal の Azure IoT Hub からアクセスできます。IoT ハブの **「IoT デバイス」** ウィンドウを開き、**ChildDevice1** をクリックして **「プライマリ接続文字列」** をコピーし、テキスト ファイルに保存します。 
+> **注**: ラボで以前に保存した **sensor-th-0084** の接続文字列値を使用します。接続文字列の新しいコピーが必要な場合は、Azure portal の Azure IoT Hub からアクセスできます。IoT Hub の 「**IoT デバイス**」ウィンドウを開き、**sensor-th-0084** をクリックして「**プライマリ接続文字列**」をコピーし、テキスト ファイルに保存します。
 
-この演習では、構成済みの対称キーを使用して IoT ハブに接続するようにダウンストリーム IoT デバイス (子デバイスまたはリーフ デバイス) を構成します。デバイスは、(親 IoT Edge デバイスのゲートウェイ ホスト名に加えて) 対称キーを含む接続文字列を使用して IoT ハブと親 IoT Edge デバイスに接続するように構成されます。
+#### タスク 1: hosts ファイルのエントリを作成する
 
-1. Windows **エクスプローラー** アプリを開き、「**ダウンロード**」 フォルダーに移動します。
+このラボの以前のバージョンでは、デバイス接続文字列の **GatewayHostName** の値として FQDN が使用されていましたが、現在のバージョンのテスト スクリプトで生成されるテストの x509 証明書では、サポートされなくなりました。代わりに、ホスト名のみが使用されます。ホスト名を IP アドレスに解決するには、ローカル マシンの **hosts** ファイルにエントリを作成する必要があります。次の手順を実行して、必要なエントリを hosts ファイルに追加します。
 
-    「ダウンロード」 フォルダーには、IoT Edge ゲートウェイを構成したときにダウンロードされた x.509 証明書ファイルが含まれているはずです。子 IoT デバイスのソース コードが含まれているディレクトリに、この証明書ファイルをコピーする必要があります。ラボ 14 の 「スターター」 フォルダーには ChildIoTDevice という名前のフォルダーが含まれています。必要なソース コードは、その ChildIoTDevice フォルダーにあります。
+1. Visual Studio Code を開きます。
 
-1. 「**ダウンロード**」 フォルダーで **azure-iot-test-only.root.ca.cert.pem** を右クリックし、「**コピー**」 をクリックします。
+1. 「**ファイル**」メニューの「**ファイルを開く**」をクリックします。
 
-    このファイルは、ダウンロードした x.509 証明書ファイルで、 `/Starter/ChildIoTDevice` ディレクトリ (子 IoT デバイスのソース コードが存在するディレクトリ) に追加されます。
+1. フォルダー **c:\\Windows\\System32\\Drivers\\etc\\** に移動し、**hosts** ファイルを開きます。
+
+    > **注**: **hosts** ファイルに拡張子はありません。
+
+1. **hosts** ファイルに次の行を追加し、その後に空白の行を追加します。
+
+    ```text
+    {VM Public IP Address} vm-az220-training-gw0002-{your-id}
+    {blank line}
+    ```
+
+    例:
+
+    ```text
+    168.61.181.131 vm-az220-training-gw0002-dm090821
+
+    ```
+
+1. ファイルを保存します。保存に失敗したことを示すメッセージが表示されたら、「**管理者として再試行...**」をクリックし、「**ユーザー アカウント制御**」ダイアログで「**はい**」をクリックします。
+
+これで、ローカル マシンは VM 名を適切な IP アドレスに解決できます。
+
+#### タスク 1: デバイス アプリの構成
+
+このタスクでは、対称キーを使用して IoT Hub に接続するようにダウンストリーム IoT デバイス (子デバイスまたはリーフ デバイス) を構成します。デバイスは、(親 IoT Edge デバイスのゲートウェイ ホスト名に加えて) 対称キーを含む接続文字列を使用して IoT Hub と親 IoT Edge デバイスに接続するように構成されます。
+
+1. Windows **エクスプローラー** アプリを開き、「**ダウンロード**」フォルダーに移動します。
+
+    「ダウンロード」フォルダーには、IoT Edge ゲートウェイを構成したときにダウンロードされた X.509 証明書ファイルが含まれているはずです。この証明書ファイルを IoT デバイス アプリのルート ディレクトリにコピーする必要があります。
+
+1. 「**ダウンロード**」フォルダーで **azure-iot-test-only.root.ca.cert.pem** を右クリックし、「**コピー**」をクリックします。
+
+    > **注**: ダウンロード フォルダーにすでに azure-iot-test-only.root.ca.cert.pem ファイルがある場合、必要なファイルの名前は azure-iot-test-only.root.ca.cert (1).pem になります。宛先フォルダーに追加したら、名前をazure-iot-test-only.root.ca.cert.pem に変更する必要があります。
+
+    このファイルは、ダウンロードした X.509 証明書ファイルで、 '/Starter/ChildIoTDevice' ディレクトリ (子 IoT デバイスのソース コードが存在するディレクトリ) に追加されます。
+
+1. ラボ 14 のスターター フォルダーに移動し、コピーしたファイルを **ChildIoTDevice** フォルダーに貼り付けます。
+
+1. コピーした証明書ファイルの名前が **azure-iot-test-only.root.ca.cert.pem** であることを確認します
+
+    ダウンロード フォルダーにすでに azure-iot-test-only.root.ca.cert.pem ファイルがある場合、必要なファイルの名前は azure-iot-test-only.root.ca.cert (1).pem である可能性があります。
 
 1. Visual Studio Code の新しいインスタンスを開きます。
 
-1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
+1. 「**ファイル**」メニューで、「**フォルダーを開く**」をクリックします。
 
-1. 「**フォルダーを開く**」 ダイアログで、ラボ 14 「**スターター**」 フォルダーに移動し、「**ChildIoTDevice**」 をクリックしてから 「**フォルダーの選択**」 をクリックします。
+1. 「**フォルダーを開く**」ダイアログで、ラボ 14 「**スターター**」フォルダーに移動し、「**ChildIoTDevice**」をクリックしてから 「**フォルダーの選択**」をクリックします。
 
-    「Explorer」 ウィンドウにプロジェクト ファイルが一覧表示されるはずです。
+    「エクスプローラー」ペインにプロジェクト ファイルが一覧表示されるはずです。
 
-1. Visual Studio Code の **「EXPLORER」** ウィンドウで **「ChildIoTDevice.cs」** をクリックします。
+1. 「Visual Studio Code **エクスプローラー**」ペインで、「**Program.cs**」をクリックします。
 
-1. **「ChildIoTDevice.cs」** ファイルで、`s_connectionString` 変数の宣言を探します。
+1. 「**Program.cs**」ファイルで、**connectionString** 変数の宣言を探します。
 
-1. プレースホルダーの値を **ChildDevice1** IoT デバイスのプライマリ接続文字列に置き換えます。
+1. プレースホルダーの値を **sensor-th-0084** IoT デバイスのプライマリ接続文字列に置き換えます。
 
-1. 次のように、`GatewayHostName` プロパティを含むように接続文字列の値を変更します。
+1. 割り当てられた **connectionString** 値を **GatewayHostName** プロパティに追加し、GatewayHostName の値をIoT Edge ゲートウェイ デバイスの完全な DNS 名に設定します。
 
-    `GatewayHostName` プロパティは、IoT Edge ゲートウェイ (`IoTEdgeGateway`) 仮想マシンの**パブリック IP アドレス**の値に設定する必要があります。
+    Edge ゲートウェイ デバイスの完全な DNS 名は、デバイス ID **vm-az220-training-gw0002-{your-id}** であり、指定したリージョンと Azure 商用クラウドドメイン名が追加されます (例: 「**.westus2.cloudapp.azure.com**」)。
 
-    更新された接続文字列は、次の形式と一致します。
+    完成した接続文字列値は、次の形式に一致する必要があります。
 
     ```text
-    HostName=<iot-hub-name>.azure-devices.net;DeviceId=DownstreamDevice1;SharedAccessKey=<iot-device-key>;GatewayHostName=<iot-edge-gateway-hostname>
+    HostName=<IoT-Hub-Name>.azure-devices.net;DeviceId=sensor-th-0072;SharedAccessKey=<Primary-Key-for-IoT-Device>;GatewayHostName=<DNS-Name-for-IoT-Edge-Device>
     ```
 
-    必ず上記フォーマットのプレースホルダーを、適切な値に置き換えてください。
+    上記のプレースホルダーを適切な値に置き換えてください。
 
-    * `<iot-hub-name>`: **Azure IoT Hub** の**名前** 。
-    * `<iot-device-key>`: IoT ハブにある IoT デバイス **ChildDevice1** のプライマリまたはセカンダリ **キー**。
-    * `<iot-edge-gateway-hostname>`: **IoTEdgeGateway** 仮想マシンの **IP アドレス** を入力します。
+    * **\<IoT-Hub-Name\>**: Azure IoT Hub の名前。
+    * **\<Primary-Key-for-IoT-Device\>**: Azure IoT Hub の **sensor-th-0084** IoT デバイスのプライマリ キー。
+    * **\<DNS-Name-for-IoT-Edge-Device\>**: **vm-az220-training-gw0002-{your-id}** Edge デバイスの Hostname 名。
 
-1. 「**ファイル**」 メニューの 「**上書き保存**」 をクリックします。   
+    **connectionString** 変数割り当てコードは、次のようになります。
 
-1. **「ビュー」** メニューで、 **「ターミナル」** をクリックします。
+    ```csharp
+    private readonly static string connectionString = "HostName=iot-az220-training-1119.azure-devices.net;DeviceId=sensor-th-0084;SharedAccessKey=ygNT/WqWs2d8AbVD9NAlxcoSS2rr628fI7YLPzmBdgE=;GatewayHostName=vm-az220-training-gw0002-{your-id}";
+    ```
 
-    **ターミナル** コマンド プロンプトに、 `/Starter/ChildIoTDevice` ディレクトリが表示されていることを確認します。
+1. 「**ファイル**」メニューの 「**上書き保存**」をクリックします。
+
+1. 「**表示**」メニューで、「**ターミナル**」をクリック します。
+
+    **ターミナル** コマンド プロンプトに、`/Starter/ChildIoTDevice` ディレクトリが表示されていることを確認します。
 
 1. **ChildIoTDevice** のシミュレートされたデバイスをビルドして実行するには、次のコマンドを入力します。
 
@@ -848,16 +654,16 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
     dotnet run
     ```
 
-    > **注意**: アプリがローカル コンピューターに **x.509 認定資格証**をインストールすると (それを使用して IoT Edge ゲートウェイを認証できるようになります)、認定資格証をインストールするかどうか確認するポップアップ ウィンドウが表示されることがあります。**「はい」** をクリックして、アプリが認定資格証をインストールできるようにします。
+    > **注**: アプリがローカル コンピューターに **X.509 認定資格証**をインストールすると (それを使用して IoT Edge ゲートウェイを認証できるようになります)、認定資格証をインストールするかどうか確認するポップアップ ウィンドウが表示されることがあります。「**はい**」をクリックして、アプリが認定資格証をインストールできるようにします。
 
 1. ターミナルに表示される出力に注意してください。
 
-    シミュレートされたデバイスが実行されると、コンソール出力に Azure IoT Edge ゲートウェイに送信されるイベントが表示されます。
+    シミュレートされたデバイスが実行されると、コンソールの出力に、Azure IoT Edge ゲートウェイに送信されているイベントが表示されます。
 
     ターミナル出力は次のようになります。
 
     ```cmd/sh
-    IoT Hub Quickstarts #1 - Simulated device. Ctrl-C to exit.
+    IoT Hub C# Simulated Cave Device. Ctrl-C to exit.
 
     User configured CA certificate path: azure-iot-test-only.root.ca.cert.pem
     Attempting to install CA certificate: azure-iot-test-only.root.ca.cert.pem
@@ -868,19 +674,19 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
     11/27/2019 4:18:29 AM > Sending message: {"temperature":32.81164186439088,"humidity":72.6606041624493}
     ```
 
-1. 次の演習に進む間、シミュレートされたデバイスを実行中のままにします。
+1. 次の演習に進むときは、シミュレートされたデバイスを実行したままにします。
 
-### 演習 8: デバイス接続とオフライン サポートのテスト
+#### タスク 2: デバイス接続とオフライン サポートをテストする
 
-この演習では、**IoTEdgeGateway** の IoT Edge の透過的なケートウェイを介して Azure IoT Hub に送信されている **ChildIoTDevice** からのイベントを監視します。次に、**IoTEdgeGateway** と Azure IoT Hub の間の接続を中断し、製品利用統計情報が子 IoT デバイスから IoT Edge ゲートウェイに今もなお送信されることを確認します。この後、Azure IoT Hub との接続を再開し、IoT Edge ゲートウェイが Azure IoT Hub への製品利用統計情報の送信を再開することを監視します。
+このタスクでは、**vm-az220-training-gw0002-{your-id}** の IoT Edge の透過的なケートウェイを介して Azure IoT Hub に送信されている **sensor-th-0084** からのイベントを監視します。次に、**vm-az220-training-gw0002-{your-id}** と Azure IoT Hub の間の接続を中断し、テレメトリが子 IoT デバイスから IoT Edge ゲートウェイに今もなお送信されることを確認します。この後、Azure IoT Hub との接続を再開し、IoT Edge ゲートウェイが Azure IoT Hub への製品利用統計情報の送信を再開することを監視します。
 
-1. 必要に応じて、Azure アカウントの認証情報を使用して Azure portal にログインします。
+1. 必要な場合は、お使いの Azure アカウントの資格情報を使用して Azure portal にログインします。
 
-    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントでログインしていることを確認してください。
+    複数の Azure アカウントをお持ちの場合は、このコースで使用するサブスクリプションに関連付けられているアカウントを使用してログインしていることを確認してください。
 
-1. Azure portal のツール バーで、**「Cloud Shell」** をクリックします。
+1. Azure portal のツール バーで、「**Cloud Shell**」をクリックします。
 
-    「環境」 ドロップダウンが 「**Bash**」 に設定されていることを確認します。
+    「環境」ドロップダウンが 「**Bash**」に設定されていることを確認します。
 
 1. Cloud Shell コマンド プロンプトで、Azure IoT Hub によって受信されるイベントの監視を開始するには、次のコマンドを入力します。
 
@@ -888,11 +694,11 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
     az iot hub monitor-events --hub-name iot-az220-training-{your-id}
     ```
 
-    `{Your-ID}` プレースホルダーは必ず、Azure IoT Hub インスタンスの一意のサフィックスに置き換えてください。
+    `{your-id}` プレースホルダーは必ず、Azure IoT Hub インスタンスの一意のサフィックスに置き換えてください。
 
-1. Azure IoT Hub に送信される **ChildDevice1** から得られる製品利用統計情報に注意してください。
+1. Azure IoT Hub に送信される **sensor-th-0084** から得られる製品利用統計情報に注意してください。
 
-    **ChildDevice1** のシミュレートされたデバイス アプリケーションは、製品利用統計情報を IoT Edge 透過ゲートウェイ仮想マシン **IoTEdgeGateway** に送信するように構成されており、その後、製品利用統計情報は Azure IoT Hub に送信される点に留意してください。
+    **sensor-th-0084** のシミュレートされたデバイス アプリケーションは、製品利用統計情報を **vm-az220-training-gw0002-{your-id}** IoT Edge 透過ゲートウェイ仮想マシンに送信するように構成されており、その後、製品利用統計情報は Azure IoT Hub に送信される点に留意してください。
 
     Cloud Shell は、次のようなイベント メッセージの表示を開始します。
 
@@ -900,43 +706,52 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
     Starting event monitor, use ctrl-c to stop...
     {
         "event": {
-            "origin": "ChildDevice1",
-            "payload": "{\"temperature\":20.30307372114764,\"humidity\":72.6844747889249}"
+            "origin": "sensor-th-0072",
+            "module": "",
+            "interface": "",
+            "component": "",
+            "payload": "{\"temperature\":29.995470051651573,\"humidity\":70.47896838303608}"
         }
     }
     {
         "event": {
-            "origin": "ChildDevice1",
-            "payload": "{\"temperature\":31.73955729079412,\"humidity\":78.56052768349673}"
+            "origin": "sensor-th-0072",
+            "module": "",
+            "interface": "",
+            "component": "",
+            "payload": "{\"temperature\":28.459910635584922,\"humidity\":60.49697355390386}"
         }
     }
     ```
 
-    > **注意**: 次に、 **オフライン**機能をテストする必要があります。  これを行うには、 **IoTEdgeGateway** デバイスをオフラインにする必要があります。これは Azure で実行されている仮想マシンであるため、 VM の **ネットワーク セキュリティ グループ**に**アウトバウンド規則**を追加することで、シミュレートすることができます。
+    > **注**: 次に、 **オフライン**機能をテストする必要があります。これを行うには、**vm-az220-training-gw0002-{your-id}** デバイスをオフラインにする必要があります。これは Azure で実行されている仮想マシンであるため、 VM の **ネットワーク セキュリティ グループ**に**アウトバウンド規則**を追加することで、シミュレートすることができます。
 
-1. **Azure portal** で、ダッシュボードに移動し **AZ-220-IoTEdge-RG** リソース グループ タイルを表示します。
+#### Task3: トラフィックをブロックする規則の追加
 
-1. リソースの一覧で、仮想マシン **AZ220EdgeVM{YOUR-ID}** の**ネットワーク セキュリティ グループ**を開くには、 **AZ220EdgeVM{YOUR-ID}NSG** をクリックします。
+1. **Azure portal** で、ダッシュボードに移動し **rg-az220vm** リソース グループ タイルを表示します。
 
-1. **「ネットワーク セキュリティ グループ」** ブレードで、**「設定」** の下にあるナビゲーション ウィンドウ左側の、**「アウトバウンドセキュリティ規則」** をクリック します。
+1. リソースの一覧で、仮想マシン **vm-az220-training-gw0002-{your-id}** の**ネットワーク セキュリティ グループ**を開くには、**vm-az220-training-gw0002-{your-id}NSG** をクリックします。
 
-1. ブレードの上部にある **「追加」** をクリックします。
+1. 「**ネットワーク セキュリティ グループ**」ブレードで、「**設定]** の下にあるナビゲーション ウィンドウ左側の、「**アウトバウンドセキュリティ規則**」をクリックします。
 
-1. **「アウトバウンド セキュリティ規則の追加」** ウィンドウで、次のフィールド値を設定します。
+1. ブレードの上部にある 「**+ 追加**」をクリックします。
 
-    * Destination port ranges: **\***
-    * アクション: **Deny**
+1. 「**アウトバウンド セキュリティ規則の追加**」ウィンドウで、次のフィールド値を設定します。
+
+    * 宛先ポート範囲: **\***
+    * アクション: **拒否**
+    * 優先順位: 100
     * 名前: **DenyAll**
 
     **Destination port range** の "**\***" は、すべてのポートに規則を適用します。
 
-1. ブレードの最下部で、「**追加**」 をクリックします。
+1. ブレードの最下部で、「**追加**」をクリックします。
 
-1. Azure portal の **Cloud Shell** に戻ります。 
+1. Azure portal の **Cloud Shell** に戻ります。
 
-1. まだ `az iot hub monitor-events` コマンドが実行中の場合は、**Ctrl + C** を押して終了します。 
+1. まだ `az iot hub monitor-events` コマンドが実行中の場合は、**Ctrl + C** を押して終了します。
 
-1. Cloud Shell コマンド プロンプトで `ssh` を使用し、 VM **IoTEdgeGateway** に接続するには、次のコマンドを入力します。
+1. Cloud Shell コマンド プロンプトで `ssh` を使用し、VM **vm-az220-training-gw0002-{your-id}** に接続するには、次のコマンドを入力します。
 
     ```sh
     ssh <username>@<ipaddress>
@@ -944,19 +759,19 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
 
     プレースホルダーを、 `ssh` コマンドに必要な値に置き換えてください。
 
-    | プレースホルダー | 置換する値 |
+    | プレースホルダー | 置き換える値 |
     | :--- | :--- |
     | `<username>` | **IoTEdgeGateaway** 仮想マシンの管理者**ユーザー名**。これは **vmadmin** でなくてはなりません。
-    | `<ipaddress>` | **IoTEdgeGateway** 仮想マシンの**パブリック IP アドレス**。
+    | `<ipaddress>` | **vm-az220-training-gw0002-{your-id}** 仮想マシンの**パブリック IP アドレス**。
 
-1. プロンプトが表示されたら、**IoTEdgeGateway** の管理者**パスワード**を入力します。
+1. プロンプトが表示されたら、**vm-az220-training-gw0002-{your-id}** の管理者**パスワード**を入力します。
 
-    `ssh` 経由で **IoTEdgeGateway** VM に接続すると、コマンド プロンプトが更新されます。
+    `ssh` 経由で **vm-az220-training-gw0002-{your-id}** VM に接続すると、コマンド プロンプトが更新されます。
 
 1. IoT Edge ランタイムをリセットするには、次のコマンドを入力します。
 
     ```sh
-    sudo systemctl restart iotedge
+    sudo iotedge system restart
     ```
 
     これにより、IoT Edge ランタイムは Azure IoT Hub サービスから強制的に切断され、再接続を試みます。
@@ -974,7 +789,7 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
     iotedge list
     ```
 
-1. **IoTEdgeGateway** を使用して `ssh` セッションを終了するには、次のコマンドを入力します。
+1. **vm-az220-training-gw0002- {your-id}** との `ssh` セッションを終了するには、次のコマンドを入力します。
 
     ```cmd/sh
     exit
@@ -986,32 +801,32 @@ IoT Edge ハブ モジュール (`$edgeHub`) は、デバイスで実行され�
     az iot hub monitor-events --hub-name iot-az220-training-{your-id}
     ```
 
-    `{Your-ID}` プレースホルダーは必ず、Azure IoT Hub インスタンスの一意のサフィックスに置き換えてください。
+    `{your-id}` プレースホルダーは必ず、Azure IoT Hub インスタンスの一意のサフィックスに置き換えてください。
 
 1. **Azure IoT Hub** によって受信されるイベントがなくなったことに注意してください。
 
-1. 「Visual Studio Code」 ウィンドウに切り替えます。
+1. 「Visual Studio Code」ウィンドウに切り替えます。
 
-1. **ChildIoTDevice** のシミュレートされたデバイス アプリケーションが実行されている**ターミナル**を開き、デバイスの製品利用統計情報がまだ **IoTEdgeGateway** に送信されていることを確認します。
+1. **sensor-th-0084** のシミュレートされたデバイス アプリケーションが実行されている**ターミナル**を開き、デバイスの製品利用統計情報がまだ **vm-az220-training-gw0002-{your-id}** に送信されていることを確認します。
 
-    この時点で **IoTEdgeGateway** は Azure IoT Hub から切断されます。引き続き **ChildIoTDevice** による接続を認証し、子デバイスからデバイス製品利用統計情報を受信します。この間、IoT Edge ゲートウェイは、IoT Edge ゲートウェイ デバイス ストレージで子デバイスからのイベント製品利用統計情報を構成済みとして格納します。
+    この時点で **vm-az220-training-gw0002-{your-id}** は Azure IoT Hub から切断されます。引き続き **sensor-th-0084** による接続を認証し、子デバイスからデバイス製品利用統計情報を受信します。この間、IoT Edge ゲートウェイは、子デバイスからのイベント テレメトリを、構成に従って IoT Edge ゲートウェイ デバイスの記憶域に保存します。
 
-1. **「Azure portal」** ウィンドウに切り替えます。
+1. 「**Azure portal**」ウィンドウに切り替えます。
 
-1. **IoTEdgeGateway** の **「ネットワーク セキュリティ グループ」** ブレードに戻ります。
+1. **vm-az220-training-gw0002-{your-id}** の「**ネットワーク セキュリティ グループ**」ブレードに戻ります。
 
-1. 左側のナビゲーション メニューの **「設定」** で、**「送信セキュリティ規則」** をクリックします。
+1. 左側のナビゲーション メニューの 「**設定**」で、「**送信セキュリティ規則**」をクリックします。
 
-1. **「送信セキュリティ規則」** ウィンドウで **「DenyAll」** をクリックします。
+1. 「**送信セキュリティ規則**」ウィンドウで 「**DenyAll**」をクリックします。
 
-1. **「DenyAll」** ウィンドウで、NSG からこの拒否規則を削除するには、**「削除」** をクリックします。
+1. 「**DenyAll**」ウィンドウで、NSG からこの拒否規則を削除するには、「**削除**」をクリックします。
 
-1. **「セキュリティ規則の削除」** プロンプトで **「はい」** をクリックします。
+1. 「**セキュリティ規則の削除**」プロンプトで「**はい**」をクリックします。
 
-    **IoTEdgeGateway** IoT Edge 透過ゲートウェイは Azure IoT Hub との接続を再開できるようになると、接続されているすべての子デバイスからのイベント製品利用統計情報を同期します。これには、切断中に送信できずに保存された製品利用統計情報と、ゲートウェイに送信中のすべての製品利用統計情報が含まれます。
+    **vm-az220-training-gw0002-{your-id}** IoT Edge 透過ゲートウェイは Azure IoT Hub との接続を再開できるようになると、接続されているすべての子デバイスからのイベント製品利用統計情報を同期します。これには、切断中に送信できずに保存された製品利用統計情報と、ゲートウェイに送信中のすべての製品利用統計情報が含まれます。
 
-    > **注意**:  IoT Edge ゲートウェイ デバイスは、Azure IoT Hub に再接続し、製品利用統計情報の送信を再開するのに数分かかります。数分後、 `az iot hub monitor-events` コマンド出力にイベントが再び表示されます。
+    > **注**:  IoT Edge ゲートウェイ デバイスが Azure IoT Hub に再接続し、テレメトリの送信を再開するまでには数分かかることがあります。待機後、 `az iot hub monitor-events` コマンド出力にイベントが再び表示されます。
 
-このラボでは、Azure IoT Edge ゲートウェイが IoT ハブへの接続が中断されたために送信できないメッセージを保持するのに、ローカル ストレージを利用することを実演しました。接続が再確立されると、メッセージが送信されるのがわかりました。
+このラボでは、Azure IoT Edge ゲートウェイが IoT Hub への接続が中断されたために送信できないメッセージを保持するのに、ローカル ストレージを利用することを実演しました。接続が再確立されると、メッセージが送信されるのがわかりました。
 
-> **注意**:  ラボの作業が完了したら、ターミナルで **Ctrl + C** キーを押して、デバイス シミュレーション アプリケーションを終了します。
+> **注**:  ラボの作業が完了したら、ターミナルで **Ctrl + C** キーを押して、デバイス シミュレーション アプリケーションを終了します。

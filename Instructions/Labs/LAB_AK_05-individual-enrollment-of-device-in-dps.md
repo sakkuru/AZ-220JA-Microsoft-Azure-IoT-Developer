@@ -220,7 +220,7 @@ DPS を使用してデバイス プロビジョニングとプロビジョニン
    - Allfiles
      - Labs
        - 05-Individual Enrollment of Device in DPS
-         - Starter
+         - Final
 
 1. 「**フォルダーを開く**」 ダイアログで、「**ContainerDevice**」 をクリックしてから、「**フォルダーの選択**」 をクリックします。
 

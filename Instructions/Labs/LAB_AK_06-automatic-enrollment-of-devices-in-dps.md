@@ -384,14 +384,14 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
    両方の証明書ファイルすべてをコピーすることで時間を節約できますが、最初にビルドするコード プロジェクトでは、最初の証明書である `sensor-thl-2000-device.cert.pfx` のみを使用します。
 
-1. ファイル エクスプローラーで、ラボ 6 (DPS のデバイスの自動登録) の Starter フォルダーに移動します。
+1. ファイル エクスプローラーで、ラボ 6 (DPS のデバイスの自動登録) の Final フォルダーに移動します。
 
    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
    - Allfiles
      - Labs
        - 06-Automatic Enrollment of Devices in DPS
-         - Starter
+         - Final
            - ContainerDevice
 
 1. ContainerDevice フォルダーを開いた状態で、コピーしたデバイス証明書ファイルを貼り付けます。
@@ -402,7 +402,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. **「ファイル」** メニューで、**「フォルダを開く」** を選択します。
 
-1. **「フォルダーを開く」** ダイアログで、ラボ 6 (DPS のデバイスの自動登録) の Starter フォルダーに移動します。
+1. **「フォルダーを開く」** ダイアログで、ラボ 6 (DPS のデバイスの自動登録) の Final フォルダーに移動します。
 
 1. 「**ContainerDevice**」 をクリックし、「**フォルダーの選択**」 をクリックします。
 
@@ -493,7 +493,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「**ターミナル**」 メニューで、「**新しいターミナル**」 をクリックします。
 
-1. ターミナル コマンド プロンプトで、コードが正しくビルドされることを確認するには、「**dotnetbuild**」と入力します
+1. ターミナル コマンド プロンプトで、コードが正しくビルドされることを確認するには、「**dotnet build**」と入力します
 
    ビルド エラーが表示された場合は、次の演習に進む前に、今すぐ修正してください。必要に応じて講師と協力してください。
 
@@ -505,14 +505,14 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. Windows ファイル エクスプローラーを開きます。
 
-1. ファイル エクスプローラーで、ラボ 6 (DPS のデバイスの自動登録) の Starter フォルダーに移動します。
+1. ファイル エクスプローラーで、ラボ 6 (DPS のデバイスの自動登録) の Final フォルダーに移動します。
 
    _ラボ 3: 開発環境の設定_:ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
    - Allfiles
      - Labs
        - 06-Automatic Enrollment of Devices in DPS
-         - Starter
+         - Final
 
 1. **「ContainerDevice」** を右クリックし、**「コピー」** をクリックします。
 
@@ -530,7 +530,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
 
-1. ラボ 6 の Starter フォルダーに移動します。
+1. ラボ 6 の Final フォルダーに移動します。
 
 1. 「**ContainerDevice2001**」 をクリックし、「**フォルダーの選択**」 をクリックします。
 
@@ -583,7 +583,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. 「**ファイル**」 メニューで、「**フォルダーを開く**」 をクリックします。
 
-1. ラボ 6 の Starter フォルダーに移動します。
+1. ラボ 6 の Final フォルダーに移動します。
 
 1. 「**ContainerDevice**」 をクリックし、「**フォルダーの選択**」 をクリックします。
 
@@ -595,7 +595,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
    次のようなメッセージが表示されます。
 
-   `Allfiles\Labs\06-Automatic Enrollment of Devices in DPS\Starter\ContainerDevice>`
+   `Allfiles\Labs\06-Automatic Enrollment of Devices in DPS\Final\ContainerDevice>`
 
 1. **ContainerDevice** プロジェクトをビルドして実行するには、次のコマンドを入力します。
 
@@ -670,7 +670,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. Visual Studio Code ウィンドウの 「**ファイル**」 メニューで 「**フォルダーを開く**」 をクリックします。
 
-1. ラボ 6 の Starter フォルダーに移動します。
+1. ラボ 6 の Final フォルダーに移動します。
 
 1. 「**ContainerDevice2001**」 をクリックし、「**フォルダーの選択**」 をクリックします。
 
@@ -682,7 +682,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
    次のようなメッセージが表示されます。
 
-   `Allfiles\Labs\06-Automatic Enrollment of Devices in DPS\Starter\ContainerDevice2001>`
+   `Allfiles\Labs\06-Automatic Enrollment of Devices in DPS\Final\ContainerDevice2001>`
 
 1. **ContainerDevice** プロジェクトをビルドして実行するには、次のコマンドを入力します。
 
@@ -887,8 +887,8 @@ Contoso の資産の監視および追跡ソリューションに対する現在
    ProvisioningClient AssignedHub: ; DeviceID:
    Unhandled exception. System.Exception: DeviceRegistrationResult.Status is NOT 'Assigned'
    at ContainerDevice.Program.ProvisionDevice(ProvisioningDeviceClient provisioningDeviceClient, SecurityProviderX509Certificate security) in C:\Users\howdc\Allfiles\Labs\06-Automatic Enrollment of Devices
-   in DPS\Starter\ContainerDevice2004\Program.cs:line 107
-   at ContainerDevice.Program.Main(String[] args) in C:\Users\howdc\Allfiles\Labs\06-Automatic Enrollment of Devices in DPS\Starter\ContainerDevice2004\Program.cs:line 49
+   in DPS\Final\ContainerDevice2004\Program.cs:line 107
+   at ContainerDevice.Program.Main(String[] args) in C:\Users\howdc\Allfiles\Labs\06-Automatic Enrollment of Devices in DPS\Final\ContainerDevice2004\Program.cs:line 49
    at ContainerDevice.Program.<Main>(String[] args)
    ```
 
@@ -956,7 +956,7 @@ Contoso の資産の監視および追跡ソリューションに対する現在
 
 1. ContainerDevice コードのプロジェクトがある Visual Studio Code 画面に切り替えます。
 
-   Visual Studio Code を前の演習の後に閉じていれば、Visual Studio Code を使用してラボ 6 Starter フォルダーを開きます。
+   Visual Studio Code を前の演習の後に閉じていれば、Visual Studio Code を使用してラボ 6 Final フォルダーを開きます。
 
 1. 「Visual Studio Code **ビュー**」 メニューで、「**ターミナル**」 をクリックします。
 

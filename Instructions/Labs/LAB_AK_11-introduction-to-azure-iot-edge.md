@@ -174,7 +174,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. 「**Azure にデプロイする**」を選択します。
 
-   [![Azure にデプロイする](media/deploytoazure.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fbicep%2FAllfiles%2FARM%2Flab11a.json)
+   [![Azure にデプロイする](media/deploytoazure.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fmaster%2FAllfiles%2FARM%2Flab11a.json)
 
 1. メッセージが表示されたら、**Azure portal** にログインします。
 
@@ -310,7 +310,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
    カスタム モジュールの名前を「tempsensor」と命名します
 
-1. 「**イメージ URI**」の下に「**asaedgedockerhubtest/asa-edge-test-module:simulated-temperature-sensor**」と入力します。
+1. 「**イメージ URI**」の下に「**mcr.microsoft.com/azureiotedge-simulated-temperature-sensor**」と入力します。
 
    > **注**: このイメージは、このテスト シナリオをサポートするために製品グループによって提供される Docker Hub で公開されたイメージです。
 

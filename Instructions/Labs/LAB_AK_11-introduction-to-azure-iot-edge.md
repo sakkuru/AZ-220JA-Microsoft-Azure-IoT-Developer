@@ -541,9 +541,9 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. 左側のナビゲーション メニューの「**ジョブ トポロジ**」で、「**入力**」をクリックします。
 
-1. 「**入力**」ペインで、「**ストリーム入力の追加**」をクリックしてから、「**Event Hub**」をクリックします。
+1. 「**入力**」ペインで、「**ストリーム入力の追加**」をクリックしてから、「**Edge Hub**」をクリックします。
 
-1. 「**Edge Hub**」ペインの「**入力エイリアス**」フィールドに、「**温度**」を入力します。
+1. 「**Edge Hub**」ペインの「**入力エイリアス**」フィールドに、「**temperature**」を入力します。
 
 1. 「**イベントのシリアル化形式**」ドロップダウンで、**JSON** が選択されていることを確認します。
 
@@ -563,13 +563,13 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. 「**出力**」ペインで、「**+ 追加**」をクリックしてから、「**Edge Hub**」をクリックします。
 
-1. 「**Edge Hub**」ペインの「**出力エイリアス**」フィールドに、「**警告**」と入力します。
+1. 「**Edge Hub**」ペインの「**出力エイリアス**」フィールドに、「**alert**」と入力します。
 
 1. 「**イベントのシリアル化形式**」ドロップダウンで、**JSON** が選択されていることを確認します。
 
    Stream Analytics は、メッセージ形式を理解する必要があります。JSON は標準形式ですが、サービスでは CSV もサポートされています。
 
-1. 「**形式**」ドロップダウンで、「**改行区切り**」が選択されていることを確認します。
+1. 「**フォーマット**」ドロップダウンで、「**改行区切り**」が選択されていることを確認します。
 
 1. 「**エンコード**」ドロップダウンで、**UTF-8** が選択されていることを確認します。
 
@@ -609,8 +609,6 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 1. 「**ストレージ アカウントの設定**」で、「**サブスクリプションから Blob Storage/ADLS Gen2 を選択**」が選択されていることを確認します。
 
 1. 「**ストレージ アカウント**」ドロップダウンで、**az220store{your-id}** ストレージ アカウントが選択されていることを確認します。
-
-> **すること**: コンテナー手順は存在しません。
 
 1. 「**コンテナー**」で「**新規作成**」をクリックし、コンテナーの名前として「**jobdefinition**」を入力します。
 
@@ -667,13 +665,13 @@ IoT Edge デバイスにデプロイされるように Stream Analytics ジョ�
 1. 定義されている既定のルートを次の 3 つのルートに置き換えます。
 
    - Route 1
-     - NAME: **telemetryToCloud**
+     - 名前: **telemetryToCloud**
      - 値: `FROM /messages/modules/tempsensor/* INTO $upstream`
    - Route 2
-     - NAME: **alertsToReset**
+     - 名前: **alertsToReset**
      - 値: `FROM /messages/modules/asa-az220-training-{your-id}/* INTO BrokeredEndpoint("/modules/tempsensor/inputs/control")`
    - Route 3
-     - NAME: **telemetryToAsa**
+     - 名前: **telemetryToAsa**
      - 値: `FROM /messages/modules/tempsensor/* INTO BrokeredEndpoint("/modules/asa-az220-training-{your-id}/inputs/temperature")`
 
    > **注**: `asa-az220-training-{your-id}` プレースホルダーを Azure Stream Analytics ジョブ モジュールの名前に必ず置き換えてください。モジュールとその名前のリストを表示するために「**前へ**」をクリックしてから、このステップに戻るために「**次へ**」をクリックします。

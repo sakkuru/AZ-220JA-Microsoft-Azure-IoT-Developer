@@ -616,7 +616,7 @@ VM の最初の起動時に、IoT Edge を構成するスクリプトが実行�
 
 1. **connectionString** 変数の宣言を見つけて、プレースホルダー値を **sensor-th-0072** IoT デバイスのプライマリ接続文字列に置き換えます。
 
-1. 割り当てられた **connectionString** 値を **GatewayHostName** プロパティに追加し、GatewayHostName の値を IoT Edge ゲートウェイ デバイスの完全な DNS 名に設定します。
+1. 割り当てられた **connectionString** 値に **GatewayHostName** プロパティを追加します。GatewayHostName の値は IoT Edge ゲートウェイ デバイスの完全な DNS 名です。
 
    Edge ゲートウェイ デバイスの完全な DNS 名は、デバイス ID **vm-az220-training-gw0001-{your-id}** であり、指定したリージョンと Azure 商用クラウドドメイン名が追加されます (例: 「**.westus2.cloudapp.azure.com**」)。
 

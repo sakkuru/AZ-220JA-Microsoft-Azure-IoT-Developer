@@ -203,10 +203,10 @@ Azure Time Series Insights (TSI) は、IoT ソリューションのデータを�
 
     _ラボ 3: 開発環境の設定_: ZIP ファイルをダウンロードしてコンテンツをローカルに抽出することで、ラボ リソースを含む GitHub リポジトリを複製しました。抽出されたフォルダー構造には、次のフォルダー パスが含まれます。
 
-    * すべてのファイル
-      * ラボ
-          * 10-Time Series Insights でタイムスタンプ付きデータを探索および分析する
-            * スターター
+    * Allfiles
+      * Labs
+          * 10-Explore and analyze time stamped data with Time Series Insights
+            * Starter
 
 1. 「**フォルダーを開く**」ダイアログで、「**ContainerSimulation**」をクリックしてから、「**フォルダーの選択**」をクリックします。
 

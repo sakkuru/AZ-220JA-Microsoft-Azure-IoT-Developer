@@ -45,11 +45,11 @@ Azure IoT ソリューションに Time Series Insights を追加することを
 | :---------------- | :----------------------------- |
 | リソース グループ | `rg-az220`                     |
 | IoT Hub           | `iot-az220-training-{your-id}` |
-| デバイス ID       | `sensor-th-truck0001`          |
-| デバイス ID       | `sensor-th-airplane0001`       |
-| デバイス ID       | `sensor-th-container0001`      |
+| デバイス ID       | `sensor-th-truck0001`(対称キー)          |
+| デバイス ID       | `sensor-th-airplane0001`(対称キー)       |
+| デバイス ID       | `sensor-th-container0001`(対称キー)      |
 
-これらのリソースが使用可能であることを確認するには、次のタスクを実行します。
+必要に応じて、リソースの作成とデバイスの登録を行なってください。以下の手順を実行することでも作成と登録が可能です。
 
 1. 「**Azure にデプロイする**」を選択します。
 

@@ -340,9 +340,10 @@ Visual Studio Code と Azure CLI ツールはどちらも、開発者がソリ�
 
 Microsoft は、ラボ リソース ファイルへのアクセスを提供する GitHub リポジトリを作成しました。これらのファイルを開発環境でローカルに保有することが、一部の場合では必要であり、その他の多くの場合では便利です。このタスクでは、開発環境内でリポジトリの内容をダウンロードして抽出します。
 
-1. Web ブラウザーで、次の場所に移動します。[https://github.com/MicrosoftLearning/AZ-220JA-Microsoft-Azure-IoT-Developer/](https://github.com/MicrosoftLearning/AZ-220JA-Microsoft-Azure-IoT-Developer/)
+1. Web ブラウザーで、次の場所に移動します。
+  https://github.com/MicrosoftLearning/AZ-220-Microsoft-Azure-IoT-Developer
 
-1. ページの右側で、**「複製またはダウンロード」** をクリックし、**「ZIP のダウンロード」** をクリックします。
+1. 「Code」ボタンをクリックし、**「Download ZIP」** をクリックします。
 
 1. ZIP ファイルを開発環境に保存するには、**「保存」** をクリックします。
 

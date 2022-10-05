@@ -174,7 +174,7 @@ Azure IoT Edge ソリューションのプロトタイプ作成を任されま�
 
 1. 「**Azure にデプロイする**」を選択します。
 
-   [!Azure にデプロイする](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fmaster%2FAllfiles%2FARM%2Flab11a.json)
+   [Azure にデプロイする](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftLearning%2FAZ-220-Microsoft-Azure-IoT-Developer%2Fmaster%2FAllfiles%2FARM%2Flab11a.json)
 
 1. メッセージが表示されたら、**Azure portal** にログインします。
 
